@@ -10,7 +10,7 @@ It allows you to run and create scripts for GTA IV in any .NET language out ther
 Not everything from IV-SDK was ported over to IV-SDK .NET yet. More things will be ported/added from time to time. You can make this process quicker when you fork this project, and create a **[Pull Request](https://github.com/ClonkAndre/IV-SDK-DotNet/pulls)** with the added things.  
 
 ## Documentation
-Not created yet. Check out the TestScript to see how you could create a script.  
+Not created yet. Check out the [TestScript](https://github.com/ClonkAndre/IV-SDK-DotNet/tree/main/TestScript) to see how you could create a script.  
   
 The process is pretty easy tho: Create a new C# Class Library (choose whatever .NET language you would like to develop a script for), add a reference to **IVSDKDotNetWrapper.dll** and derive your main class from "**IVSDKDotNetWrapper.Script**". If you want to compile the script you have to add **.ivsdk** to your **Assembly name** in the Project **Properties** so it will be compiled as "**YourScript.ivsdk.dll**".
 
