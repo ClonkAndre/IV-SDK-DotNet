@@ -3,7 +3,7 @@
 </p>
 
 #
-IV-SDK .NET is a .NET Wrapper created by [ItsClonkAndre](https://github.com/ClonkAndre) for the orignial [IV-SDK](https://github.com/Zolika1351/iv-sdk) made by [Zolika1351](https://github.com/Zolika1351).  
+IV-SDK .NET is a .NET Wrapper created by [ItsClonkAndre](https://github.com/ClonkAndre) for the original [IV-SDK](https://github.com/Zolika1351/iv-sdk) made by [Zolika1351](https://github.com/Zolika1351).  
 It allows you to run and create scripts for GTA IV in any .NET language out there.
 
 ## Limitations
