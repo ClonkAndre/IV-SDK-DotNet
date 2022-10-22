@@ -11,10 +11,11 @@ Not everything from IV-SDK was ported over to IV-SDK .NET yet. More things will 
 
 ## Documentation
 Not created yet. Check out the TestScript to see how you could create a script.  
+  
 The process is pretty easy tho: Create a new C# Class Library (choose whatever .NET language you would like to develop a script for), add a reference to **IVSDKDotNetWrapper.dll** and derive your main class from "**IVSDKDotNetWrapper.Script**". If you want to compile the script you have to add **.ivsdk** to your **Assembly name** in the Project **Properties** so it will be compiled as "**YourScript.ivsdk.dll**".
 
 ## Requirements
-- IV-SDK .NET requires GTA IV 1080 or 1070 like IV-SDK does. Other versions won't be supported.
+- IV-SDK .NET requires GTA IV 1080 or 1070 like IV-SDK does. Other versions are not supported.
 - ASI loader.
 - Visual C++ 2005 Redistributable x86 which should already be installed on your PC if you've downgraded your game with the [GTA IV Downgrader](https://gtaforums.com/topic/976691-gta-iv-downgrader).
 - DirectX June 2010 SDK which should also already be installed on your PC if you've downgraded your game with the [GTA IV Downgrader](https://gtaforums.com/topic/976691-gta-iv-downgrader).
