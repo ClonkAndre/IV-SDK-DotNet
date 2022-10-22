@@ -11,7 +11,7 @@ Not everything from IV-SDK was ported over to IV-SDK .NET yet. More things will 
 
 ## Documentation
 Not created yet. Check out the TestScript to see how you could create a script.  
-The process is pretty easy tho: Create a new C# Class Library (choose whatever .NET language you would like to develop a script for), add a reference to **IVSDKDotNetWrapper.dll** and derive your main class from "**IVSDKDotNetWrapper.Script**". If you want to compile the script you have to add **.ivsdk** to your **Assembly name** in the Project **Properties** so it will be compiled as "**YourScript.ivsdk.dll**". 
+The process is pretty easy tho: Create a new C# Class Library (choose whatever .NET language you would like to develop a script for), add a reference to **IVSDKDotNetWrapper.dll** and derive your main class from "**IVSDKDotNetWrapper.Script**". If you want to compile the script you have to add **.ivsdk** to your **Assembly name** in the Project **Properties** so it will be compiled as "**YourScript.ivsdk.dll**".
 
 ## Requirements
 - IV-SDK .NET requires GTA IV 1080 or 1070 like IV-SDK does. Other versions won't be supported.
