@@ -1,7 +1,6 @@
 #pragma once
 
 #include "EventArgs.h"
-#include "CGame.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -21,17 +20,62 @@ namespace IVSDKDotNet {
 		Script();
 		~Script() {};
 
+		/// <summary>
+		/// Gets called after the constructor so you can safely call any functions in here without having to worry about stuff not being initialized yet.
+		/// </summary>
+		event EventHandler^ Initialized;
+
+		/// <summary>
+		/// Gets called every frame when in-game.
+		/// </summary>
 		event EventHandler^ Tick;
+
+		/// <summary>
+		/// Gets called when game is loading or when switching from one episode to another.
+		/// </summary>
 		event EventHandler^ GameLoad;
+
+		/// <summary>
+		/// Gets called before GameLoad when game is loading or when switching from one episode to another.
+		/// </summary>
 		event EventHandler^ GameLoadPriority;
+
+		/// <summary>
+		/// Gets called when game is loading, switching from one episode to another or when loading the same save game again.
+		/// </summary>
 		event EventHandler^ MountDevice;
+
+		/// <summary>
+		/// Gets called EVERYTIME even when in main menu.
+		/// </summary>
 		event EventHandler^ Drawing;
+
+		/// <summary>
+		/// Gets called everytime when in-game.
+		/// </summary>
 		event EventHandler^ ProcessCamera;
+
+		/// <summary>
+		/// Gets called everytime when in-game.
+		/// </summary>
 		event EventHandler^ ProcessAutomobile;
+
+		/// <summary>
+		/// Gets called EVERYTIME even when in main menu.
+		/// </summary>
 		event EventHandler^ ProcessPad;
+
+		/// <summary>
+		/// Gets called when a key was released.
+		/// </summary>
 		event KeyEventHandler^ KeyUp;
+
+		/// <summary>
+		/// Gets called when a key was pressed.
+		/// </summary>
 		event KeyEventHandler^ KeyDown;
 
+		void RaiseInitialized()					{ Initialized(this, EventArgs::Empty); }
 		void RaiseTick()						{ Tick(this, EventArgs::Empty); }
 		void RaiseGameLoad()					{ GameLoad(this, EventArgs::Empty); }
 		void RaiseGameLoadPriority()			{ GameLoadPriority(this, EventArgs::Empty); }
@@ -42,17 +86,26 @@ namespace IVSDKDotNet {
 		void RaiseProcessPad()					{ ProcessPad(this, EventArgs::Empty); }
 		void RaiseKeyUp(KeyEventArgs^ args)		{ KeyUp(this, args); }
 		void RaiseKeyDown(KeyEventArgs^ args)	{ KeyDown(this, args); }
+		
+		/// <summary>
+		/// Starts a new asynchronous task.
+		/// </summary>
+		/// <param name="funcToExecute">The function that should be executed.</param>
+		/// <returns>The Guid of the just created Task which can be used to control the Task. If Guid is empty then Task could not get created.</returns>
+		Guid StartNewTask(Func<Object^>^ funcToExecute);
 
 		/// <summary>
-		/// Does not work yet. Planned for future updates.
+		/// Waits in the Task for the specified amount of time.
 		/// </summary>
-		Guid StartNewTask(Action^ actionToExecute);
+		/// <param name="id">The ID of the Task.</param>
+		/// <param name="waitTimeInMilliseconds">The time to wait in milliseconds.</param>
+		void WaitInTask(Guid id, int waitTimeInMilliseconds);
 
 		/// <summary>
-		/// Starts a new Timer.
+		/// Starts a new asynchronous Timer.
 		/// </summary>
-		/// <param name="interval"></param>
-		/// <param name="actionToExecute"></param>
+		/// <param name="interval">The interval how fast the Timer should run.</param>
+		/// <param name="actionToExecute">The action that should be executed each Timer Tick.</param>
 		/// <returns>The Guid of the just created Timer which can be used to control the Timer. If Guid is empty then Timer could not get created.</returns>
 		Guid StartNewTimer(int interval, Action^ actionToExecute);
 
@@ -167,7 +220,7 @@ namespace IVSDKDotNet {
 			virtual void PrintWarnToConsole(String^ str)	abstract;
 			virtual void PrintErrorToConsole(String^ str)	abstract;
 
-			virtual bool RegisterConsoleCommand(String^ name, Action<array<String^>^>^ actionToExecute) abstract;
+			virtual bool RegisterConsoleCommand(Guid fromScript, String^ name, Action<array<String^>^>^ actionToExecute) abstract;
 			virtual bool ExecuteConsoleCommand(String^ name)	abstract;
 
 			// Script
@@ -192,8 +245,10 @@ namespace IVSDKDotNet {
 			virtual int GetActiveScriptsCount()				abstract;
 
 			// Task
-			virtual Guid StartNewTask(Guid forScript, Action^ actionToExecute)	abstract;
+			virtual Guid StartNewTask(Guid forScript, Func<Object^>^ actionToExecute)	abstract;
 			virtual Guid StartNewTimer(Guid forScript, int interval, Action^ actionToExecute)	abstract;
+
+			virtual void WaitInTask(Guid id, int waitTimeInMilliseconds) abstract;
 
 		};
 

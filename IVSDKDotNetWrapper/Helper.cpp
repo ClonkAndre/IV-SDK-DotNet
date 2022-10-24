@@ -59,6 +59,17 @@ namespace IVSDKDotNet {
 		return degrees * float(System::Math::PI / 180.0);
 	}
 
+	Vector3 Helper::GetPositionInFrontOfEntity(Vector3 entityPos, Vector3 entityDir, float multiplier)
+	{
+		return Vector3::Add(entityPos, Vector3::Multiply(entityDir, multiplier));
+	}
+
+	Vector3 Helper::HeadingToDirection(float heading)
+	{
+		float h = heading * (float)(Math::PI / 180);
+		return Vector3((float)-Math::Sin(h), (float)Math::Cos(h), 0.0F);
+	}
+
 	float Helper::Vector2Length(float X, float Y)
 	{
 		return (float)System::Math::Sqrt((X * X) + (Y * Y));

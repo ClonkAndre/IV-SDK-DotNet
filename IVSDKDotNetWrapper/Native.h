@@ -16,7 +16,7 @@ namespace IVSDKDotNet {
 			/// <param name="nativeHash"></param>
 			/// <param name="params"></param>
 			generic <typename T>
-			static void Call(eNativeHash nativeHash, ... array<T>^ params);
+			static void Call(NativeHash nativeHash, ... array<T>^ params);
 
 			/// <summary>
 			/// Does not work yet!
@@ -27,10 +27,14 @@ namespace IVSDKDotNet {
 			/// <param name="params"></param>
 			/// <returns></returns>
 			generic <typename R, typename T>
-			static R	Call(eNativeHash nativeHash, ... array<T>^ params);
+			static R	Call(NativeHash nativeHash, ... array<T>^ params);
 
 		};
 
+		/// <summary>
+		/// GTA IV Native Functions.
+		/// Functions with an underscore at the beginning will most likely crash the game.
+		/// </summary>
 		public ref class Natives
 		{
 		public:
@@ -121,6 +125,12 @@ namespace IVSDKDotNet {
 				unsigned int p;
 				NativeInvoke::Invoke<ScriptVoid>(NATIVE_GET_CHAR_ARMOUR, ped, &p);
 				pArmour = p;
+			}
+			static void GET_CHAR_COORDINATES(Ped ped, [OutAttribute] Vector3% pos)
+			{
+				float x, y, z;
+				NativeInvoke::Invoke<ScriptVoid>(NATIVE_GET_CHAR_COORDINATES, ped, &x, &y, &z);
+				pos = Vector3(x, y, z);
 			}
 			static void GET_CHAR_COORDINATES(Ped ped, [OutAttribute] float% pX, [OutAttribute] float% pY, [OutAttribute] float% pZ)
 			{

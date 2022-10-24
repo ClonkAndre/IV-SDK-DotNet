@@ -36,9 +36,14 @@ namespace IVSDKDotNet {
 		if (Manager::ManagerScript::s_Instance) Manager::ManagerScript::s_Instance->PrintErrorToConsole(str);
 	}
 
-	bool CGame::Console::RegisterCommand(String^ name, Action<array<String^>^>^ actionToExecute)
+	bool CGame::Console::RegisterCommand(Script^ addFor, String^ name, Action<array<String^>^>^ actionToExecute)
 	{
-		if (Manager::ManagerScript::s_Instance) return Manager::ManagerScript::s_Instance->RegisterConsoleCommand(name, actionToExecute);
+		if (!addFor)
+			return false;
+		if (!Manager::ManagerScript::s_Instance)
+			return false;
+			
+		return Manager::ManagerScript::s_Instance->RegisterConsoleCommand(addFor->ID, name, actionToExecute);
 	}
 	bool CGame::Console::ExecuteCommand(String^ name)
 	{

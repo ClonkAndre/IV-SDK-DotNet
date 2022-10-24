@@ -1,5 +1,7 @@
 #pragma once
 
+using namespace System::Numerics;
+
 class Native_CVector
 {
 public:
@@ -17,79 +19,25 @@ public:
 	unsigned int flags; // ???
 };
 
-namespace IVSDKDotNet {
+class Native_CSimpleTransform
+{
+public:
+	Native_CVector m_vPosition;												// 000-00C
+	float m_fHeading;														// 00C-010
+};
+VALIDATE_SIZE(Native_CSimpleTransform, 0x10);
 
-	public value struct CVector
-	{
-	public:
-		CVector(float x, float y, float z);
+class Native_CMatrix
+{
+public:
+	Native_CVector_pad right;	// 00-10
+	Native_CVector_pad up;		// 10-20
+	Native_CVector_pad at;		// 20-30
+	Native_CVector_pad pos;		// 30-40
+};
 
-		property float X {
-			public:		float get()				{ return m_fX; }
-			private:	void set(float value)	{ m_fX = value; }
-		}
-
-		property float Y {
-			public:		float get()				{ return m_fY; }
-			private:	void set(float value)	{ m_fY = value; }
-		}
-
-		property float Z {
-			public:		float get()				{ return m_fZ; }
-			private:	void set(float value)	{ m_fZ = value; }
-		}
-
-	private:
-		float m_fX, m_fY, m_fZ;
-	};
-
-	public value struct CVector2D
-	{
-	public:
-		CVector2D(float x, float y);
-
-		property float X {
-			public:		float get()				{ return m_fX; }
-			private:	void set(float value)	{ m_fX = value; }
-		}
-
-		property float Y {
-			public:		float get()				{ return m_fY; }
-			private:	void set(float value)	{ m_fY = value; }
-		}
-
-	private:
-		float m_fX, m_fY;
-	};
-
-	public value struct CVector_pad
-	{
-	public:
-		CVector_pad(unsigned int flags, float x, float y, float z);
-
-		property unsigned int Flags {
-			public:		unsigned int get()				{ return m_iFlags; }
-			private:	void set(unsigned int value)	{ m_iFlags = value; }
-		}
-
-		property float X {
-			public:		float get()				{ return m_fX; }
-			private:	void set(float value)	{ m_fX = value; }
-		}
-
-		property float Y {
-			public:		float get()				{ return m_fY; }
-			private:	void set(float value)	{ m_fY = value; }
-		}
-
-		property float Z {
-			public:		float get()				{ return m_fZ; }
-			private:	void set(float value)	{ m_fZ = value; }
-		}
-
-	private:
-		unsigned int m_iFlags; // ???
-		float m_fX, m_fY, m_fZ;
-	};
-
-}
+class Native_CQuaternion
+{
+public:
+	float x, y, z, w;
+};

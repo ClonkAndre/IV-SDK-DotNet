@@ -76,10 +76,10 @@ typedef int Iterator;
 typedef int IterationSet;
 typedef int GUIWindow;
 
-typedef union vector3
-{
-	struct { float x, y, z; };
-	float v[3];
-} vector3;
-
-typedef vector3 Vector3;
+//typedef union vector3
+//{
+//	struct { float x, y, z; };
+//	float v[3];
+//} vector3;
+//
+//typedef vector3 Vector3;

@@ -75,10 +75,11 @@ namespace IVSDKDotNet {
 			/// <summary>
 			/// Registers a new console command that you can execute by its name in the IV-SDK DotNet console.
 			/// </summary>
+			/// <param name="addFor">The script the console command belongs to.</param>
 			/// <param name="name">The name of this command. (Name is not case sensitive)</param>
 			/// <param name="actionToExecute">The action that should be executed if the command gets executed.</param>
 			/// <returns>True if the command got registered. False if the command already exists, or if the given name is null or whitespace.</returns>
-			static bool RegisterCommand(String^ name, Action<array<String^>^>^ actionToExecute);
+			static bool RegisterCommand(Script^ addFor, String^ name, Action<array<String^>^>^ actionToExecute);
 
 			/// <summary>
 			/// Executes a command registered in the IV-SDK DotNet console by its name.
@@ -93,7 +94,7 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// Checks if the specified key is pressed.
 		/// </summary>
-		/// <param name="Key">: The key to check if it's pressed.</param>
+		/// <param name="key">: The key to check if it's pressed.</param>
 		/// <returns>True if the key is pressed, otherwise false.</returns>
 		static bool IsKeyPressed(Keys key);
 

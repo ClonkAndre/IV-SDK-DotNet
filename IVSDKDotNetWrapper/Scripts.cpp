@@ -33,10 +33,10 @@ namespace IVSDKDotNet {
 		ID = Guid::NewGuid();
 	}
 
-	Guid Script::StartNewTask(Action^ actionToExecute)
+	Guid Script::StartNewTask(Func<Object^>^ funcToExecute)
 	{
 		if (ManagerScript::s_Instance)
-			return ManagerScript::s_Instance->StartNewTask(this->ID, actionToExecute);
+			return ManagerScript::s_Instance->StartNewTask(this->ID, funcToExecute);
 
 		return Guid::Empty;
 	}
@@ -46,6 +46,11 @@ namespace IVSDKDotNet {
 			return ManagerScript::s_Instance->StartNewTimer(this->ID, interval, actionToExecute);
 
 		return Guid::Empty;
+	}
+
+	void Script::WaitInTask(Guid id, int waitTimeInMilliseconds)
+	{
+		if (ManagerScript::s_Instance) ManagerScript::s_Instance->WaitInTask(id, waitTimeInMilliseconds);
 	}
 
 	void Script::ShowSubtitleMessage(String^ str, uint32_t time)
