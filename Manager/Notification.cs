@@ -5,7 +5,7 @@ using System.Drawing;
 using IVSDKDotNet.Native;
 
 namespace Manager {
-    internal class Notification {
+    public class Notification {
 
         #region Variables
         private Main managerInstance;
@@ -104,7 +104,7 @@ namespace Manager {
         #endregion
 
         #region Constructor
-        public Notification(Main instance)
+        internal Notification(Main instance)
         {
             managerInstance = instance;
             Items = new List<NotificationItem>();

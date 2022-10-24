@@ -119,6 +119,10 @@ namespace Manager {
             if (taskController != null) taskController.Cancel();
         }
 
+        public void Wait(int time)
+        {
+            if (taskController != null) taskController.Token.WaitHandle.WaitOne(time);
+        }
         public void Pause()
         {
             ShouldPause = true;
@@ -216,7 +220,7 @@ namespace Manager {
                 }
             }
             catch (Exception ex) {
-                Console.cInstance.PrintError(string.Format("An error occured in Timer {0} for Script {1}. Details: {2}", at.ID.ToString(), at.Owner.Name, ex.ToString()));
+                Main.managerInstance.console.PrintError(string.Format("An error occured in Timer {0} for Script {1}. Details: {2}", at.ID.ToString(), at.Owner.Name, ex.ToString()));
             }
 
             return null;
@@ -294,6 +298,7 @@ namespace Manager {
         public FieldInfo[] PublicFields;
         public Script Script;
         public List<AdvancedTask> ScriptTasks;
+        public List<string> ConsoleCommands;
 
         private Task cleanUpTask;
         #endregion
@@ -306,10 +311,11 @@ namespace Manager {
             PublicFields = EntryPoint.GetFields();
             Script = script;
             ScriptTasks = new List<AdvancedTask>();
+            ConsoleCommands = new List<string>();
             Running = true;
         }
         #endregion
-
+        
         #region Method
         public void Abort(bool showMessage)
         {
@@ -319,6 +325,13 @@ namespace Manager {
             Running = false;
             cleanUpTask = Task.Run(() => {
                 try {
+                    // Delete all console commands registered by this script
+                    for (int i = 0; i < ConsoleCommands.Count; i++) {
+                        string command = ConsoleCommands[i];
+                        if (Main.managerInstance.console.Commands.ContainsKey(command)) Main.managerInstance.console.Commands.Remove(command);
+                    }
+                    ConsoleCommands.Clear();
+
                     // Stop all active script tasks
                     if (ScriptTasks.Count != 0) {
 
@@ -344,7 +357,7 @@ namespace Manager {
 
                         // Log how long this process took
                         TimeSpan timeResult = (taskCleanUpStartTime - DateTime.Now);
-                        Console.cInstance.PrintDebug(string.Format("{0} active tasks stopped for script {1}. This process took {2}.{3} seconds.", scriptTasks.Length.ToString(), Name, timeResult.Seconds, timeResult.Milliseconds));
+                        Main.managerInstance.console.PrintDebug(string.Format("{0} active tasks stopped for script {1}. This process took {2}.{3} seconds.", scriptTasks.Length.ToString(), Name, timeResult.Seconds, timeResult.Milliseconds));
 
                     }
                     ScriptTasks.Clear();
@@ -360,13 +373,13 @@ namespace Manager {
                 }
             }).ContinueWith(r => {
                 if (r.Result != null) {
-                    Console.cInstance.PrintError(string.Format("An error occured while aborting script {0}. Details: {1}", Name, r.Result.ToString()));
+                    Main.managerInstance.console.PrintError(string.Format("An error occured while aborting script {0}. Details: {1}", Name, r.Result.ToString()));
                 }
                 else {
-                    if (showMessage) Console.cInstance.Print(string.Format("Successfully aborted script {0}.", Name));
+                    if (showMessage) Main.managerInstance.console.Print(string.Format("Successfully aborted script {0}.", Name));
                 }
 
-                // Clean everything
+                // Clean everything else
                 ID = Guid.Empty;
                 Name = null;
                 FullPath = null;
@@ -380,13 +393,15 @@ namespace Manager {
     public class Main : ManagerScript {
 
         #region Variables
+        internal static Main managerInstance;
+
         public List<FoundScript> ActiveScripts;
         public static List<AdvancedTask> LocalTasks;
         private List<DelayedAction> delayedActions;
 
         public UpdateChecker UpdateChecker;
-        private Notification notification;
-        private Console console;
+        public Notification notification;
+        public Console console;
 
         private KeyWatchDog keyWatchDog;
 
@@ -414,11 +429,13 @@ namespace Manager {
         #region Constructor
         public Main()
         {
+            managerInstance = this;
+
             ActiveScripts = new List<FoundScript>();
             LocalTasks = new List<AdvancedTask>();
             delayedActions = new List<DelayedAction>();
 
-            UpdateChecker = new UpdateChecker("0.1", "https://www.dropbox.com/s/smaz6ij8dkzd7nh/version.txt?dl=1");
+            UpdateChecker = new UpdateChecker("0.2", "https://www.dropbox.com/s/smaz6ij8dkzd7nh/version.txt?dl=1");
             UpdateChecker.VersionCheckFailed += UpdateChecker_VersionCheckFailed;
             UpdateChecker.VersionCheckCompleted += UpdateChecker_VersionCheckCompleted;
 
@@ -426,9 +443,9 @@ namespace Manager {
             console = new Console(this);
 
 #if DEBUG
-            console.Print("IV-SDK .NET DEBUG version 0.1 by ItsClonkAndre");
+            console.Print("IV-SDK .NET DEBUG version 0.2 by ItsClonkAndre");
 #else
-            console.Print("IV-SDK .NET Release version 0.1 by ItsClonkAndre");
+            console.Print("IV-SDK .NET Release version 0.2 by ItsClonkAndre");
 #endif
 
             keyWatchDog = new KeyWatchDog();
@@ -481,7 +498,7 @@ namespace Manager {
                     }
                     catch (Exception ex) {
                         notification.ShowNotification(NotificationType.Error, DateTime.Now.AddSeconds(8), string.Format("An error occured in {0} Tick.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
-                        console.PrintError(string.Format("An error occured while processing Tick event for Script {0}. Aborting script. Details: {1}", fs.Name, ex.ToString()));
+                        console.PrintError(string.Format("An error occured while processing Tick event for script {0}. Aborting script. Details: {1}", fs.Name, ex.ToString()));
                         AbortScript(fs.ID);
                     }
                 }
@@ -669,9 +686,9 @@ namespace Manager {
             console.PrintError(str);
         }
 
-        public override bool RegisterConsoleCommand(string name, Action<string[]> actionToExecute)
+        public override bool RegisterConsoleCommand(Guid fromScript, string name, Action<string[]> actionToExecute)
         {
-            return console.RegisterCommand(name, actionToExecute);
+            return console.RegisterCommand(fromScript, name, actionToExecute);
         }
         public override bool ExecuteConsoleCommand(string name)
         {
@@ -735,7 +752,11 @@ namespace Manager {
                                     foundScript = new FoundScript(script.ID, containedType, script);
                                     foundScript.Name = assemblyName;
                                     foundScript.FullPath = path;
-                                    ActiveScripts.Add(foundScript);
+
+                                    ActiveScripts.Add(foundScript); // Add script to ActiveScripts list.
+
+                                    // Call script initialize event
+                                    foundScript.Script.RaiseInitialized();
                                 }
 
                                 return;
@@ -756,7 +777,7 @@ namespace Manager {
 
             }
             catch (Exception ex) {
-                console.PrintError(string.Format("An unknown exception occured while trying to load script '{0}'. Details: {1}", Path.GetFileName(path), ex.ToString()));
+                console.PrintError(string.Format("An exception occured while trying to load script '{0}'. Details: {1}", Path.GetFileName(path), ex.ToString()));
             }
         }
         private Assembly ScriptDomain_AssemblyResolve(object sender, ResolveEventArgs args)
@@ -795,7 +816,6 @@ namespace Manager {
                         case eAssembliesLocation.Custom:
 
                             fileFullPath = string.Format("{0}\\{1}.dll", customDir, assemblyName);
-                            console.PrintDebug(fileFullPath);
                             if (File.Exists(fileFullPath))
                                 return Assembly.UnsafeLoadFrom(fileFullPath);
 
@@ -813,10 +833,17 @@ namespace Manager {
             return null;
         }
 
+        public void AddConsoleCommandToScript(Guid id, string command)
+        {
+            FoundScript s = GetFoundScript(id);
+            if (s != null) {
+                if (!s.ConsoleCommands.Contains(command)) s.ConsoleCommands.Add(command);
+            }
+        }
+
         public override void AbortScripts(bool showMessage)
         {
             if (ActiveScripts.Count != 0) {
-                // Todo: Also remove custom console commands registered by script
                 ActiveScripts.ForEach(x => x.Abort(showMessage));
                 ActiveScripts.Clear();
             }
@@ -830,6 +857,22 @@ namespace Manager {
             delayedActions.Insert(delayedActions.Count, new DelayedAction(id, purpose, executeIn, actionToExecute, parameter));
         }
 
+        public override void WaitInTask(Guid id, int waitTimeInMilliseconds)
+        {
+            // ActiveScripts
+            for (int i = 0; i < ActiveScripts.Count; i++) {
+                for (int s = 0; s < ActiveScripts[i].ScriptTasks.Count; s++) {
+                    AdvancedTask at = ActiveScripts[i].ScriptTasks[s];
+                    if (at.ID == id) at.Wait(waitTimeInMilliseconds);
+                }
+            }
+
+            // local tasks
+            for (int i = 0; i < LocalTasks.Count; i++) {
+                AdvancedTask at = LocalTasks[i];
+                if (at.ID == id) at.Wait(waitTimeInMilliseconds);
+            }
+        }
         public void AbortTaskOrTimer(Guid id)
         {
             // ActiveScripts
@@ -923,8 +966,25 @@ namespace Manager {
             return ActiveScripts.Count;
         }
 
-        public override Guid StartNewTask(Guid forScript, Action actionToExecute)
+        public override Guid StartNewTask(Guid forScript, Func<object> funcToExecute)
         {
+            FoundScript s = GetFoundScript(forScript);
+
+            if (s != null) {
+                AdvancedTask task = new AdvancedTask(Guid.NewGuid(), s, TaskUseCase.Custom);
+
+                bool r = task.Start(TaskCreationOptions.None, funcToExecute, (AdvancedTask.InvokeData args) => {
+                    StartDelayedAction(args.STask.ID, string.Format("Disposing and deleting task {0} of script {1}. CFSM: TaskDisposer in AdvancedTask class", args.STask.ID.ToString(), args.STask.Owner.Name), DateTime.Now.AddSeconds(5), AdvancedTask.TaskDisposer, args.STask);
+                });
+
+                if (r) {
+                    s.ScriptTasks.Add(task);
+                    return task.ID;
+                }
+
+                return Guid.Empty;
+            }
+
             return Guid.Empty;
         }
         public override Guid StartNewTimer(Guid forScript, int interval, Action actionToExecute)

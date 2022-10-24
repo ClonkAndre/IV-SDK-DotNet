@@ -8,11 +8,10 @@ using IVSDKDotNet.Enums;
 using IVSDKDotNet.Native;
 
 namespace Manager {
-    internal class Console {
+    public class Console {
 
         #region Variables
         private Main managerInstance;
-        public static Console cInstance;
 
         public List<Line> Items;
         public List<string> InputHistory;
@@ -224,7 +223,7 @@ namespace Manager {
             return Color.FromArgb(alpha, 255, 255, 255);
         }
 
-        public bool RegisterCommand(string name, Action<string[]> actionToExecute)
+        public bool RegisterCommand(Guid fromScript, string name, Action<string[]> actionToExecute)
         {
             string nameToLower = name.ToLower();
 
@@ -234,6 +233,7 @@ namespace Manager {
                 return false;
 
             Commands.Add(nameToLower, actionToExecute);
+            if (fromScript != Guid.Empty) managerInstance.AddConsoleCommandToScript(fromScript, nameToLower);
 
             return true;
         }
@@ -264,7 +264,7 @@ namespace Manager {
         private void HelpCommand(string[] args)
         {
             Print("- - - - - - - Commands - - - - - - -");
-            Print("Clear               - Clears the IV-SDK DotNet console.");
+            Print("Clear               - Clears the IV-SDK .NET console.");
             Print("CheckForUpdates     - Checks if there is a new update for IV-SDK .NET available.");
             Print("Autosave            - Triggers an auto save.");
             Print("Save                - Opens the save menu.");
@@ -275,9 +275,8 @@ namespace Manager {
         #endregion
 
         #region Constructor
-        public Console(Main main)
+        internal Console(Main main)
         {
-            cInstance = this;
             managerInstance = main;
 
             input = string.Empty;
@@ -290,14 +289,14 @@ namespace Manager {
 
             // Create commands dictionary and register default commands
             Commands = new Dictionary<string, Action<string[]>>();
-            RegisterCommand("Help",                 (string[] args) => { HelpCommand(args); });
-            RegisterCommand("Clear",                (string[] args) => { Clear(); });
-            RegisterCommand("CheckForUpdates",      (string[] args) => { managerInstance.UpdateChecker.CheckForUpdates(false); });
-            RegisterCommand("Autosave",             (string[] args) => { Natives.DO_AUTO_SAVE(); });
-            RegisterCommand("Save",                 (string[] args) => { Natives.ACTIVATE_SAVE_MENU(); });
-            RegisterCommand("AbortScripts",         (string[] args) => { managerInstance.AbortScripts(true); });
-            RegisterCommand("ReloadScripts",        (string[] args) => { managerInstance.LoadScripts(); });
-            RegisterCommand("GetRunningScripts",    (string[] args) => { Print(string.Format("There are currently {0} scripts running.", managerInstance.ActiveScripts.Count.ToString())); ; });
+            RegisterCommand(Guid.Empty, "Help",                 (string[] args) => { HelpCommand(args); });
+            RegisterCommand(Guid.Empty, "Clear",                (string[] args) => { Clear(); });
+            RegisterCommand(Guid.Empty, "CheckForUpdates",      (string[] args) => { managerInstance.UpdateChecker.CheckForUpdates(false); });
+            RegisterCommand(Guid.Empty, "Autosave",             (string[] args) => { Natives.DO_AUTO_SAVE(); });
+            RegisterCommand(Guid.Empty, "Save",                 (string[] args) => { Natives.ACTIVATE_SAVE_MENU(); });
+            RegisterCommand(Guid.Empty, "AbortScripts",         (string[] args) => { managerInstance.AbortScripts(true); });
+            RegisterCommand(Guid.Empty, "ReloadScripts",        (string[] args) => { managerInstance.LoadScripts(); });
+            RegisterCommand(Guid.Empty, "GetRunningScripts",    (string[] args) => { Print(string.Format("There are currently {0} scripts running.", managerInstance.ActiveScripts.Count.ToString())); ; });
         }
         #endregion
 
