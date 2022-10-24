@@ -101,7 +101,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\IVSDKDotNet\IVSDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -117,7 +117,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\IVSDKDotNet\IVSDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -140,17 +140,27 @@
     <ClInclude Include="AddressSetter.h" />
     <ClInclude Include="audRadioAudioEntity.h" />
     <ClInclude Include="CClock.h" />
+    <ClInclude Include="CCustomShaderEffectBase.h" />
     <ClInclude Include="CCutsceneMgr.h" />
+    <ClInclude Include="CDraw.h" />
     <ClInclude Include="CdStream.h" />
+    <ClInclude Include="CDynamicEntity.h" />
+    <ClInclude Include="CEntity.h" />
     <ClInclude Include="CFileLoader.h" />
     <ClInclude Include="CFont.h" />
     <ClInclude Include="CHudColours.h" />
     <ClInclude Include="CLRBridge.h" />
     <ClInclude Include="CMenuManager.h" />
     <ClInclude Include="CNetwork.h" />
+    <ClInclude Include="CObject.h" />
+    <ClInclude Include="CPad.h" />
+    <ClInclude Include="CPed.h" />
     <ClInclude Include="CPedType.h" />
+    <ClInclude Include="CPhysical.h" />
+    <ClInclude Include="CPickups.h" />
     <ClInclude Include="CPlayerInfo.h" />
-    <ClInclude Include="CQuaternion.h" />
+    <ClInclude Include="CPool.h" />
+    <ClInclude Include="CPools.h" />
     <ClInclude Include="CRGBA.h" />
     <ClInclude Include="CShaderLib.h" />
     <ClInclude Include="CShadows.h" />
@@ -160,6 +170,7 @@
     <ClInclude Include="CVectors.h" />
     <ClInclude Include="CVisibilityPlugins.h" />
     <ClInclude Include="defines.h" />
+    <ClInclude Include="Direct3D.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="EventArgs.h" />
     <ClInclude Include="CGame.h" />
@@ -169,34 +180,46 @@
     <ClInclude Include="NativeHashes.h" />
     <ClInclude Include="NativeInvoke.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="phBound.h" />
+    <ClInclude Include="phConstrainedCollider.h" />
+    <ClInclude Include="phInstGta.h" />
     <ClInclude Include="rage.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scripts.h" />
+    <ClInclude Include="SettingsFile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AddressSetter.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="audRadioAudioEntity.cpp" />
-    <ClCompile Include="CClock.cpp" />
+    <ClCompile Include="CCustomShaderEffectBase.cpp" />
     <ClCompile Include="CCutsceneMgr.cpp" />
+    <ClCompile Include="CDraw.cpp" />
     <ClCompile Include="CdStream.cpp" />
+    <ClCompile Include="CDynamicEntity.cpp" />
+    <ClCompile Include="CEntity.cpp" />
     <ClCompile Include="CFileLoader.cpp" />
     <ClCompile Include="CFont.cpp" />
     <ClCompile Include="CHudColours.cpp" />
     <ClCompile Include="CLRBridge.cpp" />
     <ClCompile Include="CMenuManager.cpp" />
     <ClCompile Include="CNetwork.cpp" />
+    <ClCompile Include="CObject.cpp" />
+    <ClCompile Include="CPad.cpp" />
+    <ClCompile Include="CPed.cpp" />
     <ClCompile Include="CPedType.cpp" />
+    <ClCompile Include="CPhysical.cpp" />
+    <ClCompile Include="CPickups.cpp" />
     <ClCompile Include="CPlayerInfo.cpp" />
-    <ClCompile Include="CQuaternion.cpp" />
+    <ClCompile Include="CPools.cpp" />
     <ClCompile Include="CRGBA.cpp" />
     <ClCompile Include="CShaderLib.cpp" />
     <ClCompile Include="CShadows.cpp" />
     <ClCompile Include="CTheScripts.cpp" />
     <ClCompile Include="CTimeCycle.cpp" />
     <ClCompile Include="CTimer.cpp" />
-    <ClCompile Include="CVectors.cpp" />
     <ClCompile Include="CVisibilityPlugins.cpp" />
+    <ClCompile Include="Direct3D.cpp" />
     <ClCompile Include="EventArgs.cpp" />
     <ClCompile Include="CGame.cpp" />
     <ClCompile Include="Helper.cpp" />
@@ -208,8 +231,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="phBound.cpp" />
+    <ClCompile Include="phConstrainedCollider.cpp" />
+    <ClCompile Include="phInstGta.cpp" />
     <ClCompile Include="rage.cpp" />
     <ClCompile Include="Scripts.cpp" />
+    <ClCompile Include="SettingsFile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc" />
@@ -221,6 +248,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
