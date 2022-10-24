@@ -17,6 +17,7 @@ The process is pretty easy tho: Create a new C# Class Library (choose whatever .
 ## Requirements
 - IV-SDK .NET requires GTA IV 1080 or 1070 like IV-SDK does. Other versions are not supported.
 - ASI loader.
+- .NET Framework 4.7.2 (Should be installed on windows 10 version 1803 and up by default)
 - Visual C++ 2005 Redistributable x86 which should already be installed on your PC if you've downgraded your game with the [GTA IV Downgrader](https://gtaforums.com/topic/976691-gta-iv-downgrader).
 - DirectX June 2010 SDK which should also already be installed on your PC if you've downgraded your game with the [GTA IV Downgrader](https://gtaforums.com/topic/976691-gta-iv-downgrader).
 
