@@ -16,6 +16,7 @@ namespace TestScript {
         #region Constructor
         public Main()
         {
+            // Subscribe to script events
             Initialized += Main_Initialized;
             Tick += Main_Tick;
             KeyDown += Main_KeyDown;
