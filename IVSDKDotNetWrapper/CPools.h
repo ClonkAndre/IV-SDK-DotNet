@@ -3,11 +3,11 @@
 class Native_CPools
 {
 public:
-	static CPool<CPed>* PedPool() { return AddressSetter::GetRef<CPool<CPed>*>(0x14A82AC, 0x14CB03C); }
+	static CPool<CPed>* PedPool()			{ return AddressSetter::GetRef<CPool<CPed>*>(0x14A82AC, 0x14CB03C); }
+	static CPool<CVehicle>* VehiclePool()	{ return AddressSetter::GetRef<CPool<CVehicle>*>(0x1219240, 0xE52CD0); }
+	static CPool<CObject>* ObjectPool()		{ return AddressSetter::GetRef<CPool<CObject>*>(0xF50CE0, 0xE52B48); }
 
-	//static inline CPool<CVehicle>*& ms_pVehiclePool = AddressSetter::GetRef<CPool<CVehicle>*>(0x1219240, 0xE52CD0);
 	//static inline CPool<CBuilding>*& ms_pBuildingPool = AddressSetter::GetRef<CPool<CBuilding>*>(0x128FED0, 0xE4A5E8);
-	//static inline CPool<CObject>*& ms_pObjectPool = AddressSetter::GetRef<CPool<CObject>*>(0xF50CE0, 0xE52B48);
 	//static inline CPool<CCam>*& ms_pCameraPool = AddressSetter::GetRef<CPool<CCam>*>(0x1218020, 0xF68158);
 	//static inline CPool<CTask>*& ms_pTaskPool = AddressSetter::GetRef<CPool<CTask>*>(0x124B01C, 0x126FE3C);
 	//static inline CPool<CInteriorInst>*& ms_pInteriorInstPool = AddressSetter::GetRef<CPool<CInteriorInst>*>(0x125D2E4, 0xE54D74);
@@ -31,7 +31,11 @@ namespace IVSDKDotNet {
 	{
 	public:
 
-		static array<Ped>^ GetAllPedHandles();
+		// [System::ObsoleteAttribute]
+
+		static array<Ped>^		GetAllPedHandles();
+		static array<Vehicle>^	GetAllVehicleHandles();
+		static array<Entity>^	GetAllObjectHandles();
 
 	};
 

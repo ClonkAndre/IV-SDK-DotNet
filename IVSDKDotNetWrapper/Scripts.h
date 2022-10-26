@@ -185,11 +185,21 @@ namespace IVSDKDotNet {
 				void set(String^ value) { m_CustomAssembliesPath = value; }
 		}
 
+		/// <summary>
+		/// The settings file of this script.
+		/// </summary>
+		property SettingsFile^ Settings {
+			public: 
+				SettingsFile^ get()				{ return m_SettingsFile; }
+				void set(SettingsFile^ value)	{ m_SettingsFile = value; }
+		}
+
 	private:
 		Guid m_id;
 		AppDomain^ m_AppDomain;
 		eAssembliesLocation m_AssembliesLocation;
 		String^ m_CustomAssembliesPath;
+		SettingsFile^ m_SettingsFile;
 	};
 
 	/// <summary> Internal-only IV-SDK Manager stuff. </summary>

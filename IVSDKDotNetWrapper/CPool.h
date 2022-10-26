@@ -45,5 +45,4 @@ public:
 		return (T*)&m_pObjects[m_nEntrySize * slot];
 	}
 };
-// Todo: Port CPed
-//VALIDATE_SIZE(CPool<CPed>, 0x1C);
+VALIDATE_SIZE(CPool<CPed>, 0x1C);

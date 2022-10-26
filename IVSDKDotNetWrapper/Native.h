@@ -776,6 +776,12 @@ namespace IVSDKDotNet {
 				pColour1 = p1;
 				pColour2 = p2;
 			}
+			static void GET_CAR_COORDINATES(Vehicle vehicle, [OutAttribute] Vector3% pos)
+			{
+				float x, y, z;
+				NativeInvoke::Invoke< ScriptVoid>(NATIVE_GET_CAR_COORDINATES, vehicle, &x, &y, &z);
+				pos = Vector3(x, y, z);
+			}
 			static void GET_CAR_COORDINATES(Vehicle vehicle, [OutAttribute] float% pX, [OutAttribute] float% pY, [OutAttribute] float% pZ)
 			{
 				float x, y, z;
@@ -1243,6 +1249,12 @@ namespace IVSDKDotNet {
 				float p;
 				NativeInvoke::Invoke< ScriptVoid>(NATIVE_GET_OBJECT_ANIM_TOTAL_TIME, obj, ctx.marshal_as<const char*>(animname0), ctx.marshal_as<const char*>(animname1), &p);
 				time = p;
+			}
+			static void GET_OBJECT_COORDINATES(Entity obj, [OutAttribute] Vector3% pos)
+			{
+				float x, y, z;
+				NativeInvoke::Invoke< ScriptVoid>(NATIVE_GET_OBJECT_COORDINATES, obj, &x, &y, &z);
+				pos = Vector3(x, y, z);
 			}
 			static void GET_OBJECT_COORDINATES(Entity obj, [OutAttribute] float% pX, [OutAttribute] float% pY, [OutAttribute] float% pZ)
 			{

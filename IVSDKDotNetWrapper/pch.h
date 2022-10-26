@@ -35,6 +35,7 @@
 #include "NativeInvoke.h"
 #include "Native.h"
 
+#include "SettingsFile.h"
 #include "Scripts.h"
 
 #include "CPlayerInfo.h"

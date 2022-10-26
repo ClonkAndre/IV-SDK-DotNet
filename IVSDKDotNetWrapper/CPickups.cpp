@@ -3,6 +3,9 @@
 
 namespace IVSDKDotNet {
 
-
+	void CPickups::DoPickUpEffects()
+	{
+		Native_CPickups::DoPickUpEffects();
+	}
 
 }
