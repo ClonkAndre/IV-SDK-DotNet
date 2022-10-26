@@ -22,6 +22,7 @@ namespace Manager {
         private SizeF TextScale;
 
         // Input
+        public Keys OpenCloseKey;
         private string input;
         private bool showCaret;
         private Guid caretTimerID;
@@ -424,7 +425,7 @@ namespace Manager {
             }
 
             // Open/Close Console
-            if (e.KeyCode == Keys.F4) {
+            if (e.KeyCode == OpenCloseKey) {
                 if (IsConsoleVisible) {
                     Close();
                 }

@@ -404,7 +404,9 @@ namespace Manager {
         public Console console;
 
         private KeyWatchDog keyWatchDog;
+        private SettingsFile settings;
 
+        private string ivsdkdotnetPath, scriptsPath;
         private bool firstFrame = true;
         #endregion
 
@@ -431,11 +433,16 @@ namespace Manager {
         {
             managerInstance = this;
 
+            // Set paths
+            ivsdkdotnetPath = Application.StartupPath + "\\IVSDKDotNet";
+            scriptsPath = ivsdkdotnetPath + "\\scripts";
+
+            // Initialize manager stuff
             ActiveScripts = new List<FoundScript>();
             LocalTasks = new List<AdvancedTask>();
             delayedActions = new List<DelayedAction>();
 
-            UpdateChecker = new UpdateChecker("0.2", "https://www.dropbox.com/s/smaz6ij8dkzd7nh/version.txt?dl=1");
+            UpdateChecker = new UpdateChecker("0.3", "https://www.dropbox.com/s/smaz6ij8dkzd7nh/version.txt?dl=1");
             UpdateChecker.VersionCheckFailed += UpdateChecker_VersionCheckFailed;
             UpdateChecker.VersionCheckCompleted += UpdateChecker_VersionCheckCompleted;
 
@@ -443,14 +450,19 @@ namespace Manager {
             console = new Console(this);
 
 #if DEBUG
-            console.Print("IV-SDK .NET DEBUG version 0.2 by ItsClonkAndre");
+            console.Print("IV-SDK .NET DEBUG version 0.3 by ItsClonkAndre");
 #else
-            console.Print("IV-SDK .NET Release version 0.2 by ItsClonkAndre");
+            console.Print("IV-SDK .NET Release version 0.3 by ItsClonkAndre");
 #endif
 
             keyWatchDog = new KeyWatchDog();
             keyWatchDog.KeyDown += KeyWatchDog_KeyDown;
             keyWatchDog.KeyUp += KeyWatchDog_KeyUp;
+
+            // Load IV-SDK .NET settings
+            settings = new SettingsFile(string.Format("{0}\\config.ini", ivsdkdotnetPath));
+            if (!settings.Load()) console.PrintWarning("Could not load IV-SDK .NET config.ini! Using default settings.");
+            console.OpenCloseKey = settings.GetKey("Console", "OpenCloseKey", Keys.F4);
         }
         #endregion
 
@@ -699,8 +711,6 @@ namespace Manager {
         #region Methods
         public override void LoadScripts()
         {
-            string scriptsPath = Application.StartupPath + "\\IVSDKDotNet\\scripts";
-
             if (!Directory.Exists(scriptsPath)) {
                 Directory.CreateDirectory(scriptsPath);
                 return;
@@ -742,6 +752,13 @@ namespace Manager {
 
                                 // Register AssemblyResolve event
                                 script.ScriptDomain.AssemblyResolve += ScriptDomain_AssemblyResolve;
+
+                                // Check for script settings file
+                                string settingsFilePath = string.Format("{0}\\{1}.ini", scriptsPath, assemblyName);
+                                if (File.Exists(settingsFilePath)) {
+                                    script.Settings = new SettingsFile(settingsFilePath);
+                                    script.Settings.Load();
+                                }
 
                                 // Check if FoundScript with this assembly name already exists in ActiveScripts list
                                 FoundScript foundScript = GetFoundScript(assemblyName);
