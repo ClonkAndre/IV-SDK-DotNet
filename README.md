@@ -14,6 +14,10 @@ Not created yet. Check out the [TestScript](https://github.com/ClonkAndre/IV-SDK
   
 The process is pretty easy tho: Create a new C# Class Library (choose whatever .NET language you would like to develop a script for), add a reference to **IVSDKDotNetWrapper.dll** and derive your main class from "**IVSDKDotNetWrapper.Script**". If you want to compile the script you have to add **.ivsdk** to your **Assembly name** in the Project **Properties** so it will be compiled as "**YourScript.ivsdk.dll**".
 
+Very useful pages for looking up native functions
+- https://pastebin.com/n7CAnpZB
+- https://gtamods.com/wiki/List_of_native_functions_(GTA_IV)
+
 ## Requirements
 - IV-SDK .NET requires GTA IV 1080 or 1070 like IV-SDK does. Other versions are not supported.
 - ASI loader.
