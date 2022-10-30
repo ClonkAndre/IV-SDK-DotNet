@@ -55,9 +55,10 @@ namespace TestScript {
         // Runs every frame when in-game
         private void Main_Tick(object sender, EventArgs e)
         {
-            // Get player index and get player char
+            // Get player index, get player char and get char coordinates
             int playerID = CONVERT_INT_TO_PLAYERINDEX(GET_PLAYER_ID());
             GET_PLAYER_CHAR(playerID, out playerPed);
+            GET_CHAR_COORDINATES(playerPed, out Vector3 playerPos);
 
             // - - - - - - - Some tests - - - - - - -
 
@@ -74,6 +75,31 @@ namespace TestScript {
             //}
 
             //ShowSubtitleMessage(string.Format("Minute: {0}", MemoryAccess.GetRef<uint>(0xDD52FC, 0xD51690).ToString()));
+
+            // Place light that casts shadows far above the player
+            if (IsKeyPressed(Keys.I)) {
+                Vector3 lightPos = new Vector3(playerPos.X, playerPos.Y, playerPos.Z + 500f);
+                DRAW_CORONA(lightPos, 1900f, 1, 0f, Color.White); // Just a visualizer how far the light is actually up (It's very far up)
+                CShadows.StoreStaticShadow(true, lightPos, Color.White, 2f, 800f);
+            }
+
+            // Gets the nearest street node position from the players position
+            if (IsKeyPressed(Keys.U)) {
+                Vector3 res = CWorld.GetNextPositionOnStreet(playerPos);
+                DRAW_CHECKPOINT(res, 4f, Color.Green);
+            }
+
+            // Teleports all objects currently in the world to the players position. The physics matrix of the objects will stay untouched.
+            //if (IsKeyPressed(Keys.O)) {
+            //    CObject[] objs = CPools.GetAllObjects();
+            //    for (int i = 0; i < objs.Length; i++) {
+            //        CObject obj = objs[i];
+            //        if (obj != null) {
+            //            obj.Teleport(pos, true, true);
+            //        }
+            //    }
+            //}
+
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)
@@ -96,7 +122,7 @@ namespace TestScript {
 
             }
 
-            // Ped pool test
+            // Ped handle pool test
             if (e.KeyCode == Keys.NumPad7) {
 
                 // Explodes every ped except the player
@@ -118,7 +144,7 @@ namespace TestScript {
 
             }
 
-            // Vehicle pool test
+            // Vehicle handle pool test
             if (e.KeyCode == Keys.NumPad3) {
 
                 // Explodes every vehicle
@@ -140,7 +166,7 @@ namespace TestScript {
 
             }
 
-            // Object pool test
+            // Object handle pool test
             if (e.KeyCode == Keys.NumPad1) {
 
                 // Create explosion at object position
