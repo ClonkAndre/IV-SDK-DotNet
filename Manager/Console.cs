@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Numerics;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 
 using IVSDKDotNet.Enums;
@@ -43,13 +48,15 @@ namespace Manager {
         public struct Line
         {
             #region Variables
+            public DateTime AddTime;
             public eConsoleLogStyle Style;
             public string Text;
             #endregion
 
             #region Constructor
-            public Line(eConsoleLogStyle style, string text)
+            public Line(DateTime addTime, eConsoleLogStyle style, string text)
             {
+                AddTime = addTime;
                 Style = style;
                 Text = text;
             }
@@ -66,7 +73,7 @@ namespace Manager {
             IsConsoleVisible = true;
             NavigateToBottom();
 
-            caretTimerID = managerInstance.StartNewLocalTimer(600, () => {
+            caretTimerID = managerInstance.StartNewTimerInternel(600, () => {
                 showCaret = !showCaret;
             });
         }
@@ -96,10 +103,18 @@ namespace Manager {
             Items.Clear();
         }
 
+        private void WriteLogFile()
+        {
+            try {
+                File.WriteAllLines("IVSDKDotNet.log", Items.Select(x => string.Format("[{0}] {1}", x.AddTime.ToString(), x.Text)));
+            }
+            catch (Exception) { }
+        }
+
         private void Print(eConsoleLogStyle style, string str)
         {
             if (string.IsNullOrWhiteSpace(str)) {
-                Items.Add(new Line(style, ""));
+                Items.Add(new Line(DateTime.Now, style, ""));
                 NavigateToBottom();
                 return;
             }
@@ -116,11 +131,12 @@ namespace Manager {
                     if (tmp.Contains(Environment.NewLine)) { // Contains custom new line character
                         string[] arr = tmp.Split(splitStr, StringSplitOptions.RemoveEmptyEntries);
                         for (int i = 0; i < arr.Length; i++) {
-                            Items.Add(new Line(style, arr[i]));
+                            string line = arr[i];
+                            Items.Add(new Line(DateTime.Now, style, line));
                         }
                     }
                     else { // Contains no new line characters
-                        Items.Add(new Line(style, tmp));
+                        Items.Add(new Line(DateTime.Now, style, tmp));
                     }
                 } while (correctedStr.Length > 98);
                 
@@ -129,17 +145,21 @@ namespace Manager {
                     if (correctedStr.Contains(Environment.NewLine)) { // Contains custom new line character
                         string[] arr = correctedStr.Split(splitStr, StringSplitOptions.RemoveEmptyEntries);
                         for (int i = 0; i < arr.Length; i++) {
-                            Items.Add(new Line(style, arr[i]));
+                            string line = arr[i];
+                            Items.Add(new Line(DateTime.Now, style, line));
                         }
                     }
                     else { // Contains no new line characters
-                        Items.Add(new Line(style, correctedStr));
+                        Items.Add(new Line(DateTime.Now, style, correctedStr));
                     }
                 }
             }
             else {
-                Items.Add(new Line(style, str));
+                Items.Add(new Line(DateTime.Now, style, str));
             }
+
+            // Write log file
+            WriteLogFile();
 
             NavigateToBottom();
         }
@@ -262,16 +282,51 @@ namespace Manager {
         #endregion
 
         #region Commands
-        private void HelpCommand(string[] args)
+        private void HelpCommand()
         {
             Print("- - - - - - - Commands - - - - - - -");
             Print("Clear               - Clears the IV-SDK .NET console.");
             Print("CheckForUpdates     - Checks if there is a new update for IV-SDK .NET available.");
             Print("Autosave            - Triggers an auto save.");
             Print("Save                - Opens the save menu.");
+            Print("SavePlayerPos       - Saves the players coordinates and heading to clipboard.");
+            Print("ReloadConfig        - Reloads the IV-SDK .NET config.ini file.");
             Print("AbortScripts        - Aborts all currently running scripts.");
             Print("ReloadScripts       - Aborts and reloads all scripts.");
             Print("GetRunningScripts   - Gets number of running scripts.");
+        }
+        private void SavePlayerPos()
+        {
+            try {
+                Natives.GET_PLAYER_CHAR(Natives.CONVERT_INT_TO_PLAYERINDEX(Natives.GET_PLAYER_ID()), out int playerChar);
+                Natives.GET_CHAR_COORDINATES(playerChar, out Vector3 playerPos);
+                Natives.GET_CHAR_HEADING(playerChar, out float playerHeading);
+
+                bool success = false;
+                string str = string.Format("X: {0} Y: {1} Z: {2} H: {3}",
+                    playerPos.X.ToString(CultureInfo.InvariantCulture),         // 0
+                    playerPos.Y.ToString(CultureInfo.InvariantCulture),         // 1
+                    playerPos.Z.ToString(CultureInfo.InvariantCulture),         // 2
+                    playerHeading.ToString(CultureInfo.InvariantCulture));      // 3
+
+                Thread cpThread = new Thread(() => {
+                    Clipboard.SetText(str);
+                    success = Clipboard.GetText().Equals(str);
+                });
+                cpThread.SetApartmentState(ApartmentState.STA);
+                cpThread.Start();
+                cpThread.Join();
+
+                if (success) {
+                    Print("Current player coordinates saved to clipboard!");
+                }
+                else {
+                    Print("Current player coordinates did not got saved to clipboard.");
+                }
+            }
+            catch (Exception ex) {
+                PrintError(string.Format("An error occured while trying to save player pos and heading to clipboard. Details: {0}", ex.ToString()));
+            }
         }
         #endregion
 
@@ -290,11 +345,13 @@ namespace Manager {
 
             // Create commands dictionary and register default commands
             Commands = new Dictionary<string, Action<string[]>>();
-            RegisterCommand(Guid.Empty, "Help",                 (string[] args) => { HelpCommand(args); });
+            RegisterCommand(Guid.Empty, "Help",                 (string[] args) => { HelpCommand(); });
             RegisterCommand(Guid.Empty, "Clear",                (string[] args) => { Clear(); });
             RegisterCommand(Guid.Empty, "CheckForUpdates",      (string[] args) => { managerInstance.UpdateChecker.CheckForUpdates(false); });
             RegisterCommand(Guid.Empty, "Autosave",             (string[] args) => { Natives.DO_AUTO_SAVE(); });
             RegisterCommand(Guid.Empty, "Save",                 (string[] args) => { Natives.ACTIVATE_SAVE_MENU(); });
+            RegisterCommand(Guid.Empty, "SavePlayerPos",        (string[] args) => { SavePlayerPos(); });
+            RegisterCommand(Guid.Empty, "ReloadConfig",         (string[] args) => { managerInstance.LoadConfig(false); });
             RegisterCommand(Guid.Empty, "AbortScripts",         (string[] args) => { managerInstance.AbortScripts(true); });
             RegisterCommand(Guid.Empty, "ReloadScripts",        (string[] args) => { managerInstance.LoadScripts(); });
             RegisterCommand(Guid.Empty, "GetRunningScripts",    (string[] args) => { Print(string.Format("There are currently {0} scripts running.", managerInstance.ActiveScripts.Count.ToString())); ; });

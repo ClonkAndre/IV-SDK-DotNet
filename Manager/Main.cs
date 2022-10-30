@@ -27,6 +27,11 @@ namespace Manager {
         Timer,
         Custom
     }
+    public enum AbortReason
+    {
+        Manager,
+        Script
+    }
     public enum NotificationType
     {
         Default,
@@ -322,7 +327,7 @@ namespace Manager {
             if (cleanUpTask != null)
                 return;
 
-            Running = false;
+            Stop();
             cleanUpTask = Task.Run(() => {
                 try {
                     // Delete all console commands registered by this script
@@ -386,6 +391,10 @@ namespace Manager {
                 EntryPoint = null;
             });
         }
+        public void Stop()
+        {
+            Running = false;
+        }
         #endregion
     }
     #endregion
@@ -442,7 +451,7 @@ namespace Manager {
             LocalTasks = new List<AdvancedTask>();
             delayedActions = new List<DelayedAction>();
 
-            UpdateChecker = new UpdateChecker("0.3", "https://www.dropbox.com/s/smaz6ij8dkzd7nh/version.txt?dl=1");
+            UpdateChecker = new UpdateChecker("0.4", "https://www.dropbox.com/s/smaz6ij8dkzd7nh/version.txt?dl=1");
             UpdateChecker.VersionCheckFailed += UpdateChecker_VersionCheckFailed;
             UpdateChecker.VersionCheckCompleted += UpdateChecker_VersionCheckCompleted;
 
@@ -450,9 +459,9 @@ namespace Manager {
             console = new Console(this);
 
 #if DEBUG
-            console.Print("IV-SDK .NET DEBUG version 0.3 by ItsClonkAndre");
+            console.Print("IV-SDK .NET DEBUG version 0.4 by ItsClonkAndre");
 #else
-            console.Print("IV-SDK .NET Release version 0.3 by ItsClonkAndre");
+            console.Print("IV-SDK .NET Release version 0.4 by ItsClonkAndre");
 #endif
 
             keyWatchDog = new KeyWatchDog();
@@ -460,9 +469,7 @@ namespace Manager {
             keyWatchDog.KeyUp += KeyWatchDog_KeyUp;
 
             // Load IV-SDK .NET settings
-            settings = new SettingsFile(string.Format("{0}\\config.ini", ivsdkdotnetPath));
-            if (!settings.Load()) console.PrintWarning("Could not load IV-SDK .NET config.ini! Using default settings.");
-            console.OpenCloseKey = settings.GetKey("Console", "OpenCloseKey", Keys.F4);
+            LoadConfig();
         }
         #endregion
 
@@ -709,6 +716,19 @@ namespace Manager {
         #endregion
 
         #region Methods
+        public void LoadConfig(bool suppressMessage = true)
+        {
+            if (settings != null) settings.Dispose();
+            settings = new SettingsFile(string.Format("{0}\\config.ini", ivsdkdotnetPath));
+            if (settings.Load()) {
+                if (!suppressMessage) console.Print("Loaded IV-SDK .NET config.ini!");
+            }
+            else {
+                console.PrintWarning("Could not load IV-SDK .NET config.ini! Using default settings.");
+            }
+            console.OpenCloseKey = settings.GetKey("Console", "OpenCloseKey", Keys.F4);
+        }
+
         public override void LoadScripts()
         {
             if (!Directory.Exists(scriptsPath)) {
@@ -858,7 +878,12 @@ namespace Manager {
             }
         }
 
+        // Abort script stuff
         public override void AbortScripts(bool showMessage)
+        {
+            AbortScriptsInternal(AbortReason.Script, showMessage);
+        }
+        public void AbortScriptsInternal(AbortReason reason, bool showMessage)
         {
             if (ActiveScripts.Count != 0) {
                 ActiveScripts.ForEach(x => x.Abort(showMessage));
@@ -869,11 +894,13 @@ namespace Manager {
             }
         }
 
+        // DelayedAction
         public void StartDelayedAction(Guid id, string purpose, DateTime executeIn, Action<DelayedAction, object> actionToExecute, object parameter)
         {
             delayedActions.Insert(delayedActions.Count, new DelayedAction(id, purpose, executeIn, actionToExecute, parameter));
         }
-
+        
+        // Tasks
         public override void WaitInTask(Guid id, int waitTimeInMilliseconds)
         {
             // ActiveScripts
@@ -936,6 +963,10 @@ namespace Manager {
 
         // Overrides
         public override bool AbortScript(Guid id)
+        {
+            return AbortScriptInternal(AbortReason.Script, id);
+        }
+        public bool AbortScriptInternal(AbortReason reason, Guid id)
         {
             FoundScript script = ActiveScripts.Where(x => x.ID == id).FirstOrDefault();
 
@@ -1026,7 +1057,7 @@ namespace Manager {
             return Guid.Empty;
         }
 
-        public Guid StartNewLocalTimer(int interval, Action actionToExecute)
+        public Guid StartNewTimerInternel(int interval, Action actionToExecute)
         {
             AdvancedTask task = new AdvancedTask(Guid.NewGuid(), null, TaskUseCase.Timer, interval);
 
