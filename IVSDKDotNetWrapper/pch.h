@@ -20,6 +20,8 @@
 
 #include <msclr/marshal.h>
 
+using namespace System::Numerics;
+
 #include "enums.h"
 #include "CRGBA.h"
 #include "CVectors.h"
@@ -47,6 +49,7 @@
 #include "CPlayerInfo.h"
 #include "CPad.h"
 #include "CEntity.h"
+#include "CWorld.h"
 #include "CDynamicEntity.h"
 #include "CPhysical.h"
 #include "CCustomShaderEffectBase.h"

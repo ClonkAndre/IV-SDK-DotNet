@@ -2,7 +2,7 @@
 
 namespace rage { class phConstrainedCollider; }
 
-class CPhysical : public CDynamicEntity
+class Native_CPhysical : public Native_CDynamicEntity
 {
 public:
 	uint8_t pad7[0x8];													// 110-118
@@ -25,54 +25,110 @@ public:
 	uint8_t pad124[0x20];												// 124-144
 	uint32_t m_nSubmergedState;											// 144-148 0 - not submerged, 1 - on water surface? (swimming for peds) 2 - below water surface?
 	uint8_t pad148[0x74];												// 148-1BC
-	CEntity* m_pAttachedToEntity;										// 1BC-1C0
+	Native_CEntity* m_pAttachedToEntity;								// 1BC-1C0
 	Native_CVector m_vAttachOffset;										// 1C0-1CC
 	uint8_t pad10[0x4];													// 1CC-1D0
 	Native_CQuaternion m_qAttachOffset;									// 1D0-1E0
 	uint8_t pad11[0x4];													// 1E0-1E4
-	CEntity* m_pLastDamageEntity;										// 1E4-1E8
+	Native_CEntity* m_pLastDamageEntity;								// 1E4-1E8
 	uint8_t pad12[0x4];													// 1E8-1EC
 	int32_t m_nLastDamageWeapon;										// 1EC-1F0
 	float m_fHealth;													// 1F0-1F4
 	uint8_t pad13[0x4];													// 1F4-1F8
-	CEntity* m_pEntityIgnoredCollision;									// 1F8-1FC
+	Native_CEntity* m_pEntityIgnoredCollision;							// 1F8-1FC
 	uint8_t pad14[0x14];												// 1FC-210
 
 	rage::phConstrainedCollider* GetConstrainedCollider()
 	{
-		return ((rage::phConstrainedCollider * (__thiscall*)(CPhysical*))(AddressSetter::Get(0x5E7080, 0x505110)))(this);
+		return ((rage::phConstrainedCollider * (__thiscall*)(Native_CPhysical*))(AddressSetter::Get(0x5E7080, 0x505110)))(this);
 	}
 
 	Native_CVector* GetVelocity(Native_CVector* v)
 	{
-		return ((Native_CVector * (__thiscall*)(CPhysical*, Native_CVector*))(*(void***)this)[59])(this, v);
+		return ((Native_CVector * (__thiscall*)(Native_CPhysical*, Native_CVector*))(*(void***)this)[59])(this, v);
 	}
 
 	// static
 	bool _ProcessWater()
 	{
-		return ((char(__thiscall*)(CPhysical*))(AddressSetter::Get(0x64AF20, 0x4E82E0)))(this);
+		return ((char(__thiscall*)(Native_CPhysical*))(AddressSetter::Get(0x64AF20, 0x4E82E0)))(this);
 	}
 
 	// vftable
 	bool ProcessWater()
 	{
-		return ((char(__thiscall*)(CPhysical*))(*(void***)this)[71])(this);
+		return ((char(__thiscall*)(Native_CPhysical*))(*(void***)this)[71])(this);
 	}
 
 	float GetHealth()
 	{
-		return ((float(__thiscall*)(CPhysical*))(*(void***)this)[63])(this);
+		return ((float(__thiscall*)(Native_CPhysical*))(*(void***)this)[63])(this);
 	}
 };
-//VALIDATE_SIZE(CPhysical, 0x210);
-//VALIDATE_OFFSET(CPhysical, m_pLastDamageEntity, 0x1E4);
-//VALIDATE_OFFSET(CPhysical, m_nLastDamageWeapon, 0x1EC);
-//VALIDATE_OFFSET(CPhysical, m_fHealth, 0x1F0);
-//VALIDATE_OFFSET(CPhysical, m_nPhysicalFlags, 0x118);
-//VALIDATE_OFFSET(CPhysical, m_pAttachedToEntity, 0x1BC);
-//VALIDATE_OFFSET(CPhysical, m_vAttachOffset, 0x1C0);
-//VALIDATE_OFFSET(CPhysical, m_qAttachOffset, 0x1D0);
-//VALIDATE_OFFSET(CPhysical, m_pEntityIgnoredCollision, 0x1F8);
-//VALIDATE_OFFSET(CPhysical, m_fPercentSubmerged, 0x120);
-//VALIDATE_OFFSET(CPhysical, m_nSubmergedState, 0x144);
+VALIDATE_SIZE(Native_CPhysical, 0x210);
+VALIDATE_OFFSET(Native_CPhysical, m_pLastDamageEntity, 0x1E4);
+VALIDATE_OFFSET(Native_CPhysical, m_nLastDamageWeapon, 0x1EC);
+VALIDATE_OFFSET(Native_CPhysical, m_fHealth, 0x1F0);
+VALIDATE_OFFSET(Native_CPhysical, m_nPhysicalFlags, 0x118);
+VALIDATE_OFFSET(Native_CPhysical, m_pAttachedToEntity, 0x1BC);
+VALIDATE_OFFSET(Native_CPhysical, m_vAttachOffset, 0x1C0);
+VALIDATE_OFFSET(Native_CPhysical, m_qAttachOffset, 0x1D0);
+VALIDATE_OFFSET(Native_CPhysical, m_pEntityIgnoredCollision, 0x1F8);
+VALIDATE_OFFSET(Native_CPhysical, m_fPercentSubmerged, 0x120);
+VALIDATE_OFFSET(Native_CPhysical, m_nSubmergedState, 0x144);
+
+namespace IVSDKDotNet {
+
+	public ref class CPhysical : CDynamicEntity
+	{
+	public:
+		CPhysical(Native_CPhysical* native);
+
+		property float PercentSubmerged {
+			public:
+				float	get()				{ return m_cNativePhysical->m_fPercentSubmerged; }
+				void	set(float value)	{ m_cNativePhysical->m_fPercentSubmerged = value; }
+		}
+
+		property uint32_t SubmergedState {
+			public:
+				uint32_t	get()				{ return m_cNativePhysical->m_nSubmergedState; }
+				void		set(uint32_t value) { m_cNativePhysical->m_nSubmergedState = value; }
+		}
+
+		property Vector3 AttachPositionOffset {
+			public:
+				Vector3 get()				{ return Vector3(m_cNativePhysical->m_vAttachOffset.x, m_cNativePhysical->m_vAttachOffset.y, m_cNativePhysical->m_vAttachOffset.z); }
+				void	set(Vector3 value)	{ m_cNativePhysical->m_vAttachOffset = Native_CVector(value.X, value.Y, value.Z); }
+		}
+
+		property Quaternion AttachRotationOffset {
+			public:
+				Quaternion	get()					{ return Quaternion(m_cNativePhysical->m_qAttachOffset.x, m_cNativePhysical->m_qAttachOffset.y, m_cNativePhysical->m_qAttachOffset.z, m_cNativePhysical->m_qAttachOffset.w); }
+				void		set(Quaternion value)	{ m_cNativePhysical->m_qAttachOffset = Native_CQuaternion(value.X, value.Y, value.Z, value.W); }
+		}
+
+		property int32_t LastDamageWeapon {
+			public:
+				int32_t	get()				{ return m_cNativePhysical->m_nLastDamageWeapon; }
+				void	set(int32_t value)	{ m_cNativePhysical->m_nLastDamageWeapon = value; }
+		}
+
+		property float Health {
+			public:
+				float	get()				{ return m_cNativePhysical->m_fHealth; }
+				void	set(float value)	{ m_cNativePhysical->m_fHealth = value; }
+		}
+
+		bool ProcessWater();
+		float GetHealth();
+
+		//CEntity* m_pAttachedToEntity
+		//CEntity* m_pLastDamageEntity;
+		//CEntity* m_pEntityIgnoredCollision;
+
+	private:
+		Native_CPhysical* m_cNativePhysical;
+	};
+
+}

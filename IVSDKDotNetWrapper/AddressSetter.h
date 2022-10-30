@@ -48,9 +48,10 @@ namespace IVSDKDotNet {
 		static void Initialise(int version, uint32_t baseAddress);
 
 		generic <typename T>
-		static T% GetRef(uint32_t addr1070, uint32_t addr1080);
+		static T GetRef(uint32_t addr1070, uint32_t addr1080);
 
-		static uint32_t Get(uint32_t addr1070, uint32_t addr1080);
+		static uint32_t GetValue(uint32_t addr1070, uint32_t addr1080);
+		static void		SetValue(uint32_t newValue, uint32_t addr1070, uint32_t addr1080);
 
 		/// <summary>
 		/// The base address of GTA IV.

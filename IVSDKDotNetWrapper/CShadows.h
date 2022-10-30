@@ -42,17 +42,17 @@ namespace IVSDKDotNet {
 		/// <param name="a14">Unknown.</param>
 		/// <param name="a15">Unknown.</param>
 		/// <param name="nID">Light ID.</param>
-		static void StoreStaticShadowAdvanced(uint32_t a1, uint32_t a2, bool castShadows, CVector^ pVec1, CVector^ pVec2, CVector^ vPos, CVector^ vColor, float fIntensity, uint32_t texHash, uint32_t txdSlot, float fRange, float a12, float a13, uint32_t a14, uint32_t a15, uint32_t nID);
+		static void StoreStaticShadowAdvanced(uint32_t a1, uint32_t a2, bool castShadows, Vector3 pVec1, Vector3 pVec2, Vector3 vPos, Color vColor, float fIntensity, uint32_t texHash, uint32_t txdSlot, float fRange, float a12, float a13, uint32_t a14, uint32_t a15, uint32_t nID);
 
 		/// <summary>
 		/// StoreStaticShadows method with basic parameters.
 		/// </summary>
-		/// <param name="castShadows"></param>
-		/// <param name="vPos"></param>
-		/// <param name="vColor"></param>
-		/// <param name="fIntensity"></param>
-		/// <param name="fRange"></param>
-		static void StoreStaticShadow(bool castShadows, CVector^ vPos, CVector^ vColor, float fIntensity, float fRange);
+		/// <param name="castShadows">Should light cast shadows?</param>
+		/// <param name="vPos">The position of the light.</param>
+		/// <param name="vColor">The color of the light.</param>
+		/// <param name="fIntensity">Light Intensity.</param>
+		/// <param name="fRange">Light Range.</param>
+		static void StoreStaticShadow(bool castShadows, Vector3 vPos, Color vColor, float fIntensity, float fRange);
 
 	};
 

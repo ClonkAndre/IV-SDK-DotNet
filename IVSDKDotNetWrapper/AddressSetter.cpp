@@ -16,22 +16,17 @@ namespace IVSDKDotNet {
 	}
 
 	generic <typename T>
-	T% MemoryAccess::GetRef(uint32_t addr1070, uint32_t addr1080)
+	T MemoryAccess::GetRef(uint32_t addr1070, uint32_t addr1080)
 	{
-		GCHandle^ handle;
-
 		switch (m_eGameVersion) {
-			case eGameVersion::VERSION_1070: handle = GCHandle::FromIntPtr(IntPtr((int)(m_baseAddress + addr1070)));
-			case eGameVersion::VERSION_1080: handle = GCHandle::FromIntPtr(IntPtr((int)(m_baseAddress + addr1080)));
+			case eGameVersion::VERSION_1070: return (T)Marshal::PtrToStructure(IntPtr((int)(m_baseAddress + addr1070)), T::typeid);
+			case eGameVersion::VERSION_1080: return (T)Marshal::PtrToStructure(IntPtr((int)(m_baseAddress + addr1080)), T::typeid);
 		}
-
-		if (handle)
-			return static_cast<T>(handle->Target);
 
 		return T();
 	}
 
-	uint32_t MemoryAccess::Get(uint32_t addr1070, uint32_t addr1080)
+	uint32_t MemoryAccess::GetValue(uint32_t addr1070, uint32_t addr1080)
 	{
 		switch (m_eGameVersion) {
 			case eGameVersion::VERSION_1070: return m_baseAddress + addr1070;
@@ -39,6 +34,13 @@ namespace IVSDKDotNet {
 		}
 
 		return 0;
+	}
+	void MemoryAccess::SetValue(uint32_t newValue, uint32_t addr1070, uint32_t addr1080)
+	{
+		switch (m_eGameVersion) {
+			case eGameVersion::VERSION_1070: *(uint32_t*)(m_baseAddress + addr1070) = newValue; break;
+			case eGameVersion::VERSION_1080: *(uint32_t*)(m_baseAddress + addr1080) = newValue; break;
+		}
 	}
 
 }

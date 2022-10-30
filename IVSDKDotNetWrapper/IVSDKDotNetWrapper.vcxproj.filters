@@ -195,6 +195,9 @@
     <ClInclude Include="SettingsFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CWorld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -324,6 +327,12 @@
       <Filter>Source Files\Pool</Filter>
     </ClCompile>
     <ClCompile Include="SettingsFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CVectors.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="CWorld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -3,25 +3,30 @@
 
 namespace IVSDKDotNet {
 
-	CVector::CVector(float x, float y, float z)
+	GTAMatrix::GTAMatrix(Native_CMatrix* fromNativeMatrix)
 	{
-		X = x;
-		Y = y;
-		Z = z;
+		right = Vector3(fromNativeMatrix->right.x, fromNativeMatrix->right.y, fromNativeMatrix->right.z);
+		up = Vector3(fromNativeMatrix->up.x, fromNativeMatrix->up.y, fromNativeMatrix->up.z);
+		at = Vector3(fromNativeMatrix->at.x, fromNativeMatrix->at.y, fromNativeMatrix->at.z);
+		pos = Vector3(fromNativeMatrix->pos.x, fromNativeMatrix->pos.y, fromNativeMatrix->pos.z);
+	}
+	GTAMatrix::GTAMatrix(Vector3 vRight, Vector3 vUp, Vector3 vAt, Vector3 vPos)
+	{
+		right = vRight;
+		up = vUp;
+		at = vAt;
+		pos = vPos;
 	}
 
-	CVector2D::CVector2D(float x, float y)
+	CSimpleTransform::CSimpleTransform(Native_CSimpleTransform nativeSimpleTransform)
 	{
-		X = x;
-		Y = y;
+		Position = Vector3(nativeSimpleTransform.m_vPosition.x, nativeSimpleTransform.m_vPosition.y, nativeSimpleTransform.m_vPosition.z);
+		Heading = nativeSimpleTransform.m_fHeading;
 	}
-
-	CVector_pad::CVector_pad(unsigned int flags, float x, float y, float z) 
+	CSimpleTransform::CSimpleTransform(Vector3 pos, float heading)
 	{
-		Flags = flags;
-		X = x;
-		Y = y;
-		Z = z;
+		Position = pos;
+		Heading = heading;
 	}
 
 }

@@ -21,6 +21,15 @@ namespace IVSDKDotNet {
 		/// <param name="filePath">The path to the ini file.</param>
 		SettingsFile(String^ filePath);
 
+		~SettingsFile()
+		{
+			m_sFilePath = String::Empty;
+			if (m_dSections) {
+				m_dSections->Clear();
+				m_dSections = nullptr;
+			}
+		}
+
 		/// <summary>
 		/// Overrides the current ini file with the new content.
 		/// </summary>

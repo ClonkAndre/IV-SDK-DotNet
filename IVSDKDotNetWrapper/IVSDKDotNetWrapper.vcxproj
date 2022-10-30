@@ -169,6 +169,7 @@
     <ClInclude Include="CTimer.h" />
     <ClInclude Include="CVectors.h" />
     <ClInclude Include="CVisibilityPlugins.h" />
+    <ClInclude Include="CWorld.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="Direct3D.h" />
     <ClInclude Include="enums.h" />
@@ -218,7 +219,9 @@
     <ClCompile Include="CTheScripts.cpp" />
     <ClCompile Include="CTimeCycle.cpp" />
     <ClCompile Include="CTimer.cpp" />
+    <ClCompile Include="CVectors.cpp" />
     <ClCompile Include="CVisibilityPlugins.cpp" />
+    <ClCompile Include="CWorld.cpp" />
     <ClCompile Include="Direct3D.cpp" />
     <ClCompile Include="EventArgs.cpp" />
     <ClCompile Include="CGame.cpp" />

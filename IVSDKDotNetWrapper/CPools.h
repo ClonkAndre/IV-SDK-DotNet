@@ -3,9 +3,9 @@
 class Native_CPools
 {
 public:
-	static CPool<CPed>* PedPool()			{ return AddressSetter::GetRef<CPool<CPed>*>(0x14A82AC, 0x14CB03C); }
-	static CPool<CVehicle>* VehiclePool()	{ return AddressSetter::GetRef<CPool<CVehicle>*>(0x1219240, 0xE52CD0); }
-	static CPool<CObject>* ObjectPool()		{ return AddressSetter::GetRef<CPool<CObject>*>(0xF50CE0, 0xE52B48); }
+	static CPool<CPed>* PedPool()				{ return AddressSetter::GetRef<CPool<CPed>*>(0x14A82AC, 0x14CB03C); }
+	static CPool<CVehicle>* VehiclePool()		{ return AddressSetter::GetRef<CPool<CVehicle>*>(0x1219240, 0xE52CD0); }
+	static CPool<Native_CObject>* ObjectPool()	{ return AddressSetter::GetRef<CPool<Native_CObject>*>(0xF50CE0, 0xE52B48); }
 
 	//static inline CPool<CBuilding>*& ms_pBuildingPool = AddressSetter::GetRef<CPool<CBuilding>*>(0x128FED0, 0xE4A5E8);
 	//static inline CPool<CCam>*& ms_pCameraPool = AddressSetter::GetRef<CPool<CCam>*>(0x1218020, 0xF68158);
@@ -31,11 +31,36 @@ namespace IVSDKDotNet {
 	{
 	public:
 
-		// [System::ObsoleteAttribute]
+		// - - - Handles only - - -
 
 		static array<Ped>^		GetAllPedHandles();
 		static array<Vehicle>^	GetAllVehicleHandles();
+
+		[System::ObsoleteAttribute("Use GetAllObjects function instead.")]
 		static array<Entity>^	GetAllObjectHandles();
+
+		// - - - IV-SDK Objects - - -
+
+		static array<CObject^>^ GetAllObjects();
+
+
+		/// <summary>
+		/// Deletes a char with the given handle.
+		/// </summary>
+		/// <param name="handle">The handle of the char.</param>
+		static void DeleteChar(Ped handle);
+
+		/// <summary>
+		/// Deletes a vehicle with the given handle.
+		/// </summary>
+		/// <param name="handle">The handle of the vehicle.</param>
+		static void DeleteCar(Vehicle handle);
+
+		/// <summary>
+		/// Deletes a object with the given handle.
+		/// </summary>
+		/// <param name="handle">The handle of the object.</param>
+		static void DeleteObject(Entity handle);
 
 	};
 

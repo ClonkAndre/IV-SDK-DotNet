@@ -71,7 +71,13 @@ namespace IVSDKDotNet {
 			static void CLEAR_CHAR_TASKS_IMMEDIATELY(Ped ped) { NativeInvoke::Invoke<ScriptVoid>(NATIVE_CLEAR_CHAR_TASKS_IMMEDIATELY, ped); }
 			static void CLEAR_RELATIONSHIP(int p0, int p1, int p2) { NativeInvoke::Invoke<ScriptVoid>(NATIVE_CLEAR_RELATIONSHIP, p0, p1, p2); }
 			static void CLEAR_ROOM_FOR_CHAR(Ped ped) { NativeInvoke::Invoke<ScriptVoid>(NATIVE_CLEAR_ROOM_FOR_CHAR, ped); }
-			static void CREATE_CHAR(int type, unsigned int model, float x, float y, float z, [OutAttribute] Ped% pPed, b8 unknownTrue)
+			static void CREATE_CHAR(int type, int model, Vector3 pos, [OutAttribute] Ped% pPed, b8 unknownTrue)
+			{
+				Ped p;
+				NativeInvoke::Invoke<ScriptVoid>(NATIVE_CREATE_CHAR, type, model, pos.X, pos.Y, pos.Z, &p, unknownTrue);
+				pPed = p;
+			}
+			static void CREATE_CHAR(int type, int model, float x, float y, float z, [OutAttribute] Ped% pPed, b8 unknownTrue)
 			{
 				Ped p;
 				NativeInvoke::Invoke<ScriptVoid>(NATIVE_CREATE_CHAR, type, model, x, y, z, &p, unknownTrue);
@@ -99,7 +105,10 @@ namespace IVSDKDotNet {
 			static void CREATE_RANDOM_FEMALE_CHAR(float x, float y, float z, Ped% pPed) { NativeInvoke::Invoke<ScriptVoid>(NATIVE_CREATE_RANDOM_FEMALE_CHAR, x, y, z, pPed); }
 			static void CREATE_RANDOM_MALE_CHAR(float x, float y, float z, Ped% pPed) { NativeInvoke::Invoke<ScriptVoid>(NATIVE_CREATE_RANDOM_MALE_CHAR, x, y, z, pPed); }
 			static void DAMAGE_CHAR(Ped ped, unsigned int hitPoints, b8 unknown) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DAMAGE_CHAR, ped, hitPoints, unknown); }
-			static void DELETE_CHAR(Ped% pPed) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DELETE_CHAR, pPed); }
+			
+			[System::ObsoleteAttribute("This native is obsolete. Use CPools.DeleteChar instead.")]
+			static void DELETE_CHAR(Ped* pPed) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DELETE_CHAR, pPed); }
+
 			static void DONT_REMOVE_CHAR(Ped ped) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DONT_REMOVE_CHAR, ped); }
 			static void END_CHAR_SEARCH_CRITERIA() { NativeInvoke::Invoke< ScriptVoid>(NATIVE_END_CHAR_SEARCH_CRITERIA); }
 			static void EXPLODE_CHAR_HEAD(Ped ped) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_EXPLODE_CHAR_HEAD, ped); }
@@ -283,6 +292,7 @@ namespace IVSDKDotNet {
 			static void SET_CHAR_CLIMB_ANIM_RATE(Ped ped, float rate) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CHAR_CLIMB_ANIM_RATE, ped, rate); }
 			static void SET_CHAR_COLLISION(Ped ped, b8 set) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CHAR_COLLISION, ped, set); }
 			static void SET_CHAR_COMPONENT_VARIATION(Ped ped, unsigned int component, unsigned int modelVariation, unsigned int textureVariation) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CHAR_COMPONENT_VARIATION, ped, component, modelVariation, textureVariation); }
+			static void SET_CHAR_COORDINATES(Ped ped, Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CHAR_COORDINATES, ped, pos.X, pos.Y, pos.Z); }
 			static void SET_CHAR_COORDINATES(Ped ped, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CHAR_COORDINATES, ped, x, y, z); }
 			static void SET_CHAR_COORDINATES_DONT_WARP_GANG(Ped ped, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CHAR_COORDINATES_DONT_WARP_GANG, ped, x, y, z); }
 			static void SET_CHAR_COORDINATES_DONT_WARP_GANG_NO_OFFSET(Ped ped, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CHAR_COORDINATES_DONT_WARP_GANG_NO_OFFSET, ped, x, y, z); }
@@ -707,7 +717,18 @@ namespace IVSDKDotNet {
 			static void CLEAR_ROOM_FOR_CAR(Vehicle vehicle) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_CLEAR_ROOM_FOR_CAR, vehicle); }
 			static void CLOSE_ALL_CAR_DOORS(Vehicle vehicle) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_CLOSE_ALL_CAR_DOORS, vehicle); }
 			static void CONTROL_CAR_DOOR(Vehicle vehicle, unsigned int door, unsigned int unknown_maybe_open, float angle) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_CONTROL_CAR_DOOR, vehicle, door, unknown_maybe_open, angle); }
-			static void CREATE_CAR(unsigned int nameHash, float x, float y, float z, Vehicle* pVehicle, b8 unknownTrue) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_CREATE_CAR, nameHash, x, y, z, pVehicle, unknownTrue); }
+			static void CREATE_CAR(int nameHash, Vector3 pos, [OutAttribute] Vehicle% pVehicle, b8 unknownTrue)
+			{
+				Vehicle v;
+				NativeInvoke::Invoke< ScriptVoid>(NATIVE_CREATE_CAR, nameHash, pos.X, pos.Y, pos.Z, &v, unknownTrue);
+				pVehicle = v;
+			}
+			static void CREATE_CAR(int nameHash, float x, float y, float z, [OutAttribute] Vehicle% pVehicle, b8 unknownTrue)
+			{
+				Vehicle v;
+				NativeInvoke::Invoke< ScriptVoid>(NATIVE_CREATE_CAR, nameHash, x, y, z, &v, unknownTrue);
+				pVehicle = v;
+			}
 			static void CREATE_CARS_ON_GENERATORS_IN_AREA(float x0, float y0, float z0, float x1, float y1, float z1) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_CREATE_CARS_ON_GENERATORS_IN_AREA, x0, y0, z0, x1, y1, z1); }
 			static void CREATE_CAR_GENERATOR(float x, float y, float z, float yaw, float pitch, float roll, unsigned int model, unsigned int color1, unsigned int color2, unsigned int spec1, unsigned int spec2, int Unk66, b8 alarm, b8 doorlock, int* handle) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_CREATE_CAR_GENERATOR, x, y, z, yaw, pitch, roll, model, color1, color2, spec1, spec2, Unk66, alarm, doorlock, handle); }
 			static void CREATE_MISSION_TRAIN(unsigned int unknown1, float x, float y, float z, b8 unknown2, [OutAttribute] Train% pTrain)
@@ -725,7 +746,13 @@ namespace IVSDKDotNet {
 			}
 			static void DAMAGE_CAR(Vehicle car, float x, float y, float z, float unkforce0, float unkforce1, b8 flag) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DAMAGE_CAR, car, x, y, z, unkforce0, unkforce1, flag); }
 			static void DELETE_ALL_TRAINS() { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DELETE_ALL_TRAINS); }
-			static void DELETE_CAR(Vehicle% pVehicle) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DELETE_CAR, pVehicle); }
+			
+			[System::ObsoleteAttribute("This native is obsolete. Use CPools.DeleteCar instead.")]
+			static void DELETE_CAR(Vehicle* pVehicle)
+			{
+				NativeInvoke::Invoke< ScriptVoid>(NATIVE_DELETE_CAR, pVehicle);
+			}
+
 			static void DELETE_CAR_GENERATOR(int handle) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DELETE_CAR_GENERATOR, handle); }
 			static void DELETE_MISSION_TRAIN(Train% pTrain) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DELETE_MISSION_TRAIN, pTrain); }
 			static void DELETE_MISSION_TRAINS() { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DELETE_MISSION_TRAINS); }
@@ -1065,7 +1092,9 @@ namespace IVSDKDotNet {
 			static void SET_CAR_CAN_BE_VISIBLY_DAMAGED(Vehicle vehicle, b8 value) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CAR_CAN_BE_VISIBLY_DAMAGED, vehicle, value); }
 			static void SET_CAR_COLLISION(Vehicle car, b8 set) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CAR_COLLISION, car, set); }
 			static void SET_CAR_COLOUR_COMBINATION(Vehicle car, int combination) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CAR_COLOUR_COMBINATION, car, combination); }
+			static void SET_CAR_COORDINATES(Vehicle vehicle, Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CAR_COORDINATES, vehicle, pos.X, pos.Y, pos.Z); }
 			static void SET_CAR_COORDINATES(Vehicle vehicle, float pX, float pY, float pZ) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CAR_COORDINATES, vehicle, pX, pY, pZ); }
+			static void SET_CAR_COORDINATES_NO_OFFSET(Vehicle car, Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CAR_COORDINATES_NO_OFFSET, car, pos.X, pos.Y, pos.Z); }
 			static void SET_CAR_COORDINATES_NO_OFFSET(Vehicle car, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CAR_COORDINATES_NO_OFFSET, car, x, y, z); }
 			static void SET_CAR_DENSITY_MULTIPLIER(float density) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CAR_DENSITY_MULTIPLIER, density); }
 			static void SET_CAR_DISTANCE_AHEAD_MULTIPLIER(Vehicle car, float multiplier) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_CAR_DISTANCE_AHEAD_MULTIPLIER, car, multiplier); }
@@ -1201,19 +1230,34 @@ namespace IVSDKDotNet {
 				NativeInvoke::Invoke< ScriptVoid>(NATIVE_CLOSE_GARAGE, ctx.marshal_as<const char*>(garageName));
 			}
 			static void CONNECT_LODS(Entity obj0, Entity obj1) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_CONNECT_LODS, obj0, obj1); }
-			static void CREATE_OBJECT(unsigned int model, float x, float y, float z, [OutAttribute] Entity% pObj, b8 unknownTrue)
+			static void CREATE_OBJECT(int model, Vector3 pos, [OutAttribute] Entity% pObj, b8 unknownTrue)
+			{
+				Entity p;
+				NativeInvoke::Invoke< ScriptVoid>(NATIVE_CREATE_OBJECT, model, pos.X, pos.Y, pos.Z, &p, unknownTrue);
+				pObj = p;
+			}
+			static void CREATE_OBJECT(int model, float x, float y, float z, [OutAttribute] Entity% pObj, b8 unknownTrue)
 			{
 				Entity p;
 				NativeInvoke::Invoke< ScriptVoid>(NATIVE_CREATE_OBJECT, model, x, y, z, &p, unknownTrue);
 				pObj = p;
 			}
-			static void CREATE_OBJECT_NO_OFFSET(unsigned int model, float x, float y, float z, [OutAttribute] Entity% pObj, b8 unknownTrue)
+			static void CREATE_OBJECT_NO_OFFSET(int model, Vector3 pos, [OutAttribute] Entity% pObj, b8 unknownTrue)
+			{
+				Entity p;
+				NativeInvoke::Invoke< ScriptVoid>(NATIVE_CREATE_OBJECT_NO_OFFSET, model, pos.X, pos.Y, pos.Z, &p, unknownTrue);
+				pObj = p;
+			}
+			static void CREATE_OBJECT_NO_OFFSET(int model, float x, float y, float z, [OutAttribute] Entity% pObj, b8 unknownTrue)
 			{
 				Entity p;
 				NativeInvoke::Invoke< ScriptVoid>(NATIVE_CREATE_OBJECT_NO_OFFSET, model, x, y, z, &p, unknownTrue);
 				pObj = p;
 			}
-			static void DELETE_OBJECT(Entity% pObj) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DELETE_OBJECT, pObj); }
+			
+			[System::ObsoleteAttribute("This native is obsolete. Use CPools.DeleteObject instead.")]
+			static void DELETE_OBJECT(Entity* pObj) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DELETE_OBJECT, pObj); }
+
 			static void DETACH_OBJECT(Entity obj, b8 unknown) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DETACH_OBJECT, obj, unknown); }
 			static void DETACH_OBJECT_NO_COLLIDE(Entity obj, b8 flag) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DETACH_OBJECT_NO_COLLIDE, obj, flag); }
 			static void DONT_REMOVE_OBJECT(Entity obj) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DONT_REMOVE_OBJECT, obj); }
@@ -1389,6 +1433,7 @@ namespace IVSDKDotNet {
 			static void SET_OBJECT_AS_STEALABLE(Entity obj, b8 set) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_OBJECT_AS_STEALABLE, obj, set); }
 			static void SET_OBJECT_CCD(Entity obj, b8 set) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_OBJECT_CCD, obj, set); }
 			static void SET_OBJECT_COLLISION(Entity obj, b8 value) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_OBJECT_COLLISION, obj, value); }
+			static void SET_OBJECT_COORDINATES(Entity obj, Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_OBJECT_COORDINATES, obj, pos.X, pos.Y, pos.Z); }
 			static void SET_OBJECT_COORDINATES(Entity obj, float pX, float pY, float pZ) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_OBJECT_COORDINATES, obj, pX, pY, pZ); }
 			static void SET_OBJECT_DRAW_LAST(Entity obj, b8 set) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_OBJECT_DRAW_LAST, obj, set); }
 			static void SET_OBJECT_DYNAMIC(Entity obj, b8 set) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_SET_OBJECT_DYNAMIC, obj, set); }
@@ -1596,6 +1641,7 @@ namespace IVSDKDotNet {
 			static void ENABLE_POLICE_SCANNER() { NativeInvoke::Invoke< ScriptVoid>(NATIVE_ENABLE_POLICE_SCANNER); }
 			static void EXTEND_PATROL_ROUTE(ScriptAny Unk484, ScriptAny Unk485, ScriptAny Unk486, ScriptAny Unk487, ScriptAny Unk488) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_EXTEND_PATROL_ROUTE, Unk484, Unk485, Unk486, Unk487, Unk488); }
 			static void FLUSH_PATROL_ROUTE() { NativeInvoke::Invoke< ScriptVoid>(NATIVE_FLUSH_PATROL_ROUTE); }
+			
 			static void GET_CURRENT_BASIC_COP_MODEL([OutAttribute] unsigned int% pModel)
 			{
 				unsigned int p;
@@ -2480,7 +2526,7 @@ namespace IVSDKDotNet {
 				msclr::interop::marshal_context ctx;
 				NativeInvoke::Invoke< ScriptVoid>(NATIVE_REQUEST_IPL, ctx.marshal_as<const char*>(iplName));
 			}
-			static void REQUEST_MODEL(unsigned int model) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_REQUEST_MODEL, model); }
+			[System::ObsoleteAttribute("This native is obsolete. Use CWorld.RequestModel instead.")] static void _REQUEST_MODEL(unsigned int model) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_REQUEST_MODEL, model); }
 			static void REQUEST_STREAMED_TXD(String^ txdName, b8 unknown)
 			{
 				msclr::interop::marshal_context ctx;
@@ -2509,6 +2555,8 @@ namespace IVSDKDotNet {
 			}
 			static void ALLOW_THIS_SCRIPT_TO_BE_PAUSED(b8 allows) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_ALLOW_THIS_SCRIPT_TO_BE_PAUSED, allows); }
 			static void DESTROY_THREAD(int ScriptHandle) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DESTROY_THREAD, ScriptHandle); }
+			static uint32_t GET_MAP_AREA_FROM_COORDS(Vector3 pos) { return NativeInvoke::Invoke<uint32_t>(NATIVE_GET_MAP_AREA_FROM_COORDS, pos.X, pos.Y, pos.Z); }
+			static uint32_t GET_MAP_AREA_FROM_COORDS(float x, float y, float z) { return NativeInvoke::Invoke<uint32_t>(NATIVE_GET_MAP_AREA_FROM_COORDS, x, y, z); }
 			static void GET_SCRIPT_RENDERTARGET_RENDER_ID([OutAttribute] unsigned int% pRenderId)
 			{
 				unsigned int p;
@@ -3044,10 +3092,13 @@ namespace IVSDKDotNet {
 			static void DO_SCREEN_FADE_IN_UNHACKED(unsigned int timeMS) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DO_SCREEN_FADE_IN_UNHACKED, timeMS); }
 			static void DO_SCREEN_FADE_OUT(unsigned int timeMS) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DO_SCREEN_FADE_OUT, timeMS); }
 			static void DO_SCREEN_FADE_OUT_UNHACKED(unsigned int timeMS) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DO_SCREEN_FADE_OUT_UNHACKED, timeMS); }
+			static void DRAW_CHECKPOINT(Vector3 pos, float radius, Color color) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DRAW_CHECKPOINT, pos.X, pos.Y, pos.Z, radius, (int)color.R, (int)color.G, (int)color.B); }
 			static void DRAW_CHECKPOINT(float x, float y, float z, float radius, int r, int g, int b) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DRAW_CHECKPOINT, x, y, z, radius, r, g, b); }
+			static void DRAW_CHECKPOINT_WITH_ALPHA(Vector3 pos, float radius, Color color) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DRAW_CHECKPOINT_WITH_ALPHA, pos.X, pos.Y, pos.Z, radius, (int)color.R, (int)color.G, (int)color.B, (int)color.A); }
 			static void DRAW_CHECKPOINT_WITH_ALPHA(float x, float y, float z, float radius, int r, int g, int b, int a) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DRAW_CHECKPOINT_WITH_ALPHA, x, y, z, radius, r, g, b, a); }
 			static void DRAW_COLOURED_CYLINDER(float x, float y, float z, float Unk712, float Unk713, int r, int g, int b, int a) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DRAW_COLOURED_CYLINDER, x, y, z, Unk712, Unk713, r, g, b, a); }
-			static void DRAW_CORONA(float x, float y, float z, float radius, ScriptAny Unk714, ScriptAny Unk715, int Unk716, int Unk717, int Unk718) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DRAW_CORONA, x, y, z, radius, Unk714, Unk715, Unk716, Unk717, Unk718); }
+			static void DRAW_CORONA(Vector3 pos, float radius, int Unk714, float Unk715, Color color) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DRAW_CORONA, pos.X, pos.Y, pos.Z, radius, Unk714, Unk715, (int)color.R, (int)color.G, (int)color.B); }
+			static void DRAW_CORONA(float x, float y, float z, float radius, int Unk714, float Unk715, int r, int g, int b) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DRAW_CORONA, x, y, z, radius, Unk714, Unk715, r, g, b); }
 			static void DRAW_CURVED_WINDOW(float Unk719, float Unk720, float Unk721, float Unk722, unsigned int alpha) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DRAW_CURVED_WINDOW, Unk719, Unk720, Unk721, Unk722, alpha); }
 			static void DRAW_CURVED_WINDOW_NOTEXT(float Unk723, float Unk724, float Unk725, float Unk726, int Unk727) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DRAW_CURVED_WINDOW_NOTEXT, Unk723, Unk724, Unk725, Unk726, Unk727); }
 			static void DRAW_CURVED_WINDOW_TEXT(float Unk728, float Unk729, float Unk730, int Unk731, int Unk732, String^ str0, String^ str1, int Unk733)
@@ -4779,7 +4830,7 @@ namespace IVSDKDotNet {
 			static uint32_t GET_PLAYER_ID() { return NativeInvoke::Invoke<uint32_t>(NATIVE_GET_PLAYER_ID); }
 			static uint32_t GET_HOST_ID() { return NativeInvoke::Invoke<uint32_t>(NATIVE_GET_HOST_ID); }
 			static Player CONVERT_INT_TO_PLAYERINDEX(uint32_t playerId) { return NativeInvoke::Invoke< Player>(NATIVE_CONVERT_INT_TO_PLAYERINDEX, playerId); }
-			static uint32_t GET_HASH_KEY(String^ value)
+			static int GET_HASH_KEY(String^ value)
 			{
 				msclr::interop::marshal_context ctx;
 				return NativeInvoke::Invoke<ScriptAny>(NATIVE_GET_HASH_KEY, ctx.marshal_as<const char*>(value));
