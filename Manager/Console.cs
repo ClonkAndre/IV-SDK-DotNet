@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -16,8 +17,6 @@ namespace Manager {
     public class Console {
 
         #region Variables
-        private Main managerInstance;
-
         public List<Line> Items;
         public List<string> InputHistory;
         public Dictionary<string, Action<string[]>> Commands;
@@ -73,7 +72,7 @@ namespace Manager {
             IsConsoleVisible = true;
             NavigateToBottom();
 
-            caretTimerID = managerInstance.StartNewTimerInternel(600, () => {
+            caretTimerID = Main.managerInstance.StartNewTimerInternel(600, () => {
                 showCaret = !showCaret;
             });
         }
@@ -82,7 +81,7 @@ namespace Manager {
             if (!IsConsoleVisible)
                 return;
 
-            managerInstance.AbortTaskOrTimer(caretTimerID);
+            Main.managerInstance.AbortTaskOrTimer(caretTimerID);
 
             IsConsoleVisible = false;
             input = string.Empty;
@@ -114,7 +113,7 @@ namespace Manager {
         private void Print(eConsoleLogStyle style, string str)
         {
             if (string.IsNullOrWhiteSpace(str)) {
-                Items.Add(new Line(DateTime.Now, style, ""));
+                Items.Add(new Line(DateTime.UtcNow, style, ""));
                 NavigateToBottom();
                 return;
             }
@@ -132,11 +131,11 @@ namespace Manager {
                         string[] arr = tmp.Split(splitStr, StringSplitOptions.RemoveEmptyEntries);
                         for (int i = 0; i < arr.Length; i++) {
                             string line = arr[i];
-                            Items.Add(new Line(DateTime.Now, style, line));
+                            Items.Add(new Line(DateTime.UtcNow, style, line));
                         }
                     }
                     else { // Contains no new line characters
-                        Items.Add(new Line(DateTime.Now, style, tmp));
+                        Items.Add(new Line(DateTime.UtcNow, style, tmp));
                     }
                 } while (correctedStr.Length > 98);
                 
@@ -146,21 +145,22 @@ namespace Manager {
                         string[] arr = correctedStr.Split(splitStr, StringSplitOptions.RemoveEmptyEntries);
                         for (int i = 0; i < arr.Length; i++) {
                             string line = arr[i];
-                            Items.Add(new Line(DateTime.Now, style, line));
+                            Items.Add(new Line(DateTime.UtcNow, style, line));
                         }
                     }
                     else { // Contains no new line characters
-                        Items.Add(new Line(DateTime.Now, style, correctedStr));
+                        Items.Add(new Line(DateTime.UtcNow, style, correctedStr));
                     }
                 }
             }
             else {
-                Items.Add(new Line(DateTime.Now, style, str));
+                Items.Add(new Line(DateTime.UtcNow, style, str));
             }
 
             // Write log file
             WriteLogFile();
 
+            // Jump to the latest item added in the console
             NavigateToBottom();
         }
         public void Print(string str)
@@ -254,7 +254,7 @@ namespace Manager {
                 return false;
 
             Commands.Add(nameToLower, actionToExecute);
-            if (fromScript != Guid.Empty) managerInstance.AddConsoleCommandToScript(fromScript, nameToLower);
+            if (fromScript != Guid.Empty) Main.managerInstance.AddConsoleCommandToScript(fromScript, nameToLower);
 
             return true;
         }
@@ -264,13 +264,12 @@ namespace Manager {
                 if (string.IsNullOrWhiteSpace(name))
                     return false;
 
-                string cmd = name.ToLower();
+                string[] args = Regex.Split(name, @"\s+");
 
-                if (!Commands.ContainsKey(cmd))
+                if (!Commands.ContainsKey(args[0].ToLower()))
                     return false;
 
-                string[] args = Regex.Split(name, @"\s+");
-                Commands[cmd]?.Invoke(args);
+                Commands[args[0].ToLower()]?.Invoke(args);
 
                 return true;
             }
@@ -294,8 +293,10 @@ namespace Manager {
             Print("AbortScripts        - Aborts all currently running scripts.");
             Print("ReloadScripts       - Aborts and reloads all scripts.");
             Print("GetRunningScripts   - Gets number of running scripts.");
+            Print("LoadScript          - Tries to load a single script.");
+            Print("Quit                - Tries to force quit GTA IV.");
         }
-        private void SavePlayerPos()
+        private void SavePlayerPosCommand()
         {
             try {
                 Natives.GET_PLAYER_CHAR(Natives.CONVERT_INT_TO_PLAYERINDEX(Natives.GET_PLAYER_ID()), out int playerChar);
@@ -328,13 +329,32 @@ namespace Manager {
                 PrintError(string.Format("An error occured while trying to save player pos and heading to clipboard. Details: {0}", ex.ToString()));
             }
         }
+        private void LoadScriptCommand(string[] args)
+        {
+            if (args.Length > 1) {
+                Main.managerInstance.LoadScript(args[1]);
+            }
+            else {
+                PrintWarning("LoadScript usage: LoadScript TheScriptToLoad.ivsdk.dll");
+            }
+        }
+        private void QuitCommand()
+        {
+            Process p = Main.managerInstance.GTAIVProcess;
+            if (p != null) {
+                Main.managerInstance.Cleanup();
+                Thread.Sleep(1000);
+                p.Kill();
+            }
+            else {
+                Main.managerInstance.console.PrintWarning("Could not close GTA IV. GTAIVProcess is null.");
+            }
+        }
         #endregion
 
         #region Constructor
-        internal Console(Main main)
+        internal Console()
         {
-            managerInstance = main;
-
             input = string.Empty;
 
             splitStr = new string[1] { Environment.NewLine };
@@ -347,14 +367,16 @@ namespace Manager {
             Commands = new Dictionary<string, Action<string[]>>();
             RegisterCommand(Guid.Empty, "Help",                 (string[] args) => { HelpCommand(); });
             RegisterCommand(Guid.Empty, "Clear",                (string[] args) => { Clear(); });
-            RegisterCommand(Guid.Empty, "CheckForUpdates",      (string[] args) => { managerInstance.UpdateChecker.CheckForUpdates(false); });
+            RegisterCommand(Guid.Empty, "CheckForUpdates",      (string[] args) => { Main.managerInstance.UpdateChecker.CheckForUpdates(false); });
             RegisterCommand(Guid.Empty, "Autosave",             (string[] args) => { Natives.DO_AUTO_SAVE(); });
             RegisterCommand(Guid.Empty, "Save",                 (string[] args) => { Natives.ACTIVATE_SAVE_MENU(); });
-            RegisterCommand(Guid.Empty, "SavePlayerPos",        (string[] args) => { SavePlayerPos(); });
-            RegisterCommand(Guid.Empty, "ReloadConfig",         (string[] args) => { managerInstance.LoadConfig(false); });
-            RegisterCommand(Guid.Empty, "AbortScripts",         (string[] args) => { managerInstance.AbortScripts(true); });
-            RegisterCommand(Guid.Empty, "ReloadScripts",        (string[] args) => { managerInstance.LoadScripts(); });
-            RegisterCommand(Guid.Empty, "GetRunningScripts",    (string[] args) => { Print(string.Format("There are currently {0} scripts running.", managerInstance.ActiveScripts.Count.ToString())); ; });
+            RegisterCommand(Guid.Empty, "SavePlayerPos",        (string[] args) => { SavePlayerPosCommand(); });
+            RegisterCommand(Guid.Empty, "ReloadConfig",         (string[] args) => { Main.managerInstance.LoadConfig(false); });
+            RegisterCommand(Guid.Empty, "AbortScripts",         (string[] args) => { Main.managerInstance.AbortScripts(true); });
+            RegisterCommand(Guid.Empty, "ReloadScripts",        (string[] args) => { Main.managerInstance.LoadScripts(); });
+            RegisterCommand(Guid.Empty, "GetRunningScripts",    (string[] args) => { Print(string.Format("There are currently {0} scripts running.", Main.managerInstance.ActiveScripts.Count.ToString())); });
+            RegisterCommand(Guid.Empty, "LoadScript",           (string[] args) => { LoadScriptCommand(args); });
+            RegisterCommand(Guid.Empty, "Quit",                 (string[] args) => { QuitCommand(); });
         }
         #endregion
 

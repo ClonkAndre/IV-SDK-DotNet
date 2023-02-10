@@ -8,8 +8,6 @@ namespace Manager {
     public class Notification {
 
         #region Variables
-        private Main managerInstance;
-
         public List<NotificationItem> Items;
         #endregion
 
@@ -78,7 +76,7 @@ namespace Manager {
             Items.Add(item);
 
             // Start delayed action to remove the notification item
-            managerInstance.StartDelayedAction(Guid.NewGuid(), "Removing notification", showTime, (DelayedAction dA, object obj) => {
+            Main.managerInstance.StartDelayedAction(Guid.NewGuid(), "Removing notification", showTime, (DelayedAction dA, object obj) => {
                 ((NotificationItem)obj).FadeOut = true;
             }, item);
 
@@ -104,9 +102,8 @@ namespace Manager {
         #endregion
 
         #region Constructor
-        internal Notification(Main instance)
+        internal Notification()
         {
-            managerInstance = instance;
             Items = new List<NotificationItem>();
         }
         #endregion
