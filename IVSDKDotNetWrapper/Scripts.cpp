@@ -74,6 +74,11 @@ namespace IVSDKDotNet {
 		return false;
 	}
 
+	bool Script::RegisterConsoleCommand(String^ name, Action<array<String^>^>^ actionToExecute)
+	{
+		return CGame::Console::RegisterCommand(this, name, actionToExecute);
+	}
+
 	String^ Script::GetName()
 	{
 		if (ManagerScript::s_Instance)

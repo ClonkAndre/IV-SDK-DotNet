@@ -1,7 +1,7 @@
 #pragma once
 
 class CPed;
-class CVehicle;
+class Native_CVehicle;
 
 class Native_CPlayerInfo
 {
@@ -43,7 +43,7 @@ public:
 	uint8_t pad13[0xB];													// 581-58C
 	CPed* m_pPlayerPed;													// 58C-590
 	uint8_t pad14[0x4];													// 590-594
-	CVehicle* m_pOnlyEnterThisVehicle;									// 594-598
+	Native_CVehicle* m_pOnlyEnterThisVehicle;							// 594-598
 	uint8_t pad15[0x28];												// 598-5C0
 
 	void KillPlayerOutsideWorld()
@@ -57,20 +57,20 @@ public:
 	}
 	static Native_CPlayerInfo* GetPlayerInfo(uint32_t nPlayerId)
 	{
-		return ((Native_CPlayerInfo * (__cdecl*)(uint32_t))(AddressSetter::Get(0x417F20, 0x3CD210)))(nPlayerId);
+		return ((Native_CPlayerInfo*(__cdecl*)(uint32_t))(AddressSetter::Get(0x417F20, 0x3CD210)))(nPlayerId);
 	}
 
 	static Native_CVector& FindPlayerCentreOfWorld(Native_CVector* v)
 	{
-		return ((Native_CVector & (__cdecl*)(Native_CVector*))(AddressSetter::Get(0x418100, 0x3CD3F0)))(v);
+		return ((Native_CVector&(__cdecl*)(Native_CVector*))(AddressSetter::Get(0x418100, 0x3CD3F0)))(v);
 	}
 	static uint32_t FindPlayerPed()
 	{
-		return (uint32_t)((uint32_t* (__cdecl*)())(AddressSetter::Get(0x417F40, 0x3CD230)))();
+		return ((uint32_t(__cdecl*)())(AddressSetter::Get(0x417F40, 0x3CD230)))();
 	}
 	static uint32_t FindPlayerVehicle()
 	{
-		return (uint32_t)((uint32_t* (__cdecl*)())(AddressSetter::Get(0x478890, 0x4B52F0)))();
+		return ((uint32_t(__cdecl*)())(AddressSetter::Get(0x478890, 0x4B52F0)))();
 	}
 
 };

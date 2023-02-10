@@ -7,13 +7,13 @@ namespace IVSDKDotNet {
 
 	array<Ped>^ CPools::GetAllPedHandles()
 	{
-		CPool<CPed>* pedPool = Native_CPools::PedPool();
+		CPool<Native_CPed>* pedPool = Native_CPools::PedPool();
 
 		if (pedPool) {
 			array<Ped>^ peds = gcnew array<Ped>(pedPool->m_nUsed);
 
 			for (uint32_t i = 0; i < pedPool->m_nUsed; i++) {
-				if (CPed* ped = pedPool->Get(i)) {
+				if (Native_CPed* ped = pedPool->Get(i)) {
 					uint32_t handle = pedPool->GetIndex(ped);
 					peds[i] = handle;
 				}
@@ -26,13 +26,13 @@ namespace IVSDKDotNet {
 	}
 	array<Vehicle>^ CPools::GetAllVehicleHandles()
 	{
-		CPool<CVehicle>* vehiclePool = Native_CPools::VehiclePool();
+		CPool<Native_CVehicle>* vehiclePool = Native_CPools::VehiclePool();
 
 		if (vehiclePool) {
 			array<Vehicle>^ vehicles = gcnew array<Vehicle>(vehiclePool->m_nUsed);
 
 			for (uint32_t i = 0; i < vehiclePool->m_nUsed; i++) {
-				if (CVehicle* veh = vehiclePool->Get(i)) {
+				if (Native_CVehicle* veh = vehiclePool->Get(i)) {
 					uint32_t handle = vehiclePool->GetIndex(veh);
 					vehicles[i] = handle;
 				}
@@ -63,8 +63,40 @@ namespace IVSDKDotNet {
 		return Array::Empty<Entity>();
 	}
 
+	void CPools::DeleteChar(Ped handle)
+	{
+		Natives::DELETE_CHAR(&handle);
+	}
+	void CPools::DeleteCar(Vehicle handle)
+	{
+		Natives::DELETE_CAR(&handle);
+	}
+	void CPools::DeleteObject(Entity handle)
+	{
+		Natives::DELETE_OBJECT(&handle);
+	}
+
 	// - - - IV-SDK Objects - - -
 
+	array<CVehicle^>^ CPools::GetAllVehicles()
+	{
+		CPool<Native_CVehicle>* vehiclePool = Native_CPools::VehiclePool();
+
+		if (vehiclePool) {
+			array<CVehicle^>^ vehicles = gcnew array<CVehicle^>(vehiclePool->m_nUsed);
+
+			for (uint32_t i = 0; i < vehiclePool->m_nUsed; i++) {
+				if (Native_CVehicle* obj = vehiclePool->Get(i)) {
+					uint32_t handle = vehiclePool->GetIndex(obj);
+					vehicles[i] = gcnew CVehicle(handle, obj);
+				}
+			}
+
+			return vehicles;
+		}
+
+		return Array::Empty<CVehicle^>();
+	}
 	array<CObject^>^ CPools::GetAllObjects()
 	{
 		CPool<Native_CObject>* objectPool = Native_CPools::ObjectPool();
@@ -83,19 +115,6 @@ namespace IVSDKDotNet {
 		}
 
 		return Array::Empty<CObject^>();
-	}
-
-	void CPools::DeleteChar(Ped handle)
-	{
-		Natives::DELETE_CHAR(&handle);
-	}
-	void CPools::DeleteCar(Vehicle handle)
-	{
-		Natives::DELETE_CAR(&handle);
-	}
-	void CPools::DeleteObject(Entity handle)
-	{
-		Natives::DELETE_OBJECT(&handle);
 	}
 
 }

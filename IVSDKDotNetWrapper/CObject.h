@@ -17,15 +17,14 @@ namespace IVSDKDotNet {
 	public ref class CObject : CPhysical
 	{
 	public:
-		CObject(int handle, Native_CObject* native);
+		CObject(uint32_t handle, Native_CObject* native);
 
 		/// <summary>
 		/// Gets the handle of this object.
 		/// </summary>
-		property int Handle {
-			public:
-				int get()				{ return m_iHandle; }
-				void set(int value)		{ m_iHandle = value; }
+		property uint32_t Handle {
+			public:		uint32_t get()					{ return m_iHandle; }
+			private:	void set(uint32_t value)		{ m_iHandle = value; }
 		}
 
 		/// <summary>
@@ -38,7 +37,7 @@ namespace IVSDKDotNet {
 		}
 
 	private:
-		int m_iHandle;
+		uint32_t m_iHandle;
 		Native_CObject* m_cNativeObject;
 	};
 

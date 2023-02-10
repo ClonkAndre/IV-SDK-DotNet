@@ -14,7 +14,8 @@ namespace IVSDKDotNet {
 	}
 	uint32_t CPlayerInfo::FindPlayerVehicle()
 	{
-		return Native_CPlayerInfo::FindPlayerVehicle();
+		//return Native_CPlayerInfo::FindPlayerVehicle();
+		return 0;
 	}
 
 }

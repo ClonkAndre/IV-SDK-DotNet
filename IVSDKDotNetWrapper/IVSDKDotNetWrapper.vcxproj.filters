@@ -43,6 +43,18 @@
     <Filter Include="Source Files\Pool">
       <UniqueIdentifier>{573f93df-5651-46fc-9d76-d11d9a63093b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Direct3D9">
+      <UniqueIdentifier>{f2b0f544-ed9f-4f62-8e1f-10d7c087b22e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Direct3D9">
+      <UniqueIdentifier>{ad8dfebb-c1c1-4d98-baeb-1a2703927547}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Input">
+      <UniqueIdentifier>{a2811312-f9c1-4970-80a7-64beb6456b78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Input">
+      <UniqueIdentifier>{31915713-ec7b-4de7-aa0e-5029a9094b3f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -144,19 +156,10 @@
     <ClInclude Include="rage.h">
       <Filter>Header Files\RAGE</Filter>
     </ClInclude>
-    <ClInclude Include="KeyWatchDog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CDraw.h">
       <Filter>Header Files\Drawing</Filter>
     </ClInclude>
-    <ClInclude Include="Direct3D.h">
-      <Filter>Header Files\Drawing</Filter>
-    </ClInclude>
     <ClInclude Include="CPed.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPhysical.h">
@@ -197,6 +200,21 @@
     </ClInclude>
     <ClInclude Include="CWorld.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D9.h">
+      <Filter>Header Files\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9Stuff.h">
+      <Filter>Header Files\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="CVehicle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPad.h">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyWatchDog.h">
+      <Filter>Header Files\Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -278,22 +296,13 @@
     <ClCompile Include="rage.cpp">
       <Filter>Source Files\RAGE</Filter>
     </ClCompile>
-    <ClCompile Include="KeyWatchDog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Helper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CDraw.cpp">
       <Filter>Source Files\Drawing</Filter>
     </ClCompile>
-    <ClCompile Include="Direct3D.cpp">
-      <Filter>Source Files\Drawing</Filter>
-    </ClCompile>
     <ClCompile Include="CPed.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CPad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CPhysical.cpp">
@@ -334,6 +343,21 @@
     </ClCompile>
     <ClCompile Include="CWorld.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D9.cpp">
+      <Filter>Source Files\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9Stuff.cpp">
+      <Filter>Source Files\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="CVehicle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CPad.cpp">
+      <Filter>Source Files\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyWatchDog.cpp">
+      <Filter>Source Files\Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

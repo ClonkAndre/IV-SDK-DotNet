@@ -61,6 +61,14 @@ namespace IVSDKDotNet {
 			private:	void set(uint32_t value)	{ m_baseAddress = value; }
 		}
 
+		/// <summary>
+		/// Gets the current version of GTA IV.
+		/// </summary>
+		static property eGameVersion GameVersion {
+			public:		eGameVersion get() { return m_eGameVersion; }
+			private:	void set(eGameVersion value) { m_eGameVersion = value; }
+		}
+
 	private:
 		static bool m_bGotInitialised;
 		static eGameVersion m_eGameVersion;

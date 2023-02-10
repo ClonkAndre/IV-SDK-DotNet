@@ -2480,7 +2480,7 @@ namespace IVSDKDotNet {
 			static void LOAD_ALL_OBJECTS_NOW() { NativeInvoke::Invoke< ScriptVoid>(NATIVE_LOAD_ALL_OBJECTS_NOW); }
 			static void LOAD_SCENE(float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_LOAD_SCENE, x, y, z); }
 			static void LOAD_SCENE_FOR_ROOM_BY_KEY(int interior, unsigned int roomhash) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_LOAD_SCENE_FOR_ROOM_BY_KEY, interior, roomhash); }
-			static void MARK_MODEL_AS_NO_LONGER_NEEDED(unsigned int model) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_MARK_MODEL_AS_NO_LONGER_NEEDED, model); }
+			static void MARK_MODEL_AS_NO_LONGER_NEEDED(int model) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_MARK_MODEL_AS_NO_LONGER_NEEDED, model); }
 			static void MARK_STREAMED_TXD_AS_NO_LONGER_NEEDED(String^ txdName)
 			{
 				msclr::interop::marshal_context ctx;
@@ -3412,6 +3412,10 @@ namespace IVSDKDotNet {
 				int p1;
 				NativeInvoke::Invoke< ScriptVoid>(NATIVE_GET_MOUSE_WHEEL, &p1);
 				Unk834 = p1;
+			}
+			static float GET_MOUSE_SENSITIVITY()
+			{
+				return NativeInvoke::Invoke<float>(NATIVE_GET_MOUSE_SENSITIVITY);
 			}
 			static void GET_PAD_STATE(int Unk835, int Unk836, [OutAttribute] int% Unk837)
 			{
@@ -4346,7 +4350,7 @@ namespace IVSDKDotNet {
 			static b8 HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(Ped ped, unsigned int weapon) { return NativeInvoke::Invoke< b8>(NATIVE_HAS_CHAR_BEEN_DAMAGED_BY_WEAPON, ped, weapon); }
 			static b8 HAS_CHAR_GOT_WEAPON(Ped ped, unsigned int weapon) { return NativeInvoke::Invoke< b8>(NATIVE_HAS_CHAR_GOT_WEAPON, ped, weapon); }
 			static b8 HAS_COLLISION_FOR_MODEL_LOADED(unsigned int model) { return NativeInvoke::Invoke< b8>(NATIVE_HAS_COLLISION_FOR_MODEL_LOADED, model); }
-			static b8 HAS_MODEL_LOADED(unsigned int model) { return NativeInvoke::Invoke< b8>(NATIVE_HAS_MODEL_LOADED, model); }
+			static b8 HAS_MODEL_LOADED(int model) { return NativeInvoke::Invoke< b8>(NATIVE_HAS_MODEL_LOADED, model); }
 			static b8 HAS_STREAMED_TXD_LOADED(String^ txdName)
 			{
 				msclr::interop::marshal_context ctx;
@@ -4363,7 +4367,7 @@ namespace IVSDKDotNet {
 				return NativeInvoke::Invoke< b8>(NATIVE_HAVE_ANIMS_LOADED, ctx.marshal_as<const char*>(animName));
 			}
 			static b8 HAVE_REQUESTED_PATH_NODES_BEEN_LOADED(unsigned int requestId) { return NativeInvoke::Invoke< b8>(NATIVE_HAVE_REQUESTED_PATH_NODES_BEEN_LOADED, requestId); }
-			static b8 IS_MODEL_IN_CDIMAGE(unsigned int model) { return NativeInvoke::Invoke< b8>(NATIVE_IS_MODEL_IN_CDIMAGE, model); }
+			static b8 IS_MODEL_IN_CDIMAGE(int model) { return NativeInvoke::Invoke< b8>(NATIVE_IS_MODEL_IN_CDIMAGE, model); }
 			static b8 IS_STREAMING_ADDITIONAL_TEXT(unsigned int textIndex) { return NativeInvoke::Invoke< b8>(NATIVE_IS_STREAMING_ADDITIONAL_TEXT, textIndex); }
 			static b8 IS_STREAMING_PRIORITY_REQUESTS() { return NativeInvoke::Invoke< b8>(NATIVE_IS_STREAMING_PRIORITY_REQUESTS); }
 			static b8 IS_STREAMING_THIS_ADDITIONAL_TEXT(String^ str0, int Unk597, int Unk598)

@@ -9,7 +9,7 @@ namespace IVSDKDotNet {
 	void MemoryAccess::Initialise(int version, uint32_t baseAddress)
 	{
 		if (!m_bGotInitialised) {
-			m_eGameVersion = (eGameVersion)version;
+			GameVersion = (eGameVersion)version;
 			BaseAddress = baseAddress;
 			m_bGotInitialised = true;
 		}

@@ -11,7 +11,7 @@ public:
 	uint32_t m_nCount;					// 08-0C
 	uint32_t m_nEntrySize;				// 0C-10
 	int32_t m_nTop;						// 10-14
-	uint32_t m_nUsed;					// 14-18 - Gets how many peds there are currently in the world.
+	uint32_t m_nUsed;					// 14-18 - Gets the amount of things there are currently in the world.
 	uint8_t m_bAllocated;				// 18-19
 	uint8_t pad[3];						// 19-1C
 
@@ -45,4 +45,4 @@ public:
 		return (T*)&m_pObjects[m_nEntrySize * slot];
 	}
 };
-VALIDATE_SIZE(CPool<CPed>, 0x1C);
+VALIDATE_SIZE(CPool<Native_CPed>, 0x1C);

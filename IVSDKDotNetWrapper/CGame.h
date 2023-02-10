@@ -89,6 +89,15 @@ namespace IVSDKDotNet {
 			static bool ExecuteCommand(String^ name);
 		};
 
+		delegate void OnWndMessageDelegate(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
+		/// <summary>
+		/// Gets called when the GTA IV Window receives Windows Messages. See https://wiki.winehq.org/List_Of_Windows_Messages for a list of all Windows Messages.
+		/// </summary>
+		static event OnWndMessageDelegate^ OnWndMessage;
+
+		static void RaiseOnWndMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam) { OnWndMessage(hWnd, msg, wParam, lParam); }
+
 		static bool Initialise(String^ sGameDat);
 
 		/// <summary>

@@ -4,8 +4,8 @@ class CPhysical;
 class CPedIntelligenceNY;
 class CPlayerInfo;
 class CPedDataNY;
-class CObject;
-class CVehicle;
+//class CObject;
+//class CVehicle;
 namespace rage { class rmcDrawable; }
 
 class CCustomShaderEffectPedBoneDamageFX : public CCustomShaderEffectBase
@@ -28,7 +28,7 @@ public:
 	uint8_t pad1[0x10];													// 0C-1C
 	float m_fMoveLeanAmount;											// 1C-20 3 is normal, less than 3 leans left, more than 3 leans right
 	uint8_t pad2[0x4];													// 20-28
-	CPed* m_pPed;														// 24-28
+	Native_CPed* m_pPed;												// 24-28
 	float m_fMoveTurn;													// 28-2C
 	uint8_t pad3[0x24];													// 2C-50
 	uint32_t m_nUnkFlags;												// 50-54
@@ -57,7 +57,7 @@ struct PedWeapons
 	uint8_t weaponspad1[0x18];											// 00-18 CPed 2B0-2C8
 	uint32_t m_nActiveWeaponSlot;										// 18-1C CPed 2C8-2CC
 	uint8_t weaponspad2[0x10];											// 1C-2C CPed 2CC-2DC
-	CObject* m_pWeaponObject;											// 2C-30 CPed 2DC-2E0
+	Native_CObject* m_pWeaponObject;									// 2C-30 CPed 2DC-2E0
 	uint8_t weaponspad3[0xC];											// 30-3C CPed 2E0-388
 	PedWeaponSlot m_aWeapons[12];										// 3C-CC CPed 2EC-37C
 };
@@ -88,7 +88,7 @@ struct tPedComponentModels
 };
 //VALIDATE_OFFSET(tPedComponentModels, m_pPedBoneDamageFX, 0x58);
 
-class CPed : public CPhysical
+class Native_CPed : public Native_CPhysical
 {
 public:																	// 000-210
 	uint8_t m_bDead;													// 210-211
@@ -128,7 +128,7 @@ public:																	// 000-210
 	uint8_t m_nShootRate;												// 388-389
 	uint8_t m_nAccuracy;												// 389-38A
 	uint8_t pad9[0xFA];													// 38A-484
-	CEntity* m_pStandingOnEntity;										// 484-488
+	Native_CEntity* m_pStandingOnEntity;								// 484-488
 	uint8_t pad10[0x194];												// 488-61C
 	uint32_t m_nVoiceHash;												// 61C-620
 	uint8_t pad11[0x19C];												// 620-7BC
@@ -149,7 +149,7 @@ public:																	// 000-210
 	float m_fCurrentHeading;											// AB0-AB4
 	float m_fDesiredHeading;											// AB4-AB8
 	uint8_t pad18[0x88];												// AB8-B40
-	CVehicle* m_pVehicle;												// B40-B44
+	Native_CVehicle* m_pVehicle;										// B40-B44
 	uint8_t pad19[0x33C];												// B44-E80
 	uint32_t m_nUnkPlayerSettingsRelated;								// E80-E84 used in CTaskComplexPlayerSettingsTask, initialized as *(dword_14CB008 + 32)
 	uint8_t pad20[0x24];												// E84-EA8
@@ -158,47 +158,69 @@ public:																	// 000-210
 
 	void ProcessWeaponSwitch()
 	{
-		((void(__thiscall*)(CPed*))(AddressSetter::Get(0x5BE7D0, 0x597180)))(this);
+		((void(__thiscall*)(Native_CPed*))(AddressSetter::Get(0x5BE7D0, 0x597180)))(this);
 	}
 	CPad* GetPadFromPlayer()
 	{
-		return ((CPad * (__thiscall*)(CPed*))(AddressSetter::Get(0x5BE5D0, 0x596F80)))(this);
+		return ((CPad*(__thiscall*)(Native_CPed*))(AddressSetter::Get(0x5BE5D0, 0x596F80)))(this);
 	}
-	CVehicle* GetVehicle()
+	Native_CVehicle* GetVehicle()
 	{
-		return ((CVehicle * (__thiscall*)(CPed*))(AddressSetter::Get(0x26AB0, 0x9FBA0)))(this);
+		return ((Native_CVehicle * (__thiscall*)(Native_CPed*))(AddressSetter::Get(0x26AB0, 0x9FBA0)))(this);
 	}
 	void SetHealth(float health, int unk)
 	{
-		((void(__thiscall*)(CPed*, float, int))(*(void***)this)[61])(this, health, unk);
+		((void(__thiscall*)(Native_CPed*, float, int))(*(void***)this)[61])(this, health, unk);
 	}
 	void AddHealth(float health)
 	{
-		((void(__thiscall*)(CPed*, float))(*(void***)this)[62])(this, health);
+		((void(__thiscall*)(Native_CPed*, float))(*(void***)this)[62])(this, health);
 	}
 	void ProcessHeading()
 	{
-		((void(__thiscall*)(CPed*))(AddressSetter::Get(0x4A28B0, 0x53F9E0)))(this);
+		((void(__thiscall*)(Native_CPed*))(AddressSetter::Get(0x4A28B0, 0x53F9E0)))(this);
 	}
 };
-//VALIDATE_SIZE(CPed, 0xF00);
-//VALIDATE_OFFSET(CPed, m_pCollider, 0x7BC);
-//VALIDATE_OFFSET(CPed, m_fClimbAnimRate, 0x278);
-//VALIDATE_OFFSET(CPed, m_nDeathState, 0xA84);
-//VALIDATE_OFFSET(CPed, m_nCreatedBy, 0xA70);
-//VALIDATE_OFFSET(CPed, m_nPlayerIndex, 0x218);
-//VALIDATE_OFFSET(CPed, m_nRagdollStatus, 0x7C8);
-//VALIDATE_OFFSET(CPed, m_nWeaponObjectVisible, 0x7F1);
-//VALIDATE_OFFSET(CPed, m_fMaxHealth, 0xA94);
-//VALIDATE_OFFSET(CPed, m_fCurrentHeading, 0xAB0);
-//VALIDATE_OFFSET(CPed, m_fDesiredHeading, 0xAB4);
-//VALIDATE_OFFSET(CPed, m_pVehicle, 0xB40);
-//VALIDATE_OFFSET(CPed, m_pDrawableInfo, 0x21C);
-//VALIDATE_OFFSET(CPed, m_nShootRate, 0x388);
-//VALIDATE_OFFSET(CPed, m_nAccuracy, 0x389);
-//VALIDATE_OFFSET(CPed, m_pPedMoveBlendOnFoot, 0xA90);
-//VALIDATE_OFFSET(CPed, m_pComponentModels, 0xEA8);
-//VALIDATE_OFFSET(CPed, m_nVoiceHash, 0x61C);
-//VALIDATE_OFFSET(CPed, m_pStandingOnEntity, 0x484);
-//VALIDATE_OFFSET(CPed, m_pWeaponData, 0x2B0);
-//VALIDATE_OFFSET(CPed, m_nUnkPlayerSettingsRelated, 0xE80);
+VALIDATE_SIZE(Native_CPed, 0xF00);
+VALIDATE_OFFSET(Native_CPed, m_pCollider, 0x7BC);
+VALIDATE_OFFSET(Native_CPed, m_fClimbAnimRate, 0x278);
+VALIDATE_OFFSET(Native_CPed, m_nDeathState, 0xA84);
+VALIDATE_OFFSET(Native_CPed, m_nCreatedBy, 0xA70);
+VALIDATE_OFFSET(Native_CPed, m_nPlayerIndex, 0x218);
+VALIDATE_OFFSET(Native_CPed, m_nRagdollStatus, 0x7C8);
+VALIDATE_OFFSET(Native_CPed, m_nWeaponObjectVisible, 0x7F1);
+VALIDATE_OFFSET(Native_CPed, m_fMaxHealth, 0xA94);
+VALIDATE_OFFSET(Native_CPed, m_fCurrentHeading, 0xAB0);
+VALIDATE_OFFSET(Native_CPed, m_fDesiredHeading, 0xAB4);
+VALIDATE_OFFSET(Native_CPed, m_pVehicle, 0xB40);
+VALIDATE_OFFSET(Native_CPed, m_pDrawableInfo, 0x21C);
+VALIDATE_OFFSET(Native_CPed, m_nShootRate, 0x388);
+VALIDATE_OFFSET(Native_CPed, m_nAccuracy, 0x389);
+VALIDATE_OFFSET(Native_CPed, m_pPedMoveBlendOnFoot, 0xA90);
+VALIDATE_OFFSET(Native_CPed, m_pComponentModels, 0xEA8);
+VALIDATE_OFFSET(Native_CPed, m_nVoiceHash, 0x61C);
+VALIDATE_OFFSET(Native_CPed, m_pStandingOnEntity, 0x484);
+VALIDATE_OFFSET(Native_CPed, m_pWeaponData, 0x2B0);
+VALIDATE_OFFSET(Native_CPed, m_nUnkPlayerSettingsRelated, 0xE80);
+
+namespace IVSDKDotNet {
+
+	public ref class CPed
+	{
+	public:
+		CPed(uint32_t handle, Native_CPed* native);
+
+		void ProcessWeaponSwitch();
+		//CPad* GetPadFromPlayer();
+		//Native_CVehicle* GetVehicle();
+		void SetHealth(float health, int unk);
+		void AddHealth(float health);
+		void ProcessHeading();
+
+	private:
+		uint32_t m_iHandle;
+		Native_CPed* m_cNativePed;
+
+	};
+
+}

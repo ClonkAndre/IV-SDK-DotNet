@@ -168,10 +168,11 @@
     <ClInclude Include="CTimeCycle.h" />
     <ClInclude Include="CTimer.h" />
     <ClInclude Include="CVectors.h" />
+    <ClInclude Include="CVehicle.h" />
     <ClInclude Include="CVisibilityPlugins.h" />
     <ClInclude Include="CWorld.h" />
     <ClInclude Include="defines.h" />
-    <ClInclude Include="Direct3D.h" />
+    <ClInclude Include="Direct3D9.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="EventArgs.h" />
     <ClInclude Include="CGame.h" />
@@ -186,6 +187,7 @@
     <ClInclude Include="phInstGta.h" />
     <ClInclude Include="rage.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="D3D9Stuff.h" />
     <ClInclude Include="Scripts.h" />
     <ClInclude Include="SettingsFile.h" />
   </ItemGroup>
@@ -220,9 +222,11 @@
     <ClCompile Include="CTimeCycle.cpp" />
     <ClCompile Include="CTimer.cpp" />
     <ClCompile Include="CVectors.cpp" />
+    <ClCompile Include="CVehicle.cpp" />
     <ClCompile Include="CVisibilityPlugins.cpp" />
     <ClCompile Include="CWorld.cpp" />
-    <ClCompile Include="Direct3D.cpp" />
+    <ClCompile Include="D3D9Stuff.cpp" />
+    <ClCompile Include="Direct3D9.cpp" />
     <ClCompile Include="EventArgs.cpp" />
     <ClCompile Include="CGame.cpp" />
     <ClCompile Include="Helper.cpp" />
