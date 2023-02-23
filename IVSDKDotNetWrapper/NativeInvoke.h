@@ -8,12 +8,12 @@ using namespace IVSDKDotNet::Native;
 class IVNativeCallContext
 {
 public:
-	void* m_pReturn;						// 00-04
-	unsigned int m_nArgCount;				// 04-08
-	void* m_pArgs;							// 08-0C
-	unsigned int m_nDataCount;				// 0C-10
+	void* m_pReturn;							// 00-04
+	unsigned int m_nArgCount;					// 04-08
+	void* m_pArgs;								// 08-0C
+	unsigned int m_nDataCount;					// 0C-10
 	Native_CVector* m_pOriginalData[4];			// 10-20
-	Native_CQuaternion m_TemporaryData[4];			// 20-60
+	Native_CQuaternion m_TemporaryData[4];		// 20-60
 };
 VALIDATE_OFFSET(IVNativeCallContext, m_pOriginalData, 0x10);
 VALIDATE_OFFSET(IVNativeCallContext, m_TemporaryData, 0x20);
@@ -126,21 +126,6 @@ private:
 	}
 
 public:
-
-	//generic <typename T>
-	//static inline void Call(uint32_t hash, ...array<T>^ params)
-	//{
-	//	NativeContext cxt;
-
-	//	if (!params) {
-	//		for (int i = 0; i < params->Length; i++) {
-	//			//cxt.ManagedPush(params[i]);
-	//		}
-	//	}
-
-	//	Invoke((uint32_t)hash, &cxt);
-	//	cxt.GetResult<ScriptVoid>();
-	//}
 
 	template <typename R>
 	static inline R Invoke(eNativeHash hash)

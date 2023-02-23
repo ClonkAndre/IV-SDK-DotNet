@@ -59,19 +59,19 @@ namespace IVSDKDotNet {
 	public:
 		CRGBFloat(float r, float g, float b);
 
-		property uint8_t R {
-			public:		uint8_t get()			{ return m_fR; }
-			private:	void set(uint8_t value) { m_fR = value; }
+		property float R {
+			public:		float get()				{ return m_fR; }
+			private:	void set(float value)	{ m_fR = value; }
 		}
 
-		property uint8_t G {
-			public:		uint8_t get()			{ return m_fG; }
-			private:	void set(uint8_t value) { m_fG = value; }
+		property float G {
+			public:		float get()				{ return m_fG; }
+			private:	void set(float value)	{ m_fG = value; }
 		}
 
-		property uint8_t B {
-			public:		uint8_t get()			{ return m_fB; }
-			private:	void set(uint8_t value) { m_fB = value; }
+		property float B {
+			public:		float get()				{ return m_fB; }
+			private:	void set(float value)	{ m_fB = value; }
 		}
 
 		virtual String^ ToString() override

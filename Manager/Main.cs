@@ -449,7 +449,7 @@ namespace Manager {
 
     public class Main : ManagerScript {
 
-        public const string ManagerVersion = "0.5";
+        public const string ManagerVersion = "0.6";
 
         #region Variables
         internal static Main managerInstance;
@@ -469,7 +469,7 @@ namespace Manager {
         private KeyWatchDog keyWatchDog;
 
         // Local Direct3D9 Resources
-        private SharpDX.Direct3D9.Font debugD3D9Font;
+        private SharpDX.Direct3D9.Font localD3D9Font;
 
         // Other
         public UpdateChecker UpdateChecker;
@@ -512,7 +512,7 @@ namespace Manager {
         {
             SharpDX.Direct3D9.Device d = (SharpDX.Direct3D9.Device)device;
 #if DEBUG
-            debugD3D9Font = new SharpDX.Direct3D9.Font(d, D3DFontDescription.Default().ToSharpDXFontDescription());
+            localD3D9Font = new SharpDX.Direct3D9.Font(d, D3DFontDescription.Default().ToSharpDXFontDescription());
 #endif
         }
 
@@ -771,7 +771,7 @@ namespace Manager {
                 }
             });
         }
-        public override void RaiseProcessAutomobile()
+        public override void RaiseProcessAutomobile(UIntPtr vehPtr)
         {
             if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
                 return;
@@ -780,7 +780,7 @@ namespace Manager {
                 try {
                     if (fs.Running) {
                         DateTime time = DateTime.UtcNow;
-                        fs.Script.RaiseProcessAutomobile();
+                        fs.Script.RaiseProcessAutomobile(vehPtr);
                         fs.Script.ProcessAutomobileEventExecutionTime = DateTime.UtcNow - time;
                     }
                 }
@@ -955,6 +955,17 @@ namespace Manager {
         }
         #endregion
 
+        #region Helper Overrides
+        public override string Helper_JSON_ConvertObjectToJsonString(object obj)
+        {
+            return JsonConvert.SerializeObject(obj);
+        }
+        public override object Helper_JSON_ConvertJsonStringToObject(string str)
+        {
+            return JsonConvert.DeserializeObject(str);
+        }
+        #endregion
+
         #region Console Overrides
         public override void OpenConsole()
         {
@@ -1042,8 +1053,11 @@ namespace Manager {
                     }
                 }
 
-                D3DResource resource = new D3DResource(Guid.NewGuid(), eD3D9ResourceType.Texture, JsonConvert.SerializeObject(textureSize), SharpDX.Direct3D9.Texture.FromFile((SharpDX.Direct3D9.Device)device, filePath).NativePointer);
+                DateTime dt = DateTime.UtcNow;
+                SharpDX.Direct3D9.Texture t = SharpDX.Direct3D9.Texture.FromFile((SharpDX.Direct3D9.Device)device, filePath, -2, -2, 1, SharpDX.Direct3D9.Usage.None, SharpDX.Direct3D9.Format.A8R8G8B8, SharpDX.Direct3D9.Pool.Managed, SharpDX.Direct3D9.Filter.Default, SharpDX.Direct3D9.Filter.Default, 0);
+                D3DResource resource = new D3DResource(Guid.NewGuid(), eD3D9ResourceType.Texture, JsonConvert.SerializeObject(textureSize), t.NativePointer);
                 GetFoundScript(forScript.ID)?.D3D9Objects.Add(resource.ID, resource);
+                console.PrintDebug("Time it took to create one texture: " + (DateTime.UtcNow - dt).ToString());
 
                 // Log
                 console.PrintDebug(string.Format("Created new {0} D3D9Resource {1} (ID: {2}) for script {3}.", resource.DXType.ToString(), resource.Handle.ToString(), resource.ID.ToString(), forScript.GetName()));
@@ -1071,7 +1085,8 @@ namespace Manager {
                     }
                 }
 
-                D3DResource resource = new D3DResource(Guid.NewGuid(), eD3D9ResourceType.Texture, JsonConvert.SerializeObject(textureSize), SharpDX.Direct3D9.Texture.FromMemory((SharpDX.Direct3D9.Device)device, data).NativePointer);
+                SharpDX.Direct3D9.Texture t = SharpDX.Direct3D9.Texture.FromMemory((SharpDX.Direct3D9.Device)device, data, -2, -2, 1, SharpDX.Direct3D9.Usage.None, SharpDX.Direct3D9.Format.A8R8G8B8, SharpDX.Direct3D9.Pool.Managed, SharpDX.Direct3D9.Filter.Default, SharpDX.Direct3D9.Filter.Default, 0);
+                D3DResource resource = new D3DResource(Guid.NewGuid(), eD3D9ResourceType.Texture, JsonConvert.SerializeObject(textureSize), t.NativePointer);
                 GetFoundScript(forScript.ID)?.D3D9Objects.Add(resource.ID, resource);
 
                 // Log
@@ -1174,8 +1189,11 @@ namespace Manager {
         }
 
         // DrawLine
-        public override bool Direct3D9_Graphics_DrawLines(IntPtr device, Vector2[] vertices, Color color, bool antialias, int pattern, float patternScale, float thickness)
+        public override bool Direct3D9_Graphics_DrawLines(object instance, IntPtr device, Vector2[] vertices, Color color, bool antialias, int pattern, float patternScale, float thickness)
         {
+            if (instance == null)
+                return false;
+
             SharpDX.Mathematics.Interop.RawVector2[] rawVectorArray = new SharpDX.Mathematics.Interop.RawVector2[vertices.Length];
 
             // Convert System.Drawing.Vector2's to SharpDX.Mathematics.Interop.RawVector2's
@@ -1183,51 +1201,86 @@ namespace Manager {
                 rawVectorArray[i] = vertices[i].ToRawVector2();
             }
 
-            return Drawing.DrawLines(device, rawVectorArray, color, antialias, pattern, patternScale, thickness);
+            return Drawing.DrawLines((D3DGraphics)instance, device, rawVectorArray, color, antialias, pattern, patternScale, thickness);
         }
-        public override bool Direct3D9_Graphics_DrawLine(IntPtr device, Vector2 point1, Vector2 point2, Color color, bool antialias, int pattern, float patternScale, float thickness)
+        public override bool Direct3D9_Graphics_DrawLine(object instance, IntPtr device, Vector2 point1, Vector2 point2, Color color, bool antialias, int pattern, float patternScale, float thickness)
         {
-            return Drawing.DrawLine(device, point1, point2, color, antialias, pattern, patternScale, thickness);
+            if (instance == null)
+                return false;
+
+            return Drawing.DrawLine((D3DGraphics)instance, device, point1, point2, color, antialias, pattern, patternScale, thickness);
         }
 
         // DrawCircle
-        public override bool Direct3D9_Graphics_DrawCircle(IntPtr device, Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color)
+        public override bool Direct3D9_Graphics_DrawCircle(object instance, IntPtr device, Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color)
         {
-            return Drawing.DrawCircle(device, pos, radius, rotation, type, smoothing, resolution, color);
+            if (instance == null)
+                return false;
+
+            return Drawing.DrawCircle((D3DGraphics)instance, device, pos, radius, rotation, type, smoothing, resolution, color);
         }
-        public override bool Direct3D9_Graphics_DrawCircleFilled(IntPtr device, Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color)
+        public override bool Direct3D9_Graphics_DrawCircleFilled(object instance, IntPtr device, Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color)
         {
-            return Drawing.DrawCircleFilled(device, pos, radius, rotation, type, smoothing, resolution, color);
+            if (instance == null)
+                return false;
+
+            return Drawing.DrawCircleFilled((D3DGraphics)instance, device, pos, radius, rotation, type, smoothing, resolution, color);
         }
 
         // DrawBox
-        public override bool Direct3D9_Graphics_DrawBoxFilled(IntPtr device, Vector2 pos, SizeF size, Color color)
+        public override bool Direct3D9_Graphics_DrawBoxFilled(object instance, IntPtr device, Vector2 pos, SizeF size, Color color)
         {
-            return Drawing.DrawBoxFilled(device, pos, size, color);
+            if (instance == null)
+                return false;
+
+            return Drawing.DrawBoxFilled((D3DGraphics)instance, device, pos, size, color);
         }
-        public override bool Direct3D9_Graphics_DrawBox(IntPtr device, Vector2 pos, SizeF size, float lineWidth, Color color)
+        public override bool Direct3D9_Graphics_DrawBox(object instance, IntPtr device, Vector2 pos, SizeF size, float lineWidth, Color color)
         {
-            return Drawing.DrawBox(device, pos, size, lineWidth, color);
+            if (instance == null)
+                return false;
+
+            return Drawing.DrawBox((D3DGraphics)instance, device, pos, size, lineWidth, color);
         }
-        public override bool Direct3D9_Graphics_DrawBoxBordered(IntPtr device, Vector2 pos, SizeF size, float borderWidth, Color color, Color borderColor)
+        public override bool Direct3D9_Graphics_DrawBoxBordered(object instance, IntPtr device, Vector2 pos, SizeF size, float borderWidth, Color color, Color borderColor)
         {
-            return Drawing.DrawBoxBordered(device, pos, size, borderWidth, color, borderColor);
+            if (instance == null)
+                return false;
+
+            return Drawing.DrawBoxBordered((D3DGraphics)instance, device, pos, size, borderWidth, color, borderColor);
         }
-        public override bool Direct3D9_Graphics_DrawBoxRounded(IntPtr device, Vector2 pos, SizeF size, float radius, bool smoothing, Color color, Color borderColor)
+        public override bool Direct3D9_Graphics_DrawBoxRounded(object instance, IntPtr device, Vector2 pos, SizeF size, float radius, bool smoothing, Color color, Color borderColor)
         {
-            return Drawing.DrawBoxRounded(device, pos, size, radius, smoothing, color, borderColor);
+            if (instance == null)
+                return false;
+
+            return Drawing.DrawBoxRounded((D3DGraphics)instance, device, pos, size, radius, smoothing, color, borderColor);
         }
 
         // DrawTexture
-        public override bool Direct3D9_Graphics_DrawTexture(IntPtr device, D3DResource txt, Vector2 pos, Size size, Vector2 scaling, float rotation, Color tint)
+        public override bool Direct3D9_Graphics_DrawTexture(object instance, IntPtr device, D3DResource txt, RectangleF rect, float rotation, Color tint)
         {
-            return Drawing.DrawTexture(device, txt.Handle, pos, size == Size.Empty ? JsonConvert.DeserializeObject<Size>(txt.ResourceProperties) : size, scaling, rotation, tint);
+            if (instance == null)
+                return false;
+
+            RectangleF targetRect = rect;
+
+            // Set size of texture automatically
+            if (targetRect.Size == SizeF.Empty) {
+                Size textureSize = JsonConvert.DeserializeObject<Size>(txt.ResourceProperties);
+                targetRect = new RectangleF(targetRect.X, targetRect.Y, textureSize.Width, textureSize.Height);
+            }
+
+            return Drawing.DrawTexture((D3DGraphics)instance, device, txt.Handle, targetRect, rotation, tint);
         }
 
         // DrawString
-        public override bool Direct3D9_Graphics_DrawString(IntPtr device, D3DResource fontResource, string text, Point pos, Color color)
+        public override bool Direct3D9_Graphics_DrawString(object instance, IntPtr device, D3DResource fontResource, string text, Point pos, Color color)
         {
-            return Drawing.DrawString(fontResource.Handle, text, pos, color);
+            if (instance == null)
+                return false;
+
+            return Drawing.DrawString((D3DGraphics)instance, fontResource != null ? fontResource.Handle : localD3D9Font.NativePointer, text, pos, color);
         }
 
         #endregion
@@ -1264,9 +1317,9 @@ namespace Manager {
                 direct3D9Hook.OnBeforeReset -=  Direct3D9Hook_OnBeforeReset;
                 direct3D9Hook.OnAfterReset -=   Direct3D9Hook_OnAfterReset;
 
-                if (debugD3D9Font != null) {
-                    debugD3D9Font.Dispose();
-                    debugD3D9Font = null;
+                if (localD3D9Font != null) {
+                    localD3D9Font.Dispose();
+                    localD3D9Font = null;
                 }
 
                 direct3D9Hook.Dispose();
@@ -1292,7 +1345,6 @@ namespace Manager {
 
             // Abort currently loaded scripts
             AbortScripts(false);
-
             
             string[] scriptFiles = Directory.GetFiles(scriptsPath, "*.ivsdk.dll");
             for (int i = 0; i < scriptFiles.Length; i++) {
@@ -1363,6 +1415,10 @@ namespace Manager {
                                     script.Settings = new SettingsFile(settingsFilePath);
                                     script.Settings.Load();
                                 }
+
+                                // Check for script resource folder
+                                string resourceFolderPath = string.Format("{0}\\{1}", scriptsPath, assemblyName);
+                                if (Directory.Exists(resourceFolderPath)) script.ScriptResourceFolder = resourceFolderPath;
 
                                 // Check if FoundScript with this assembly name already exists in ActiveScripts list
                                 FoundScript foundScript = GetFoundScript(assemblyName);
@@ -1550,7 +1606,7 @@ namespace Manager {
                 if (at.ID == id) at.Wait(waitTimeInMilliseconds);
             }
         }
-        public void AbortTaskOrTimer(Guid id)
+        public override void AbortTaskOrTimer(Guid id)
         {
             // ActiveScripts
             for (int i = 0; i < ActiveScripts.Count; i++) {
@@ -1566,7 +1622,7 @@ namespace Manager {
                 if (at.ID == id) at.Abort();
             }
         }
-        public void ChangeTimerState(Guid id, bool pause)
+        public override void ChangeTimerState(Guid id, bool pause)
         {
             // ActiveScripts
             for (int i = 0; i < ActiveScripts.Count; i++) {

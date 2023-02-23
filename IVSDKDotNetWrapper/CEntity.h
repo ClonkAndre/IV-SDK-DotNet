@@ -105,10 +105,10 @@ namespace IVSDKDotNet {
 				void	set(int16_t value)	{ m_cEntity->m_nModelIndex = value; }
 		}
 
-		property uint32_t DeletePtr {
+		property UIntPtr DeletePtr {
 			public:
-				uint32_t	get()				{ return m_cEntity->m_unkDeletePtr; }
-				void		set(uint32_t value) { m_cEntity->m_unkDeletePtr = value; }
+				UIntPtr		get()				{ return UIntPtr(m_cEntity->m_unkDeletePtr); }
+				void		set(UIntPtr value)	{ m_cEntity->m_unkDeletePtr = value.ToUInt32(); }
 		}
 
 		property float DrawDistance {
@@ -121,6 +121,12 @@ namespace IVSDKDotNet {
 			public:
 				uint8_t	get()				{ return m_cEntity->m_nAlpha; }
 				void	set(uint8_t value)	{ m_cEntity->m_nAlpha = value; }
+		}
+
+		property Native_CEntity* EntityPointer {
+			public:
+				Native_CEntity* get()			{ return m_cEntity; }
+				void set(Native_CEntity* value) { m_cEntity = value; }
 		}
 
 	private:

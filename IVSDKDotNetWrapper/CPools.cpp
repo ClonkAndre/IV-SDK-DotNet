@@ -7,7 +7,7 @@ namespace IVSDKDotNet {
 
 	array<Ped>^ CPools::GetAllPedHandles()
 	{
-		CPool<Native_CPed>* pedPool = Native_CPools::PedPool();
+		Native_CPool<Native_CPed>* pedPool = Native_CPools::GetPedPool();
 
 		if (pedPool) {
 			array<Ped>^ peds = gcnew array<Ped>(pedPool->m_nUsed);
@@ -26,7 +26,7 @@ namespace IVSDKDotNet {
 	}
 	array<Vehicle>^ CPools::GetAllVehicleHandles()
 	{
-		CPool<Native_CVehicle>* vehiclePool = Native_CPools::VehiclePool();
+		Native_CPool<Native_CVehicle>* vehiclePool = Native_CPools::GetVehiclePool();
 
 		if (vehiclePool) {
 			array<Vehicle>^ vehicles = gcnew array<Vehicle>(vehiclePool->m_nUsed);
@@ -45,7 +45,7 @@ namespace IVSDKDotNet {
 	}
 	array<Entity>^ CPools::GetAllObjectHandles()
 	{
-		CPool<Native_CObject>* objectPool = Native_CPools::ObjectPool();
+		Native_CPool<Native_CObject>* objectPool = Native_CPools::GetObjectPool();
 
 		if (objectPool) {
 			array<Entity>^ objects = gcnew array<Entity>(objectPool->m_nUsed);
@@ -78,17 +78,36 @@ namespace IVSDKDotNet {
 
 	// - - - IV-SDK Objects - - -
 
+	array<CPed^>^ CPools::GetAllPeds()
+	{
+		Native_CPool<Native_CPed>* pedPool = Native_CPools::GetPedPool();
+
+		if (pedPool) {
+			array<CPed^>^ vehicles = gcnew array<CPed^>(pedPool->m_nUsed);
+
+			for (uint32_t i = 0; i < pedPool->m_nUsed; i++) {
+				if (Native_CPed* obj = pedPool->Get(i)) {
+					//uint32_t handle = vehiclePool->GetIndex(obj);
+					vehicles[i] = gcnew CPed(obj);
+				}
+			}
+
+			return vehicles;
+		}
+
+		return Array::Empty<CPed^>();
+	}
 	array<CVehicle^>^ CPools::GetAllVehicles()
 	{
-		CPool<Native_CVehicle>* vehiclePool = Native_CPools::VehiclePool();
+		Native_CPool<Native_CVehicle>* vehiclePool = Native_CPools::GetVehiclePool();
 
 		if (vehiclePool) {
 			array<CVehicle^>^ vehicles = gcnew array<CVehicle^>(vehiclePool->m_nUsed);
 
 			for (uint32_t i = 0; i < vehiclePool->m_nUsed; i++) {
 				if (Native_CVehicle* obj = vehiclePool->Get(i)) {
-					uint32_t handle = vehiclePool->GetIndex(obj);
-					vehicles[i] = gcnew CVehicle(handle, obj);
+					//uint32_t handle = vehiclePool->GetIndex(obj);
+					vehicles[i] = gcnew CVehicle(obj);
 				}
 			}
 
@@ -99,15 +118,15 @@ namespace IVSDKDotNet {
 	}
 	array<CObject^>^ CPools::GetAllObjects()
 	{
-		CPool<Native_CObject>* objectPool = Native_CPools::ObjectPool();
+		Native_CPool<Native_CObject>* objectPool = Native_CPools::GetObjectPool();
 
 		if (objectPool) {
 			array<CObject^>^ objects = gcnew array<CObject^>(objectPool->m_nUsed);
 
 			for (uint32_t i = 0; i < objectPool->m_nUsed; i++) {
 				if (Native_CObject* obj = objectPool->Get(i)) {
-					uint32_t handle = objectPool->GetIndex(obj);
-					objects[i] = gcnew CObject(handle, obj);
+					//uint32_t handle = objectPool->GetIndex(obj);
+					objects[i] = gcnew CObject(obj);
 				}
 			}
 
@@ -115,6 +134,42 @@ namespace IVSDKDotNet {
 		}
 
 		return Array::Empty<CObject^>();
+	}
+	array<CBuilding^>^ CPools::GetAllBuildings()
+	{
+		Native_CPool<Native_CBuilding>* buildingPool = Native_CPools::GetBuildingPool();
+
+		if (buildingPool) {
+			array<CBuilding^>^ buildings = gcnew array<CBuilding^>(buildingPool->m_nUsed);
+
+			for (uint32_t i = 0; i < buildingPool->m_nUsed; i++) {
+				if (Native_CBuilding* obj = buildingPool->Get(i)) {
+					buildings[i] = gcnew CBuilding(obj);
+				}
+			}
+
+			return buildings;
+		}
+
+		return Array::Empty<CBuilding^>();
+	}
+	array<CCam^>^ CPools::GetAllCameras()
+	{
+		Native_CPool<Native_CCam>* cameraPool = Native_CPools::GetCameraPool();
+
+		if (cameraPool) {
+			array<CCam^>^ cameras = gcnew array<CCam^>(cameraPool->m_nUsed);
+
+			for (uint32_t i = 0; i < cameraPool->m_nUsed; i++) {
+				if (Native_CCam* obj = cameraPool->Get(i)) {
+					cameras[i] = gcnew CCam(obj);
+				}
+			}
+
+			return cameras;
+		}
+
+		return Array::Empty<CCam^>();
 	}
 
 }

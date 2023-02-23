@@ -53,6 +53,15 @@ namespace IVSDKDotNet {
 		if (ManagerScript::s_Instance) ManagerScript::s_Instance->WaitInTask(id, waitTimeInMilliseconds);
 	}
 
+	void Script::AbortTaskOrTimer(Guid id)
+	{
+		if (ManagerScript::s_Instance) ManagerScript::s_Instance->AbortTaskOrTimer(id);
+	}
+	void Script::ChangeTimerState(Guid id, bool pause)
+	{
+		if (ManagerScript::s_Instance) ManagerScript::s_Instance->ChangeTimerState(id, pause);
+	}
+
 	void Script::ShowSubtitleMessage(String^ str, uint32_t time)
 	{
 		IVSDKDotNet::Native::Natives::PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", str, time, true);

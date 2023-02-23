@@ -32,7 +32,10 @@ namespace TestScript {
         private int playerPed;
 
         private Vector2 mousePos;
-        private string text = "-";
+        private string text = "Hello world!";
+
+        private float fov = 60f;
+        private bool showHudRadar = true;
 
         private D3DGraphics gfx;
         private D3DResource testTexture;
@@ -46,6 +49,8 @@ namespace TestScript {
             Initialized += Main_Initialized;
             Tick += Main_Tick;
             KeyDown += Main_KeyDown;
+            ProcessAutomobile += Main_ProcessAutomobile;
+            ProcessCamera += Main_ProcessCamera;
         }
         #endregion
 
@@ -108,8 +113,9 @@ namespace TestScript {
         private void Gfx_OnDeviceEndScene(IntPtr device)
         {
             gfx.DrawLine(device, new Vector2(10f, 10f), new Vector2(50f, 100f), Color.Red, 5f);
-            gfx.DrawTexture(device, testTexture, mousePos, Size.Empty, new Vector2(0.2f, 0.2f), Color.White);
-            gfx.DrawString(device, testFont, text, 50, 50, Color.Red);
+            gfx.DrawTexture(device, testTexture, new RectangleF(mousePos.X, mousePos.Y, 16f, 16f));
+            gfx.DrawLine(device, new Vector2(0f, 232f), new Vector2(300f, 232f), Color.Blue, 1f);
+            gfx.DrawString(device, testFont, text, 100, 60, Color.Red);
 
             gfx.DrawBox(device, new Vector2(128f, 128f), new SizeF(64f, 64f), 4f, Color.Red);
             gfx.DrawBoxBordered(device, new Vector2(300f, 128f), new SizeF(64f, 64f), 4f, Color.FromArgb(100, Color.Blue), Color.Red);
@@ -120,6 +126,10 @@ namespace TestScript {
             gfx.DrawCircle(device, new Vector2(500f, 400f), 16f, 0f, eD3DCircleType.Half, true, 32, Color.Red);
             gfx.DrawCircle(device, new Vector2(200f, 400f), 16f, 0f, eD3DCircleType.Quarter, true, 32, Color.Red);
             gfx.DrawCircleFilled(device, new Vector2(600f, 500f), 16f, 0f, eD3DCircleType.Quarter, true, 32, Color.Red);
+
+            // Draw radar rectangle
+            RectangleF radar = CGame.GetRadarRectangle();
+            gfx.DrawBoxRounded(device, new Vector2(radar.X, radar.Y), new SizeF(radar.Width, radar.Height), 15f, false, Color.FromArgb(100, Color.Yellow), Color.Red);
 
             Vector2[] vertices = new Vector2[4] {
                 new Vector2(0f, 0f),
@@ -141,12 +151,17 @@ namespace TestScript {
             }
 
             GET_MOUSE_WHEEL(out int wheel);
-            text = string.Format("leftMouseButton: {0}, rightMouseButton: {1}, Wheel: {2}, Pos: {3}", leftMouseButton.ToString(), rightMouseButton.ToString(), wheel.ToString(), p.ToString());
+            //text = string.Format("leftMouseButton: {0}, rightMouseButton: {1}, Wheel: {2}, Pos: {3}", leftMouseButton.ToString(), rightMouseButton.ToString(), wheel.ToString(), p.ToString());
 
-            // Get player index, get player char and get char coordinates
+            // The IV-SDK .NET method on how to get the player char and the char coordinates
+            CPed playerPedNEW = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
+            Vector3 playerPosNEW = playerPedNEW.Matrix.pos;
+
+            // The native method on how to get the player index, the player char and the char coordinates
             int playerID = CONVERT_INT_TO_PLAYERINDEX(GET_PLAYER_ID());
             GET_PLAYER_CHAR(playerID, out playerPed);
             GET_CHAR_COORDINATES(playerPed, out Vector3 playerPos);
+            GET_CHAR_HEADING(playerPed, out float heading);
 
             // - - - - - - - Some tests - - - - - - -
 
@@ -165,17 +180,17 @@ namespace TestScript {
             //ShowSubtitleMessage(string.Format("Minute: {0}", MemoryAccess.GetRef<uint>(0xDD52FC, 0xD51690).ToString()));
 
             // Place light that casts shadows far above the player
-            if (IsKeyPressed(Keys.I)) {
-                Vector3 lightPos = new Vector3(playerPos.X, playerPos.Y, playerPos.Z + 500f);
-                DRAW_CORONA(lightPos, 1900f, 1, 0f, Color.White); // Just a visualizer how far the light is actually up (It's very far up)
-                CShadows.StoreStaticShadow(true, lightPos, Color.White, 2f, 800f);
-            }
+            //if (IsKeyPressed(Keys.I)) {
+            //    Vector3 lightPos = new Vector3(playerPos.X, playerPos.Y, playerPos.Z + 500f);
+            //    DRAW_CORONA(lightPos, 1900f, 1, 0f, Color.White); // Just a visualizer how far the light is actually up (It's very far up)
+            //    CShadows.StoreStaticShadow(true, lightPos, Color.White, 2f, 800f);
+            //}
 
             // Gets the nearest street node position from the players position
-            if (IsKeyPressed(Keys.U)) {
-                Vector3 v = CWorld.GetNextPositionOnStreet(playerPos);
-                DRAW_CHECKPOINT(v, 4f, Color.Green);
-            }
+            //if (IsKeyPressed(Keys.U)) {
+            //    Vector3 v = CWorld.GetNextPositionOnStreet(playerPos);
+            //    DRAW_CHECKPOINT(v, 4f, Color.Green);
+            //}
 
             //if (IsKeyPressed(Keys.K)) {
             //    CVehicle[] vehicles = CPools.GetAllVehicles();
@@ -198,6 +213,56 @@ namespace TestScript {
             //        }
             //    }
             //}
+
+            // Teleports all buildings currently in the world to the players position. The physics matrix of the buildings will stay untouched.
+            //if (IsKeyPressed(Keys.O)) {
+            //    CBuilding[] buildings = CPools.GetAllBuildings();
+            //    for (int i = 0; i < buildings.Length; i++) {
+            //        CBuilding b = buildings[i];
+            //        if (b != null) {
+            //            b.Teleport(playerPos, true, true);
+            //        }
+            //    }
+            //}
+
+            ////// CWorld.ProcessLineOfSight Test
+            //Vector3 targetLineOfSightPos = Helper.GetPositionInFrontOfEntity(playerPos, Helper.HeadingToDirection(heading), 5f);
+
+            //bool result = CWorld.ProcessLineOfSight(playerPos, targetLineOfSightPos, out tLineOfSightResults r, 2);
+            //if (!result) {
+            //    DRAW_CHECKPOINT(targetLineOfSightPos, 1f, Color.Red); // Visualize targetLineOfSightPos pos
+            //    text = "Processing line of sight failed";
+            //}
+            //else {
+            //    DRAW_CHECKPOINT(targetLineOfSightPos, 1f, Color.Green); // Visualize targetLineOfSightPos pos
+            //    text = string.Format("EndPosition: {1}{0}" +
+            //                         "UnkFlags: {2}, UnkFlags2: {3}, UnkFlags3: {4}, UnkFlags4: {5}, UnkFlags5: {6}{0}" +
+            //                         "UnkFloat1: {7}, UnkFloat2: {8}",
+            //                         Environment.NewLine,
+            //                         r.EndPosition.ToString(),
+            //                         r.UnkFlags.ToString(), r.UnkFlags2.ToString(), r.UnkFlags3.ToString(), r.UnkFlags4.ToString(), r.UnkFlags5.ToString(),
+            //                         r.UnkFloat1.ToString(), r.UnkFloat2.ToString());
+            //}
+        }
+
+        private void Main_ProcessAutomobile(UIntPtr vehPtr)
+        {
+            CVehicle veh = CVehicle.FromPointer(vehPtr);
+            if (veh != null) {
+                veh.Alpha = 180; // Sets the alpha property of each vehicle in the world to 180.
+            }
+        }
+        private void Main_ProcessCamera(object sender, EventArgs e)
+        {
+            if (IsKeyPressed(Keys.Add))
+                fov += 0.5f; // Zooms out
+            if (IsKeyPressed(Keys.Subtract))
+                fov -= 0.5f; // Zooms in
+
+            CCam c = CCamera.GetFinalCam();
+            if (c != null) {
+                c.FOV = fov;
+            }
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)
@@ -282,6 +347,49 @@ namespace TestScript {
                 }
 
             }
+
+            // CPedFactoryNY Test
+            if (e.KeyCode == Keys.B) {
+                uint modelHash = RAGE.atStringHash("F_Y_NURSE");
+                CModelInfo.GetModelInfo(modelHash, out int index);
+                CStreaming.ScriptRequestModel((int)modelHash);
+                CStreaming.LoadAllRequestedModels(false);
+
+                GTAMatrix mat = CPed.FromPointer(CPlayerInfo.FindPlayerPed()).Matrix;
+                mat.pos.X += 2;
+
+                CPed ped = CPedFactoryNY.CreatePed(tSpawnData.Default(), index, mat, true, true);
+                CWorld.Add(ped, false);
+            }
+
+            // CVehicleFactoryNY Test
+            if (e.KeyCode == Keys.N) {
+                uint modelHash = RAGE.atStringHash("admiral");
+                CModelInfo.GetModelInfo(modelHash, out int index);
+                CStreaming.ScriptRequestModel((int)modelHash);
+                CStreaming.LoadAllRequestedModels(false);
+
+                GTAMatrix mat = CPed.FromPointer(CPlayerInfo.FindPlayerPed()).Matrix;
+                mat.pos.X += 2;
+
+                CVehicle veh = CVehicleFactoryNY.CreateVehicle(index, (int)eVehicleCreatedBy.RANDOM_VEHICLE, mat, true);
+                CWorld.Add(veh, false);
+            }
+
+            // Toggle hud/radar
+            if (e.KeyCode == Keys.X) {
+                if (showHudRadar) {
+                    CMenuManager.Display.HudOn = 0;
+                    CMenuManager.Display.RadarMode = 0;
+                    showHudRadar = false;
+                }
+                else {
+                    CMenuManager.Display.HudOn = 1;
+                    CMenuManager.Display.RadarMode = 1;
+                    showHudRadar = true;
+                }
+            }
+
         }
 
     }

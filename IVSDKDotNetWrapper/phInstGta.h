@@ -25,8 +25,8 @@ namespace rage
 		uint16_t m_nBoneID;								// 14-16
 		uint8_t pad2[0xCA];								// 16-E0
 	};
-	//VALIDATE_SIZE(crSkeletonData, 0xE0);
-	//VALIDATE_OFFSET(crSkeletonData, m_nBoneID, 0x14);
+	VALIDATE_SIZE(crSkeletonData, 0xE0);
+	VALIDATE_OFFSET(crSkeletonData, m_nBoneID, 0x14);
 
 	class crSkeleton
 	{
@@ -39,8 +39,8 @@ namespace rage
 			return ((crSkeletonData * (__thiscall*)(crSkeleton*, char*))(AddressSetter::Get(0x2434F0, 0x4F510)))(this, sName);
 		}
 	};
-	//VALIDATE_OFFSET(crSkeleton, m_aData, 0x0);
-	//VALIDATE_OFFSET(crSkeleton, m_nBoneCount, 0x14);
+	VALIDATE_OFFSET(crSkeleton, m_aData, 0x0);
+	VALIDATE_OFFSET(crSkeleton, m_nBoneCount, 0x14);
 
 	class rmcDrawable
 	{
@@ -54,10 +54,10 @@ namespace rage
 		float m_fLodDistanceVLow;											// 058-05C
 		float m_fLodDistanceVLow2;											// 05C-060
 	};
-	//VALIDATE_OFFSET(rmcDrawable, m_pShaderGroup, 0x8);
-	//VALIDATE_OFFSET(rmcDrawable, m_pSkeleton, 0xC);
-	//VALIDATE_OFFSET(rmcDrawable, m_fLodDistanceHigh, 0x50);
-	//VALIDATE_OFFSET(rmcDrawable, m_fLodDistanceLow, 0x54);
+	VALIDATE_OFFSET(rmcDrawable, m_pShaderGroup, 0x8);
+	VALIDATE_OFFSET(rmcDrawable, m_pSkeleton, 0xC);
+	VALIDATE_OFFSET(rmcDrawable, m_fLodDistanceHigh, 0x50);
+	VALIDATE_OFFSET(rmcDrawable, m_fLodDistanceLow, 0x54);
 
 	class phInst
 	{
@@ -66,15 +66,15 @@ namespace rage
 		phArchetypeGta* m_pArchetype;										// 04-08 peds have phArchetypeGta, cars have phArchetypeDamp
 		int16_t m_nRigidBodyIndex;											// 08-0A
 		uint8_t pad2[0x2];													// 0A-0C
-		CEntity* m_pEntity;													// 0C-10
+		Native_CEntity* m_pEntity;											// 0C-10
 		uint8_t pad3[0x30];													// 10-40
 		Native_CVector m_vPos;												// 40-4C
 		uint8_t pad4[0x4];													// 4C-50
 	};
-	//VALIDATE_SIZE(phInst, 0x50);
-	//VALIDATE_OFFSET(phInst, m_nRigidBodyIndex, 0x8);
-	//VALIDATE_OFFSET(phInst, m_pEntity, 0xC);
-	//VALIDATE_OFFSET(phInst, m_vPos, 0x40);
+	VALIDATE_SIZE(phInst, 0x50);
+	VALIDATE_OFFSET(phInst, m_nRigidBodyIndex, 0x8);
+	VALIDATE_OFFSET(phInst, m_pEntity, 0xC);
+	VALIDATE_OFFSET(phInst, m_vPos, 0x40);
 }
 
 class gtaFragType
@@ -85,8 +85,8 @@ public:
 	uint8_t pad2[0x2C];													// 0B8-0E4
 	phArchetypeGta* m_pArchetype;										// 0E4-0E8
 };
-//VALIDATE_OFFSET(gtaFragType, m_pDrawable, 0xB4);
-//VALIDATE_OFFSET(gtaFragType, m_pArchetype, 0xE4);
+VALIDATE_OFFSET(gtaFragType, m_pDrawable, 0xB4);
+VALIDATE_OFFSET(gtaFragType, m_pArchetype, 0xE4);
 
 class phInstGta : public rage::phInst
 {
@@ -103,5 +103,5 @@ public:																	// 00-50
 		return ((phInstGta * (__thiscall*)(phInstGta*, signed int))(AddressSetter::Get(0x117D30, 0x245C10)))(this, groupId);
 	}
 };
-//VALIDATE_OFFSET(phInstGta, m_pFragType, 0x6C);
-//VALIDATE_OFFSET(phInstGta, m_pUnkImportant, 0x5C);
+VALIDATE_OFFSET(phInstGta, m_pFragType, 0x6C);
+VALIDATE_OFFSET(phInstGta, m_pUnkImportant, 0x5C);

@@ -5,7 +5,7 @@ namespace IVSDKDotNet {
 
 	CEntity::CEntity(Native_CEntity* entity)
 	{
-		m_cEntity = entity;
+		EntityPointer = entity;
 	}
 
 	void CEntity::Teleport(GTAMatrix mat, bool bDontUpdatePhysicsMatrix, bool bImmediately)

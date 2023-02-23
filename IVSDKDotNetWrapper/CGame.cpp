@@ -47,7 +47,10 @@ namespace IVSDKDotNet {
 	}
 	bool CGame::Console::ExecuteCommand(String^ name)
 	{
-		if (Manager::ManagerScript::s_Instance) return Manager::ManagerScript::s_Instance->ExecuteConsoleCommand(name);
+		if (Manager::ManagerScript::s_Instance)
+			return Manager::ManagerScript::s_Instance->ExecuteConsoleCommand(name);
+
+		return false;
 	}
 #pragma endregion
 
@@ -61,6 +64,28 @@ namespace IVSDKDotNet {
 	bool CGame::IsKeyPressed(Keys key)
 	{
 		return Helper::IsKeyPressedAsync(key);
+	}
+
+	RectangleF CGame::GetRadarRectangle(eFontScaling scaling)
+	{
+		float w = float(CGame::Resolution.Width);
+		float h = float(CGame::Resolution.Height);
+		float pixel = System::Math::Min(w * 0.156f, h * 0.2f);
+		RectangleF rect;
+
+		rect.Width  = Helper::Drawing::ConvertX(pixel, w, eFontScaling::Pixel, scaling);
+		rect.Height = Helper::Drawing::ConvertY(pixel, h, eFontScaling::Pixel, scaling);
+		rect.X = rect.Width * 0.45f;
+		if (CGame::Resolution.Width >= CGame::Resolution.Height)
+			rect.Y = Helper::Drawing::ConvertY(0.75f, h, eFontScaling::ScreenUnits, scaling);
+		else
+			rect.Y = Helper::Drawing::ConvertY(h - pixel - h * 0.05f, h, eFontScaling::Pixel, scaling);
+
+		return rect;
+	}
+	RectangleF CGame::GetRadarRectangle()
+	{
+		return CGame::GetRadarRectangle(eFontScaling::Pixel);
 	}
 #pragma endregion
 

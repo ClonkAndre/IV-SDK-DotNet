@@ -3825,6 +3825,7 @@ namespace IVSDKDotNet {
 			static void ADD_WIDGET_SLIDER(ScriptAny Unk1101, ScriptAny Unk1102, ScriptAny Unk1103, ScriptAny Unk1104, ScriptAny Unk1105) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_ADD_WIDGET_SLIDER, Unk1101, Unk1102, Unk1103, Unk1104, Unk1105); }
 			static void ADD_WIDGET_STRING(ScriptAny Unk1106) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_ADD_WIDGET_STRING, Unk1106); }
 			static void ADD_WIDGET_TOGGLE(ScriptAny Unk1107, ScriptAny Unk1108) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_ADD_WIDGET_TOGGLE, Unk1107, Unk1108); }
+			/// <summary>Hey, isn't that Zolika1351?</summary>
 			static void CREATE_WIDGET_GROUP(ScriptAny Unk1109) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_CREATE_WIDGET_GROUP, Unk1109); }
 			static void DELETE_WIDGET(ScriptAny Unk1110) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DELETE_WIDGET, Unk1110); }
 			static void DELETE_WIDGET_GROUP(ScriptAny Unk1111) { NativeInvoke::Invoke< ScriptVoid>(NATIVE_DELETE_WIDGET_GROUP, Unk1111); }

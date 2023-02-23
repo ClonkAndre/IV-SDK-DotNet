@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
 
@@ -85,6 +86,7 @@ namespace Manager.Windows {
         protected virtual IntPtr OnWndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam)
         {
             OnWndMessage?.Invoke(hWnd, msg, wParam, lParam);
+
             return CallWindowProc(oldCallback, hWnd, msg, wParam, lParam);
         }
 

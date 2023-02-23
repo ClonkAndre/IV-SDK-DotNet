@@ -205,20 +205,28 @@ VALIDATE_OFFSET(Native_CPed, m_nUnkPlayerSettingsRelated, 0xE80);
 
 namespace IVSDKDotNet {
 
-	public ref class CPed
+	public ref class CPed : CPhysical
 	{
 	public:
-		CPed(uint32_t handle, Native_CPed* native);
+		CPed(Native_CPed* nativePtr);
+
+		static CPed^ FromPointer(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
 
 		void ProcessWeaponSwitch();
 		//CPad* GetPadFromPlayer();
-		//Native_CVehicle* GetVehicle();
+		CVehicle^ GetVehicle();
 		void SetHealth(float health, int unk);
 		void AddHealth(float health);
 		void ProcessHeading();
 
+		property Native_CPed* PedPointer {
+			public:
+				Native_CPed*	get()					{ return m_cNativePed; }
+				void			set(Native_CPed* value)	{ m_cNativePed = value; }
+		}
+
 	private:
-		uint32_t m_iHandle;
 		Native_CPed* m_cNativePed;
 
 	};

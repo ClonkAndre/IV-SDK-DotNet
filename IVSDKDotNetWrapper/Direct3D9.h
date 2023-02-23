@@ -36,10 +36,25 @@ namespace IVSDKDotNet {
 			/// </summary>
 			event D3D9DeviveDelegate^	OnAfterDeviceReset;
 
-			void RaiseOnInit(IntPtr device)															{ OnInit(device); }
-			void RaiseOnDeviceEndScene(IntPtr device)												{ OnDeviceEndScene(device); }
+			void RaiseOnInit(IntPtr device)															{ OnInit(device); Device = device; }
+			void RaiseOnDeviceEndScene(IntPtr device)												{ OnDeviceEndScene(device); Device = device; }
 			void RaiseOnBeforeDeviceReset(IntPtr device, D3DPresentParameters presentParameters)	{ OnBeforeDeviceReset(device, presentParameters); }
 			void RaiseOnAfterDeviceReset(IntPtr device)												{ OnAfterDeviceReset(device); }
+
+			// TODO: Remove comment when property has more purposes.
+			/// <summary>
+			/// Does not do much currently.
+			/// </summary>
+			property eFontScaling Scaling {
+				public:
+					eFontScaling	get()					{ return m_eScaling; }
+					void			set(eFontScaling value) { m_eScaling = value; }
+			}
+
+			property IntPtr Device {
+				public:		IntPtr get()			{ return m_pDevice; }
+				private:	void set(IntPtr value)	{ m_pDevice = value; }
+			}
 
 #pragma region Measurement Properties
 			/// <summary>
@@ -103,20 +118,21 @@ namespace IVSDKDotNet {
 			bool DrawBoxBordered(IntPtr device, Vector2 pos, SizeF size, float borderWidth, Color color, Color borderColor);
 			bool DrawBoxRounded(IntPtr device, Vector2 pos, SizeF size, float radius, bool smoothing, Color color, Color borderColor);
 
-			bool DrawTexture(IntPtr device, D3DResource^ txt, Vector2 pos, Size size, Vector2 scaling, float rotation, Color tint);
-			bool DrawTexture(IntPtr device, D3DResource^ txt, Vector2 pos, Size size, Vector2 scaling, Color tint);
-			bool DrawTexture(IntPtr device, D3DResource^ txt, Vector2 pos, Size size, float rotation, Color tint);
-			bool DrawTexture(IntPtr device, D3DResource^ txt, Vector2 pos, Size size, Color tint);
-			bool DrawTexture(IntPtr device, D3DResource^ txt, Vector2 pos, Size size, float rotation);
-			bool DrawTexture(IntPtr device, D3DResource^ txt, Vector2 pos, Size size);
-			bool DrawTexture(IntPtr device, D3DResource^ txt, Vector2 pos, float rotation);
-			bool DrawTexture(IntPtr device, D3DResource^ txt, Vector2 pos);
+			bool DrawTexture(IntPtr device, D3DResource^ txt, RectangleF rect, float rotation, Color tint);
+			bool DrawTexture(IntPtr device, D3DResource^ txt, RectangleF rect, Color tint);
+			bool DrawTexture(IntPtr device, D3DResource^ txt, RectangleF rect, float rotation);
+			bool DrawTexture(IntPtr device, D3DResource^ txt, RectangleF rect);
 
 			bool DrawString(IntPtr device, D3DResource^ fontResource, String^ text, Point pos, Color color);
 			bool DrawString(IntPtr device, D3DResource^ fontResource, String^ text, int x, int y, Color color);
 
+			bool DrawString(IntPtr device, String^ text, Point pos, Color color);
+			bool DrawString(IntPtr device, String^ text, int x, int y, Color color);
+
 		private:
 			Script^ m_createForScript;
+			eFontScaling m_eScaling;
+			IntPtr m_pDevice;
 
 			// Measurements
 			TimeSpan m_sOnInitEventExecutionTime;

@@ -3,8 +3,8 @@
 class CCustomShaderEffectBase
 {
 public:
-	void Update(CEntity* attachedEntity)
+	void Update(Native_CEntity* attachedEntity)
 	{
-		((void(__thiscall*)(CCustomShaderEffectBase*, CEntity*))(*(void***)this)[3])(this, attachedEntity);
+		((void(__thiscall*)(CCustomShaderEffectBase*, Native_CEntity*))(*(void***)this)[3])(this, attachedEntity);
 	}
 };

@@ -15,6 +15,12 @@ public:
 		y = vY;
 		z = vZ;
 	}
+	Native_CVector(Vector3 v)
+	{
+		x = v.X;
+		y = v.Y;
+		z = v.Z;
+	}
 
 	float x, y, z;
 };
@@ -99,6 +105,7 @@ namespace IVSDKDotNet {
 	{
 	public:
 		GTAMatrix(Native_CMatrix* fromNativeMatrix);
+		GTAMatrix(Native_CMatrix fromNativeMatrix);
 		GTAMatrix(Vector3 vRight, Vector3 vUp, Vector3 vAt, Vector3 vPos);
 
 		virtual String^ ToString() override

@@ -55,12 +55,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IVSDKDotNetWrapper\IVSDKDotNetWrapper.vcxproj">
-      <Project>{b674035b-d958-4876-b593-1e44e5385e95}</Project>
-      <Name>IVSDKDotNetWrapper</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -68,6 +62,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\discordTestLogo.bin" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IVSDKDotNetWrapper\IVSDKDotNetWrapper.vcxproj">
+      <Project>{b674035b-d958-4876-b593-1e44e5385e95}</Project>
+      <Name>IVSDKDotNetWrapper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

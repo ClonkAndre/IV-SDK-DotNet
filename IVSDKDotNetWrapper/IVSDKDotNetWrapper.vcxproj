@@ -9,14 +9,6 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -42,20 +34,6 @@
     <CLRSupport>true</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <CLRSupport>true</CLRSupport>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <CLRSupport>true</CLRSupport>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -67,12 +45,6 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
@@ -82,17 +54,6 @@
     <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies />
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -125,20 +86,12 @@
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies />
-    </Link>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AddressSetter.h" />
     <ClInclude Include="audRadioAudioEntity.h" />
+    <ClInclude Include="CBuilding.h" />
+    <ClInclude Include="CCam.h" />
+    <ClInclude Include="CCamera.h" />
     <ClInclude Include="CClock.h" />
     <ClInclude Include="CCustomShaderEffectBase.h" />
     <ClInclude Include="CCutsceneMgr.h" />
@@ -151,10 +104,12 @@
     <ClInclude Include="CHudColours.h" />
     <ClInclude Include="CLRBridge.h" />
     <ClInclude Include="CMenuManager.h" />
+    <ClInclude Include="CModelInfo.h" />
     <ClInclude Include="CNetwork.h" />
     <ClInclude Include="CObject.h" />
     <ClInclude Include="CPad.h" />
     <ClInclude Include="CPed.h" />
+    <ClInclude Include="CPedFactoryNY.h" />
     <ClInclude Include="CPedType.h" />
     <ClInclude Include="CPhysical.h" />
     <ClInclude Include="CPickups.h" />
@@ -164,11 +119,13 @@
     <ClInclude Include="CRGBA.h" />
     <ClInclude Include="CShaderLib.h" />
     <ClInclude Include="CShadows.h" />
+    <ClInclude Include="CStreaming.h" />
     <ClInclude Include="CTheScripts.h" />
     <ClInclude Include="CTimeCycle.h" />
     <ClInclude Include="CTimer.h" />
     <ClInclude Include="CVectors.h" />
     <ClInclude Include="CVehicle.h" />
+    <ClInclude Include="CVehicleFactoryNY.h" />
     <ClInclude Include="CVisibilityPlugins.h" />
     <ClInclude Include="CWorld.h" />
     <ClInclude Include="defines.h" />
@@ -195,6 +152,9 @@
     <ClCompile Include="AddressSetter.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="audRadioAudioEntity.cpp" />
+    <ClCompile Include="CBuilding.cpp" />
+    <ClCompile Include="CCam.cpp" />
+    <ClCompile Include="CCamera.cpp" />
     <ClCompile Include="CCustomShaderEffectBase.cpp" />
     <ClCompile Include="CCutsceneMgr.cpp" />
     <ClCompile Include="CDraw.cpp" />
@@ -206,10 +166,12 @@
     <ClCompile Include="CHudColours.cpp" />
     <ClCompile Include="CLRBridge.cpp" />
     <ClCompile Include="CMenuManager.cpp" />
+    <ClCompile Include="CModelInfo.cpp" />
     <ClCompile Include="CNetwork.cpp" />
     <ClCompile Include="CObject.cpp" />
     <ClCompile Include="CPad.cpp" />
     <ClCompile Include="CPed.cpp" />
+    <ClCompile Include="CPedFactoryNY.cpp" />
     <ClCompile Include="CPedType.cpp" />
     <ClCompile Include="CPhysical.cpp" />
     <ClCompile Include="CPickups.cpp" />
@@ -218,11 +180,13 @@
     <ClCompile Include="CRGBA.cpp" />
     <ClCompile Include="CShaderLib.cpp" />
     <ClCompile Include="CShadows.cpp" />
+    <ClCompile Include="CStreaming.cpp" />
     <ClCompile Include="CTheScripts.cpp" />
     <ClCompile Include="CTimeCycle.cpp" />
     <ClCompile Include="CTimer.cpp" />
     <ClCompile Include="CVectors.cpp" />
     <ClCompile Include="CVehicle.cpp" />
+    <ClCompile Include="CVehicleFactoryNY.cpp" />
     <ClCompile Include="CVisibilityPlugins.cpp" />
     <ClCompile Include="CWorld.cpp" />
     <ClCompile Include="D3D9Stuff.cpp" />
@@ -233,10 +197,8 @@
     <ClCompile Include="KeyWatchDog.cpp" />
     <ClCompile Include="Native.cpp" />
     <ClCompile Include="pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="phBound.cpp" />
     <ClCompile Include="phConstrainedCollider.cpp" />

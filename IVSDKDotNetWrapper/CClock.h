@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h"
+
 class Native_CClock
 {
 public:

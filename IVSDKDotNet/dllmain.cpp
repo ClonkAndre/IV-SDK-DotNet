@@ -32,7 +32,7 @@ void ProcessCamera()
 void ProcessAutomobile(CVehicle* veh)
 {
 	// Todo: Make class CVehicle managed and add to parameter of method below.
-	CLR::CLRBridge::InvokeProcessAutomobileEvents();
+	CLR::CLRBridge::InvokeProcessAutomobileEvents((uint32_t*)veh);
 }
 void ProcessPad(CPad* pad)
 {

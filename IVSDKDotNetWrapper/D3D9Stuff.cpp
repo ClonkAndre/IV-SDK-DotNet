@@ -89,7 +89,7 @@ namespace IVSDKDotNet {
 			D3DFontDescription d;
 			d.FaceName = "Arial";
 			d.Width = 0;
-			d.Height = 20;
+			d.Height = 24;
 			d.MipLevels = 1;
 			d.FontWeight = eD3DFontWeight::Normal;
 			d.Italic = false;

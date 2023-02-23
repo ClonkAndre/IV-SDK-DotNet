@@ -265,7 +265,7 @@ namespace IVSDKDotNet {
 		}
 
 	private:
-		static array<String^>^ s_aSeparator = gcnew array<String^>(1)		{ "=" };
+		static array<String^>^ s_aSeparator =		gcnew array<String^>(1)	{ "=" };
 		static array<String^>^ s_aVectorSeparator = gcnew array<String^>(1)	{ ":" };
 
 		String^ m_sFilePath;

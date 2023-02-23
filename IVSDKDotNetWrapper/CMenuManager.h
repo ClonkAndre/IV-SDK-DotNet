@@ -80,58 +80,57 @@ public:
 
 namespace IVSDKDotNet {
 
+	public ref struct tControlRemapInfo
+	{
+	public:
+		static tControlRemapInfo^ GetRemapInfo()
+		{
+			Native_tControlRemapInfo* r = Native_CMenuManager::GetRemapOptions();
+
+			if (r)
+				return gcnew tControlRemapInfo(r);
+
+			return nullptr;
+		}
+
+		property uint8_t ControlID {
+			public:		uint8_t get()			{ return m_nControlId; }
+			private:	void set(uint8_t value) { m_nControlId = value; }
+		}
+
+		property bool DontShowInMenu {
+			public:		bool get()				{ return m_bDontShowInMenu; }
+			private:	void set(bool value)	{ m_bDontShowInMenu = value; }
+		}
+
+		property uint16_t BoundKey {
+			public:		uint16_t get()			{ return m_nBoundKey; }
+			private:	void set(uint16_t value) { m_nBoundKey = value; }
+		}
+
+		property String^ ControlName {
+			public:		String^ get()			{ return m_sControlName; }
+			private:	void set(String^ value) { m_sControlName = value; }
+		}
+
+		property String^ AltControlName {
+			public:		String^ get()			{ return m_sAltControlName; }
+			private:	void set(String^ value) { m_sAltControlName = value; }
+		}
+
+	private:
+		tControlRemapInfo(Native_tControlRemapInfo* unmanagedtControlRemapInfo);
+
+		uint8_t m_nControlId;
+		bool m_bDontShowInMenu;
+		uint16_t m_nBoundKey;
+		String^ m_sControlName;
+		String^ m_sAltControlName;
+	};
+
 	public ref class CMenuManager
 	{
 	public:
-
-		ref struct tControlRemapInfo
-		{
-		public:
-
-			static tControlRemapInfo^ GetRemapInfo()
-			{
-				Native_tControlRemapInfo* r = Native_CMenuManager::GetRemapOptions();
-
-				if (r)
-					return gcnew tControlRemapInfo(r);
-
-				return nullptr;
-			}
-
-			property uint8_t ControlID {
-				public:		uint8_t get()			{ return m_nControlId; }
-				private:	void set(uint8_t value) { m_nControlId = value; }
-			}
-
-			property bool DontShowInMenu {
-				public:		bool get()				{ return m_bDontShowInMenu; }
-				private:	void set(bool value)	{ m_bDontShowInMenu = value; }
-			}
-
-			property uint16_t BoundKey {
-				public:		uint16_t get()				{ return m_nBoundKey; }
-				private:	void set(uint16_t value)	{ m_nBoundKey = value; }
-			}
-
-			property String^ ControlName {
-				public:		String^ get()			{ return m_sControlName; }
-				private:	void set(String^ value) { m_sControlName = value; }
-			}
-
-			property String^ AltControlName {
-				public:		String^ get()			{ return m_sAltControlName; }
-				private:	void set(String^ value) { m_sAltControlName = value; }
-			}
-
-		private:
-			tControlRemapInfo(Native_tControlRemapInfo* unmanagedtControlRemapInfo);
-
-			uint8_t m_nControlId;
-			bool m_bDontShowInMenu;
-			uint16_t m_nBoundKey;
-			String^ m_sControlName;
-			String^ m_sAltControlName;
-		};
 
 		ref class Controls
 		{
@@ -288,6 +287,9 @@ namespace IVSDKDotNet {
 			}
 
 		};
+
+		static void		SetAddressSetting(eSettings setting, uint32_t value);
+		static uint32_t GetAddressSetting(eSettings setting);
 
 	};
 

@@ -1,6 +1,6 @@
 #pragma once
 
-class CPed;
+class Native_CPed;
 class Native_CVehicle;
 
 class Native_CPlayerInfo
@@ -9,7 +9,7 @@ public:
 	uint8_t pad[0x4C];													// 000-04C
 	char m_sName[20];													// 04C-060
 	uint8_t pad2[0x390];												// 060-3F0
-	CPed* m_pPlayerPed2;												// 3F0-3F4
+	Native_CPed* m_pPlayerPed2;											// 3F0-3F4
 	uint8_t pad3[0x20];													// 3F4-414
 	float m_fStamina;													// 414-418
 	uint8_t pad3_[0x7C];												// 418-494
@@ -41,7 +41,7 @@ public:
 	uint8_t pad12[0x8];													// 578-580
 	uint8_t m_nHasDiedRecently;											// 580-581
 	uint8_t pad13[0xB];													// 581-58C
-	CPed* m_pPlayerPed;													// 58C-590
+	Native_CPed* m_pPlayerPed;											// 58C-590
 	uint8_t pad14[0x4];													// 590-594
 	Native_CVehicle* m_pOnlyEnterThisVehicle;							// 594-598
 	uint8_t pad15[0x28];												// 598-5C0
@@ -74,19 +74,19 @@ public:
 	}
 
 };
-//VALIDATE_SIZE(Native_CPlayerInfo, 0x5C0);
-//VALIDATE_OFFSET(Native_CPlayerInfo, m_fStamina, 0x414);
-//VALIDATE_OFFSET(Native_CPlayerInfo, m_sName, 0x4C);
-//VALIDATE_OFFSET(Native_CPlayerInfo, m_nLastHitPedTime, 0x494);
-//VALIDATE_OFFSET(Native_CPlayerInfo, m_nPlayerId, 0x4DA);
-//VALIDATE_OFFSET(Native_CPlayerInfo, m_nState, 0x4DC);
-//VALIDATE_OFFSET(Native_CPlayerInfo, m_nNeverTired, 0x546);
-//VALIDATE_OFFSET(Native_CPlayerInfo, m_nMaxHealth, 0x54A);
-//VALIDATE_OFFSET(Native_CPlayerInfo, m_nCanDoDriveby, 0x550);
-//VALIDATE_OFFSET(Native_CPlayerInfo, m_nMood, 0x55C);
-//VALIDATE_OFFSET(Native_CPlayerInfo, m_nTeam, 0x574);
-//VALIDATE_OFFSET(Native_CPlayerInfo, m_pPlayerPed, 0x58C);
-//VALIDATE_OFFSET(Native_CPlayerInfo, m_nControlFlags, 0x4BC);
+VALIDATE_SIZE(Native_CPlayerInfo, 0x5C0);
+VALIDATE_OFFSET(Native_CPlayerInfo, m_fStamina, 0x414);
+VALIDATE_OFFSET(Native_CPlayerInfo, m_sName, 0x4C);
+VALIDATE_OFFSET(Native_CPlayerInfo, m_nLastHitPedTime, 0x494);
+VALIDATE_OFFSET(Native_CPlayerInfo, m_nPlayerId, 0x4DA);
+VALIDATE_OFFSET(Native_CPlayerInfo, m_nState, 0x4DC);
+VALIDATE_OFFSET(Native_CPlayerInfo, m_nNeverTired, 0x546);
+VALIDATE_OFFSET(Native_CPlayerInfo, m_nMaxHealth, 0x54A);
+VALIDATE_OFFSET(Native_CPlayerInfo, m_nCanDoDriveby, 0x550);
+VALIDATE_OFFSET(Native_CPlayerInfo, m_nMood, 0x55C);
+VALIDATE_OFFSET(Native_CPlayerInfo, m_nTeam, 0x574);
+VALIDATE_OFFSET(Native_CPlayerInfo, m_pPlayerPed, 0x58C);
+VALIDATE_OFFSET(Native_CPlayerInfo, m_nControlFlags, 0x4BC);
 
 namespace IVSDKDotNet {
 
@@ -96,8 +96,18 @@ namespace IVSDKDotNet {
 
 		static bool IsPlayerActive(int id);
 
-		static uint32_t FindPlayerPed();
-		static uint32_t FindPlayerVehicle();
+		/// <summary>
+		/// Finds the current player ped.
+		/// </summary>
+		/// <returns>Returns a pointer to the current player ped.</returns>
+		static UIntPtr FindPlayerPed();
+
+		/// <summary>
+		/// - DOES NOT WORK YET -
+		/// Finds the current vehicle the player is driving.
+		/// </summary>
+		/// <returns>Returns a pointer to the current vehicle the player is driving.</returns>
+		static UIntPtr FindPlayerVehicle();
 
 	};
 

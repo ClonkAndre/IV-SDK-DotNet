@@ -288,7 +288,7 @@ namespace IVSDKDotNet {
 			WEATHER_SUNNY_WINDY_2
 		};
 
-		public enum class ePed
+		public enum class ePed : uint32_t
 		{
 			// Peds GTAIV
 			PED_PLAYER = 0x6F0783F5,
@@ -994,7 +994,7 @@ namespace IVSDKDotNet {
 			PED_IG_SPADE = 0x671E6D91
 		};
 
-		public enum class eVehicle
+		public enum class eVehicle : uint32_t
 		{
 			VEHICLE_ADMIRAL = 0x4B5C5320,
 			VEHICLE_AIRTUG = 0x5D0AAC8F,
@@ -1199,7 +1199,7 @@ namespace IVSDKDotNet {
 			VEHICLE_PHOENIX = 0x831a21d5,
 		};
 
-		public enum class eObject
+		public enum class eObject : uint32_t
 		{
 			OBJECT_AIRPORTSHIT1 = 0x37213E8D,
 			OBJECT_AIRPORTSHIT2 = 0xBF1B32BD,
@@ -3436,7 +3436,7 @@ namespace IVSDKDotNet {
 			PICKUP_TYPE_WEAPON = 0x16
 		};
 
-		public enum class ePickupModel
+		public enum class ePickupModel : uint32_t
 		{
 			PICKUP_MODEL_HEALTH_KIT = 0x3fc62578,
 			PICKUP_MODEL_ARMOUR = 0x972daa10,
@@ -4074,6 +4074,16 @@ namespace IVSDKDotNet {
 			NM309_USE_ZERO_POSE_WHEN_NOT_POINTING
 		};
 
+		public enum class eModelInfoType
+		{
+			MODEL_INFO_INSTANCE = 1,
+			MODEL_INFO_MLO = 2,
+			MODEL_INFO_TIME = 3,
+			MODEL_INFO_WEAPON = 4,
+			MODEL_INFO_VEHICLE = 5,
+			MODEL_INFO_PED = 6,
+		};
+
 		public enum class eExplosion
 		{
 			EXPLOSION_GRENADE,
@@ -4451,7 +4461,7 @@ namespace IVSDKDotNet {
 			/// </summary>
 			ScreenUnits,
 			/// <summary>
-			/// A value between 0 and the maximum screen resolution (check Game.Resolution to get the size)
+			/// A value between 0 and the maximum screen resolution (check CGame.Resolution to get the size)
 			/// </summary>
 			Pixel,
 		};
@@ -4469,6 +4479,117 @@ namespace IVSDKDotNet {
 			Debug,
 			Warning,
 			Error
+		};
+
+		public enum class eLineOfSightFlags
+		{
+			STATIC_COLLISION = 2,
+			BUILDINGS = 4,
+			VEHICLES = 8,
+			PEDS_BOUNDING_BOX = 32,
+			PEDS_COLLISION = 64,
+			OBJECTS = 128,
+		};
+
+		public enum class eCamType
+		{
+			CAM_SKELETON = 0,
+			CAM_FOLLOW_PED = 1,
+			CAM_FOLLOW_VEHICLE = 2,
+			CAM_INTERP = 3,
+			CAM_SHAKE = 4,
+			CAM_FINAL = 5,
+			CAM_SCRIPT = 6,
+			CAM_GAME = 7,
+			CAM_TRANS = 8,
+			CAM_AIM_WEAPON = 9,
+			CAM_BUSTED = 10,
+			CAM_PHOTO = 11,
+			CAM_IDLE = 12,
+			CAM_2_PLAYER = 13,
+			CAM_SCRIPTED = 14,
+			CAM_CUTSCENE = 15,
+			CAM_WASTED = 16,
+			CAM_1ST_PERSON = 17,
+			CAM_2_PLAYER_VEH = 18,
+			CAM_AIM_WEAPON_VEH = 19,
+			CAM_VIEWPORTS = 20,
+			CAM_HISTORY = 21,
+			CAM_CINEMATIC = 22,
+			CAM_CINEMATIC_HELI_CHASE = 23,
+			CAM_CINEMATIC_CAM_MAN = 24,
+			CAM_SPLINE = 25,
+			CAM_CINEMATOGRAPHY = 26,
+			CAM_FPS_WEAPON = 27,
+			CAM_FIRE_TRUCK = 28,
+			CAM_RADAR = 29,
+			CAM_WEAPON_AIMING = 30,
+			CAM_ANIMATED = 31,
+			CAM_INTERMEZZO = 32,
+			CAM_VIEW_SEQ = 33,
+			CAM_VIEWFIND = 34,
+			CAM_PLAYER_SETTINGS = 35,
+			CAM_CINEMATIC_VEH_OFFSET = 36,
+			CAM_REPLAY = 37,
+			CAM_FREE = 38,
+			CAM_DEBUG = 39,
+			CAM_MARKET = 40,
+			CAM_SECTOR = 41,
+		};
+
+		public enum class eSettings
+		{
+			SETTING_AUTOSAVE = -0x10,
+			SETTING_VIBRATION = -0x8,
+			SETTING_INVERT_MOUSE = 0x0,
+			SETTING_INVERT_RIGHT_STICK = 0x4,
+			SETTING_AUTO_AIMING = 0x8,
+			SETTING_AIM_SENSITIVITY = 0xC,
+			SETTING_SNIPER_AIM = 0x10,
+			SETTING_CONFIGURATION = 0x14,
+			SETTING_BRIGHTNESS = 0x18,
+			SETTING_CONTRAST = 0x1C,
+			SETTING_SATURATION = 0x20,
+			SETTING_SUBTITLES = 0x28,
+			SETTING_HUD = 0x2C,
+			SETTING_WEAPON_TARGET = 0x30,
+			SETTING_GPS_ROUTE = 0x34,
+			SETTING_HANDBRAKE_CAM = 0x38,
+			SETTING_RADAR = 0x3C,
+			SETTING_MUSIC_LEVEL_SP = 0x44,
+			SETTING_MUSIC_LEVEL = 0x48,
+			SETTING_SFX_LEVEL = 0x4C,
+			SETTING_GPS_SPEECH = 0x5C,
+			SETTING_LANGUAGE_1 = 0x68,
+			SETTING_LANGUAGE_2 = 0x6C,
+			SETTING_OUTPUT = 0x114,
+			SETTING_VOICE_CHAT = 0x120,
+			SETTING_NOISE_EFFECT = 0x20C,
+			SETTING_MOUSE_SENSITIVITY = 0x210,
+			SETTING_ALWAYS_STRAFE = 0x214,
+			SETTING_MOUSE_AIM = 0x218,
+			SETTING_MOUSE_WHEEL_SENSITIVITY = 0x21C,
+			SETTING_VIDEO_MODE = 0x220,
+			SETTING_ASPECT_RATIO = 0x228,
+			SETTING_TEXTURE_QUALITY = 0x22C,
+			SETTING_TEXTURE_FILTER_QUALITY = 0x230,
+			SETTING_VIEW_DISTANCE = 0x234,
+			SETTING_DETAIL_DISTANCE = 0x238,
+			SETTING_VEHICLE_DENSITY = 0x23C,
+			SETTING_DEFINITION = 0x240,
+			SETTING_VSYNC = 0x244,
+			SETTING_NIGHT_SHADOWS = 0x248,
+			SETTING_SHADOW_QUALITY = 0x24C,
+			SETTING_REFLECTION_RESOLUTION = 0x250,
+			SETTING_WATER_QUALITY = 0x254,
+			SETTING_CLIP_CAPTURE = 0x258,
+			SETTING_ALWAYS_SPRINT = 0x25C,
+			SETTING_CROUCH = 0x260,
+			SETTING_AUTO_SCAN = 0x268,
+			SETTING_INDEPENDENCE_FM_MODE = 0x26C,
+			SETTING_MICROPHONE = 0x270,
+			SETTING_ENABLE_DIRECTINPUT = 0x274,
+			SETTING_HELICOPTER_MOUSE_CONTROLS = 0x278,
 		};
 
 	}

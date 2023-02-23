@@ -6,26 +6,40 @@ namespace IVSDKDotNet {
 	// =========================================================================
 	// ============================= CVehicleDoor ==============================
 	// =========================================================================
-	CVehicleDoor::CVehicleDoor(Native_CVehicleDoor* native)
+	CVehicleDoor::CVehicleDoor(Native_CVehicleDoor* nativePtr)
 	{
-		m_cVehicleDoor = native;
+		m_cVehicleDoor = nativePtr;
 	}
 
 	// =========================================================================
 	// ============================ CVehicleWheel ==============================
 	// =========================================================================
-	CVehicleWheel::CVehicleWheel(Native_CVehicleWheel* native)
+	CVehicleWheel::CVehicleWheel(Native_CVehicleWheel* nativePtr)
 	{
-		m_cVehicleWheel = native;
+		m_cVehicleWheel = nativePtr;
 	}
 
 	// =========================================================================
 	// =============================== CVehicle ================================
 	// =========================================================================
-	CVehicle::CVehicle(uint32_t handle, Native_CVehicle* native) : CPhysical(native)
+	CVehicle::CVehicle(Native_CVehicle* nativePtr) : CPhysical(nativePtr)
 	{
-		Handle = handle;
-		m_cNativeVehicle = native;
+		VehiclePointer = nativePtr;
+	}
+
+	CVehicle^ CVehicle::FromPointer(UIntPtr ptr)
+	{
+		if (ptr == UIntPtr::Zero)
+			return nullptr;
+
+		return gcnew CVehicle((Native_CVehicle*)ptr.ToPointer());
+	}
+	UIntPtr CVehicle::GetUIntPtr()
+	{
+		if (!VehiclePointer)
+			return UIntPtr::Zero;
+
+		return UIntPtr(VehiclePointer);
 	}
 
 	// Statics

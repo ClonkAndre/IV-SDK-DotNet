@@ -6,6 +6,7 @@ using SharpDX.Direct3D9;
 using SharpDX.Mathematics.Interop;
 
 using IVSDKDotNet.Direct3D9;
+using System.Runtime.Remoting.Messaging;
 
 namespace Manager {
     internal static class Extensions {
@@ -26,16 +27,60 @@ namespace Manager {
             return new RawVector3(vec.X, vec.Y, 0f);
         }
 
+        public static RawVector3 ToRawVector3(this Vector3 vec)
+        {
+            return new RawVector3(vec.X, vec.Y, vec.Z);
+        }
+
+        // RawMatrix
+        public static float[] GetValues(this RawMatrix m)
+        {
+            float[] v = new float[16];
+            v[0]    = m.M11;
+            v[1]    = m.M12;
+            v[2]    = m.M13;
+            v[3]    = m.M14;
+            v[4]    = m.M21;
+            v[5]    = m.M22;
+            v[6]    = m.M23;
+            v[7]    = m.M24;
+            v[8]    = m.M31;
+            v[9]    = m.M32;
+            v[10]   = m.M33;
+            v[11]   = m.M34;
+            v[12]   = m.M41;
+            v[13]   = m.M42;
+            v[14]   = m.M43;
+            v[15]   = m.M44;
+            return v;
+        }
+
         // RawVector2
         public static RawVector2 ToRawVector2(this Vector2 vec)
         {
             return new RawVector2(vec.X, vec.Y);
         }
 
+        // RawRectangle
+        public static RawRectangle ToRawRectangle(this Rectangle rect)
+        {
+            return new RawRectangle(rect.Left, rect.Top, rect.Right, rect.Bottom);
+        }
+
         // SharpDX.Vector2
         public static SharpDX.Vector2 ToSharpDXVector2(this Vector2 vec)
         {
             return new SharpDX.Vector2(vec.X, vec.Y);
+        }
+
+        // SharpDX.Vector3
+        public static SharpDX.Vector3 ToSharpDXVector3(this Vector3 vec)
+        {
+            return new SharpDX.Vector3(vec.X, vec.Y, vec.Z);
+        }
+        public static Vector3 ToVector3(this SharpDX.Vector3 vec)
+        {
+            return new Vector3(vec.X, vec.Y, vec.Z);
         }
 
         // PresentParameters

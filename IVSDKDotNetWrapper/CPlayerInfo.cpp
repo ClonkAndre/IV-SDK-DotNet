@@ -8,14 +8,14 @@ namespace IVSDKDotNet {
 		return Native_CPlayerInfo::IsPlayerActive(id);
 	}
 
-	uint32_t CPlayerInfo::FindPlayerPed()
+	UIntPtr CPlayerInfo::FindPlayerPed()
 	{
-		return Native_CPlayerInfo::FindPlayerPed();
+		return UIntPtr(Native_CPlayerInfo::FindPlayerPed());
 	}
-	uint32_t CPlayerInfo::FindPlayerVehicle()
+	UIntPtr CPlayerInfo::FindPlayerVehicle()
 	{
 		//return Native_CPlayerInfo::FindPlayerVehicle();
-		return 0;
+		return UIntPtr::Zero;
 	}
 
 }

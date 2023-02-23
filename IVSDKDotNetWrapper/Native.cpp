@@ -5,13 +5,13 @@ namespace IVSDKDotNet {
 	namespace Native {
 
 		generic <typename T>
-		void Function::Call(eNativeHash nativeHash, ...array<T>^ params)
+		void Function::Call(NativeHash nativeHash, ...array<T>^ params)
 		{
 
 		}
 
 		generic <typename R, typename T>
-		R Function::Call(eNativeHash nativeHash, ...array<T>^ params)
+		R Function::Call(NativeHash nativeHash, ...array<T>^ params)
 		{
 			return R();
 		}

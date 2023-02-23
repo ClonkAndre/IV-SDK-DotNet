@@ -63,7 +63,7 @@ namespace CLR {
 
 ERR:
 
-		CLRBridge::IsBridgeDisabled = true;
+		//CLRBridge::IsBridgeDisabled = true;
 		SHOW_WARN_MESSAGE("CLR Bridge got disabled due to IV-SDK DotNet load errors.");
 	}
 
@@ -109,12 +109,12 @@ ERR:
 
 		if (ManagerScript::s_Instance) ManagerScript::s_Instance->RaiseProcessCamera();
 	}
-	void CLRBridge::InvokeProcessAutomobileEvents()
+	void CLRBridge::InvokeProcessAutomobileEvents(uint32_t* vehPtr)
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance) ManagerScript::s_Instance->RaiseProcessAutomobile();
+		if (ManagerScript::s_Instance) ManagerScript::s_Instance->RaiseProcessAutomobile(UIntPtr(vehPtr));
 	}
 	void CLRBridge::InvokeProcessPadEvents()
 	{

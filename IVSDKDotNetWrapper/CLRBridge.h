@@ -1,10 +1,5 @@
 #pragma once
 
-using namespace System;
-using namespace System::IO;
-using namespace System::Reflection;
-using namespace System::Windows::Forms;
-
 namespace CLR {
 
 	/// <summary>
@@ -22,18 +17,20 @@ namespace CLR {
 		static void InvokeMountDeviceEvents();
 		static void InvokeDrawingEvents();
 		static void InvokeProcessCameraEvents();
-		static void InvokeProcessAutomobileEvents();
+		static void InvokeProcessAutomobileEvents(uint32_t* vehPtr);
 		static void InvokeProcessPadEvents();
 
 		// If set to true, communication between IVSDKDotNet.asi and IVSDKDotNetWrapper.dll is disabled.
 		// This is usually only set to true if ManagerScript::s_Instance did not got set or if an error occured while trying to set it.
 		static property bool IsBridgeDisabled {
-			public:		bool get()			 { return isBridgeDisabled; }
-			internal:	void set(bool value) { isBridgeDisabled = value; }
+			public:		
+				bool get()			 { return isBridgeDisabled; }
+				void set(bool value) { isBridgeDisabled = value; }
 		}
 
 	private:
 		static bool isBridgeDisabled = false;
 	};
+
 
 }

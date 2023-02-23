@@ -17,5 +17,10 @@ namespace IVSDKDotNet {
 		msclr::interop::marshal_context ctx;
 		return Native_RAGE::atStringHash(ctx.marshal_as<const char*>(sString));
 	}
+	uint32_t RAGE::atStringHash(String^ sString, UIntPtr nExistingHash)
+	{
+		msclr::interop::marshal_context ctx;
+		return Native_RAGE::atStringHash(ctx.marshal_as<const char*>(sString), (uint32_t*)nExistingHash.ToPointer());
+	}
 
 }

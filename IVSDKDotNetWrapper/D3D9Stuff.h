@@ -499,7 +499,7 @@ namespace IVSDKDotNet {
 			D3DFontDescription(String^ faceName, int height);
 
 			/// <summary>
-			/// Creates a D3DFontDescription object with the font family being Arial, the height being 20 and everything else being the default value.
+			/// Creates a D3DFontDescription object with the font family being Arial, the height being 24 and everything else being the default value.
 			/// </summary>
 			/// <returns>The D3DFontDescription object.</returns>
 			static D3DFontDescription Default();
@@ -635,6 +635,12 @@ namespace IVSDKDotNet {
 				private:	void set(String^ value)				{ m_resourceProperties = value; }
 			}
 
+			property Object^ Tag {
+				public:		
+					Object^ get()			{ return m_tag; }
+					void set(Object^ value) { m_tag = value; }
+			}
+
 			property IntPtr Handle {
 				public:		IntPtr get()						{ return m_handle; }
 				private:	void set(IntPtr value)				{ m_handle = value; }
@@ -644,6 +650,7 @@ namespace IVSDKDotNet {
 			Guid m_id;
 			eD3D9ResourceType m_resourceType;
 			String^ m_resourceProperties;
+			Object^ m_tag;
 			IntPtr m_handle;
 		};
 

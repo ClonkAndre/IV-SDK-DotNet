@@ -8,10 +8,11 @@ using SharpDX.Mathematics.Interop;
 
 using IVSDKDotNet.Direct3D9;
 
-using Vector2 = System.Numerics.Vector2;
-using Vector3 = System.Numerics.Vector3;
-using Color = System.Drawing.Color;
-using Point = System.Drawing.Point;
+using Vector2 =     System.Numerics.Vector2;
+using Vector3 =     System.Numerics.Vector3;
+using Color =       System.Drawing.Color;
+using Point =       System.Drawing.Point;
+using RectangleF =  System.Drawing.RectangleF;
 
 namespace Manager.Direct3D9 {
     internal class Drawing {
@@ -36,7 +37,7 @@ namespace Manager.Direct3D9 {
 
         };
 
-        public static bool DrawLines(IntPtr device, RawVector2[] vertices, Color color, bool antialias, int pattern, float patternScale, float thickness)
+        public static bool DrawLines(D3DGraphics g, IntPtr device, RawVector2[] vertices, Color color, bool antialias, int pattern, float patternScale, float thickness)
         {
             try {
                 using (Line l = new Line((Device)device)) {
@@ -53,17 +54,17 @@ namespace Manager.Direct3D9 {
             }
             return false;
         }
-        public static bool DrawLine(IntPtr device, Vector2 point1, Vector2 point2, Color color, bool antialias, int pattern, float patternScale, float thickness)
+        public static bool DrawLine(D3DGraphics g, IntPtr device, Vector2 point1, Vector2 point2, Color color, bool antialias, int pattern, float patternScale, float thickness)
         {
             RawVector2[] vertices = new RawVector2[2] {
                 point1.ToRawVector2(),
                 point2.ToRawVector2()
             };
 
-            return DrawLines(device, vertices, color, antialias, pattern, patternScale, thickness);
+            return DrawLines(g, device, vertices, color, antialias, pattern, patternScale, thickness);
         }
 
-        public static bool DrawCircle(IntPtr device, Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color)
+        public static bool DrawCircle(D3DGraphics g, IntPtr device, Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color)
         {
             try {
                 Vertex[] vertex = new Vertex[resolution + 2];
@@ -131,7 +132,7 @@ namespace Manager.Direct3D9 {
             }
             return false;
         }
-        public static bool DrawCircleFilled(IntPtr device, Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color)
+        public static bool DrawCircleFilled(D3DGraphics g, IntPtr device, Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color)
         {
             try {
                 Vertex[] vertex = new Vertex[resolution + 2];
@@ -206,7 +207,7 @@ namespace Manager.Direct3D9 {
             return false;
         }
 
-        public static bool DrawBoxFilled(IntPtr device, Vector2 pos, SizeF size, Color color)
+        public static bool DrawBoxFilled(D3DGraphics g, IntPtr device, Vector2 pos, SizeF size, Color color)
         {
             try {
                 Vertex[] vertex = new Vertex[4];
@@ -263,79 +264,85 @@ namespace Manager.Direct3D9 {
             }
             return false;
         }
-        public static bool DrawBox(IntPtr device, Vector2 pos, SizeF size, float lineWidth, Color color)
+        public static bool DrawBox(D3DGraphics g, IntPtr device, Vector2 pos, SizeF size, float lineWidth, Color color)
         {
             if (lineWidth == 0 || lineWidth == 1) {
-                DrawBoxFilled(device, pos, new SizeF(size.Width, 1f), color);                                                           // Top
-                DrawBoxFilled(device, new Vector2(pos.X, pos.Y + size.Height - 1), new SizeF(size.Width, 1f), color);                   // Bottom
-                DrawBoxFilled(device, new Vector2(pos.X, pos.Y + 1f), new SizeF(1f, size.Height - 2f * 1f), color);                     // Left
-                DrawBoxFilled(device, new Vector2(pos.X + size.Width - 1f, pos.Y + 1f), new SizeF(1f, size.Height - 2f * 1f), color);   // Right
+                DrawBoxFilled(g, device, pos, new SizeF(size.Width, 1f), color);                                                           // Top
+                DrawBoxFilled(g, device, new Vector2(pos.X, pos.Y + size.Height - 1), new SizeF(size.Width, 1f), color);                   // Bottom
+                DrawBoxFilled(g, device, new Vector2(pos.X, pos.Y + 1f), new SizeF(1f, size.Height - 2f * 1f), color);                     // Left
+                DrawBoxFilled(g, device, new Vector2(pos.X + size.Width - 1f, pos.Y + 1f), new SizeF(1f, size.Height - 2f * 1f), color);   // Right
             }
             else {
-                DrawBoxFilled(device, pos, new SizeF(size.Width, lineWidth), color);                                                                                // Top
-                DrawBoxFilled(device, new Vector2(pos.X, pos.Y + size.Height - lineWidth), new SizeF(size.Width, lineWidth), color);                                // Bottom
-                DrawBoxFilled(device, new Vector2(pos.X, pos.Y + lineWidth), new SizeF(lineWidth, size.Height - 2f * lineWidth), color);                            // Left
-                DrawBoxFilled(device, new Vector2(pos.X + size.Width - lineWidth, pos.Y + lineWidth), new SizeF(lineWidth, size.Height - 2f * lineWidth), color);   // Right
+                DrawBoxFilled(g, device, pos, new SizeF(size.Width, lineWidth), color);                                                                                // Top
+                DrawBoxFilled(g, device, new Vector2(pos.X, pos.Y + size.Height - lineWidth), new SizeF(size.Width, lineWidth), color);                                // Bottom
+                DrawBoxFilled(g, device, new Vector2(pos.X, pos.Y + lineWidth), new SizeF(lineWidth, size.Height - 2f * lineWidth), color);                            // Left
+                DrawBoxFilled(g, device, new Vector2(pos.X + size.Width - lineWidth, pos.Y + lineWidth), new SizeF(lineWidth, size.Height - 2f * lineWidth), color);   // Right
             }
             return true;
         }
-        public static bool DrawBoxBordered(IntPtr device, Vector2 pos, SizeF size, float borderWidth, Color color, Color borderColor)
+        public static bool DrawBoxBordered(D3DGraphics g, IntPtr device, Vector2 pos, SizeF size, float borderWidth, Color color, Color borderColor)
         {
-            DrawBoxFilled(device, pos, size, color);
-            DrawBox(device, new Vector2(pos.X - borderWidth, pos.Y - borderWidth), new SizeF(size.Width + 2 * borderWidth, size.Height + borderWidth), borderWidth, borderColor);
+            DrawBoxFilled(g, device, pos, size, color);
+            DrawBox(g, device, new Vector2(pos.X - borderWidth, pos.Y - borderWidth), new SizeF(size.Width + 2 * borderWidth, size.Height + borderWidth), borderWidth, borderColor);
             return true;
         }
-        public static bool DrawBoxRounded(IntPtr device, Vector2 pos, SizeF size, float radius, bool smoothing, Color color, Color borderColor)
+        public static bool DrawBoxRounded(D3DGraphics g, IntPtr device, Vector2 pos, SizeF size, float radius, bool smoothing, Color color, Color borderColor)
         {
-            DrawBoxFilled(device, new Vector2(pos.X + radius, pos.Y + radius), new SizeF(size.Width - 2f * radius - 1f, size.Height - 2f * radius - 1f), color);    // Center rect.
-            DrawBoxFilled(device, new Vector2(pos.X + radius, pos.Y + 1f), new SizeF(size.Width - 2f * radius - 1f, radius - 1f), color);                           // Top rect.
-            DrawBoxFilled(device, new Vector2(pos.X + radius, pos.Y + size.Height - radius - 1f), new SizeF(size.Width - 2f * radius - 1f, radius), color);         // Bottom rect.
-            DrawBoxFilled(device, new Vector2(pos.X + 1f, pos.Y + radius), new SizeF(radius - 1f, size.Height - 2f * radius - 1f), color);                          // Left rect.
-            DrawBoxFilled(device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + radius), new SizeF(radius, size.Height - 2f * radius - 1f), color);         // Right rect.
+            DrawBoxFilled(g, device, new Vector2(pos.X + radius, pos.Y + radius), new SizeF(size.Width - 2f * radius - 1f, size.Height - 2f * radius - 1f), color);    // Center rect.
+            DrawBoxFilled(g, device, new Vector2(pos.X + radius, pos.Y + 1f), new SizeF(size.Width - 2f * radius - 1f, radius - 1f), color);                           // Top rect.
+            DrawBoxFilled(g, device, new Vector2(pos.X + radius, pos.Y + size.Height - radius - 1f), new SizeF(size.Width - 2f * radius - 1f, radius), color);         // Bottom rect.
+            DrawBoxFilled(g, device, new Vector2(pos.X + 1f, pos.Y + radius), new SizeF(radius - 1f, size.Height - 2f * radius - 1f), color);                          // Left rect.
+            DrawBoxFilled(g, device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + radius), new SizeF(radius, size.Height - 2f * radius - 1f), color);         // Right rect.
 
             // Smoothing method
             if (smoothing) {
-                DrawCircleFilled(device, new Vector2(pos.X + radius, pos.Y + radius), radius - 1f, 0f, eD3DCircleType.Quarter, false, 16, color);                                               // Top-left corner
-                DrawCircleFilled(device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + radius), radius - 1f, 90f, eD3DCircleType.Quarter, false, 16, color);                            // Top-right corner
-                DrawCircleFilled(device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + size.Height - radius - 1f), radius - 1f, 180f, eD3DCircleType.Quarter, false, 16, color);        // Bottom-right corner
-                DrawCircleFilled(device, new Vector2(pos.X + radius, pos.Y + size.Height - radius - 1f), radius - 1f, 270f, eD3DCircleType.Quarter, false, 16, color);                          // Bottom-left corner
+                DrawCircleFilled(g, device, new Vector2(pos.X + radius, pos.Y + radius), radius - 1f, 0f, eD3DCircleType.Quarter, false, 16, color);                                               // Top-left corner
+                DrawCircleFilled(g, device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + radius), radius - 1f, 90f, eD3DCircleType.Quarter, false, 16, color);                            // Top-right corner
+                DrawCircleFilled(g, device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + size.Height - radius - 1f), radius - 1f, 180f, eD3DCircleType.Quarter, false, 16, color);        // Bottom-right corner
+                DrawCircleFilled(g, device, new Vector2(pos.X + radius, pos.Y + size.Height - radius - 1f), radius - 1f, 270f, eD3DCircleType.Quarter, false, 16, color);                          // Bottom-left corner
 
-                DrawCircle(device, new Vector2(pos.X + radius + 1f, pos.Y + radius + 1f), radius, 0f, eD3DCircleType.Quarter, true, 16, borderColor);                                    // Top-left corner
-                DrawCircle(device, new Vector2(pos.X + size.Width - radius - 2f, pos.Y + radius + 1f), radius, 90f, eD3DCircleType.Quarter, true, 16, borderColor);                      // Top-right corner
-                DrawCircle(device, new Vector2(pos.X + size.Width - radius - 2f, pos.Y + size.Height - radius - 2f), radius, 180f, eD3DCircleType.Quarter, true, 16, borderColor);       // Bottom-right corner
-                DrawCircle(device, new Vector2(pos.X + radius + 1f, pos.Y + size.Height - radius - 2f), radius, 270f, eD3DCircleType.Quarter, true, 16, borderColor);                    // Bottom-left corner
+                DrawCircle(g, device, new Vector2(pos.X + radius + 1f, pos.Y + radius + 1f), radius, 0f, eD3DCircleType.Quarter, true, 16, borderColor);                                    // Top-left corner
+                DrawCircle(g, device, new Vector2(pos.X + size.Width - radius - 2f, pos.Y + radius + 1f), radius, 90f, eD3DCircleType.Quarter, true, 16, borderColor);                      // Top-right corner
+                DrawCircle(g, device, new Vector2(pos.X + size.Width - radius - 2f, pos.Y + size.Height - radius - 2f), radius, 180f, eD3DCircleType.Quarter, true, 16, borderColor);       // Bottom-right corner
+                DrawCircle(g, device, new Vector2(pos.X + radius + 1f, pos.Y + size.Height - radius - 2f), radius, 270f, eD3DCircleType.Quarter, true, 16, borderColor);                    // Bottom-left corner
 
-                DrawLine(device, new Vector2(pos.X + radius, pos.Y + 1f), new Vector2(pos.X + size.Width - radius - 1f, pos.Y + 1f), borderColor, false, -1, 1.0f, 1f);                                 // Top line
-                DrawLine(device, new Vector2(pos.X + radius, pos.Y + size.Height - 2f), new Vector2(pos.X + size.Width - radius - 1f, pos.Y + size.Height - 2f), borderColor, false, -1, 1.0f, 1f);     // Bottom line
-                DrawLine(device, new Vector2(pos.X + 1f, pos.Y + radius), new Vector2(pos.X + 1f, pos.Y + size.Height - radius - 1f), borderColor, false, -1, 1.0f, 1f);                                // Left line
-                DrawLine(device, new Vector2(pos.X + size.Width - 2f, pos.Y + radius), new Vector2(pos.X + size.Width - 2f, pos.Y + size.Height - radius - 1f), borderColor, false, -1, 1.0f, 1f);      // Right line
+                DrawLine(g, device, new Vector2(pos.X + radius, pos.Y + 1f), new Vector2(pos.X + size.Width - radius - 1f, pos.Y + 1f), borderColor, false, -1, 1.0f, 1f);                                 // Top line
+                DrawLine(g, device, new Vector2(pos.X + radius, pos.Y + size.Height - 2f), new Vector2(pos.X + size.Width - radius - 1f, pos.Y + size.Height - 2f), borderColor, false, -1, 1.0f, 1f);     // Bottom line
+                DrawLine(g, device, new Vector2(pos.X + 1f, pos.Y + radius), new Vector2(pos.X + 1f, pos.Y + size.Height - radius - 1f), borderColor, false, -1, 1.0f, 1f);                                // Left line
+                DrawLine(g, device, new Vector2(pos.X + size.Width - 2f, pos.Y + radius), new Vector2(pos.X + size.Width - 2f, pos.Y + size.Height - radius - 1f), borderColor, false, -1, 1.0f, 1f);      // Right line
             }
             else {
-                DrawCircleFilled(device, new Vector2(pos.X + radius, pos.Y + radius), radius, 0f, eD3DCircleType.Quarter, false, 16, color);                                                    // Top-left corner
-                DrawCircleFilled(device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + radius), radius, 90f, eD3DCircleType.Quarter, false, 16, color);                                 // Top-right corner
-                DrawCircleFilled(device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + size.Height - radius - 1f), radius, 180f, eD3DCircleType.Quarter, false, 16, color);             // Bottom-right corner
-                DrawCircleFilled(device, new Vector2(pos.X + radius, pos.Y + size.Height - radius - 1f), radius, 270f, eD3DCircleType.Quarter, false, 16, color);                               // Bottom-left corner
+                DrawCircleFilled(g, device, new Vector2(pos.X + radius, pos.Y + radius), radius, 0f, eD3DCircleType.Quarter, false, 16, color);                                                    // Top-left corner
+                DrawCircleFilled(g, device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + radius), radius, 90f, eD3DCircleType.Quarter, false, 16, color);                                 // Top-right corner
+                DrawCircleFilled(g, device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + size.Height - radius - 1f), radius, 180f, eD3DCircleType.Quarter, false, 16, color);             // Bottom-right corner
+                DrawCircleFilled(g, device, new Vector2(pos.X + radius, pos.Y + size.Height - radius - 1f), radius, 270f, eD3DCircleType.Quarter, false, 16, color);                               // Bottom-left corner
             }
 
             return true;
         }
 
-        public static bool DrawTexture(IntPtr device, IntPtr txt, Vector2 pos, Size size, Vector2 scaling, float rotation, Color tint)
+        public static bool DrawTexture(D3DGraphics g, IntPtr device, IntPtr txt, RectangleF rect, float rotation, Color tint)
         {
             try {
-                if (size == Size.Empty)
-                    return false;
-
                 Texture texture = (Texture)txt;
-
-                Matrix m = Matrix.Transformation2D(SharpDX.Vector2.Zero, 0.0f, scaling.ToSharpDXVector2(), new SharpDX.Vector2(size.Width / 2, size.Height / 2), rotation, pos.ToSharpDXVector2());
                 
+                // Convert pixel to screen units
+                SurfaceDescription sd = texture.GetLevelDescription(0);
+                float cW = rect.Width / sd.Width;
+                float cH = rect.Height / sd.Height;
+
+                // Create matrix for texture
+                Matrix m = Matrix.Transformation2D(SharpDX.Vector2.Zero, 0f, new SharpDX.Vector2(cW, cH), new SharpDX.Vector2(rect.Width / 2, rect.Height / 2), rotation, new SharpDX.Vector2(rect.X, rect.Y));
+                //Matrix m = Matrix.Identity * Matrix.Translation(-0.5f, -0.5f, 0.0f) * Matrix.Scaling(cW, cH, 1.0f) * Matrix.RotationZ(rotation) * Matrix.Translation(rect.X, rect.Y, 0.0f);
+                
+                // Draw texture on screen
                 using (Sprite s = new Sprite((Device)device)) {
                     s.Begin();
                     s.Transform = m;
-                    s.Draw(texture, tint.ToRawColorBGRA(), null, null, null);
+                    s.Draw(texture, tint.ToRawColorBGRA());
                     s.End();
                 }
+
                 return true;
             }
             catch (Exception ex) {
@@ -344,9 +351,12 @@ namespace Manager.Direct3D9 {
             return false;
         }
 
-        public static bool DrawString(IntPtr fontPtr, string text, Point pos, Color color)
+        public static bool DrawString(D3DGraphics g, IntPtr fontPtr, string text, Point pos, Color color)
         {
             try {
+                if (string.IsNullOrEmpty(text))
+                    return false;
+
                 SharpDX.Direct3D9.Font f = (SharpDX.Direct3D9.Font)fontPtr;
                 if (f != null) {
                     f.DrawText(null, text, pos.X, pos.Y, color.ToRawColorBGRA());

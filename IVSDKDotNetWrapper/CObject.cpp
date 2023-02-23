@@ -3,10 +3,9 @@
 
 namespace IVSDKDotNet {
 
-	CObject::CObject(uint32_t handle, Native_CObject* native) : CPhysical(native)
+	CObject::CObject(Native_CObject* nativePtr) : CPhysical(nativePtr)
 	{
-		Handle = handle;
-		m_cNativeObject = native;
+		ObjectPointer = nativePtr;
 	}
 
 }

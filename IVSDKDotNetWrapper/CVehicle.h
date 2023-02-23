@@ -280,7 +280,7 @@ namespace IVSDKDotNet {
 	public ref class CVehicleDoor
 	{
 	public:
-		CVehicleDoor::CVehicleDoor(Native_CVehicleDoor* native);
+		CVehicleDoor::CVehicleDoor(Native_CVehicleDoor* nativePtr);
 
 		property uint32_t BoneID {
 			public:
@@ -300,7 +300,7 @@ namespace IVSDKDotNet {
 	public ref class CVehicleWheel
 	{
 	public:
-		CVehicleWheel::CVehicleWheel(Native_CVehicleWheel* native);
+		CVehicleWheel::CVehicleWheel(Native_CVehicleWheel* nativePtr);
 
 		property uint32_t BoneID {
 			public:
@@ -323,14 +323,42 @@ namespace IVSDKDotNet {
 	public ref class CVehicle : CPhysical
 	{
 	public:
-		CVehicle(uint32_t handle, Native_CVehicle* native);
+		CVehicle(Native_CVehicle* nativePtr);
 
-		/// <summary>
-		/// Gets the handle of this vehicle.
-		/// </summary>
-		property uint32_t Handle {
-			public:		uint32_t get()				{ return m_iHandle; }
-			private:	void set(uint32_t value)	{ m_iHandle = value; }
+		static CVehicle^ FromPointer(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
+		property uint8_t PrimaryColor2 {
+			public:
+				uint8_t	get()				{ return m_cNativeVehicle->m_nPrimaryColor2; }
+				void	set(uint8_t value)	{ m_cNativeVehicle->m_nPrimaryColor2 = value; }
+		}
+		property uint8_t SecondaryColor2 {
+			public:
+				uint8_t	get()				{ return m_cNativeVehicle->m_nSecondaryColor2; }
+				void	set(uint8_t value)	{ m_cNativeVehicle->m_nSecondaryColor2 = value; }
+		}
+		property uint8_t TertiaryColor2 {
+			public:
+				uint8_t	get()				{ return m_cNativeVehicle->m_nTertiaryColor2; }
+				void	set(uint8_t value)	{ m_cNativeVehicle->m_nTertiaryColor2 = value; }
+		}
+		property uint8_t QuaternaryColor2 {
+			public:
+				uint8_t	get()				{ return m_cNativeVehicle->m_nQuaternaryColor2; }
+				void	set(uint8_t value)	{ m_cNativeVehicle->m_nQuaternaryColor2 = value; }
+		}
+
+		property float EngineRPM {
+			public:
+				float	get()				{ return m_cNativeVehicle->m_fEngineRPM; }
+				void	set(float value)	{ m_cNativeVehicle->m_fEngineRPM = value; }
+		}
+
+		property UIntPtr Driver {
+			public:
+				UIntPtr get()				{ return UIntPtr((uint32_t*)m_cNativeVehicle->m_pDriver); }
+				void	set(UIntPtr value)	{ m_cNativeVehicle->m_pDriver = (Native_CPed*)value.ToPointer(); }
 		}
 
 		property CVehicleDoor^ Doors {
@@ -345,6 +373,12 @@ namespace IVSDKDotNet {
 					delete n;
 				}
 		}
+		property uint32_t DoorCount {
+			public:
+				uint32_t	get()				{ return m_cNativeVehicle->m_nDoorCount; }
+				void		set(uint32_t value) { m_cNativeVehicle->m_nDoorCount = value; }
+		}
+
 		property CVehicleWheel^ Wheels {
 			public:
 				CVehicleWheel^	get()				{ return gcnew CVehicleWheel(m_cNativeVehicle->m_pWheels); }
@@ -357,22 +391,10 @@ namespace IVSDKDotNet {
 					delete n;
 				}
 		}
-
-		property float EngineRPM {
-			public:
-				float	get()				{ return m_cNativeVehicle->m_fEngineRPM; }
-				void	set(float value)	{ m_cNativeVehicle->m_fEngineRPM = value; }
-		}
-
 		property uint32_t WheelCount {
 			public:
 				uint32_t	get()				{ return m_cNativeVehicle->m_nWheelCount; }
 				void		set(uint32_t value) { m_cNativeVehicle->m_nWheelCount = value; }
-		}
-		property uint32_t DoorCount {
-			public:
-				uint32_t	get()				{ return m_cNativeVehicle->m_nDoorCount; }
-				void		set(uint32_t value) { m_cNativeVehicle->m_nDoorCount = value; }
 		}
 
 		property uint8_t PrimaryColor {
@@ -394,27 +416,6 @@ namespace IVSDKDotNet {
 			public:
 				uint8_t	get()				{ return m_cNativeVehicle->m_nQuaternaryColor; }
 				void	set(uint8_t value)	{ m_cNativeVehicle->m_nQuaternaryColor = value; }
-		}
-
-		property uint8_t PrimaryColor2 {
-			public:
-				uint8_t	get()				{ return m_cNativeVehicle->m_nPrimaryColor2; }
-				void	set(uint8_t value)	{ m_cNativeVehicle->m_nPrimaryColor2 = value; }
-		}
-		property uint8_t SecondaryColor2 {
-			public:
-				uint8_t	get()				{ return m_cNativeVehicle->m_nSecondaryColor2; }
-				void	set(uint8_t value)	{ m_cNativeVehicle->m_nSecondaryColor2 = value; }
-		}
-		property uint8_t TertiaryColor2 {
-			public:
-				uint8_t	get()				{ return m_cNativeVehicle->m_nTertiaryColor2; }
-				void	set(uint8_t value)	{ m_cNativeVehicle->m_nTertiaryColor2 = value; }
-		}
-		property uint8_t QuaternaryColor2 {
-			public:
-				uint8_t	get()				{ return m_cNativeVehicle->m_nQuaternaryColor2; }
-				void	set(uint8_t value)	{ m_cNativeVehicle->m_nQuaternaryColor2 = value; }
 		}
 
 		property uint8_t MaxPassengers {
@@ -572,6 +573,12 @@ namespace IVSDKDotNet {
 				void	set(float value)	{ m_cNativeVehicle->m_fPlanePropSpeed = value; }
 		}
 
+		property Native_CVehicle* VehiclePointer {
+			public:
+				Native_CVehicle*	get()						{ return m_cNativeVehicle; }
+				void				set(Native_CVehicle* value) { m_cNativeVehicle = value; }
+		}
+
 		static float HeightAboveCeiling(float height, int flightModel);
 		static bool UsesSiren(int32_t id);
 
@@ -585,7 +592,6 @@ namespace IVSDKDotNet {
 		bool GetCameraType([OutAttribute] eVehicleCameraType% type);
 
 	private:
-		uint32_t m_iHandle;
 		Native_CVehicle* m_cNativeVehicle;
 
 	};

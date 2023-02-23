@@ -22,6 +22,7 @@ namespace IVSDKDotNet {
 		~Script() {};
 
 		delegate String^ ScriptAssemblyResolveDelegate(String^ assemblyFileName);
+		delegate void AutomobileDelegate(UIntPtr vehPtr);
 
 		/// <summary>
 		/// Gets called after the constructor so you can safely call any functions in here without having to worry about stuff not being initialized yet.
@@ -36,41 +37,47 @@ namespace IVSDKDotNet {
 
 		/// <summary>
 		/// Gets called every frame when in-game.
+		/// (CGame.Process)
 		/// </summary>
 		event EventHandler^ Tick;
 
 		/// <summary>
 		/// Gets called when game is loading or when switching from one episode to another.
+		/// Can be used for addon files that don't interfere with game files.
 		/// </summary>
 		event EventHandler^ GameLoad;
 
 		/// <summary>
 		/// Gets called before GameLoad when game is loading or when switching from one episode to another.
+		/// Can be used for files that need to overwrite base game files.
 		/// </summary>
 		event EventHandler^ GameLoadPriority;
 
 		/// <summary>
 		/// Gets called when game is loading, switching from one episode to another or when loading the same save game again.
+		/// Can be used for any rage.fiDevice stuff.
 		/// </summary>
 		event EventHandler^ MountDevice;
 
 		/// <summary>
-		/// Gets called EVERYTIME even when in main menu.
+		/// Gets called twice per frame when in game, and even works in main menu.
+		/// (CRenderPhasePostRenderViewport)
 		/// </summary>
 		event EventHandler^ Drawing;
 
 		/// <summary>
-		/// Gets called everytime when in-game.
+		/// Gets called after CCamera.m_pFinalCam has been written to.
 		/// </summary>
 		event EventHandler^ ProcessCamera;
 
 		/// <summary>
-		/// Gets called everytime when in-game.
+		/// Gets called after CAutomobile.Process, overriding steer & pedals works here.
 		/// </summary>
-		event EventHandler^ ProcessAutomobile;
+		event AutomobileDelegate^ ProcessAutomobile;
 
 		/// <summary>
 		/// Gets called EVERYTIME even when in main menu.
+		/// You can set all pad controls here, called once per frame for each pad.
 		/// </summary>
 		event EventHandler^ ProcessPad;
 
@@ -90,18 +97,18 @@ namespace IVSDKDotNet {
 		/// </summary>
 		event ScriptAssemblyResolveDelegate^ AssemblyResolve;
 
-		void RaiseInitialized()					{ Initialized(this, EventArgs::Empty); }
-		void RaiseUninitialize()				{ Uninitialize(this, EventArgs::Empty); }
-		void RaiseTick()						{ Tick(this, EventArgs::Empty); }
-		void RaiseGameLoad()					{ GameLoad(this, EventArgs::Empty); }
-		void RaiseGameLoadPriority()			{ GameLoadPriority(this, EventArgs::Empty); }
-		void RaiseMountDevice()					{ MountDevice(this, EventArgs::Empty); }
-		void RaiseDrawing()						{ Drawing(this, EventArgs::Empty); }
-		void RaiseProcessCamera()				{ ProcessCamera(this, EventArgs::Empty); }
-		void RaiseProcessAutomobile()			{ ProcessAutomobile(this, EventArgs::Empty); }
-		void RaiseProcessPad()					{ ProcessPad(this, EventArgs::Empty); }
-		void RaiseKeyUp(KeyEventArgs^ args)		{ KeyUp(this, args); }
-		void RaiseKeyDown(KeyEventArgs^ args)	{ KeyDown(this, args); }
+		void RaiseInitialized()						{ Initialized(this, EventArgs::Empty); }
+		void RaiseUninitialize()					{ Uninitialize(this, EventArgs::Empty); }
+		void RaiseTick()							{ Tick(this, EventArgs::Empty); }
+		void RaiseGameLoad()						{ GameLoad(this, EventArgs::Empty); }
+		void RaiseGameLoadPriority()				{ GameLoadPriority(this, EventArgs::Empty); }
+		void RaiseMountDevice()						{ MountDevice(this, EventArgs::Empty); }
+		void RaiseDrawing()							{ Drawing(this, EventArgs::Empty); }
+		void RaiseProcessCamera()					{ ProcessCamera(this, EventArgs::Empty); }
+		void RaiseProcessAutomobile(UIntPtr vehPtr)	{ ProcessAutomobile(vehPtr); }
+		void RaiseProcessPad()						{ ProcessPad(this, EventArgs::Empty); }
+		void RaiseKeyUp(KeyEventArgs^ args)			{ KeyUp(this, args); }
+		void RaiseKeyDown(KeyEventArgs^ args)		{ KeyDown(this, args); }
 
 		String^ RaiseAssemblyResolve(String^ assemblyFileName) { return AssemblyResolve(assemblyFileName); }
 
@@ -126,6 +133,19 @@ namespace IVSDKDotNet {
 		/// <param name="actionToExecute">The action that should be executed each Timer Tick.</param>
 		/// <returns>The Guid of the just created Timer which can be used to control the Timer. If Guid is empty then Timer could not get created.</returns>
 		Guid StartNewTimer(int interval, Action^ actionToExecute);
+
+		/// <summary>
+		/// Aborts a task or timer with the given id.
+		/// </summary>
+		/// <param name="id">The ID of the task or timer to abort.</param>
+		void AbortTaskOrTimer(Guid id);
+
+		/// <summary>
+		/// Changes the pause state of a timer.
+		/// </summary>
+		/// <param name="id">The ID of the timer to change its pause state.</param>
+		/// <param name="pause">Pause, or not pause.</param>
+		void ChangeTimerState(Guid id, bool pause);
 
 		/// <summary>
 		/// Shows text at the bottom center of the screen where the subtitles are located.
@@ -207,8 +227,19 @@ namespace IVSDKDotNet {
 		/// </summary>
 		property String^ CustomAssembliesPath {
 			public:
-				String^ get()			{ return m_CustomAssembliesPath; }
-				void set(String^ value) { m_CustomAssembliesPath = value; }
+				String^ get()				{ return m_CustomAssembliesPath; }
+				void	set(String^ value)	{ m_CustomAssembliesPath = value; }
+		}
+
+		/// <summary>
+		/// Gets or sets the resource folder for this Script where all the files required by this Script are located.
+		/// The folder has to be named the same name as your Script (without extension), and needs to be placed in the scripts folder.
+		/// The string will be null if the folder doesn't exist.
+		/// </summary>
+		property String^ ScriptResourceFolder {
+			public:
+				String^ get()				{ return m_ScriptResourceFolder; }
+				void	set(String^ value)	{ m_ScriptResourceFolder = value; }
 		}
 
 		/// <summary>
@@ -300,6 +331,7 @@ namespace IVSDKDotNet {
 		AppDomain^ m_AppDomain;
 		eAssembliesLocation m_AssembliesLocation;
 		String^ m_CustomAssembliesPath;
+		String^ m_ScriptResourceFolder;
 		SettingsFile^ m_SettingsFile;
 
 		// Measurements
@@ -333,6 +365,10 @@ namespace IVSDKDotNet {
 			void Debug_ShowWarnMessageBox(String^ str);
 			void Debug_ShowErrorMessageBox(String^ str);
 
+			// Helper
+			virtual String^ Helper_JSON_ConvertObjectToJsonString(Object^ obj)				abstract;
+			virtual System::Object^ Helper_JSON_ConvertJsonStringToObject(String^ str)		abstract;
+
 			// Console
 			virtual void OpenConsole()						abstract;
 			virtual void CloseConsole()						abstract;
@@ -346,32 +382,34 @@ namespace IVSDKDotNet {
 			virtual bool ExecuteConsoleCommand(String^ name) abstract;
 
 			// Script
-			virtual void RaiseTick()						abstract;
-			virtual void RaiseGameLoad()					abstract;
-			virtual void RaiseGameLoadPriority()			abstract;
-			virtual void RaiseMountDevice()					abstract;
-			virtual void RaiseDrawing()						abstract;
-			virtual void RaiseProcessCamera()				abstract;
-			virtual void RaiseProcessAutomobile()			abstract;
-			virtual void RaiseProcessPad()					abstract;
+			virtual void RaiseTick()							abstract;
+			virtual void RaiseGameLoad()						abstract;
+			virtual void RaiseGameLoadPriority()				abstract;
+			virtual void RaiseMountDevice()						abstract;
+			virtual void RaiseDrawing()							abstract;
+			virtual void RaiseProcessCamera()					abstract;
+			virtual void RaiseProcessAutomobile(UIntPtr vehPtr)	abstract;
+			virtual void RaiseProcessPad()						abstract;
 
-			virtual void LoadScripts()						abstract;
-			virtual void LoadScript(String^ name)			abstract;
-			virtual bool AbortScript(Guid id)				abstract;
-			virtual void AbortScripts(bool showMessage)		abstract;
+			virtual void LoadScripts()							abstract;
+			virtual void LoadScript(String^ name)				abstract;
+			virtual bool AbortScript(Guid id)					abstract;
+			virtual void AbortScripts(bool showMessage)			abstract;
 
-			virtual Script^	GetScript(Guid id)				abstract;
-			virtual Script^	GetScript(String^ name)			abstract;
-			virtual array<Script^>^ GetAllScripts()			abstract;
-			virtual String^	GetScriptName(Guid id)			abstract;
-			virtual String^ GetScriptFullPath(Guid id)		abstract;
-			virtual int GetActiveScriptsCount()				abstract;
+			virtual Script^	GetScript(Guid id)					abstract;
+			virtual Script^	GetScript(String^ name)				abstract;
+			virtual array<Script^>^ GetAllScripts()				abstract;
+			virtual String^	GetScriptName(Guid id)				abstract;
+			virtual String^ GetScriptFullPath(Guid id)			abstract;
+			virtual int GetActiveScriptsCount()					abstract;
 
 			// Task
 			virtual Guid StartNewTask(Guid forScript, Func<Object^>^ actionToExecute)			abstract;
 			virtual Guid StartNewTimer(Guid forScript, int interval, Action^ actionToExecute)	abstract;
 
 			virtual void WaitInTask(Guid id, int waitTimeInMilliseconds)						abstract;
+			virtual void AbortTaskOrTimer(Guid id)												abstract;
+			virtual void ChangeTimerState(Guid id, bool pause)									abstract;
 
 			// Direct3D9 -> Graphics
 			virtual void Direct3D9_Graphics_CreateNewInstance(Object^ instance, Script^ forScript)	abstract;
@@ -382,22 +420,22 @@ namespace IVSDKDotNet {
 			virtual Exception^ Direct3D9_Graphics_ReleaseD3D9Texture(Script^ ofScript, Direct3D9::D3DResource^ resource)										abstract;
 
 			virtual Direct3D9::D3DResult^ Direct3D9_Graphics_CreateD3D9Font(Script^ forScript, IntPtr device, Direct3D9::D3DFontDescription fontDescription)	abstract;
-			virtual Exception^ Direct3D9_Graphics_ReleaseD3D9Font(Script^ ofScript, Direct3D9::D3DResource^ resource)	abstract;
+			virtual Exception^ Direct3D9_Graphics_ReleaseD3D9Font(Script^ ofScript, Direct3D9::D3DResource^ resource)											abstract;
 
-			virtual bool Direct3D9_Graphics_DrawLines(IntPtr device, array<Vector2>^ vertices, Color color, bool antialias, int pattern, float patternScale, float thickness)								abstract;
-			virtual bool Direct3D9_Graphics_DrawLine(IntPtr device, Vector2 point1, Vector2 point2, Color color, bool antialias, int pattern, float patternScale, float thickness)	abstract;
+			virtual bool Direct3D9_Graphics_DrawLines(Object^ instance, IntPtr device, array<Vector2>^ vertices, Color color, bool antialias, int pattern, float patternScale, float thickness)								abstract;
+			virtual bool Direct3D9_Graphics_DrawLine(Object^ instance, IntPtr device, Vector2 point1, Vector2 point2, Color color, bool antialias, int pattern, float patternScale, float thickness)	abstract;
 
-			virtual bool Direct3D9_Graphics_DrawCircle(IntPtr device, Vector2 pos, float radius, float rotation, Direct3D9::eD3DCircleType type, bool smoothing, int resolution, Color color)				abstract;
-			virtual bool Direct3D9_Graphics_DrawCircleFilled(IntPtr device, Vector2 pos, float radius, float rotation, Direct3D9::eD3DCircleType type, bool smoothing, int resolution, Color color)			abstract;
+			virtual bool Direct3D9_Graphics_DrawCircle(Object^ instance, IntPtr device, Vector2 pos, float radius, float rotation, Direct3D9::eD3DCircleType type, bool smoothing, int resolution, Color color)				abstract;
+			virtual bool Direct3D9_Graphics_DrawCircleFilled(Object^ instance, IntPtr device, Vector2 pos, float radius, float rotation, Direct3D9::eD3DCircleType type, bool smoothing, int resolution, Color color)			abstract;
 
-			virtual bool Direct3D9_Graphics_DrawBoxFilled(IntPtr device, Vector2 pos, SizeF size, Color color)																		abstract;
-			virtual bool Direct3D9_Graphics_DrawBox(IntPtr device, Vector2 pos, SizeF size, float lineWidth, Color color)															abstract;
-			virtual bool Direct3D9_Graphics_DrawBoxBordered(IntPtr device, Vector2 pos, SizeF size, float borderWidth, Color color, Color borderColor)								abstract;
-			virtual bool Direct3D9_Graphics_DrawBoxRounded(IntPtr device, Vector2 pos, SizeF size, float radius, bool smoothing, Color color, Color borderColor)					abstract;
+			virtual bool Direct3D9_Graphics_DrawBoxFilled(Object^ instance, IntPtr device, Vector2 pos, SizeF size, Color color)																		abstract;
+			virtual bool Direct3D9_Graphics_DrawBox(Object^ instance, IntPtr device, Vector2 pos, SizeF size, float lineWidth, Color color)															abstract;
+			virtual bool Direct3D9_Graphics_DrawBoxBordered(Object^ instance, IntPtr device, Vector2 pos, SizeF size, float borderWidth, Color color, Color borderColor)								abstract;
+			virtual bool Direct3D9_Graphics_DrawBoxRounded(Object^ instance, IntPtr device, Vector2 pos, SizeF size, float radius, bool smoothing, Color color, Color borderColor)					abstract;
 
-			virtual bool Direct3D9_Graphics_DrawTexture(IntPtr device, Direct3D9::D3DResource^ txt, Vector2 pos, Size size, Vector2 scaling, float rotation, Color tint)			abstract;
+			virtual bool Direct3D9_Graphics_DrawTexture(Object^ instance, IntPtr device, Direct3D9::D3DResource^ txt, RectangleF rect, float rotation, Color tint)									abstract;
 
-			virtual bool Direct3D9_Graphics_DrawString(IntPtr device, Direct3D9::D3DResource^ fontResource, String^ text, Point pos, Color color)									abstract;
+			virtual bool Direct3D9_Graphics_DrawString(Object^ instance, IntPtr device, Direct3D9::D3DResource^ fontResource, String^ text, Point pos, Color color)									abstract;
 
 		};
 

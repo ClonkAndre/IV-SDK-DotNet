@@ -103,9 +103,22 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// Checks if the specified key is pressed.
 		/// </summary>
-		/// <param name="key">: The key to check if it's pressed.</param>
+		/// <param name="key">The key to check if it's pressed.</param>
 		/// <returns>True if the key is pressed, otherwise false.</returns>
 		static bool IsKeyPressed(Keys key);
+
+		/// <summary>
+		/// Gets the rectangle of the radar with the specific scaling.
+		/// </summary>
+		/// <param name="scaling">The scaling to apply.</param>
+		/// <returns>The rectangle of the radar.</returns>
+		static RectangleF GetRadarRectangle(eFontScaling scaling);
+
+		/// <summary>
+		/// Gets the rectangle of the radar in pixel.
+		/// </summary>
+		/// <returns>The rectangle of the radar.</returns>
+		static RectangleF GetRadarRectangle();
 
 		/// <summary>
 		/// Gets or sets the gta.dat path (common:/data/gta.dat).

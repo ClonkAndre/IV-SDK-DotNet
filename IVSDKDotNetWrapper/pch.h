@@ -20,6 +20,10 @@
 
 #include <msclr/marshal.h>
 
+using namespace System;
+using namespace System::IO;
+using namespace System::Reflection;
+using namespace System::Windows::Forms;
 using namespace System::Numerics;
 
 #include "enums.h"
@@ -27,11 +31,11 @@ using namespace System::Numerics;
 #include "CVectors.h"
 
 #include "D3D9Stuff.h"
-#include "Helper.h"
 
 #include "AddressSetter.h"
 #include "rage.h"
 
+#include "CMenuManager.h"
 #include "CTheScripts.h"
 
 #include "NativeHashes.h"
@@ -40,9 +44,14 @@ using namespace System::Numerics;
 
 #include "SettingsFile.h"
 #include "Scripts.h"
+#include "CLRBridge.h"
+
+#include "Helper.h"
 
 #include "Direct3D9.h"
 
+#include "CCam.h"
+#include "CCamera.h"
 #include "CGame.h"
 #include "CPlayerInfo.h"
 #include "CTimer.h"
@@ -52,9 +61,12 @@ using namespace System::Numerics;
 #include "CDynamicEntity.h"
 #include "CPhysical.h"
 #include "CCustomShaderEffectBase.h"
+#include "CBuilding.h"
 #include "CObject.h"
 #include "CVehicle.h"
+#include "CVehicleFactoryNY.h"
 #include "CPed.h"
+#include "CPedFactoryNY.h"
 #include "CPool.h"
 #include "CPools.h"
 #include "phBound.h"
@@ -71,7 +83,6 @@ using namespace System::Numerics;
 #include "CDraw.h"
 #include "CFont.h"
 #include "audRadioAudioEntity.h"
-#include "CMenuManager.h"
 #include "CShaderLib.h"
 #include "CTimeCycle.h"
 #include "CPickups.h"

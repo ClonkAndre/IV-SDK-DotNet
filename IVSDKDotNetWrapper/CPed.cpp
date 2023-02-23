@@ -3,10 +3,34 @@
 
 namespace IVSDKDotNet {
 
-	CPed::CPed(uint32_t handle, Native_CPed* native)
+	CPed::CPed(Native_CPed* nativePtr) : CPhysical(nativePtr)
 	{
-		m_iHandle = handle;
-		m_cNativePed = native;
+		PedPointer = nativePtr;
+	}
+
+	CPed^ CPed::FromPointer(UIntPtr ptr)
+	{
+		if (ptr == UIntPtr::Zero)
+			return nullptr;
+
+		return gcnew CPed((Native_CPed*)ptr.ToPointer());
+	}
+	UIntPtr CPed::GetUIntPtr()
+	{
+		if (!PedPointer)
+			return UIntPtr::Zero;
+
+		return UIntPtr(PedPointer);
+	}
+
+	CVehicle^ CPed::GetVehicle()
+	{
+		Native_CVehicle* vehPtr = PedPointer->GetVehicle();
+
+		if (!vehPtr)
+			return nullptr;
+
+		return gcnew CVehicle(vehPtr);
 	}
 
 	void CPed::ProcessWeaponSwitch()

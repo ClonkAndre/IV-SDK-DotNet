@@ -22,7 +22,9 @@ namespace IVSDKDotNet {
 
 		static IntPtr GetHWND();
 		static IntPtr GetDirect3DDevice9();
+
 		static uint32_t atStringHash(String^ sString);
+		static uint32_t atStringHash(String^ sString, UIntPtr nExistingHash);
 
 	};
 
