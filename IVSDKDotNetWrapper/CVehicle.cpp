@@ -11,6 +11,7 @@ namespace IVSDKDotNet {
 		m_cVehicleDoor = nativePtr;
 	}
 
+
 	// =========================================================================
 	// ============================ CVehicleWheel ==============================
 	// =========================================================================
@@ -19,12 +20,33 @@ namespace IVSDKDotNet {
 		m_cVehicleWheel = nativePtr;
 	}
 
+
+	// =========================================================================
+	// ====================== CVehicle.VehicleAbsFlags =========================
+	// =========================================================================
+	CVehicle::VehicleAbsFlags::VehicleAbsFlags(CVehicle^ parent)
+	{
+		m_cParent = parent;
+	}
+
+
+	// =========================================================================
+	// ========================= CVehicle.VehicleFlags ==========================
+	// =========================================================================
+	CVehicle::VehicleFlags::VehicleFlags(CVehicle^ parent)
+	{
+		m_cParent = parent;
+	}
+
+
 	// =========================================================================
 	// =============================== CVehicle ================================
 	// =========================================================================
 	CVehicle::CVehicle(Native_CVehicle* nativePtr) : CPhysical(nativePtr)
 	{
 		VehiclePointer = nativePtr;
+		m_cVehicleFlags = gcnew VehicleFlags(this);
+		m_cVehicleAbsFlags = gcnew VehicleAbsFlags(this);
 	}
 
 	CVehicle^ CVehicle::FromPointer(UIntPtr ptr)

@@ -8,6 +8,21 @@ namespace IVSDKDotNet {
 		EntityPointer = entity;
 	}
 
+	CEntity^ CEntity::FromPointer(UIntPtr ptr)
+	{
+		if (ptr == UIntPtr::Zero)
+			return nullptr;
+
+		return gcnew CEntity((Native_CEntity*)ptr.ToPointer());
+	}
+	UIntPtr CEntity::GetUIntPtr()
+	{
+		if (!EntityPointer)
+			return UIntPtr::Zero;
+
+		return UIntPtr(EntityPointer);
+	}
+
 	void CEntity::Teleport(GTAMatrix mat, bool bDontUpdatePhysicsMatrix, bool bImmediately)
 	{
 		Native_CMatrix* m = new Native_CMatrix(mat.right, mat.up, mat.at, mat.pos);

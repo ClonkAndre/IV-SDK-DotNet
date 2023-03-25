@@ -97,6 +97,12 @@
     <ClInclude Include="CCutsceneMgr.h" />
     <ClInclude Include="CDraw.h" />
     <ClInclude Include="CdStream.h" />
+    <ClInclude Include="CHandlingDataMgr.h" />
+    <ClInclude Include="CInteriorInst.h" />
+    <ClInclude Include="CTask.h" />
+    <ClInclude Include="CTasks.h" />
+    <ClInclude Include="CWeaponInfo.h" />
+    <ClInclude Include="Dummies.h" />
     <ClInclude Include="CDynamicEntity.h" />
     <ClInclude Include="CEntity.h" />
     <ClInclude Include="CFileLoader.h" />
@@ -163,6 +169,7 @@
     <ClCompile Include="CEntity.cpp" />
     <ClCompile Include="CFileLoader.cpp" />
     <ClCompile Include="CFont.cpp" />
+    <ClCompile Include="CHandlingDataMgr.cpp" />
     <ClCompile Include="CHudColours.cpp" />
     <ClCompile Include="CLRBridge.cpp" />
     <ClCompile Include="CMenuManager.cpp" />
@@ -176,11 +183,13 @@
     <ClCompile Include="CPhysical.cpp" />
     <ClCompile Include="CPickups.cpp" />
     <ClCompile Include="CPlayerInfo.cpp" />
+    <ClCompile Include="CPool.cpp" />
     <ClCompile Include="CPools.cpp" />
     <ClCompile Include="CRGBA.cpp" />
     <ClCompile Include="CShaderLib.cpp" />
     <ClCompile Include="CShadows.cpp" />
     <ClCompile Include="CStreaming.cpp" />
+    <ClCompile Include="CTasks.cpp" />
     <ClCompile Include="CTheScripts.cpp" />
     <ClCompile Include="CTimeCycle.cpp" />
     <ClCompile Include="CTimer.cpp" />
@@ -188,6 +197,7 @@
     <ClCompile Include="CVehicle.cpp" />
     <ClCompile Include="CVehicleFactoryNY.cpp" />
     <ClCompile Include="CVisibilityPlugins.cpp" />
+    <ClCompile Include="CWeaponInfo.cpp" />
     <ClCompile Include="CWorld.cpp" />
     <ClCompile Include="D3D9Stuff.cpp" />
     <ClCompile Include="Direct3D9.cpp" />
@@ -195,7 +205,6 @@
     <ClCompile Include="CGame.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="KeyWatchDog.cpp" />
-    <ClCompile Include="Native.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

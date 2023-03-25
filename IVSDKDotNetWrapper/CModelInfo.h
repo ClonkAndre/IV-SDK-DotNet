@@ -119,9 +119,9 @@ public:
 	uint8_t pad5[0x284];							// 14C-3D0
 
 	// sets center of mass and mass in the phBound based on the center of mass param and fMass off handling
-	void SetHandlingParams(tHandlingData* pHandling, Native_CVector* pCenterOfMass)
+	void SetHandlingParams(Native_tHandlingData* pHandling, Native_CVector* pCenterOfMass)
 	{
-		((void(__thiscall*)(Native_CBaseModelInfo*, tHandlingData*, Native_CVector*))(AddressSetter::Get(0x7E7D70, 0x6477B0)))(this, pHandling, pCenterOfMass);
+		((void(__thiscall*)(Native_CBaseModelInfo*, Native_tHandlingData*, Native_CVector*))(AddressSetter::Get(0x7E7D70, 0x6477B0)))(this, pHandling, pCenterOfMass);
 	}
 
 	static int GetNumberOfSeats(int modelIndex)
@@ -305,6 +305,28 @@ namespace IVSDKDotNet {
 	public:
 		CVehicleStructure(Native_CVehicleStructure* nativePtr);
 
+		property array<uint32_t>^ Bones {
+			public:
+				array<uint32_t>^ get()
+				{
+					array<uint32_t>^ arr = gcnew array<uint32_t>(4);
+
+					for (int i = 0; i < arr->Length; i++)
+					{
+						arr[i] = NativePointer->m_nBones[i];
+					}
+
+					return arr;
+				}
+				void set(array<uint32_t>^ value)
+				{
+					for (int i = 0; i < value->Length; i++)
+					{
+						NativePointer->m_nBones[i] = value[i];
+					}
+				}
+		}
+
 		property Native_CVehicleStructure* NativePointer {
 			public:
 				Native_CVehicleStructure*	get()									{ return m_cNativeVehicleStructure; }
@@ -320,14 +342,18 @@ namespace IVSDKDotNet {
 	public:
 		CVehicleModelInfo(Native_CVehicleModelInfo* nativePtr);
 
+		void SetHandlingParams(UIntPtr handlingData, Vector3 pCenterOfMass);
+
 		static int GetNumberOfSeats(int modelIndex);
 
 		void SetSecondaryAnimGroup(String^ group);
 
-		property int16_t AnimIndex2 {
-			public:
-				int16_t		get()				{ return NativePointer->m_nAnimIndex2; }
-				void		set(int16_t value)	{ NativePointer->m_nAnimIndex2 = value; }
+		property String^ GameName {
+			public: String^ get() { return gcnew String(NativePointer->m_sGameName); }
+		}
+
+		property eVehicleType VehicleType {
+			public: eVehicleType get() { return NativePointer->m_nVehicleType; }
 		}
 
 		property uint32_t HandlingId {
@@ -336,12 +362,44 @@ namespace IVSDKDotNet {
 				void		set(uint32_t value) { NativePointer->m_nHandlingId = value; }
 		}
 
-		property eVehicleType VehicleType {
-			public: eVehicleType get() { return NativePointer->m_nVehicleType; }
+		property int16_t AnimIndex2 {
+			public:
+				int16_t		get()				{ return NativePointer->m_nAnimIndex2; }
+				void		set(int16_t value)	{ NativePointer->m_nAnimIndex2 = value; }
 		}
 
-		property String^ GameName {
-			public: String^ get() { return gcnew String(NativePointer->m_sGameName); }
+		property CVehicleStructure^ VehicleStruct {
+			public: CVehicleStructure^ get()
+			{
+				Native_CVehicleStructure* ptr = NativePointer->m_pVehicleStruct;
+
+				if (ptr)
+					return gcnew CVehicleStructure(ptr);
+
+				return nullptr;
+			}
+		}
+
+		property array<uint32_t>^ LiveryHashes {
+			public:
+				array<uint32_t>^ get()
+				{
+					array<uint32_t>^ arr = gcnew array<uint32_t>(4);
+
+					for (int i = 0; i < arr->Length; i++)
+					{
+						arr[i] = NativePointer->m_nLiveryHashes[i];
+					}
+
+					return arr;
+				}
+				void set(array<uint32_t>^ value)
+				{
+					for (int i = 0; i < value->Length; i++)
+					{
+						NativePointer->m_nLiveryHashes[i] = value[i];
+					}
+				}
 		}
 
 		property Native_CVehicleModelInfo* NativePointer {

@@ -6,7 +6,6 @@ using SharpDX.Direct3D9;
 using SharpDX.Mathematics.Interop;
 
 using IVSDKDotNet.Direct3D9;
-using System.Runtime.Remoting.Messaging;
 
 namespace Manager {
     internal static class Extensions {

@@ -71,6 +71,7 @@ namespace IVSDKDotNet {
 		static Vector3 GetPositionInFrontOfEntity(Vector3 entityPos, Vector3 entityDir, float multiplier);
 
 		static Vector3 HeadingToDirection(float heading);
+		static Vector3 RotationToDirection(Vector3 rotation);
 
 		/// <summary>
 		/// Returns the length of the given Vector2 values.

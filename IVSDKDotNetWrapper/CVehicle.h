@@ -4,7 +4,7 @@ namespace rage { class grmShaderGroup; }
 
 class Native_CPed;
 
-struct tHandlingData;
+struct Native_tHandlingData;
 
 class Native_CVehicleDoor
 {
@@ -81,7 +81,7 @@ public:
 	float m_fEngineRPM;													// 0688-068C
 	uint8_t pad1_[0x788];												// 068C-0E14
 	phInstGta* m_pVehicleFragInst;										// 0E14-0E18
-	tHandlingData* m_pHandling;											// 0E18-0E1C
+	Native_tHandlingData* m_pHandling;									// 0E18-0E1C
 	struct
 	{
 		unsigned int bSmoothCompresn : 1;
@@ -116,7 +116,7 @@ public:
 		unsigned int bOldPhysics : 1;
 		unsigned int bNone3 : 1;
 		unsigned int bNone4 : 1;
-	}              m_nHandlingFlags; // 0E1C-0E20
+	} m_nHandlingFlags;									// 0E1C-0E20
 	uint8_t pad2[0x144];												// 0E20-0F64
 	struct
 	{
@@ -126,14 +126,14 @@ public:
 		unsigned int pad2 : 2;
 		unsigned int bIsHandbrakeOn : 1;
 		unsigned int pad3 : 24;
-	} m_nVehicleFlags;													// 0F64-0F68
+	} m_nVehicleFlags;									// 0F64-0F68
 	uint8_t pad3[0x8];													// 0F68-0F70
 	struct
 	{
 		unsigned int pad : 2;
 		unsigned int bCanBeVisiblyDamaged : 1;
 		unsigned int pad2 : 29;
-	} m_nVehicleFlags2;													// 0F70-0F74
+	} m_nVehicleFlags2;									// 0F70-0F74
 	uint8_t pad4[0x2C];													// 0F74-0FA0
 	Native_CPed* m_pDriver;												// 0FA0-0FA4
 	Native_CPed* m_pPassengers[8];										// 0FA4-0FC4
@@ -148,7 +148,7 @@ public:
 		unsigned int bAbs : 1;
 		unsigned int bAbsAlt : 1;
 		unsigned int pad2 : 13;
-	} m_nAbsFlags;														// 0FE0-0FE4
+	} m_nAbsFlags;										// 0FE0-0FE4
 	uint8_t m_nPrimaryColor;											// 0FE4-0FE5
 	uint8_t m_nSecondaryColor;											// 0FE5-0FE6
 	uint8_t m_nTertiaryColor;											// 0FE6-0FE7
@@ -192,7 +192,7 @@ public:
 		unsigned int pad : 3;
 		unsigned int bNotDamagedUpsideDown : 1; // unused
 		unsigned int pad2 : 28;
-	} m_nAutomobileFlags;												// 14C4-14C8
+	} m_nAutomobileFlags;									// 14C4-14C8
 	uint8_t pad22[0xA38];												// 14C8-1F00
 	float m_fPlaneTurn;													// 1F00-1F04
 	float m_fPlaneUpDown;												// 1F04-1F08
@@ -323,6 +323,70 @@ namespace IVSDKDotNet {
 	public ref class CVehicle : CPhysical
 	{
 	public:
+		ref class VehicleAbsFlags
+		{
+		public:
+			VehicleAbsFlags(CVehicle^ parent);
+
+			property bool Abs {
+				public:
+					bool get()				{ return m_cParent->VehiclePointer->m_nAbsFlags.bAbs; }
+					void set(bool value)	{ m_cParent->VehiclePointer->m_nAbsFlags.bAbs = value; }
+			}
+
+			property bool AbsAlt {
+				public:
+					bool get()				{ return m_cParent->VehiclePointer->m_nAbsFlags.bAbsAlt; }
+					void set(bool value)	{ m_cParent->VehiclePointer->m_nAbsFlags.bAbsAlt = value; }
+			}
+
+		private:
+			CVehicle^ m_cParent;
+		};
+
+		ref class VehicleFlags
+		{
+		public:
+			VehicleFlags(CVehicle^ parent);
+
+			property bool EngineOn {
+				public:
+					bool get()				{ return m_cParent->VehiclePointer->m_nVehicleFlags.bEngineOn; }
+					void set(bool value)	{ m_cParent->VehiclePointer->m_nVehicleFlags.bEngineOn = value; }
+			}
+
+			property bool EngineStarting {
+				public:
+					bool get()				{ return m_cParent->VehiclePointer->m_nVehicleFlags.bEngineStarting; }
+					void set(bool value)	{ m_cParent->VehiclePointer->m_nVehicleFlags.bEngineStarting = value; }
+			}
+
+			property bool IsHandbrakeOn {
+				public:
+					bool get()				{ return m_cParent->VehiclePointer->m_nVehicleFlags.bIsHandbrakeOn; }
+					void set(bool value)	{ m_cParent->VehiclePointer->m_nVehicleFlags.bIsHandbrakeOn = value; }
+			}
+
+			property bool CanBeVisiblyDamaged {
+				public:
+					bool get()				{ return m_cParent->VehiclePointer->m_nVehicleFlags2.bCanBeVisiblyDamaged; }
+					void set(bool value)	{ m_cParent->VehiclePointer->m_nVehicleFlags2.bCanBeVisiblyDamaged = value; }
+			}
+
+			/// <summary>
+			/// Apparently unused.
+			/// </summary>
+			property bool NotDamagedUpsideDown {
+				public:
+					bool get()				{ return m_cParent->VehiclePointer->m_nAutomobileFlags.bNotDamagedUpsideDown; }
+					void set(bool value)	{ m_cParent->VehiclePointer->m_nAutomobileFlags.bNotDamagedUpsideDown = value; }
+			}
+
+		private:
+			CVehicle^ m_cParent;
+		};
+
+	public:
 		CVehicle(Native_CVehicle* nativePtr);
 
 		static CVehicle^ FromPointer(UIntPtr ptr);
@@ -355,15 +419,67 @@ namespace IVSDKDotNet {
 				void	set(float value)	{ m_cNativeVehicle->m_fEngineRPM = value; }
 		}
 
+		property UIntPtr Handling {
+			public:
+				UIntPtr get()
+				{
+					Native_tHandlingData* ptr = m_cNativeVehicle->m_pHandling;
+
+					if (ptr)
+						return UIntPtr(ptr);
+
+					return UIntPtr::Zero;
+				}
+				void set(UIntPtr value)
+				{
+					if (value == UIntPtr::Zero)
+						return;
+
+					m_cNativeVehicle->m_pHandling = (Native_tHandlingData*)value.ToPointer();
+				}
+		}
+
+		property VehicleFlags^ TheVehicleFlags {
+			public: VehicleFlags^ get() { return m_cVehicleFlags; }
+		}
+
 		property UIntPtr Driver {
 			public:
 				UIntPtr get()				{ return UIntPtr((uint32_t*)m_cNativeVehicle->m_pDriver); }
 				void	set(UIntPtr value)	{ m_cNativeVehicle->m_pDriver = (Native_CPed*)value.ToPointer(); }
 		}
 
+		property array<UIntPtr>^ Passengers {
+			public:
+				array<UIntPtr>^ get()
+				{
+
+					// Copy unmanaged array into managed array
+					array<IntPtr>^ arr = gcnew array<IntPtr>(8);
+					Marshal::Copy(IntPtr(VehiclePointer->m_pPassengers), arr, 0, 8);
+
+					// Convert intptr's of array 1 to uintptr's for final array
+					array<UIntPtr>^ finalArr = gcnew array<UIntPtr>(8);
+					for (int i = 0; i < finalArr->Length; i++)
+					{
+						finalArr[i] = UIntPtr(arr[i].ToPointer());
+					}
+
+					return finalArr;
+
+				}
+				void set(array<UIntPtr>^ value)
+				{
+					for (int i = 0; i < 8; i++)
+					{
+						VehiclePointer->m_pPassengers[i] = (Native_CPed*)value[i].ToPointer();
+					}
+				}
+		}
+
 		property CVehicleDoor^ Doors {
 			public:
-				CVehicleDoor^	get()				{ return gcnew CVehicleDoor(m_cNativeVehicle->m_pDoors); }
+				CVehicleDoor^	get() { return gcnew CVehicleDoor(m_cNativeVehicle->m_pDoors); }
 				void set(CVehicleDoor^ value) 
 				{
 					Native_CVehicleDoor* n = new Native_CVehicleDoor();
@@ -379,9 +495,13 @@ namespace IVSDKDotNet {
 				void		set(uint32_t value) { m_cNativeVehicle->m_nDoorCount = value; }
 		}
 
+		property VehicleAbsFlags^ TheVehicleAbsFlags {
+			public: VehicleAbsFlags^ get() { return m_cVehicleAbsFlags; }
+		}
+
 		property CVehicleWheel^ Wheels {
 			public:
-				CVehicleWheel^	get()				{ return gcnew CVehicleWheel(m_cNativeVehicle->m_pWheels); }
+				CVehicleWheel^	get() { return gcnew CVehicleWheel(m_cNativeVehicle->m_pWheels); }
 				void set(CVehicleWheel^ value) 
 				{
 					Native_CVehicleWheel* n = new Native_CVehicleWheel();
@@ -593,7 +713,8 @@ namespace IVSDKDotNet {
 
 	private:
 		Native_CVehicle* m_cNativeVehicle;
-
+		VehicleFlags^ m_cVehicleFlags;
+		VehicleAbsFlags^ m_cVehicleAbsFlags;
 	};
 
 }

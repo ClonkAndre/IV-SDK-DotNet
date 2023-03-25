@@ -20,15 +20,13 @@ namespace IVSDKDotNet {
 	// =========================================================================
 	// ============================= CMenuManager ==============================
 	// =========================================================================
-	void CMenuManager::SetAddressSetting(eSettings setting, uint32_t value)
-	{
-		AddressSetter::GetRef<uint32_t>(0xCC7A00 + (uint32_t)setting, 0xCFC0D0 + (uint32_t)setting) = value;
-	}
-	uint32_t CMenuManager::GetAddressSetting(eSettings setting)
+	uint32_t CMenuManager::GetSetting(eSettings setting)
 	{
 		return AddressSetter::GetRef<uint32_t>(0xCC7A00 + (int)setting, 0xCFC0D0 + (int)setting);
 	}
-
-
+	void CMenuManager::SetSetting(eSettings setting, uint32_t value)
+	{
+		AddressSetter::GetRef<uint32_t>(0xCC7A00 + (uint32_t)setting, 0xCFC0D0 + (uint32_t)setting) = value;
+	}
 
 }

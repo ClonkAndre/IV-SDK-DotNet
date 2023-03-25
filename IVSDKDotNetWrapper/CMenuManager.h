@@ -231,6 +231,7 @@ namespace IVSDKDotNet {
 
 			/// <summary>
 			/// Gets or sets the Radar value set in the "Display" settings menu.
+			/// O = Off, 1 = On, 2 = Blips only.
 			/// </summary>
 			static property uint32_t RadarMode {
 				public:
@@ -288,8 +289,8 @@ namespace IVSDKDotNet {
 
 		};
 
-		static void		SetAddressSetting(eSettings setting, uint32_t value);
-		static uint32_t GetAddressSetting(eSettings setting);
+		static uint32_t GetSetting(eSettings setting);
+		static void		SetSetting(eSettings setting, uint32_t value);
 
 	};
 

@@ -87,6 +87,15 @@ namespace IVSDKDotNet {
 	{
 		return CGame::GetRadarRectangle(eFontScaling::Pixel);
 	}
+
+	void CGame::ShowSubtitleMessage(String^ str, uint32_t time)
+	{
+		IVSDKDotNet::Native::Natives::PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", str, time, true);
+	}
+	void CGame::ShowSubtitleMessage(String^ str)
+	{
+		ShowSubtitleMessage(str, 2000);
+	}
 #pragma endregion
 
 }

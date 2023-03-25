@@ -12,7 +12,8 @@ namespace IVSDKDotNet {
 
 			m_createForScript = createFor;
 			Scaling = eFontScaling::Pixel;
-			Manager::ManagerScript::s_Instance->Direct3D9_Graphics_CreateNewInstance(this, createFor);
+			Object^ t = (Object^)this;
+			Manager::ManagerScript::s_Instance->Direct3D9_Graphics_CreateNewInstance(t, createFor);
 		}
 		D3DGraphics::~D3DGraphics()
 		{
@@ -20,7 +21,7 @@ namespace IVSDKDotNet {
 			m_createForScript = nullptr;
 		}
 
-		// Creation functions
+		// Texture stuff
 		D3DResult^ D3DGraphics::CreateD3D9Texture(IntPtr device, String^ filePath, Size size)
 		{
 			if (device == IntPtr::Zero)
@@ -49,14 +50,15 @@ namespace IVSDKDotNet {
 
 			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_CreateD3D9Texture(m_createForScript, device, data, Size::Empty);
 		}
-		Exception^ D3DGraphics::ReleaseD3D9Texture(D3DResource^ resource)
+		Exception^ D3DGraphics::ReleaseD3D9Texture(D3DResource^ textureResource)
 		{
-			if (!resource)
+			if (!textureResource)
 				return gcnew NullReferenceException("resource cannot be null!");
 
-			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_ReleaseD3D9Texture(m_createForScript, resource);
+			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_ReleaseD3D9Texture(m_createForScript, textureResource);
 		}
 
+		// Font stuff
 		D3DResult^ D3DGraphics::CreateD3D9Font(IntPtr device, D3DFontDescription fontDescription)
 		{
 			if (device == IntPtr::Zero)
@@ -64,12 +66,29 @@ namespace IVSDKDotNet {
 
 			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_CreateD3D9Font(m_createForScript, device, fontDescription);
 		}
-		Exception^ D3DGraphics::ReleaseD3D9Font(D3DResource^ resource)
+		Exception^ D3DGraphics::ReleaseD3D9Font(D3DResource^ fontResource)
 		{
-			if (!resource)
+			if (!fontResource)
 				return gcnew NullReferenceException("resource cannot be null!");
 
-			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_ReleaseD3D9Font(m_createForScript, resource);
+			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_ReleaseD3D9Font(m_createForScript, fontResource);
+		}
+
+		Drawing::Rectangle D3DGraphics::MeasureText(D3DResource^ fontResource, String^ text, Drawing::Rectangle rect, eD3DFontDrawFlags drawFlags)
+		{
+			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_MeasureText(fontResource, text, rect, drawFlags);
+		}
+		Drawing::Rectangle D3DGraphics::MeasureText(D3DResource^ fontResource, String^ text, eD3DFontDrawFlags drawFlags)
+		{
+			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_MeasureText(fontResource, text, Drawing::Rectangle::Empty, drawFlags);
+		}
+		Drawing::Rectangle D3DGraphics::MeasureText(D3DResource^ fontResource, String^ text)
+		{
+			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_MeasureText(fontResource, text, Drawing::Rectangle::Empty, eD3DFontDrawFlags::Left);
+		}
+		Drawing::Rectangle D3DGraphics::MeasureText(String^ text)
+		{
+			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_MeasureText(nullptr, text, Drawing::Rectangle::Empty, eD3DFontDrawFlags::Left);
 		}
 
 		// Drawing functions
@@ -213,6 +232,13 @@ namespace IVSDKDotNet {
 			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_DrawTexture(this, device, txt, rect, 0.0F, Color::White);
 		}
 
+		bool D3DGraphics::DrawString(IntPtr device, D3DResource^ fontResource, String^ text, Drawing::Rectangle rect, eD3DFontDrawFlags drawFlags, Color color)
+		{
+			if (device == IntPtr::Zero)
+				return false;
+
+			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_DrawString(this, device, fontResource, text, rect, drawFlags, color);
+		}
 		bool D3DGraphics::DrawString(IntPtr device, D3DResource^ fontResource, String^ text, Point pos, Color color)
 		{
 			if (device == IntPtr::Zero)
@@ -226,6 +252,14 @@ namespace IVSDKDotNet {
 				return false;
 
 			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_DrawString(this, device, fontResource, text, Point(x, y), color);
+		}
+
+		bool D3DGraphics::DrawString(IntPtr device, String^ text, Drawing::Rectangle rect, eD3DFontDrawFlags drawFlags, Color color)
+		{
+			if (device == IntPtr::Zero)
+				return false;
+
+			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_DrawString(this, device, nullptr, text, rect, drawFlags, color);
 		}
 		bool D3DGraphics::DrawString(IntPtr device, String^ text, Point pos, Color color)
 		{

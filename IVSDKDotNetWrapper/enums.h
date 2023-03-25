@@ -2581,6 +2581,129 @@ namespace IVSDKDotNet {
 			OBJECT_DISCOBALL_BADA = 0xFEB2FDAF,
 		};
 
+		public enum class eFloatStatistic
+		{
+			STAT_GAME_PROGRESS = 0,                     //Game progress
+			STAT_ROMAN_LIKE = 1,                    //Roman like
+			STAT_ROMAN_RESPECT = 2,                     //Roman respect
+			STAT_ROMAN_MISSION_PROGRESS = 3,                //Roman mission progress
+			STAT_VLAD_MISSION_PROGRESS = 4,                 //Vlad mission progress
+			STAT_JACOB_LIKE = 5,                    //Jacob like
+			STAT_JACOB_RESPECT = 6,                     //Jacob respect
+			STAT_JACOB_MISSION_PROGRESS = 7,                //Jacob mission progress
+			STAT_FAUSTIN_MISSION_PROGRESS = 8,              //Faustin mission progress
+			STAT_MANNY_MISSION_PROGRESS = 9,                //Manny mission progress
+			STAT_ELIZABETA_MISSION_PROGRESS = 10,               //Elizabeta mission progress
+			STAT_DWAYNE_LIKE = 11,                      //Dwayne like
+			STAT_DWAYNE_RESPECT = 12,                   //Dwayne respect
+			STAT_DWAYNE_MISSION_PROGRESS = 13,              //Dwayne mission progress
+			STAT_BRUCIE_LIKE = 14,                      //Brucie like
+			STAT_BRUCIE_RESPECT = 15,                   //Brucie respect
+			STAT_BRUCIE_MISSION_PROGRESS = 16,              //Brucie mission progress
+			STAT_PLAYBOY_MISSION_PROGRESS = 17,             //Playboy mission progress
+			STAT_FRANCIS_MISSION_PROGRESS = 18,             //Francis mission progress
+			STAT_ULPC_MISSION_PROGRESS = 19,                //U.L.P.C. mission progress
+			STAT_PACKIE_LIKE = 20,                      //Packie like
+			STAT_PACKIE_RESPECT = 21,                   //Packie respect
+			STAT_PACKIE_MISSION_PROGRESS = 22,              //Packie mission progress
+			STAT_RAY_MISSION_PROGRESS = 23,                 //Ray mission progress
+			STAT_GERRY_MISSION_PROGRESS = 24,               //Gerry mission progress
+			STAT_DERRICK_MISSION_PROGRESS = 25,             //Derrick mission progress
+			STAT_BERNIE_MISSION_PROGRESS = 26,              //Bernie mission progress
+			STAT_BELL_MISSION_PROGRESS = 27,                //Bell mission progress
+			STAT_GAMBETTI_MISSION_PROGRESS = 28,            //Gambetti mission progress
+			STAT_JIMMY_MISSION_PROGRESS = 29,               //Jimmy mission progress
+			STAT_CARMEN_ORTIZ_FONDNESS = 30,                //Carmen Ortiz fondness
+			STAT_CARMEN_TRUST = 31,                     //Carmen trust
+			STAT_ALEX_CHILTON_FONDNESS = 32,                //Alex Chilton fondness
+			STAT_ALEX_TRUST = 33,                       //Alex trust
+			STAT_KIKI_JENKINS_FONDNESS = 34,                //Kiki Jenkins fondness
+			STAT_KIKI_TRUST = 35,                       //Kiki trust
+			STAT_MICHELLE_FONDNESS = 36,                //Michelle fondness
+			STAT_MICHELLE_TRUST = 37,                   //Michelle trust
+			STAT_KATE_FONDNESS = 38,                    //Kate fondness
+			STAT_KATE_TRUST = 39,                       //Kate trust
+			STAT_SHOOTING_ACCURACY = 40,                //Shooting accuracy
+			STAT_KILLS_PERCENT_IN_FREE_AIM = 41,            //Kills % in free aim
+			STAT_BIKE_OR_CAR_AVERAGE_SPEED = 42,            //Bike/Car Average speed
+			STAT_PLAYING_TIME = 44,                     //Playing time
+			STAT_LONGEST_COP_CHASE_TIME = 45,               //Longest cop chase time
+			STAT_TIME_WANTED_ON_6_STARS = 46,               //Time wanted on 6 stars
+			STAT_LAST_COP_CHASE_TIME = 47,                  //Last cop chase time
+			STAT_TIME_SPENT_IN_THE_WATER = 49,              //Time spent in the water
+			STAT_TIME_SPENT_SHOPPING = 50,                  //Time spent shopping
+			STAT_TIME_SPENT_IN_COVER = 51,                  //Time spent in cover
+			STAT_POOL_PLAYED_TIME = 52,                 //Pool played time
+			STAT_DARTS_TIME_PLAYED = 53,                //Darts time played
+			STAT_BOWLING_TIME_PLAYED = 54,                  //Bowling time played
+			STAT_TOTAL_RACE_TIME = 55,                  //Total race time
+			STAT_SOUTH_BROKER_RECORD = 56,                  //South Broker record
+			STAT_AIRPORT_RUN_RECORD = 57,                   //Airport Run record
+			STAT_DUKES_BOULEVARD_RECORD = 58,               //Dukes Boulevard record
+			STAT_SOUTH_ALGONQUIN_RECORD = 59,               //South Algonquin record
+			STAT_STAR_JUNCTION_RECORD = 60,                 //Star Junction record
+			STAT_ROAD_TO_BOHAN_RECORD = 61,                 //Road to Bohan record
+			STAT_NORTH_ALDERNEY_RECORD = 62,                //North Alderney record
+			STAT_ELEVATED_RECORD = 63,                  //Elevated record
+			STAT_SOUTH_ALDERNEY_RECORD = 64,                //South Alderney record
+			STAT_QUB3D_TIME_PLAYED = 65,                //QUB3D time played
+			STAT_BOATING_TIME = 66,                     //Boating time
+			STAT_HELI_RIDE_TIME = 67,                   //Heli ride time
+			STAT_TIME_SPENT_ON_INTERNET = 68,               //Time spent on internet
+			STAT_TIME_SPENT_CALLING = 69,                   //Time spent calling
+			STAT_TIME_SPENT_WALKING = 70,                   //Time spent walking
+			STAT_TIME_SPENT_DRIVING_CAR = 71,               //Time spent driving car
+			STAT_TIME_SPENT_DRIVING_HELI = 72,              //Time spent driving heli
+			STAT_TIME_SPENT_DRIVING_BIKE = 73,              //Time spent driving bike
+			STAT_TIME_SPENT_DRIVING_BOAT = 74,              //Time spent driving boat
+			STAT_TIME_SPENT_SWIMING = 75,                   //Time spent swiming
+			STAT_MILES_BY_HELICOPTER = 76,                  //Miles by helicopter
+			STAT_MILES_BY_CAR = 77,                     //Miles by car
+			STAT_MILES_BY_BIKE = 78,                    //Miles by bike
+			STAT_MILES_BY_BOAT = 79,                    //Miles by boat
+			STAT_MILES_ON_FOOT = 80,                    //Miles on foot
+			STAT_MILES_SWAM = 81,                       //Miles swam
+			STAT_LONGEST_2WHEEL_STUNT = 82,                 //Longest 2wheel stunt
+			STAT_LONGEST_BIKE_STOPPIE = 83,                 //Longest bike stoppie
+			STAT_LONGEST_BIKE_WHEELIE = 84,                 //Longest bike wheelie
+			STAT_MILES_BY_TRAIN = 85,                   //Miles by train
+			STAT_MILES_AS_TAXI_PASSENGER = 86,              //Miles as taxi passenger
+			STAT_FARTHEST_JUMP_DISTANCE = 87,               //Farthest jump distance
+			STAT_HIGHEST_JUMP_REACHED = 88,                 //Highest jump reached
+			STAT_LONGEST_FREE_FALL = 89,                //Longest free fall
+			STAT_SPENT_ON_PAY_N_SPRAY = 90,                 //Spent on Pay 'n' Spray
+			STAT_SPENT_ON_DATES = 91,                   //Spent on dates
+			STAT_SPENT_BUYING_CLOTHES = 92,                 //Spent buying clothes
+			STAT_MADE_FROM_MISSIONS = 93,                   //Made from missions
+			STAT_SPENT_IN_BARS_AND_CLUBS = 94,              //Spent in bars & clubs
+			STAT_SPENT_ON_PROSTITUTES = 95,                 //Spent on prostitutes
+			STAT_SPENT_IN_STRIP_CLUBS = 96,                 //Spent in strip clubs
+			STAT_SPENT_ON_FOOD = 97,                    //Spent on food
+			STAT_SPENT_ON_TAXIS = 98,                   //Spent on taxis
+			STAT_MONEY_LOST_ON_STREET_RACES = 99,               //Money lost on street races
+			STAT_MADE_FROM_VIGILANTE = 100,                 //Made from vigilante
+			STAT_SPENT_ON_COP_BRIDES = 101,                 //Spent on cop brides
+			STAT_SPENT_ON_HEALTH_CARE = 102,                //Spent on health care
+			STAT_GIVEN_TO_TRAMPS = 103,                 //Given to tramps
+			STAT_SPENT_ON_VENDORS = 104,                //Spent on vendors
+			STAT_SPENT_ON_BINOCULARS = 105,                 //Spent on binoculars
+			STAT_SPENT_IN_GUN_SHOP = 106,                   //Spent in gun shop
+			STAT_MOST_SPENT_ON_A_DATE = 107,                //Most spent on a date
+			STAT_CURRENT_MONEY = 108,                   //Current money
+			STAT_MADE_FROM_STREET_RACES = 109,              //Made from street races
+			STAT_TOTAL_PROGRESS = 110,                  //Total progress
+			STAT_LONGEST_STOPPIE_TIME = 111,                //Longest stoppie time
+			STAT_LONGEST_WHEELIE_TIME = 112,                //Longest wheelie time
+			STAT_LONGEST_2WHEEL_TIME = 113,                 //Longest 2wheel time
+			STAT_FLIGHT_TIME = 114,                     //Flight time
+			STAT_RESPECT_TOTAL = 115,                   //Respect total
+			STAT_MONEY_MADE_FROM_USJS = 116,                //Money made from USJs
+			STAT_PICKED_UP_ON_STREET = 117,                 //Picked up on street
+			STAT_LONGEST_NON_STOP_GAME = 118,               //Longest non-stop game
+			STAT_MADE_FROM_VEHICLE_THEFTS = 119,            //Made from vehicle thefts
+			STAT_MADE_FROM_RANDOM_PEDS = 120,               //Made from random peds
+		};
+
 		public enum class eIntStatistic
 		{
 			STAT_MISSIONS_PASSED = 253,                 //Missions passed
@@ -2825,129 +2948,6 @@ namespace IVSDKDotNet {
 			STAT_GANG_MEMBER_COUNT = 502,                   //Gang member count
 		};
 
-		public enum class eFloatStatistic
-		{
-			STAT_GAME_PROGRESS = 0,                     //Game progress
-			STAT_ROMAN_LIKE = 1,                    //Roman like
-			STAT_ROMAN_RESPECT = 2,                     //Roman respect
-			STAT_ROMAN_MISSION_PROGRESS = 3,                //Roman mission progress
-			STAT_VLAD_MISSION_PROGRESS = 4,                 //Vlad mission progress
-			STAT_JACOB_LIKE = 5,                    //Jacob like
-			STAT_JACOB_RESPECT = 6,                     //Jacob respect
-			STAT_JACOB_MISSION_PROGRESS = 7,                //Jacob mission progress
-			STAT_FAUSTIN_MISSION_PROGRESS = 8,              //Faustin mission progress
-			STAT_MANNY_MISSION_PROGRESS = 9,                //Manny mission progress
-			STAT_ELIZABETA_MISSION_PROGRESS = 10,               //Elizabeta mission progress
-			STAT_DWAYNE_LIKE = 11,                      //Dwayne like
-			STAT_DWAYNE_RESPECT = 12,                   //Dwayne respect
-			STAT_DWAYNE_MISSION_PROGRESS = 13,              //Dwayne mission progress
-			STAT_BRUCIE_LIKE = 14,                      //Brucie like
-			STAT_BRUCIE_RESPECT = 15,                   //Brucie respect
-			STAT_BRUCIE_MISSION_PROGRESS = 16,              //Brucie mission progress
-			STAT_PLAYBOY_MISSION_PROGRESS = 17,             //Playboy mission progress
-			STAT_FRANCIS_MISSION_PROGRESS = 18,             //Francis mission progress
-			STAT_ULPC_MISSION_PROGRESS = 19,                //U.L.P.C. mission progress
-			STAT_PACKIE_LIKE = 20,                      //Packie like
-			STAT_PACKIE_RESPECT = 21,                   //Packie respect
-			STAT_PACKIE_MISSION_PROGRESS = 22,              //Packie mission progress
-			STAT_RAY_MISSION_PROGRESS = 23,                 //Ray mission progress
-			STAT_GERRY_MISSION_PROGRESS = 24,               //Gerry mission progress
-			STAT_DERRICK_MISSION_PROGRESS = 25,             //Derrick mission progress
-			STAT_BERNIE_MISSION_PROGRESS = 26,              //Bernie mission progress
-			STAT_BELL_MISSION_PROGRESS = 27,                //Bell mission progress
-			STAT_GAMBETTI_MISSION_PROGRESS = 28,            //Gambetti mission progress
-			STAT_JIMMY_MISSION_PROGRESS = 29,               //Jimmy mission progress
-			STAT_CARMEN_ORTIZ_FONDNESS = 30,                //Carmen Ortiz fondness
-			STAT_CARMEN_TRUST = 31,                     //Carmen trust
-			STAT_ALEX_CHILTON_FONDNESS = 32,                //Alex Chilton fondness
-			STAT_ALEX_TRUST = 33,                       //Alex trust
-			STAT_KIKI_JENKINS_FONDNESS = 34,                //Kiki Jenkins fondness
-			STAT_KIKI_TRUST = 35,                       //Kiki trust
-			STAT_MICHELLE_FONDNESS = 36,                //Michelle fondness
-			STAT_MICHELLE_TRUST = 37,                   //Michelle trust
-			STAT_KATE_FONDNESS = 38,                    //Kate fondness
-			STAT_KATE_TRUST = 39,                       //Kate trust
-			STAT_SHOOTING_ACCURACY = 40,                //Shooting accuracy
-			STAT_KILLS_PERCENT_IN_FREE_AIM = 41,            //Kills % in free aim
-			STAT_BIKE_OR_CAR_AVERAGE_SPEED = 42,            //Bike/Car Average speed
-			STAT_PLAYING_TIME = 44,                     //Playing time
-			STAT_LONGEST_COP_CHASE_TIME = 45,               //Longest cop chase time
-			STAT_TIME_WANTED_ON_6_STARS = 46,               //Time wanted on 6 stars
-			STAT_LAST_COP_CHASE_TIME = 47,                  //Last cop chase time
-			STAT_TIME_SPENT_IN_THE_WATER = 49,              //Time spent in the water
-			STAT_TIME_SPENT_SHOPPING = 50,                  //Time spent shopping
-			STAT_TIME_SPENT_IN_COVER = 51,                  //Time spent in cover
-			STAT_POOL_PLAYED_TIME = 52,                 //Pool played time
-			STAT_DARTS_TIME_PLAYED = 53,                //Darts time played
-			STAT_BOWLING_TIME_PLAYED = 54,                  //Bowling time played
-			STAT_TOTAL_RACE_TIME = 55,                  //Total race time
-			STAT_SOUTH_BROKER_RECORD = 56,                  //South Broker record
-			STAT_AIRPORT_RUN_RECORD = 57,                   //Airport Run record
-			STAT_DUKES_BOULEVARD_RECORD = 58,               //Dukes Boulevard record
-			STAT_SOUTH_ALGONQUIN_RECORD = 59,               //South Algonquin record
-			STAT_STAR_JUNCTION_RECORD = 60,                 //Star Junction record
-			STAT_ROAD_TO_BOHAN_RECORD = 61,                 //Road to Bohan record
-			STAT_NORTH_ALDERNEY_RECORD = 62,                //North Alderney record
-			STAT_ELEVATED_RECORD = 63,                  //Elevated record
-			STAT_SOUTH_ALDERNEY_RECORD = 64,                //South Alderney record
-			STAT_QUB3D_TIME_PLAYED = 65,                //QUB3D time played
-			STAT_BOATING_TIME = 66,                     //Boating time
-			STAT_HELI_RIDE_TIME = 67,                   //Heli ride time
-			STAT_TIME_SPENT_ON_INTERNET = 68,               //Time spent on internet
-			STAT_TIME_SPENT_CALLING = 69,                   //Time spent calling
-			STAT_TIME_SPENT_WALKING = 70,                   //Time spent walking
-			STAT_TIME_SPENT_DRIVING_CAR = 71,               //Time spent driving car
-			STAT_TIME_SPENT_DRIVING_HELI = 72,              //Time spent driving heli
-			STAT_TIME_SPENT_DRIVING_BIKE = 73,              //Time spent driving bike
-			STAT_TIME_SPENT_DRIVING_BOAT = 74,              //Time spent driving boat
-			STAT_TIME_SPENT_SWIMING = 75,                   //Time spent swiming
-			STAT_MILES_BY_HELICOPTER = 76,                  //Miles by helicopter
-			STAT_MILES_BY_CAR = 77,                     //Miles by car
-			STAT_MILES_BY_BIKE = 78,                    //Miles by bike
-			STAT_MILES_BY_BOAT = 79,                    //Miles by boat
-			STAT_MILES_ON_FOOT = 80,                    //Miles on foot
-			STAT_MILES_SWAM = 81,                       //Miles swam
-			STAT_LONGEST_2WHEEL_STUNT = 82,                 //Longest 2wheel stunt
-			STAT_LONGEST_BIKE_STOPPIE = 83,                 //Longest bike stoppie
-			STAT_LONGEST_BIKE_WHEELIE = 84,                 //Longest bike wheelie
-			STAT_MILES_BY_TRAIN = 85,                   //Miles by train
-			STAT_MILES_AS_TAXI_PASSENGER = 86,              //Miles as taxi passenger
-			STAT_FARTHEST_JUMP_DISTANCE = 87,               //Farthest jump distance
-			STAT_HIGHEST_JUMP_REACHED = 88,                 //Highest jump reached
-			STAT_LONGEST_FREE_FALL = 89,                //Longest free fall
-			STAT_SPENT_ON_PAY_N_SPRAY = 90,                 //Spent on Pay 'n' Spray
-			STAT_SPENT_ON_DATES = 91,                   //Spent on dates
-			STAT_SPENT_BUYING_CLOTHES = 92,                 //Spent buying clothes
-			STAT_MADE_FROM_MISSIONS = 93,                   //Made from missions
-			STAT_SPENT_IN_BARS_AND_CLUBS = 94,              //Spent in bars & clubs
-			STAT_SPENT_ON_PROSTITUTES = 95,                 //Spent on prostitutes
-			STAT_SPENT_IN_STRIP_CLUBS = 96,                 //Spent in strip clubs
-			STAT_SPENT_ON_FOOD = 97,                    //Spent on food
-			STAT_SPENT_ON_TAXIS = 98,                   //Spent on taxis
-			STAT_MONEY_LOST_ON_STREET_RACES = 99,               //Money lost on street races
-			STAT_MADE_FROM_VIGILANTE = 100,                 //Made from vigilante
-			STAT_SPENT_ON_COP_BRIDES = 101,                 //Spent on cop brides
-			STAT_SPENT_ON_HEALTH_CARE = 102,                //Spent on health care
-			STAT_GIVEN_TO_TRAMPS = 103,                 //Given to tramps
-			STAT_SPENT_ON_VENDORS = 104,                //Spent on vendors
-			STAT_SPENT_ON_BINOCULARS = 105,                 //Spent on binoculars
-			STAT_SPENT_IN_GUN_SHOP = 106,                   //Spent in gun shop
-			STAT_MOST_SPENT_ON_A_DATE = 107,                //Most spent on a date
-			STAT_CURRENT_MONEY = 108,                   //Current money
-			STAT_MADE_FROM_STREET_RACES = 109,              //Made from street races
-			STAT_TOTAL_PROGRESS = 110,                  //Total progress
-			STAT_LONGEST_STOPPIE_TIME = 111,                //Longest stoppie time
-			STAT_LONGEST_WHEELIE_TIME = 112,                //Longest wheelie time
-			STAT_LONGEST_2WHEEL_TIME = 113,                 //Longest 2wheel time
-			STAT_FLIGHT_TIME = 114,                     //Flight time
-			STAT_RESPECT_TOTAL = 115,                   //Respect total
-			STAT_MONEY_MADE_FROM_USJS = 116,                //Money made from USJs
-			STAT_PICKED_UP_ON_STREET = 117,                 //Picked up on street
-			STAT_LONGEST_NON_STOP_GAME = 118,               //Longest non-stop game
-			STAT_MADE_FROM_VEHICLE_THEFTS = 119,            //Made from vehicle thefts
-			STAT_MADE_FROM_RANDOM_PEDS = 120,               //Made from random peds
-		};
-
 		public enum class ePedRace
 		{
 			// Needs to be tested and verified
@@ -3010,7 +3010,7 @@ namespace IVSDKDotNet {
 			LANGUAGE_GERMAN,
 			LANGUAGE_ITALIAN,
 			LANGUAGE_SPANISH,
-			LANGUAGE_RUSSIAN,
+			LANGUAGE_RUSSIAN
 		};
 
 		public enum class eRadioStation
@@ -4305,6 +4305,29 @@ namespace IVSDKDotNet {
 			INPUT_VEH_MOVE_RIGHT_2,
 		};
 
+		public enum class ePool
+		{
+			PedPool,
+			VehiclePool,
+			ObjectPool,
+			BuildingPool,
+			CameraPool,
+			TaskPool,
+			InteriorInstPool,
+			VehicleStructPool,
+			PedMoveBlendPool,
+			DummyPedPool,
+			DummyTaskPool,
+			UnkPedDataPool,
+			PedIntelligencePool,
+			AnimBlenderPool,
+			FragInstNMGtaPool,
+			PedDataPool,
+			QuadTreeNodePool,
+			TxdPool,
+			IplPool
+		};
+
 		public enum class eHudColour
 		{
 			HUD_COLOUR_PURE_WHITE,
@@ -4387,69 +4410,6 @@ namespace IVSDKDotNet {
 			HUD_COLOUR_RADAR_DAMAGE,
 		};
 
-		public enum class eTextAlignment
-		{
-			//Left,
-			//Centered,
-			//JustifyLeft,
-			////JustifyRight,
-
-			/// <summary>
-			/// Align the text to the top.
-			/// </summary>
-			Top = 0, //DT_TOP,
-
-			/// <summary>
-			/// Align the text to the left.
-			/// </summary>
-			Left = 0, //DT_LEFT,
-
-			/// <summary>
-			/// Align the text to the center.
-			/// </summary>
-			Center = 1, //DT_CENTER,
-
-			/// <summary>
-			/// Align the text to the right.
-			/// </summary>
-			Right = 2, //DT_RIGHT,
-
-			/// <summary>
-			/// Vertically align the text to the center.
-			/// </summary>
-			VerticalCenter = 4, //DT_VCENTER,
-
-			/// <summary>
-			/// Align the text to the bottom.
-			/// </summary>
-			Bottom = 8, //DT_BOTTOM,
-
-			/// <summary>
-			/// Allow word breaks.
-			/// </summary>
-			WordBreak = 16, //DT_WORDBREAK,
-
-			/// <summary>
-			/// Force all text to a single line.
-			/// </summary>
-			SingleLine = 32, //DT_SINGLELINE,
-
-			/// <summary>
-			/// Expand tab characters.
-			/// </summary>
-			ExpandTabs = 64, //DT_EXPANDTABS,
-
-			/// <summary>
-			/// Don't clip the text.
-			/// </summary>
-			NoClip = 256, //DT_NOCLIP,
-
-			///// <summary>
-			///// Rendering the text in right-to-left reading order.
-			///// </summary>
-			//RtlReading = 0x20000, //DT_RTLREADING,
-		};
-
 		public enum class eFontScaling
 		{
 			/// <summary>
@@ -4470,7 +4430,7 @@ namespace IVSDKDotNet {
 		{
 			None,
 			Shadow,
-			Edge,
+			Edge
 		};
 
 		public enum class eConsoleLogStyle
@@ -4488,7 +4448,7 @@ namespace IVSDKDotNet {
 			VEHICLES = 8,
 			PEDS_BOUNDING_BOX = 32,
 			PEDS_COLLISION = 64,
-			OBJECTS = 128,
+			OBJECTS = 128
 		};
 
 		public enum class eCamType
@@ -4534,7 +4494,7 @@ namespace IVSDKDotNet {
 			CAM_FREE = 38,
 			CAM_DEBUG = 39,
 			CAM_MARKET = 40,
-			CAM_SECTOR = 41,
+			CAM_SECTOR = 41
 		};
 
 		public enum class eSettings
@@ -4589,7 +4549,199 @@ namespace IVSDKDotNet {
 			SETTING_INDEPENDENCE_FM_MODE = 0x26C,
 			SETTING_MICROPHONE = 0x270,
 			SETTING_ENABLE_DIRECTINPUT = 0x274,
-			SETTING_HELICOPTER_MOUSE_CONTROLS = 0x278,
+			SETTING_HELICOPTER_MOUSE_CONTROLS = 0x278
+		};
+
+		public enum class eNewGetInVehicleType
+		{
+			/// <summary>
+			/// Get into the passenger seat if the driver is friendly.
+			/// </summary>
+			GET_IN_NETWORK = -5,
+
+			/// <summary>
+			/// Trains will only work using this type but regular cars are unaffected.
+			/// </summary>
+			GET_IN_TRAIN = -6,
+
+			/// <summary>
+			/// The default.
+			/// </summary>
+			GET_IN_DEFAULT_PLAYER = -7
+		};
+
+		public enum class eMissionCompleteAudio : uint32_t
+		{
+			MISSION_COMPLETE_1 = 1,
+			SMC_6 = 5,
+			SMC_7 = 7,
+			SMC_10 = 10,
+			SMC_11 = 11,
+			SMC_15 = 15,
+			SMC_18 = 18,
+			SMC_24 = 24,
+			SMC_25 = 25,
+			SMC_27 = 27,
+			SMC_28 = 28,
+			SMC_33 = 33,
+			SMC_34 = 34,
+			SMC_35 = 35,
+			SMC_42 = 42,
+			SMC_43 = 43,
+			SMC_50 = 50,
+			SMC_51 = 51,
+			SMC_52 = 52,
+			SMC_53 = 53,
+			SMC_54 = 54,
+			SMC_55 = 55,
+			SMC_56 = 56,
+			SMC_57 = 57,
+			SMC_58 = 58,
+			SMC_59 = 59,
+			SMC_60 = 60,
+			SMC_61 = 61,
+			SMC_62 = 62,
+			SMC_63 = 63,
+			SMC_64 = 64,
+			SMC_65 = 65,
+			SMC_66 = 66,
+			SMC_67 = 67,
+			SMC_68 = 68,
+			SMC_69 = 69,
+			SMC_71 = 71
+		};
+
+		public enum class eRadarSprite
+		{
+			SPRITE_HIGHER,
+			SPRITE_LEVEL,
+			SPRITE_LOWER,
+			SPRITE_OBJECTIVE_HIGHER,
+			SPRITE_OBJECTIVE,
+			SPRITE_OBJECTIVE_LOWER,
+			SPRITE_CENTRE,
+			SPRITE_NORTH,
+			SPRITE_WAYPOINT,
+			SPRITE_WEAPON_PISTOL,
+			SPRITE_WEAPON_SHOTGUN,
+			SPRITE_WEAPON_SMG,
+			SPRITE_WEAPON_ASSAULT_RIFLE,
+			SPRITE_WEAPON_ROCKET,
+			SPRITE_WEAPON_GRENADES,
+			SPRITE_WEAPON_MOLOTOV,
+			SPRITE_WEAPON_SNIPER,
+			SPRITE_WEAPON_BAT,
+			SPRITE_WEAPON_KNIFE,
+			SPRITE_WEAPON_HEALTH,
+			SPRITE_WEAPON_ARMOUR,
+			SPRITE_BURGERSHOT,
+			SPRITE_CHICKEN,
+			SPRITE_VLAD,
+			SPRITE_INTERNET,
+			SPRITE_MANNY,
+			SPRITE_LITTLEJACOB,
+			SPRITE_ROMAN,
+			SPRITE_FAUSTIN,
+			SPRITE_SAFEHOUSE,
+			SPRITE_TAXI,
+			SPRITE_BERNIECRANE,
+			SPRITE_BRUCIE,
+			SPRITE_CIA,
+			SPRITE_DWAYNE,
+			SPRITE_ELIZABETA,
+			SPRITE_GAMBETTI,
+			SPRITE_JIMMY,
+			SPRITE_MCDERRICK,
+			SPRITE_MCFRANCIS,
+			SPRITE_MCGERRY,
+			SPRITE_MCKATIE,
+			SPRITE_MCPACKIE,
+			SPRITE_PHILBELL,
+			SPRITE_PLAYBOYX,
+			SPRITE_RAYBOCCINO,
+			SPRITE_8BALL,
+			SPRITE_BAR,
+			SPRITE_BOATTOUR,
+			SPRITE_BOWLING,
+			SPRITE_CLOTHES,
+			SPRITE_CLUB,
+			SPRITE_DARTS,
+			SPRITE_DWAYNE_RED,
+			SPRITE_GIRLFRIEND,
+			SPRITE_PLAYBOYX_RED,
+			SPRITE_HELITOUR,
+			SPRITE_RESTAURANT,
+			SPRITE_STATION,
+			SPRITE_WEAPONS,
+			SPRITE_POLICE,
+			SPRITE_FIRE,
+			SPRITE_HOSPITAL,
+			SPRITE_MALE,
+			SPRITE_FEMALE,
+			SPRITE_RACEFLAG,
+			SPRITE_STRIPCLUB,
+			SPRITE_EMPTY,
+			SPRITE_POLICE_CHASE,
+			SPRITE_DIMITRI,
+			SPRITE_COMEDY,
+			SPRITE_CABARET,
+			SPRITE_RANSOM,
+			SPRITE_POLICE_HELI,
+			SPRITE_MICHELLE,
+			SPRITE_SPRAYSHOP,
+			SPRITE_ASSASSIN,
+			SPRITE_SNAKE,
+			SPRITE_DEAL,
+			SPRITE_CAR,
+			SPRITE_LAWYER,
+			SPRITE_CUP,
+			SPRITE_MULTIPLAYER,
+			SPRITE_STATION_3,
+			SPRITE_STATION_8,
+			SPRITE_STATION_A,
+			SPRITE_STATION_B,
+			SPRITE_STATION_C,
+			SPRITE_STATION_E,
+			SPRITE_STATION_J,
+			SPRITE_STATION_K,
+			SPRITE_CARWASH,
+			SPRITE_UNITED_LIBERTY_PAPER,
+			SPRITE_WEAPON_UP,
+			SPRITE_WEAPON_DOWN,
+			SPRITE_EPISODE_BLIP_1,
+			SPRITE_EPISODE_BLIP_2,
+			SPRITE_EPISODE_BLIP_3,
+			SPRITE_EPISODE_BLIP_4,
+			SPRITE_EPISODE_BLIP_5,
+			SPRITE_EPISODE_BLIP_6,
+			SPRITE_EPISODE_BLIP_7,
+			SPRITE_EPISODE_BLIP_8,
+			SPRITE_EPISODE_BLIP_9,
+			SPRITE_EPISODE_BLIP_10,
+			SPRITE_EPISODE_BLIP_11,
+			SPRITE_EPISODE_BLIP_12,
+			SPRITE_EPISODE_BLIP_13,
+			SPRITE_EPISODE_BLIP_14,
+			SPRITE_EPISODE_BLIP_15,
+			SPRITE_ARMWRESTLING,
+			SPRITE_ROADRAGE,
+			SPRITE_CARDGAME,
+			SPRITE_AIRHOCKEY,
+			SPRITE_GANGWAR,
+			SPRITE_WEAPON_POOLCUE,
+			SPRITE_WEAPON_PIPEBOMB,
+			SPRITE_WEAPON_GRENADELAUNCHER,
+			SPRITE_TERRY,
+			SPRITE_CLAY,
+			SPRITE_TERRITORY_1,
+			SPRITE_TERRITORY_2,
+			SPRITE_TERRITORY_3,
+			SPRITE_TERRITORY_4,
+			SPRITE_TERRITORY_5,
+			SPRITE_TERRITORY_6,
+			SPRITE_MOTORCYCLE,
+			SPRITE_JIMSWEAPON,
+			SPRITE_WEAPON_STICKYBOMB
 		};
 
 	}

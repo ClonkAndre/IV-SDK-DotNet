@@ -9,12 +9,8 @@ public:
 	static Native_CPool<Native_CBuilding>* GetBuildingPool()	{ return AddressSetter::GetRef<Native_CPool<Native_CBuilding>*>(0x128FED0, 0xE4A5E8); }
 	static Native_CPool<Native_CCam>* GetCameraPool()			{ return AddressSetter::GetRef<Native_CPool<Native_CCam>*>(0x1218020, 0xF68158); }
 
-	//static inline CPool<CTask>*& ms_pTaskPool = AddressSetter::GetRef<CPool<CTask>*>(0x124B01C, 0x126FE3C);
-	//static inline CPool<CInteriorInst>*& ms_pInteriorInstPool = AddressSetter::GetRef<CPool<CInteriorInst>*>(0x125D2E4, 0xE54D74);
 	//static inline CPool<CVehicleStructure>*& ms_pVehicleStructPool = AddressSetter::GetRef<CPool<CVehicleStructure>*>(0x12D6594, 0x1001BCC);
 	//static inline CPool<CPedMoveBlendOnFoot>*& ms_pPedMoveBlendPool = AddressSetter::GetRef<CPool<CPedMoveBlendOnFoot>*>(0x14A82B4, 0x14CB044);
-	//static inline CPool<CDummyPed>*& ms_pDummyPedPool = AddressSetter::GetRef<CPool<CDummyPed>*>(0x14A82BC, 0x14CB04C);
-	//static inline CPool<CDummyTask>*& ms_pDummyTaskPool = AddressSetter::GetRef<CPool<CDummyTask>*>(0x1306E8C, 0x128AAC0);
 	//static inline CPool<tPedData>*& ms_pUnkPedDataPool = AddressSetter::GetRef<CPool<tPedData>*>(0x14A82B8, 0x14CB048);
 	//static inline CPool<CPedIntelligenceNY>*& ms_pPedIntelligencePool = AddressSetter::GetRef<CPool<CPedIntelligenceNY>*>(0x14A82B0, 0x14CB040);
 	//static inline CPool<CAnimBlender>*& ms_pAnimBlenderPool = AddressSetter::GetRef<CPool<CAnimBlender>*>(0x12397B0, 0xE4E6B0);
@@ -35,8 +31,6 @@ namespace IVSDKDotNet {
 
 		static array<Ped>^		GetAllPedHandles();
 		static array<Vehicle>^	GetAllVehicleHandles();
-
-		[System::ObsoleteAttribute("Use GetAllObjects function instead.")]
 		static array<Entity>^	GetAllObjectHandles();
 
 		/// <summary>
@@ -56,6 +50,17 @@ namespace IVSDKDotNet {
 		/// </summary>
 		/// <param name="handle">The handle of the object.</param>
 		static void DeleteObject(Entity handle);
+
+		// - - - IV-SDK Pools - - -
+		static CPool^ GetPedPool();
+		static CPool^ GetVehiclePool();
+		static CPool^ GetObjectPool();
+		static CPool^ GetBuildingPool();
+		static CPool^ GetCameraPool();
+		static CPool^ GetTaskPool();
+		static CPool^ GetInteriorInstPool();
+		static CPool^ GetDummyPedPool();
+		static CPool^ GetDummyTaskPool();
 
 		// - - - IV-SDK Objects - - -
 

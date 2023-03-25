@@ -12,7 +12,7 @@ namespace IVSDKDotNet {
 	{
 	public:
 
-		static CRGBA^ GetHudColour();
+		static Color GetHudColour();
 
 	};
 

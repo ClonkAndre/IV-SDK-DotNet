@@ -16,9 +16,6 @@
     <Filter Include="Header Files\Native">
       <UniqueIdentifier>{ea2c86a7-3813-4654-a484-d4feed929d88}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Native">
-      <UniqueIdentifier>{cb1c3562-6af6-4232-95f4-40cc542581a5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Objects">
       <UniqueIdentifier>{30d270d8-55e0-4c97-b661-a3ffe5fda94b}</UniqueIdentifier>
     </Filter>
@@ -54,6 +51,21 @@
     </Filter>
     <Filter Include="Source Files\Input">
       <UniqueIdentifier>{31915713-ec7b-4de7-aa0e-5029a9094b3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Helper">
+      <UniqueIdentifier>{bb183075-a34b-4109-b4b2-6f8716728457}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Helper">
+      <UniqueIdentifier>{3096221e-f88e-42b0-a62e-369aebd81ef8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Dummies">
+      <UniqueIdentifier>{358c1e6e-4a4f-44f6-a50c-ffdbd71c5e22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Tasks">
+      <UniqueIdentifier>{1009d089-a759-49a2-925b-ddb3079259e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tasks">
+      <UniqueIdentifier>{ff5c04c3-e0e8-4118-9c0f-80ec79c00b68}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -91,9 +103,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CTheScripts.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="audRadioAudioEntity.h">
@@ -231,6 +240,33 @@
     <ClInclude Include="CCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CModelInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CStreaming.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper.h">
+      <Filter>Header Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Dummies.h">
+      <Filter>Header Files\Dummies</Filter>
+    </ClInclude>
+    <ClInclude Include="CTask.h">
+      <Filter>Header Files\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="CTasks.h">
+      <Filter>Header Files\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="CInteriorInst.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CHandlingDataMgr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CWeaponInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -247,9 +283,6 @@
     </ClCompile>
     <ClCompile Include="CGame.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Native.cpp">
-      <Filter>Source Files\Native</Filter>
     </ClCompile>
     <ClCompile Include="audRadioAudioEntity.cpp">
       <Filter>Source Files</Filter>
@@ -310,9 +343,6 @@
     </ClCompile>
     <ClCompile Include="rage.cpp">
       <Filter>Source Files\RAGE</Filter>
-    </ClCompile>
-    <ClCompile Include="Helper.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CDraw.cpp">
       <Filter>Source Files\Drawing</Filter>
@@ -387,6 +417,27 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CModelInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CStreaming.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CPool.cpp">
+      <Filter>Source Files\Pool</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper.cpp">
+      <Filter>Source Files\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="CTasks.cpp">
+      <Filter>Source Files\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="CHandlingDataMgr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CWeaponInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

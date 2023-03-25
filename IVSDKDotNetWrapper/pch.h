@@ -21,10 +21,14 @@
 #include <msclr/marshal.h>
 
 using namespace System;
+using namespace System::Collections::Generic;
 using namespace System::IO;
 using namespace System::Reflection;
 using namespace System::Windows::Forms;
 using namespace System::Numerics;
+using namespace System::Runtime::CompilerServices;
+
+#include "Dummies.h"
 
 #include "enums.h"
 #include "CRGBA.h"
@@ -53,6 +57,7 @@ using namespace System::Numerics;
 #include "CCam.h"
 #include "CCamera.h"
 #include "CGame.h"
+
 #include "CPlayerInfo.h"
 #include "CTimer.h"
 #include "CPad.h"
@@ -62,13 +67,19 @@ using namespace System::Numerics;
 #include "CPhysical.h"
 #include "CCustomShaderEffectBase.h"
 #include "CBuilding.h"
+#include "CInteriorInst.h"
 #include "CObject.h"
+#include "CHandlingDataMgr.h"
 #include "CVehicle.h"
 #include "CVehicleFactoryNY.h"
 #include "CPed.h"
 #include "CPedFactoryNY.h"
 #include "CPool.h"
 #include "CPools.h"
+
+#include "CTask.h"
+#include "CTasks.h"
+
 #include "phBound.h"
 #include "phInstGta.h"
 #include "phConstrainedCollider.h"

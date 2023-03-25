@@ -325,7 +325,7 @@ namespace Manager.Direct3D9 {
         {
             try {
                 Texture texture = (Texture)txt;
-                
+
                 // Convert pixel to screen units
                 SurfaceDescription sd = texture.GetLevelDescription(0);
                 float cW = rect.Width / sd.Width;
@@ -351,6 +351,27 @@ namespace Manager.Direct3D9 {
             return false;
         }
 
+        public static bool DrawString(D3DGraphics g, IntPtr fontPtr, string text, RawRectangle rect, eD3DFontDrawFlags drawFlags, Color color)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(text))
+                    return false;
+
+                SharpDX.Direct3D9.Font f = (SharpDX.Direct3D9.Font)fontPtr;
+                if (f != null)
+                {
+                    f.DrawText(null, text, rect, (FontDrawFlags)drawFlags, color.ToRawColorBGRA());
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Main.managerInstance.console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw text. Details: {0}", ex.ToString()));
+            }
+            return false;
+        }
         public static bool DrawString(D3DGraphics g, IntPtr fontPtr, string text, Point pos, Color color)
         {
             try {

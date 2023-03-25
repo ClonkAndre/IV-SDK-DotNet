@@ -93,8 +93,189 @@ namespace IVSDKDotNet {
 	public ref class CPlayerInfo
 	{
 	public:
+		CPlayerInfo(Native_CPlayerInfo* nativePtr);
 
+		property String^ Name {
+			public: String^ get() { return gcnew String(m_cNativePlayerInfo->m_sName); }
+		}
+
+		property UIntPtr PlayerPed2 {
+			public:
+				UIntPtr	get()
+				{
+					Native_CPed* ptr = m_cNativePlayerInfo->m_pPlayerPed2;
+
+					if (ptr)
+						return UIntPtr(ptr);
+					
+					return UIntPtr::Zero;
+				}
+				void	set(UIntPtr value)	{ m_cNativePlayerInfo->m_pPlayerPed2 = (Native_CPed*)value.ToPointer(); }
+		}
+
+		property float Stamina {
+			public:
+				float	get()				{ return m_cNativePlayerInfo->m_fStamina; }
+				void	set(float value)	{ m_cNativePlayerInfo->m_fStamina = value; }
+		}
+
+		property uint32_t LastHitPedTime {
+			public:
+				uint32_t	get()				{ return m_cNativePlayerInfo->m_nLastHitPedTime; }
+				void		set(uint32_t value) { m_cNativePlayerInfo->m_nLastHitPedTime = value; }
+		}
+
+		property uint32_t LastHitBuildingTime {
+			public:
+				uint32_t	get()				{ return m_cNativePlayerInfo->m_nLastHitBuildingTime;  }
+				void		set(uint32_t value) { m_cNativePlayerInfo->m_nLastHitBuildingTime = value; }
+		}
+
+		property uint32_t LastHitObjectTime {
+			public:
+				uint32_t	get()				{ return m_cNativePlayerInfo->m_nLastHitObjectTime; }
+				void		set(uint32_t value) { m_cNativePlayerInfo->m_nLastHitObjectTime = value; }
+		}
+
+		property uint32_t LastDroveOnPavementTime {
+			public:
+				uint32_t	get()				{ return m_cNativePlayerInfo->m_nLastDroveOnPavementTime; }
+				void		set(uint32_t value) { m_cNativePlayerInfo->m_nLastDroveOnPavementTime = value; }
+		}
+
+		property uint32_t LastRanLightTime {
+			public:
+				uint32_t	get()				{ return m_cNativePlayerInfo->m_nLastRanLightTime; }
+				void		set(uint32_t value) { m_cNativePlayerInfo->m_nLastRanLightTime = value; }
+		}
+
+		property uint32_t LastDroveAgainstTrafficTime {
+			public:
+				uint32_t	get()				{ return m_cNativePlayerInfo->m_nLastDroveAgainstTrafficTime; }
+				void		set(uint32_t value) { m_cNativePlayerInfo->m_nLastDroveAgainstTrafficTime = value; }
+		}
+
+		property uint32_t ControlFlags {
+			public:
+				uint32_t	get()				{ return m_cNativePlayerInfo->m_nControlFlags; }
+				void		set(uint32_t value) { m_cNativePlayerInfo->m_nControlFlags = value; }
+		}
+
+		property uint8_t PlayerId {
+			public:
+				uint8_t get()				{ return m_cNativePlayerInfo->m_nPlayerId; }
+				void	set(uint8_t value)	{ m_cNativePlayerInfo->m_nPlayerId = value; }
+		}
+
+		property uint8_t pad6 {
+			public:
+				uint8_t get()				{ return m_cNativePlayerInfo->pad6; }
+				void	set(uint8_t value)	{ m_cNativePlayerInfo->pad6 = value; }
+		}
+
+		property uint32_t State {
+			public:
+				uint32_t	get()				{ return m_cNativePlayerInfo->m_nState; }
+				void		set(uint32_t value) { m_cNativePlayerInfo->m_nState = value; }
+		}
+
+		property uint8_t NeverTired {
+			public:
+				uint8_t get()				{ return m_cNativePlayerInfo->m_nNeverTired; }
+				void	set(uint8_t value)	{ m_cNativePlayerInfo->m_nNeverTired = value; }
+		}
+
+		property uint16_t MaxHealth {
+			public:
+				uint16_t	get()				{ return m_cNativePlayerInfo->m_nMaxHealth; }
+				void		set(uint16_t value) { m_cNativePlayerInfo->m_nMaxHealth = value; }
+		}
+
+		property uint16_t MaxArmor {
+			public:
+				uint16_t	get()				{ return m_cNativePlayerInfo->m_nMaxArmor; }
+				void		set(uint16_t value) { m_cNativePlayerInfo->m_nMaxArmor = value; }
+		}
+
+		property uint8_t CanDoDriveby {
+			public:
+				uint8_t get()				{ return m_cNativePlayerInfo->m_nCanDoDriveby; }
+				void	set(uint8_t value)	{ m_cNativePlayerInfo->m_nCanDoDriveby = value; }
+		}
+
+		property uint32_t Mood {
+			public:
+				uint32_t	get()				{ return m_cNativePlayerInfo->m_nMood; }
+				void		set(uint32_t value) { m_cNativePlayerInfo->m_nMood = value; }
+		}
+
+		property int32_t Colour {
+			public:
+				int32_t get()				{ return m_cNativePlayerInfo->m_nColour; }
+				void	set(int32_t value)	{ m_cNativePlayerInfo->m_nColour = value; }
+		}
+
+		property int32_t Team {
+			public:
+				int32_t get()				{ return m_cNativePlayerInfo->m_nTeam; }
+				void	set(int32_t value)	{ m_cNativePlayerInfo->m_nTeam = value; }
+		}
+
+		property uint8_t HasDiedRecently {
+			public:
+				uint8_t get()				{ return m_cNativePlayerInfo->m_nHasDiedRecently; }
+				void	set(uint8_t value)	{ m_cNativePlayerInfo->m_nHasDiedRecently = value; }
+		}
+
+		property UIntPtr PlayerPed {
+			public:
+				UIntPtr	get()
+				{
+					Native_CPed* ptr = m_cNativePlayerInfo->m_pPlayerPed;
+
+					if (ptr)
+						return UIntPtr(ptr);
+
+					return UIntPtr::Zero;
+				}
+				void	set(UIntPtr value)	{ m_cNativePlayerInfo->m_pPlayerPed = (Native_CPed*)value.ToPointer(); }
+		}
+
+		property UIntPtr OnlyEnterThisVehicle {
+			public:
+				UIntPtr	get()
+				{
+					Native_CVehicle* ptr = m_cNativePlayerInfo->m_pOnlyEnterThisVehicle;
+
+					if (ptr)
+						return UIntPtr(ptr);
+
+					return UIntPtr::Zero;
+				}
+				void	set(UIntPtr value)	{ m_cNativePlayerInfo->m_pOnlyEnterThisVehicle = (Native_CVehicle*)value.ToPointer(); }
+		}
+
+		property Native_CPlayerInfo* PlayerInfoPointer {
+			public:
+				Native_CPlayerInfo* get()							{ return m_cNativePlayerInfo; }
+				void				set(Native_CPlayerInfo* value)	{ m_cNativePlayerInfo = value; }
+		}
+
+		void KillPlayerOutsideWorld();
+
+		/// <summary>
+		/// Check if the player with the given id is active or not.
+		/// </summary>
+		/// <param name="id">The player id.</param>
+		/// <returns>True if the player with the given id is active. Otherwise, false.</returns>
 		static bool IsPlayerActive(int id);
+
+		/// <summary>
+		/// Gets the CPlayerInfo object of the given player id.
+		/// </summary>
+		/// <param name="nPlayerId">The id of the player you want to get the CPlayerInfo object from.</param>
+		/// <returns>If successful, the CPlayerInfo object is returned. Otherwise, null.</returns>
+		static CPlayerInfo^ GetPlayerInfo(uint32_t nPlayerId);
 
 		/// <summary>
 		/// Finds the current player ped.
@@ -109,7 +290,8 @@ namespace IVSDKDotNet {
 		/// <returns>Returns a pointer to the current vehicle the player is driving.</returns>
 		static UIntPtr FindPlayerVehicle();
 
+	private:
+		Native_CPlayerInfo* m_cNativePlayerInfo;
 	};
-
 
 }

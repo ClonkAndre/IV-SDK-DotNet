@@ -58,6 +58,8 @@ namespace IVSDKDotNet {
 		/// <returns>The cam of the specific type if found.</returns>
 		CCam^ GetCamOfType(int type, int unk);
 
+		UIntPtr GetUIntPtr();
+
 		CCam^ Activate();
 
 		bool Process();

@@ -15,6 +15,7 @@ namespace Manager.Direct3D9 {
         private List<IntPtr> d3d9DeviceVTable;
         private LocalHook endSceneHooker, resetHooker;
         private bool firstCall = true, disposedValue;
+        public IntPtr DevicePtr;
 
         // Enums
         public enum Direct3DDevice9FunctionOrdinals : short
@@ -270,6 +271,7 @@ namespace Manager.Direct3D9 {
         #region Hooks
         private int EndSceneHook(IntPtr devicePtr)
         {
+            DevicePtr = devicePtr;
             Device dev = (Device)devicePtr;
             
             if (firstCall) {

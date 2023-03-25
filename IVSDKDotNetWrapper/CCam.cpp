@@ -15,6 +15,12 @@ namespace IVSDKDotNet {
 	{
 		return gcnew CCam(CamPointer->GetCamOfType(type, unk));
 	}
+
+	UIntPtr CCam::GetUIntPtr()
+	{
+		return UIntPtr(CamPointer);
+	}
+
 	CCam^ CCam::Activate()
 	{
 		return gcnew CCam(CamPointer->Activate());

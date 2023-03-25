@@ -69,6 +69,9 @@ namespace IVSDKDotNet {
 	public:
 		CEntity(Native_CEntity* entity);
 
+		static CEntity^ FromPointer(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 		void Teleport(GTAMatrix mat, bool bDontUpdatePhysicsMatrix, bool bImmediately);
 		void Teleport(Vector3 v, bool bDontUpdatePhysicsMatrix, bool bImmediately);
 
@@ -127,6 +130,16 @@ namespace IVSDKDotNet {
 			public:
 				Native_CEntity* get()			{ return m_cEntity; }
 				void set(Native_CEntity* value) { m_cEntity = value; }
+		}
+
+		static bool operator ==(CEntity^ p1, CEntity^ p2)
+		{
+			if (!p1)
+				return false;
+			if (!p2)
+				return false;
+
+			return p1->m_cEntity == p2->m_cEntity;
 		}
 
 	private:

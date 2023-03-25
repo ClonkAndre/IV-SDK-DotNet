@@ -95,30 +95,7 @@ namespace IVSDKDotNet {
 		/// Gets called when the GTA IV Window receives Windows Messages. See https://wiki.winehq.org/List_Of_Windows_Messages for a list of all Windows Messages.
 		/// </summary>
 		static event OnWndMessageDelegate^ OnWndMessage;
-
 		static void RaiseOnWndMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam) { OnWndMessage(hWnd, msg, wParam, lParam); }
-
-		static bool Initialise(String^ sGameDat);
-
-		/// <summary>
-		/// Checks if the specified key is pressed.
-		/// </summary>
-		/// <param name="key">The key to check if it's pressed.</param>
-		/// <returns>True if the key is pressed, otherwise false.</returns>
-		static bool IsKeyPressed(Keys key);
-
-		/// <summary>
-		/// Gets the rectangle of the radar with the specific scaling.
-		/// </summary>
-		/// <param name="scaling">The scaling to apply.</param>
-		/// <returns>The rectangle of the radar.</returns>
-		static RectangleF GetRadarRectangle(eFontScaling scaling);
-
-		/// <summary>
-		/// Gets the rectangle of the radar in pixel.
-		/// </summary>
-		/// <returns>The rectangle of the radar.</returns>
-		static RectangleF GetRadarRectangle();
 
 		/// <summary>
 		/// Gets or sets the gta.dat path (common:/data/gta.dat).
@@ -176,6 +153,43 @@ namespace IVSDKDotNet {
 		static property String^ GameStartupPath {
 			public: String^ get() { return Application::StartupPath; }
 		}
+
+		static bool Initialise(String^ sGameDat);
+
+		/// <summary>
+		/// Checks if the specified key is pressed.
+		/// </summary>
+		/// <param name="key">The key to check if it's pressed.</param>
+		/// <returns>True if the key is pressed, otherwise false.</returns>
+		static bool IsKeyPressed(Keys key);
+
+		/// <summary>
+		/// Gets the rectangle of the radar with the specific scaling.
+		/// </summary>
+		/// <param name="scaling">The scaling to apply.</param>
+		/// <returns>The rectangle of the radar.</returns>
+		static RectangleF GetRadarRectangle(eFontScaling scaling);
+
+		/// <summary>
+		/// Gets the rectangle of the radar in pixel.
+		/// </summary>
+		/// <returns>The rectangle of the radar.</returns>
+		static RectangleF GetRadarRectangle();
+
+		/// <summary>
+		/// Shows text at the bottom center of the screen where the subtitles are located.
+		/// Only works in-game.
+		/// </summary>
+		/// <param name="str">The text to be shown.</param>
+		/// <param name="time">How long the text should be shown in milliseconds.</param>
+		static void ShowSubtitleMessage(String^ str, uint32_t time);
+
+		/// <summary>
+		/// Shows text at the bottom center of the screen where the subtitles are located.
+		/// Only works in-game.
+		/// </summary>
+		/// <param name="str">The text to be shown.</param>
+		static void ShowSubtitleMessage(String^ str);
 
 	internal:
 		static eGameVersion m_gameVersion;

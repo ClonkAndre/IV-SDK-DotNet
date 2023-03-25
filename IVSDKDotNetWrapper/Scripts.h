@@ -12,8 +12,8 @@ using namespace System::Windows::Forms;
 namespace IVSDKDotNet {
 
 	/// <summary>
-	///	Marks the class as a IV-SDK DotNet Script.
-	///	This class needs to be inherited if you want this class to be the entry point of your IV-SDK DotNet Script.
+	///	Marks the class as a IV-SDK .NET Script.
+	///	This class needs to be inherited if you want this class to be the entry point of your IV-SDK .NET Script.
 	/// </summary>
 	public ref class Script
 	{
@@ -21,94 +21,102 @@ namespace IVSDKDotNet {
 		Script();
 		~Script() {};
 
-		delegate String^ ScriptAssemblyResolveDelegate(String^ assemblyFileName);
 		delegate void AutomobileDelegate(UIntPtr vehPtr);
-
+		delegate void ScriptCommandReceivedDelegate(Script^ fromScript, String^ command);
+		delegate String^ ScriptAssemblyResolveDelegate(String^ assemblyFileName);
+		
 		/// <summary>
-		/// Gets called after the constructor so you can safely call any functions in here without having to worry about stuff not being initialized yet.
+		/// Gets raised after the constructor so you can safely call any functions in here without having to worry about stuff not being initialized yet.
 		/// Native functions cannot be called in here yet.
 		/// </summary>
 		event EventHandler^ Initialized;
 
 		/// <summary>
-		/// Gets called when the script is about to be unloaded so you can free some previously created stuff in here.
+		/// Gets raised when the script is about to be unloaded so you can free some previously created stuff in here.
 		/// </summary>
 		event EventHandler^ Uninitialize;
 
 		/// <summary>
-		/// Gets called every frame when in-game.
-		/// (CGame.Process)
+		/// Gets raised every frame when in-game.
+		/// (CGame.Process).
+		/// This event uses the CTheScripts.SetDummyThread/RestorePreviousThread method.
 		/// </summary>
 		event EventHandler^ Tick;
 
 		/// <summary>
-		/// Gets called when game is loading or when switching from one episode to another.
+		/// Gets raised when game is loading or when switching from one episode to another.
 		/// Can be used for addon files that don't interfere with game files.
 		/// </summary>
 		event EventHandler^ GameLoad;
 
 		/// <summary>
-		/// Gets called before GameLoad when game is loading or when switching from one episode to another.
+		/// Gets raised before GameLoad when game is loading or when switching from one episode to another.
 		/// Can be used for files that need to overwrite base game files.
 		/// </summary>
 		event EventHandler^ GameLoadPriority;
 
 		/// <summary>
-		/// Gets called when game is loading, switching from one episode to another or when loading the same save game again.
+		/// Gets raised when game is loading, switching from one episode to another or when loading the same save game again.
 		/// Can be used for any rage.fiDevice stuff.
 		/// </summary>
 		event EventHandler^ MountDevice;
 
 		/// <summary>
-		/// Gets called twice per frame when in game, and even works in main menu.
+		/// Gets raised twice per frame when in game, and even works in main menu.
 		/// (CRenderPhasePostRenderViewport)
 		/// </summary>
 		event EventHandler^ Drawing;
 
 		/// <summary>
-		/// Gets called after CCamera.m_pFinalCam has been written to.
+		/// Gets raised after CCamera.m_pFinalCam has been written to.
 		/// </summary>
 		event EventHandler^ ProcessCamera;
 
 		/// <summary>
-		/// Gets called after CAutomobile.Process, overriding steer & pedals works here.
+		/// Gets raised after CAutomobile.Process, overriding steer & pedals works here.
 		/// </summary>
 		event AutomobileDelegate^ ProcessAutomobile;
 
 		/// <summary>
-		/// Gets called EVERYTIME even when in main menu.
+		/// Gets raised EVERYTIME even when in main menu.
 		/// You can set all pad controls here, called once per frame for each pad.
 		/// </summary>
 		event EventHandler^ ProcessPad;
 
 		/// <summary>
-		/// Gets called when a key was released.
+		/// Gets raised when a key was released.
 		/// </summary>
 		event KeyEventHandler^ KeyUp;
 
 		/// <summary>
-		/// Gets called when a key was pressed.
+		/// Gets raised when a key was pressed.
 		/// </summary>
 		event KeyEventHandler^ KeyDown;
 
 		/// <summary>
-		/// Gets called when you set Script.AssembliesLocation to DecideManuallyForEachAssembly and an Assembly gets requested for this Script.
+		/// Gets raised when another IV-SDK .NET Script has sent a command to this IV-SDK .NET Script. 
+		/// </summary>
+		event ScriptCommandReceivedDelegate^ ScriptCommandReceived;
+
+		/// <summary>
+		/// Gets raised when you set Script.AssembliesLocation to DecideManuallyForEachAssembly and an Assembly gets requested for this Script.
 		/// You need to return the absolut path of the reqested Assembly.
 		/// </summary>
 		event ScriptAssemblyResolveDelegate^ AssemblyResolve;
 
-		void RaiseInitialized()						{ Initialized(this, EventArgs::Empty); }
-		void RaiseUninitialize()					{ Uninitialize(this, EventArgs::Empty); }
-		void RaiseTick()							{ Tick(this, EventArgs::Empty); }
-		void RaiseGameLoad()						{ GameLoad(this, EventArgs::Empty); }
-		void RaiseGameLoadPriority()				{ GameLoadPriority(this, EventArgs::Empty); }
-		void RaiseMountDevice()						{ MountDevice(this, EventArgs::Empty); }
-		void RaiseDrawing()							{ Drawing(this, EventArgs::Empty); }
-		void RaiseProcessCamera()					{ ProcessCamera(this, EventArgs::Empty); }
-		void RaiseProcessAutomobile(UIntPtr vehPtr)	{ ProcessAutomobile(vehPtr); }
-		void RaiseProcessPad()						{ ProcessPad(this, EventArgs::Empty); }
-		void RaiseKeyUp(KeyEventArgs^ args)			{ KeyUp(this, args); }
-		void RaiseKeyDown(KeyEventArgs^ args)		{ KeyDown(this, args); }
+		void RaiseInitialized()													{ Initialized(this, EventArgs::Empty); }
+		void RaiseUninitialize()												{ Uninitialize(this, EventArgs::Empty); }
+		void RaiseTick()														{ Tick(this, EventArgs::Empty); }
+		void RaiseGameLoad()													{ GameLoad(this, EventArgs::Empty); }
+		void RaiseGameLoadPriority()											{ GameLoadPriority(this, EventArgs::Empty); }
+		void RaiseMountDevice()													{ MountDevice(this, EventArgs::Empty); }
+		void RaiseDrawing()														{ Drawing(this, EventArgs::Empty); }
+		void RaiseProcessCamera()												{ ProcessCamera(this, EventArgs::Empty); }
+		void RaiseProcessAutomobile(UIntPtr vehPtr)								{ ProcessAutomobile(vehPtr); }
+		void RaiseProcessPad()													{ ProcessPad(this, EventArgs::Empty); }
+		void RaiseKeyUp(KeyEventArgs^ args)										{ KeyUp(this, args); }
+		void RaiseKeyDown(KeyEventArgs^ args)									{ KeyDown(this, args); }
+		void RaiseScriptCommandReceived(Script^ fromScript, String^ command)	{ ScriptCommandReceived(fromScript, command); }
 
 		String^ RaiseAssemblyResolve(String^ assemblyFileName) { return AssemblyResolve(assemblyFileName); }
 
@@ -194,6 +202,59 @@ namespace IVSDKDotNet {
 		/// </summary>
 		/// <returns>The absolute path of the script, or an empty string if the full path could not get retrieved.</returns>
 		String^ GetFullPath();
+
+		/// <summary>
+		/// Allows you to check if the script you are checking for exists.
+		/// </summary>
+		/// <param name="id">The id of the script you want to check for.</param>
+		/// <returns>True if the script exists. Otherwise, false.</returns>
+		bool DoesScriptExists(Guid id);
+		/// <summary>
+		/// Allows you to check if the script you are checking for exists.
+		/// </summary>
+		/// <param name="name">The name of the script you want to check for.</param>
+		/// <returns>True if the script exists. Otherwise, false.</returns>
+		bool DoesScriptExists(String^ name);
+
+		/// <summary>
+		/// Allows you to check if the script you are checking for is running.
+		/// </summary>
+		/// <param name="id">The name of the script you want to check for.</param>
+		/// <returns>True if the script is running. Otherwise, false.</returns>
+		bool IsScriptRunning(Guid id);
+		/// <summary>
+		/// Allows you to check if the script you are checking for is running.
+		/// </summary>
+		/// <param name="name">The name of the script you want to check for.</param>
+		/// <returns>True if the script is running. Otherwise, false.</returns>
+		bool IsScriptRunning(String^ name);
+
+		/// <summary>
+		/// Returns a script by its id if available.
+		/// </summary>
+		/// <param name="id">The id of the script you want to get.</param>
+		/// <returns>The script if found. Otherwise, null.</returns>
+		Script^ GetScript(Guid id);
+		/// <summary>
+		/// Returns a script by its name if available.
+		/// </summary>
+		/// <param name="name">The name of the script you want to get.</param>
+		/// <returns>The script if found. Otherwise, null.</returns>
+		Script^ GetScript(String^ name);
+
+		/// <summary>
+		/// Returns an array of all currently running scripts.
+		/// </summary>
+		/// <returns>If successful, an array of all currently running script is returned. Otherwise, null.</returns>
+		array<Script^>^ GetAllScripts();
+
+		/// <summary>
+		/// Allows you to communicate with other scripts.
+		/// </summary>
+		/// <param name="toScript">To which the script the command should be sent to.</param>
+		/// <param name="command">The command to sent to the script.</param>
+		/// <returns>If successful, true is returned. Otherwise, false.</returns>
+		bool SendScriptCommand(Script^ toScript, String^ command);
 
 		/// <summary>
 		/// The unique ID of this script.
@@ -346,14 +407,14 @@ namespace IVSDKDotNet {
 		TimeSpan m_sProcessPadEventExecutionTime;
 	};
 
-	/// <summary> Internal-only IV-SDK Manager stuff. </summary>
+	/// <summary> Internal-only IV-SDK .NET Manager stuff. </summary>
 	namespace Manager {
 
 		/// <summary>
-		/// Only used for the IV-SDK DotNet Manager.
+		/// Only used for the IV-SDK .NET Manager.
 		/// There can only be one instance of this class.
 		/// </summary>
-		public ref class ManagerScript
+		public ref class ManagerScript abstract
 		{
 		public:
 			ManagerScript();
@@ -398,10 +459,14 @@ namespace IVSDKDotNet {
 
 			virtual Script^	GetScript(Guid id)					abstract;
 			virtual Script^	GetScript(String^ name)				abstract;
+			virtual bool IsScriptRunning(Guid id)				abstract;
+			virtual bool IsScriptRunning(String^ name)			abstract;
 			virtual array<Script^>^ GetAllScripts()				abstract;
 			virtual String^	GetScriptName(Guid id)				abstract;
 			virtual String^ GetScriptFullPath(Guid id)			abstract;
 			virtual int GetActiveScriptsCount()					abstract;
+
+			virtual bool SendScriptCommand(Script^ toScript, String^ command) abstract;
 
 			// Task
 			virtual Guid StartNewTask(Guid forScript, Func<Object^>^ actionToExecute)			abstract;
@@ -412,15 +477,17 @@ namespace IVSDKDotNet {
 			virtual void ChangeTimerState(Guid id, bool pause)									abstract;
 
 			// Direct3D9 -> Graphics
-			virtual void Direct3D9_Graphics_CreateNewInstance(Object^ instance, Script^ forScript)	abstract;
+			virtual void Direct3D9_Graphics_CreateNewInstance(Object^% instance, Script^ forScript)	abstract;
 			virtual void Direct3D9_Graphics_DisposeInstance(Script^ ofScript)						abstract;
 
-			virtual Direct3D9::D3DResult^ Direct3D9_Graphics_CreateD3D9Texture(Script^ forScript, IntPtr device, String^ filePath, Size size)					abstract;
-			virtual Direct3D9::D3DResult^ Direct3D9_Graphics_CreateD3D9Texture(Script^ forScript, IntPtr device, array<Byte>^ data, Size size)					abstract;
-			virtual Exception^ Direct3D9_Graphics_ReleaseD3D9Texture(Script^ ofScript, Direct3D9::D3DResource^ resource)										abstract;
+			virtual Direct3D9::D3DResult^ Direct3D9_Graphics_CreateD3D9Texture(Script^ forScript, IntPtr device, String^ filePath, Size size)							abstract;
+			virtual Direct3D9::D3DResult^ Direct3D9_Graphics_CreateD3D9Texture(Script^ forScript, IntPtr device, array<Byte>^ data, Size size)							abstract;
+			virtual Exception^ Direct3D9_Graphics_ReleaseD3D9Texture(Script^ ofScript, Direct3D9::D3DResource^ resource)												abstract;
 
-			virtual Direct3D9::D3DResult^ Direct3D9_Graphics_CreateD3D9Font(Script^ forScript, IntPtr device, Direct3D9::D3DFontDescription fontDescription)	abstract;
-			virtual Exception^ Direct3D9_Graphics_ReleaseD3D9Font(Script^ ofScript, Direct3D9::D3DResource^ resource)											abstract;
+			virtual Direct3D9::D3DResult^ Direct3D9_Graphics_CreateD3D9Font(Script^ forScript, IntPtr device, Direct3D9::D3DFontDescription fontDescription)			abstract;
+			virtual Exception^ Direct3D9_Graphics_ReleaseD3D9Font(Script^ ofScript, Direct3D9::D3DResource^ resource)													abstract;
+			
+			virtual Drawing::Rectangle Direct3D9_Graphics_MeasureText(Direct3D9::D3DResource^ fontResource, String^ text, Drawing::Rectangle rect, Direct3D9::eD3DFontDrawFlags drawFlags)		abstract;
 
 			virtual bool Direct3D9_Graphics_DrawLines(Object^ instance, IntPtr device, array<Vector2>^ vertices, Color color, bool antialias, int pattern, float patternScale, float thickness)								abstract;
 			virtual bool Direct3D9_Graphics_DrawLine(Object^ instance, IntPtr device, Vector2 point1, Vector2 point2, Color color, bool antialias, int pattern, float patternScale, float thickness)	abstract;
@@ -435,6 +502,7 @@ namespace IVSDKDotNet {
 
 			virtual bool Direct3D9_Graphics_DrawTexture(Object^ instance, IntPtr device, Direct3D9::D3DResource^ txt, RectangleF rect, float rotation, Color tint)									abstract;
 
+			virtual bool Direct3D9_Graphics_DrawString(Object^ instance, IntPtr device, Direct3D9::D3DResource^ fontResource, String^ text, Drawing::Rectangle rect, Direct3D9::eD3DFontDrawFlags drawFlags, Color color)									abstract;
 			virtual bool Direct3D9_Graphics_DrawString(Object^ instance, IntPtr device, Direct3D9::D3DResource^ fontResource, String^ text, Point pos, Color color)									abstract;
 
 		};

@@ -51,9 +51,13 @@ namespace IVSDKDotNet {
 					void			set(eFontScaling value) { m_eScaling = value; }
 			}
 
+			/// <summary>
+			/// Gets or sets the D3D9 device pointer. You should avoid setting it manually.
+			/// </summary>
 			property IntPtr Device {
-				public:		IntPtr get()			{ return m_pDevice; }
-				private:	void set(IntPtr value)	{ m_pDevice = value; }
+				public:
+					IntPtr	get()				{ return m_pDevice; }
+					void	set(IntPtr value)	{ m_pDevice = value; }
 			}
 
 #pragma region Measurement Properties
@@ -91,16 +95,21 @@ namespace IVSDKDotNet {
 			}
 #pragma endregion
 
-			// Creation functions
+			// Texture stuff
 			D3DResult^ CreateD3D9Texture(IntPtr device, String^ filePath, Size size);
 			D3DResult^ CreateD3D9Texture(IntPtr device, String^ filePath);
 			D3DResult^ CreateD3D9Texture(IntPtr device, array<Byte>^ data, Size size);
 			D3DResult^ CreateD3D9Texture(IntPtr device, array<Byte>^ data);
+			Exception^ ReleaseD3D9Texture(D3DResource^ textureResource);
 
-			Exception^ ReleaseD3D9Texture(D3DResource^ resource);
-
+			// Font stuff
 			D3DResult^ CreateD3D9Font(IntPtr device, D3DFontDescription fontDescription);
-			Exception^ ReleaseD3D9Font(D3DResource^ resource);
+			Exception^ ReleaseD3D9Font(D3DResource^ fontResource);
+
+			Drawing::Rectangle MeasureText(D3DResource^ fontResource, String^ text, Drawing::Rectangle rect, eD3DFontDrawFlags drawFlags);
+			Drawing::Rectangle MeasureText(D3DResource^ fontResource, String^ text, eD3DFontDrawFlags drawFlags);
+			Drawing::Rectangle MeasureText(D3DResource^ fontResource, String^ text);
+			Drawing::Rectangle MeasureText(String^ text);
 
 			// Drawing functions
 			bool DrawLines(IntPtr device, array<Vector2>^ vertices, Color color, bool antialias, int pattern, float patternScale, float thickness);
@@ -123,9 +132,11 @@ namespace IVSDKDotNet {
 			bool DrawTexture(IntPtr device, D3DResource^ txt, RectangleF rect, float rotation);
 			bool DrawTexture(IntPtr device, D3DResource^ txt, RectangleF rect);
 
+			bool DrawString(IntPtr device, D3DResource^ fontResource, String^ text, Drawing::Rectangle rect, eD3DFontDrawFlags drawFlags, Color color);
 			bool DrawString(IntPtr device, D3DResource^ fontResource, String^ text, Point pos, Color color);
 			bool DrawString(IntPtr device, D3DResource^ fontResource, String^ text, int x, int y, Color color);
 
+			bool DrawString(IntPtr device, String^ text, Drawing::Rectangle rect, eD3DFontDrawFlags drawFlags, Color color);
 			bool DrawString(IntPtr device, String^ text, Point pos, Color color);
 			bool DrawString(IntPtr device, String^ text, int x, int y, Color color);
 

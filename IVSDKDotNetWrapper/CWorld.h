@@ -147,7 +147,18 @@ namespace IVSDKDotNet {
 	{
 	public:
 
+		/// <summary>
+		/// Adds an entity to the world.
+		/// </summary>
+		/// <param name="entity">The entity to add.</param>
+		/// <param name="bUnk">Unknown. Mostly false?</param>
 		static void Add(CEntity^ entity, bool bUnk);
+
+		/// <summary>
+		/// Removes an entity from the world.
+		/// </summary>
+		/// <param name="entity">The entity to remove.</param>
+		/// <param name="bUnk">Unknown. Mostly false?</param>
 		static void Remove(CEntity^ entity, bool bUnk);
 
 		static void RemoveFallenPeds();

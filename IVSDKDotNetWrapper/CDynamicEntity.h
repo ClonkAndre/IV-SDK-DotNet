@@ -29,8 +29,42 @@ namespace IVSDKDotNet {
 	public:
 		CDynamicEntity(Native_CDynamicEntity* entity);
 
+		/// <summary>
+		/// Used for reading bone positions e.g. seat locations.
+		/// </summary>
+		/// <param name="boneID">The id of the bone to get the GTAMatrix from.</param>
+		/// <returns>The GTAMatrix of the bone with the given id.</returns>
 		GTAMatrix GetBoneMatrix(int boneID);
+
+		/// <summary>
+		/// Used for transform modifications e.g. popup lights, firetruck/apc cannon but 1:1 identical to the GetBoneMatrix function.
+		/// </summary>
+		/// <param name="boneID">The id of the bone to get the GTAMatrix from.</param>
+		/// <returns>The GTAMatrix of the bone with the given id.</returns>
 		GTAMatrix GetBoneMatrix2(int boneID);
+
+		/// <summary>
+		/// Undocumented.
+		/// </summary>
+		property UIntPtr Anim {
+			public:
+				UIntPtr get()
+				{
+					uint32_t* ptr = m_cEntity->m_pAnim;
+
+					if (ptr)
+						return UIntPtr(ptr);
+
+					return UIntPtr::Zero;
+				}
+				void set(UIntPtr value)
+				{
+					if (value == UIntPtr::Zero)
+						return;
+
+					m_cEntity->m_pAnim = (uint32_t*)value.ToPointer();
+				}
+		}
 
 	private:
 		Native_CDynamicEntity* m_cEntity;

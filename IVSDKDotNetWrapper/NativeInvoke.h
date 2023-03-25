@@ -2,7 +2,6 @@
 
 #include "pch.h"
 
-using namespace System::Runtime::InteropServices;
 using namespace IVSDKDotNet::Native;
 
 class IVNativeCallContext
@@ -110,7 +109,7 @@ public:
 
 };
 
-public ref class NativeInvoke
+class NativeInvoke
 {
 private:
 	typedef void(_cdecl* NativeCall)(IVNativeCallContext* pNativeContext);

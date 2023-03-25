@@ -103,4 +103,59 @@ namespace IVSDKDotNet {
 		return String::Empty;
 	}
 
+	bool Script::DoesScriptExists(Guid id)
+	{
+		return GetScript(id) != nullptr;
+	}
+	bool Script::DoesScriptExists(String^ name)
+	{
+		return GetScript(name) != nullptr;
+	}
+
+	bool Script::IsScriptRunning(Guid id)
+	{
+		if (ManagerScript::s_Instance)
+			return ManagerScript::s_Instance->IsScriptRunning(id);
+
+		return false;
+	}
+	bool Script::IsScriptRunning(String^ name)
+	{
+		if (ManagerScript::s_Instance)
+			return ManagerScript::s_Instance->IsScriptRunning(name);
+
+		return false;
+	}
+
+	Script^ Script::GetScript(Guid id)
+	{
+		if (ManagerScript::s_Instance)
+			return ManagerScript::s_Instance->GetScript(id);
+
+		return nullptr;
+	}
+	Script^ Script::GetScript(String^ name)
+	{
+		if (ManagerScript::s_Instance)
+			return ManagerScript::s_Instance->GetScript(name);
+
+		return nullptr;
+	}
+
+	array<Script^>^ Script::GetAllScripts()
+	{
+		if (ManagerScript::s_Instance)
+			return ManagerScript::s_Instance->GetAllScripts();
+
+		return nullptr;
+	}
+
+	bool Script::SendScriptCommand(Script^ toScript, String^ command)
+	{
+		if (ManagerScript::s_Instance)
+			return ManagerScript::s_Instance->SendScriptCommand(toScript, command);
+
+		return false;
+	}
+
 }

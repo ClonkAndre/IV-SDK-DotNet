@@ -308,7 +308,6 @@ namespace Manager {
         public Guid ID;
         public string Name;
         public string FullPath;
-        public bool Running;
         public bool RaiseOnD3D9InitEvent = true;
 
         public Type EntryPoint;
@@ -322,6 +321,8 @@ namespace Manager {
         public Dictionary<Guid, D3DResource> D3D9Objects;
 
         // Other
+        private bool running;
+        private bool initEventCalled;
         private Task cleanUpTask;
         #endregion
 
@@ -335,11 +336,143 @@ namespace Manager {
             ScriptTasks = new List<AdvancedTask>();
             ConsoleCommands = new List<string>();
             D3D9Objects = new Dictionary<Guid, D3DResource>();
-            Running = true;
+            running = true;
         }
         #endregion
-        
-        #region Method
+
+        #region Raisers
+        public void RaiseInitialized()
+        {
+            if (!initEventCalled)
+            {
+                Script.RaiseInitialized();
+                initEventCalled = true;
+            }
+        }
+        public void RaiseTick()
+        {
+            DateTime time = DateTime.UtcNow;
+            Script.RaiseTick();
+            Script.TickEventExecutionTime = DateTime.UtcNow - time;
+        }
+        public void RaiseGameLoad()
+        {
+            DateTime time = DateTime.UtcNow;
+            Script.RaiseGameLoad();
+            Script.GameLoadEventExecutionTime = DateTime.UtcNow - time;
+        }
+        public void RaiseGameLoadPriority()
+        {
+            DateTime time = DateTime.UtcNow;
+            Script.RaiseGameLoadPriority();
+            Script.GameLoadPriorityEventExecutionTime = DateTime.UtcNow - time;
+        }
+        public void RaiseMountDevice()
+        {
+            DateTime time = DateTime.UtcNow;
+            Script.RaiseMountDevice();
+            Script.MountDeviceEventExecutionTime = DateTime.UtcNow - time;
+        }
+        public void RaiseDrawing()
+        {
+            DateTime time = DateTime.UtcNow;
+            Script.RaiseDrawing();
+            Script.DrawingEventExecutionTime = DateTime.UtcNow - time;
+        }
+        public void RaiseProcessCamera()
+        {
+            DateTime time = DateTime.UtcNow;
+            Script.RaiseProcessCamera();
+            Script.ProcessCameraEventExecutionTime = DateTime.UtcNow - time;
+        }
+        public void RaiseProcessAutomobile(UIntPtr vehPtr)
+        {
+            DateTime time = DateTime.UtcNow;
+            Script.RaiseProcessAutomobile(vehPtr);
+            Script.ProcessAutomobileEventExecutionTime = DateTime.UtcNow - time;
+        }
+        public void RaiseProcessPad()
+        {
+            DateTime time = DateTime.UtcNow;
+            Script.RaiseProcessPad();
+            Script.ProcessPadEventExecutionTime = DateTime.UtcNow - time;
+        }
+
+        public void RaiseOnEndScene(IntPtr device)
+        {
+            if (GFX != null)
+            {
+                DateTime time = DateTime.UtcNow;
+
+                // Raise OnInit event once
+                if (RaiseOnD3D9InitEvent)
+                {
+                    GFX.RaiseOnInit(device);
+                    GFX.OnInitEventExecutionTime = DateTime.UtcNow - time;
+                    RaiseOnD3D9InitEvent = false;
+                }
+
+                // Raise OnDeviceEndScene event
+                GFX.RaiseOnDeviceEndScene(device);
+                GFX.OnDeviceEndSceneEventExecutionTime = DateTime.UtcNow - time;
+            }
+        }
+        public void RaiseOnBeforeReset(IntPtr device, IntPtr presentParameters)
+        {
+            if (GFX != null)
+            {
+                // Reset D3DResources
+                D3DResource[] res = D3D9Objects.Values.ToArray();
+                for (int i = 0; i < res.Length; i++)
+                {
+                    D3DResource obj = res[i];
+                    switch (obj.DXType)
+                    {
+                        case eD3D9ResourceType.Font:
+                            ((SharpDX.Direct3D9.Font)obj.Handle).OnLostDevice();
+                            break;
+                    }
+                }
+
+                DateTime time = DateTime.UtcNow;
+                GFX.RaiseOnBeforeDeviceReset(device, Marshal.PtrToStructure<SharpDX.Direct3D9.PresentParameters>(presentParameters).ToD3DPresentParameters());
+                GFX.OnBeforeDeviceResetEventExecutionTime = DateTime.UtcNow - time;
+            }
+        }
+        public void RaiseOnAfterReset(IntPtr device)
+        {
+            if (GFX != null)
+            {
+                // Refresh D3DResources
+                D3DResource[] res = D3D9Objects.Values.ToArray();
+                for (int i = 0; i < res.Length; i++)
+                {
+                    D3DResource obj = res[i];
+                    switch (obj.DXType)
+                    {
+                        case eD3D9ResourceType.Font:
+                            ((SharpDX.Direct3D9.Font)obj.Handle).OnResetDevice();
+                            break;
+                    }
+                }
+
+                DateTime time = DateTime.UtcNow;
+                GFX.RaiseOnAfterDeviceReset(device);
+                GFX.OnAfterDeviceResetEventExecutionTime = DateTime.UtcNow - time;
+            }
+        }
+
+        public void RaiseKeyDown(KeyEventArgs e)
+        {
+            Script.RaiseKeyDown(e);
+        }
+        public void RaiseKeyUp(KeyEventArgs e)
+        {
+            Script.RaiseKeyUp(e);
+        }
+        #endregion
+
+        #region Methods
         public void Abort(bool showMessage)
         {
             if (cleanUpTask != null)
@@ -420,7 +553,7 @@ namespace Manager {
         }
         public void Stop()
         {
-            Running = false;
+            running = false;
         }
 
         public void DestroyD3D9Objects()
@@ -444,12 +577,23 @@ namespace Manager {
             }
         }
         #endregion
+
+        #region Functions
+        /// <summary>
+        /// Gets if the <see cref="IVSDKDotNet.Script"/> is ready so their events can be executed.
+        /// </summary>
+        /// <returns>True if the <see cref="IVSDKDotNet.Script"/> is ready. Otherwise false.</returns>
+        public bool IsScriptReady()
+        {
+            return running && initEventCalled;
+        }
+        #endregion
     }
     #endregion
 
     public class Main : ManagerScript {
 
-        public const string ManagerVersion = "0.6";
+        public const string ManagerVersion = "0.7";
 
         #region Variables
         internal static Main managerInstance;
@@ -511,9 +655,7 @@ namespace Manager {
         private void Direct3D9Hook_OnInit(IntPtr device)
         {
             SharpDX.Direct3D9.Device d = (SharpDX.Direct3D9.Device)device;
-#if DEBUG
             localD3D9Font = new SharpDX.Direct3D9.Font(d, D3DFontDescription.Default().ToSharpDXFontDescription());
-#endif
         }
 
         // UpdateChecker
@@ -623,7 +765,7 @@ namespace Manager {
                 return;
 
             // Check for key presses
-            if (keyWatchDog != null) keyWatchDog.ProcessCheck();
+            if (keyWatchDog != null)    keyWatchDog.ProcessCheck();
 
             // Draw local things
             if (notification != null)   notification.Draw();
@@ -638,11 +780,7 @@ namespace Manager {
             // Raise all script Tick events
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.Running) {
-                        DateTime time = DateTime.UtcNow;
-                        fs.Script.RaiseTick();
-                        fs.Script.TickEventExecutionTime = DateTime.UtcNow - time;
-                    }
+                    if (fs.IsScriptReady()) fs.RaiseTick();
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} Tick.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -658,11 +796,7 @@ namespace Manager {
 
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.Running) {
-                        DateTime time = DateTime.UtcNow;
-                        fs.Script.RaiseGameLoad();
-                        fs.Script.GameLoadEventExecutionTime = DateTime.UtcNow - time;
-                    }
+                    if (fs.IsScriptReady()) fs.RaiseGameLoad();
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} GameLoad.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -678,11 +812,7 @@ namespace Manager {
 
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.Running) {
-                        DateTime time = DateTime.UtcNow;
-                        fs.Script.RaiseGameLoadPriority();
-                        fs.Script.GameLoadPriorityEventExecutionTime = DateTime.UtcNow - time;
-                    }
+                    if (fs.IsScriptReady()) fs.RaiseGameLoadPriority();
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} GameLoadPriority.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -698,11 +828,7 @@ namespace Manager {
 
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.Running) {
-                        DateTime time = DateTime.UtcNow;
-                        fs.Script.RaiseMountDevice();
-                        fs.Script.MountDeviceEventExecutionTime = DateTime.UtcNow - time;
-                    }
+                    if (fs.IsScriptReady()) fs.RaiseMountDevice();
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} MountDevice.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -738,11 +864,7 @@ namespace Manager {
             // Raise all script Drawing events
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.Running) {
-                        DateTime time = DateTime.UtcNow;
-                        fs.Script.RaiseDrawing();
-                        fs.Script.DrawingEventExecutionTime = DateTime.UtcNow - time;
-                    }
+                    if (fs.IsScriptReady()) fs.RaiseDrawing();
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} Drawing.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -758,11 +880,7 @@ namespace Manager {
 
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.Running) {
-                        DateTime time = DateTime.UtcNow;
-                        fs.Script.RaiseProcessCamera();
-                        fs.Script.ProcessCameraEventExecutionTime = DateTime.UtcNow - time;
-                    }
+                    if (fs.IsScriptReady()) fs.RaiseProcessCamera();
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} ProcessCamera.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -778,11 +896,7 @@ namespace Manager {
 
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.Running) {
-                        DateTime time = DateTime.UtcNow;
-                        fs.Script.RaiseProcessAutomobile(vehPtr);
-                        fs.Script.ProcessAutomobileEventExecutionTime = DateTime.UtcNow - time;
-                    }
+                    if (fs.IsScriptReady()) fs.RaiseProcessAutomobile(vehPtr);
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} ProcessAutomobile.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -798,11 +912,7 @@ namespace Manager {
 
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.Running) {
-                        DateTime time = DateTime.UtcNow;
-                        fs.Script.RaiseProcessPad();
-                        fs.Script.ProcessPadEventExecutionTime = DateTime.UtcNow - time;
-                    }
+                    if (fs.IsScriptReady()) fs.RaiseProcessPad();
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} ProcessPad.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -819,24 +929,7 @@ namespace Manager {
 
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.Running) {
-                        if (fs.GFX != null) {
-
-                            DateTime time = DateTime.UtcNow;
-
-                            // Raise OnInit event once
-                            if (fs.RaiseOnD3D9InitEvent) {
-                                fs.GFX.RaiseOnInit(device);
-                                fs.GFX.OnInitEventExecutionTime = DateTime.UtcNow - time;
-                                fs.RaiseOnD3D9InitEvent = false;
-                            }
-
-                            // Raise OnDeviceEndScene event
-                            fs.GFX.RaiseOnDeviceEndScene(device);
-                            fs.GFX.OnDeviceEndSceneEventExecutionTime = DateTime.UtcNow - time;
-
-                        }
-                    }
+                    if (fs.IsScriptReady()) fs.RaiseOnEndScene(device);
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} Direct3D9Hook_OnEndScene.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -852,25 +945,7 @@ namespace Manager {
 
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.Running) {
-                        if (fs.GFX != null) {
-
-                            // Reset D3DResources
-                            D3DResource[] res = fs.D3D9Objects.Values.ToArray();
-                            for (int i = 0; i < res.Length; i++) {
-                                D3DResource obj = res[i];
-                                switch (obj.DXType) {
-                                    case eD3D9ResourceType.Font:
-                                        ((SharpDX.Direct3D9.Font)obj.Handle).OnLostDevice();
-                                        break;
-                                }
-                            }
-
-                            DateTime time = DateTime.UtcNow;
-                            fs.GFX.RaiseOnBeforeDeviceReset(device, Marshal.PtrToStructure<SharpDX.Direct3D9.PresentParameters>(presentParameters).ToD3DPresentParameters());
-                            fs.GFX.OnBeforeDeviceResetEventExecutionTime = DateTime.UtcNow - time;
-                        }
-                    }
+                    if (fs.IsScriptReady()) fs.RaiseOnBeforeReset(device, presentParameters);
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} Direct3D9Hook_OnBeforeReset.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -884,29 +959,9 @@ namespace Manager {
             if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
                 return;
 
-            // TODO: Refresh all D3D9Resources.
-
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.Running) {
-                        if (fs.GFX != null) {
-
-                            // Refresh D3DResources
-                            D3DResource[] res = fs.D3D9Objects.Values.ToArray();
-                            for (int i = 0; i < res.Length; i++) {
-                                D3DResource obj = res[i];
-                                switch (obj.DXType) {
-                                    case eD3D9ResourceType.Font:
-                                        ((SharpDX.Direct3D9.Font)obj.Handle).OnResetDevice();
-                                        break;
-                                }
-                            }
-
-                            DateTime time = DateTime.UtcNow;
-                            fs.GFX.RaiseOnAfterDeviceReset(device);
-                            fs.GFX.OnAfterDeviceResetEventExecutionTime = DateTime.UtcNow - time;
-                        }
-                    }
+                    if (fs.IsScriptReady()) fs.RaiseOnAfterReset(device);
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} Direct3D9Hook_OnAfterReset.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -927,7 +982,7 @@ namespace Manager {
             // Raise all script KeyDown events
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.Running) fs.Script.RaiseKeyDown(e);
+                    if (fs.IsScriptReady()) fs.RaiseKeyDown(e);
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} KeyDown.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -944,7 +999,7 @@ namespace Manager {
             // Raise all script KeyUp events
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.Running) fs.Script.RaiseKeyUp(e);
+                    if (fs.IsScriptReady()) fs.RaiseKeyUp(e);
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} KeyUp.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -1009,7 +1064,7 @@ namespace Manager {
 
         #region Direct3D9 Overrides
 
-        public override void Direct3D9_Graphics_CreateNewInstance(object instance, Script forScript)
+        public override void Direct3D9_Graphics_CreateNewInstance(ref object instance, Script forScript)
         {
             if (instance == null)
                 return;
@@ -1020,6 +1075,7 @@ namespace Manager {
             if (s != null) {
                 if (s.GFX == null) {
                     s.GFX = (D3DGraphics)instance;
+                    s.GFX.Device = direct3D9Hook.DevicePtr;
                     console.PrintDebug(string.Format("Set graphics instance for script {0}.", s.Name));
                 }
             }
@@ -1035,7 +1091,7 @@ namespace Manager {
             }
         }
 
-        // Creation functions
+        // Texture stuff
         public override D3DResult Direct3D9_Graphics_CreateD3D9Texture(Script forScript, IntPtr device, string filePath, Size size)
         {
             if (forScript == null)
@@ -1053,11 +1109,9 @@ namespace Manager {
                     }
                 }
 
-                DateTime dt = DateTime.UtcNow;
                 SharpDX.Direct3D9.Texture t = SharpDX.Direct3D9.Texture.FromFile((SharpDX.Direct3D9.Device)device, filePath, -2, -2, 1, SharpDX.Direct3D9.Usage.None, SharpDX.Direct3D9.Format.A8R8G8B8, SharpDX.Direct3D9.Pool.Managed, SharpDX.Direct3D9.Filter.Default, SharpDX.Direct3D9.Filter.Default, 0);
                 D3DResource resource = new D3DResource(Guid.NewGuid(), eD3D9ResourceType.Texture, JsonConvert.SerializeObject(textureSize), t.NativePointer);
                 GetFoundScript(forScript.ID)?.D3D9Objects.Add(resource.ID, resource);
-                console.PrintDebug("Time it took to create one texture: " + (DateTime.UtcNow - dt).ToString());
 
                 // Log
                 console.PrintDebug(string.Format("Created new {0} D3D9Resource {1} (ID: {2}) for script {3}.", resource.DXType.ToString(), resource.Handle.ToString(), resource.ID.ToString(), forScript.GetName()));
@@ -1133,6 +1187,7 @@ namespace Manager {
             }
         }
 
+        // Font stuff
         public override D3DResult Direct3D9_Graphics_CreateD3D9Font(Script forScript, IntPtr device, D3DFontDescription fontDescription)
         {
             if (forScript == null)
@@ -1186,6 +1241,25 @@ namespace Manager {
             catch (Exception ex) {
                 return ex;
             }
+        }
+        public override Rectangle Direct3D9_Graphics_MeasureText(D3DResource fontResource, string text, Rectangle rect, eD3DFontDrawFlags drawFlags)
+        {
+            if (fontResource != null)
+            {
+                if (fontResource.DXType != eD3D9ResourceType.Font)
+                {
+                    return Rectangle.Empty;
+                }
+            }
+
+            SharpDX.Direct3D9.Font f = (SharpDX.Direct3D9.Font)(fontResource != null ? fontResource.Handle : localD3D9Font.NativePointer);
+            if (f != null)
+            {
+                SharpDX.Mathematics.Interop.RawRectangle rawRect = f.MeasureText(null, text, rect.ToRawRectangle(), (SharpDX.Direct3D9.FontDrawFlags)drawFlags);
+                return new Rectangle(rawRect.Left, rawRect.Top, rawRect.Right, rawRect.Bottom);
+            }
+
+            return Rectangle.Empty;
         }
 
         // DrawLine
@@ -1275,6 +1349,13 @@ namespace Manager {
         }
 
         // DrawString
+        public override bool Direct3D9_Graphics_DrawString(object instance, IntPtr device, D3DResource fontResource, string text, Rectangle rect, eD3DFontDrawFlags drawFlags, Color color)
+        {
+            if (instance == null)
+                return false;
+
+            return Drawing.DrawString((D3DGraphics)instance, fontResource != null ? fontResource.Handle : localD3D9Font.NativePointer, text, rect.ToRawRectangle(), drawFlags, color);
+        }
         public override bool Direct3D9_Graphics_DrawString(object instance, IntPtr device, D3DResource fontResource, string text, Point pos, Color color)
         {
             if (instance == null)
@@ -1338,7 +1419,8 @@ namespace Manager {
         // Load script stuff
         public override void LoadScripts()
         {
-            if (!Directory.Exists(scriptsPath)) {
+            if (!Directory.Exists(scriptsPath))
+            {
                 Directory.CreateDirectory(scriptsPath);
                 return;
             }
@@ -1347,7 +1429,8 @@ namespace Manager {
             AbortScripts(false);
             
             string[] scriptFiles = Directory.GetFiles(scriptsPath, "*.ivsdk.dll");
-            for (int i = 0; i < scriptFiles.Length; i++) {
+            for (int i = 0; i < scriptFiles.Length; i++)
+            {
                 LoadAssembly(scriptFiles[i]);
             }
 
@@ -1432,8 +1515,10 @@ namespace Manager {
 
                                     ActiveScripts.Add(foundScript); // Add script to ActiveScripts list.
 
-                                    // Call script initialize event
-                                    foundScript.Script.RaiseInitialized();
+                                    StartDelayedAction(Guid.NewGuid(), "Raise script init event", DateTime.UtcNow.AddSeconds(1), (DelayedAction dA, object param) => {
+                                        foundScript.RaiseInitialized();
+                                    }, null);
+                                    //foundScript.RaiseInitialized();
                                 }
 
                                 return true;
@@ -1679,6 +1764,24 @@ namespace Manager {
         {
             return ActiveScripts.Where(x => x.Name == name).Select(s => s.Script).FirstOrDefault();
         }
+        public override bool IsScriptRunning(Guid id)
+        {
+            FoundScript foundScript = ActiveScripts.Where(x => x.ID == id).FirstOrDefault();
+
+            if (foundScript != null)
+                return foundScript.IsScriptReady();
+
+            return false;
+        }
+        public override bool IsScriptRunning(string name)
+        {
+            FoundScript foundScript = ActiveScripts.Where(x => x.Name == name).FirstOrDefault();
+
+            if (foundScript != null)
+                return foundScript.IsScriptReady();
+
+            return false;
+        }
         public override Script[] GetAllScripts()
         {
             return ActiveScripts.Select(x => x.Script).ToArray();
@@ -1704,6 +1807,28 @@ namespace Manager {
         public override int GetActiveScriptsCount()
         {
             return ActiveScripts.Count;
+        }
+
+        public override bool SendScriptCommand(Script toScript, string command)
+        {
+            FoundScript foundScript = ActiveScripts.Where(x => x.ID == toScript.ID).FirstOrDefault();
+
+            if (foundScript != null)
+            {
+                try
+                {
+                    if (foundScript.IsScriptReady()) foundScript.Script.RaiseScriptCommandReceived(toScript, command);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} ScriptCommandReceived.", foundScript.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", foundScript.Name));
+                    console.PrintError(string.Format("An error occured while processing ScriptCommandReceived event for script {0}. Aborting script. Details: {1}", foundScript.Name, ex.ToString()));
+                    AbortScript(foundScript.ID);
+                }
+            }
+
+            return false;
         }
 
         public override Guid StartNewTask(Guid forScript, Func<object> funcToExecute)

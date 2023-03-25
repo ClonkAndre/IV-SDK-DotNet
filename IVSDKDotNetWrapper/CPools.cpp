@@ -76,6 +76,44 @@ namespace IVSDKDotNet {
 		Natives::DELETE_OBJECT(&handle);
 	}
 
+	// - - - IV-SDK Pools - - -
+	CPool^ CPools::GetPedPool()
+	{
+		return CPool::GetFromType(ePool::PedPool);
+	}
+	CPool^ CPools::GetVehiclePool()
+	{
+		return CPool::GetFromType(ePool::VehiclePool);
+	}
+	CPool^ CPools::GetObjectPool()
+	{
+		return CPool::GetFromType(ePool::ObjectPool);
+	}
+	CPool^ CPools::GetBuildingPool()
+	{
+		return CPool::GetFromType(ePool::BuildingPool);
+	}
+	CPool^ CPools::GetCameraPool()
+	{
+		return CPool::GetFromType(ePool::CameraPool);
+	}
+	CPool^ CPools::GetTaskPool()
+	{
+		return CPool::GetFromType(ePool::TaskPool);
+	}
+	CPool^ CPools::GetInteriorInstPool()
+	{
+		return CPool::GetFromType(ePool::InteriorInstPool);
+	}
+	CPool^ CPools::GetDummyPedPool()
+	{
+		return CPool::GetFromType(ePool::DummyPedPool);
+	}
+	CPool^ CPools::GetDummyTaskPool()
+	{
+		return CPool::GetFromType(ePool::DummyTaskPool);
+	}
+
 	// - - - IV-SDK Objects - - -
 
 	array<CPed^>^ CPools::GetAllPeds()

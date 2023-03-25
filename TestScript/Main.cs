@@ -28,17 +28,38 @@ namespace TestScript {
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool GetCursorPos(out POINT point);
 
+        [StructLayout(LayoutKind.Sequential)]
+        public struct TestNetworkStruct
+        {
+            public int v;
+
+            public TestNetworkStruct(int value)
+            {
+                v = value;
+            }
+
+            public override string ToString()
+            {
+                return "Value: " + v.ToString();
+            }
+        }
+
         #region Variables
         private int playerPed;
+        private Vector3 playerPos;
+        private float heading;
 
         private Vector2 mousePos;
         private string text = "Hello world!";
 
         private float fov = 60f;
-        private bool showHudRadar = true;
+        private float rot;
+
+        private int pickup;
 
         private D3DGraphics gfx;
         private D3DResource testTexture;
+        private D3DResource arrowTexture;
         private D3DResource testFont;
         #endregion
 
@@ -51,8 +72,20 @@ namespace TestScript {
             KeyDown += Main_KeyDown;
             ProcessAutomobile += Main_ProcessAutomobile;
             ProcessCamera += Main_ProcessCamera;
+            ScriptCommandReceived += Main_ScriptCommandReceived;
         }
         #endregion
+
+        public Vector2 CoordToScreen(Vector3 pos)
+        {
+            GET_GAME_VIEWPORT_ID(out int viewportID);
+            GET_VIEWPORT_POSITION_OF_COORD(pos, viewportID, out Vector2 screenPos);
+            return screenPos;
+        }
+        public Vector2 SmoothVector(Vector2 v)
+        {
+            return new Vector2((float)Math.Round(v.X, 0), (float)Math.Round(v.Y, 0));
+        }
 
         private void Main_Initialized(object sender, EventArgs e)
         {
@@ -100,6 +133,18 @@ namespace TestScript {
                 CGame.Console.Print(string.Format("(TestScript) Created texture with ID: {0} Handle: {1} Properties: {2}", r.ID.ToString(), testTexture.Handle.ToString(), testTexture.ResourceProperties));
             }
 
+            // Try to create texture
+            //r = gfx.CreateD3D9Texture(device, Properties.Resources.arrowUp);
+            //if (r.Error != null)
+            //{
+            //    CGame.Console.PrintError("(TestScript) Error while creating font: " + r.Error.ToString());
+            //}
+            //else
+            //{
+            //    arrowTexture = (D3DResource)r.DXObject;
+            //    CGame.Console.Print(string.Format("(TestScript) Created font with ID: {0} Handle: {1}", r.ID.ToString(), testFont.Handle.ToString()));
+            //}
+
             // Try to create font
             r = gfx.CreateD3D9Font(device, D3DFontDescription.Default());
             if (r.Error != null) {
@@ -112,6 +157,17 @@ namespace TestScript {
         }
         private void Gfx_OnDeviceEndScene(IntPtr device)
         {
+            //gfx.DrawTexture(device, arrowTexture, new RectangleF(CGame.Resolution.Width / 2f, 64f, 32f, 32f), rot);
+
+            string text = "TEST!!!!lol";
+            Size s = gfx.MeasureText(testFont, text, eD3DFontDrawFlags.Left).Size;
+            gfx.DrawBoxFilled(device, new Vector2(100f, 100f), new SizeF(s.Width - 10, s.Height), Color.Blue);
+            gfx.DrawString(device, text, new Rectangle(100, 100, s.Width - 10, s.Height), eD3DFontDrawFlags.Left, Color.Red);
+
+            gfx.DrawString(device, s.ToString(), new Point(100, 200), Color.Red);
+
+            return;
+
             gfx.DrawLine(device, new Vector2(10f, 10f), new Vector2(50f, 100f), Color.Red, 5f);
             gfx.DrawTexture(device, testTexture, new RectangleF(mousePos.X, mousePos.Y, 16f, 16f));
             gfx.DrawLine(device, new Vector2(0f, 232f), new Vector2(300f, 232f), Color.Blue, 1f);
@@ -153,15 +209,82 @@ namespace TestScript {
             GET_MOUSE_WHEEL(out int wheel);
             //text = string.Format("leftMouseButton: {0}, rightMouseButton: {1}, Wheel: {2}, Pos: {3}", leftMouseButton.ToString(), rightMouseButton.ToString(), wheel.ToString(), p.ToString());
 
-            // The IV-SDK .NET method on how to get the player char and the char coordinates
+            // The IV-SDK .NET method on how to get the player char and the char coordinates and heading
             CPed playerPedNEW = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
             Vector3 playerPosNEW = playerPedNEW.Matrix.pos;
+            heading = playerPedNEW.CurrentHeading;
 
-            // The native method on how to get the player index, the player char and the char coordinates
+            CVehicle veh = playerPedNEW.GetVehicle();
+            if (veh != null)
+            {
+                //tHandlingData handlingData2 = tHandlingData.FromPointer(veh.Handling);
+                //ShowSubtitleMessage(handlingData2.Name);
+
+                //uint handle = CPools.GetVehiclePool().GetIndex(veh.GetUIntPtr());
+                ShowSubtitleMessage(string.Format("Engine Starting: {0}, Engine On: {1}", veh.TheVehicleFlags.EngineStarting.ToString(), veh.TheVehicleFlags.EngineOn.ToString()));
+            }
+
+            // The native method way on how to get the player index, the player char and the char coordinates and heading
             int playerID = CONVERT_INT_TO_PLAYERINDEX(GET_PLAYER_ID());
             GET_PLAYER_CHAR(playerID, out playerPed);
-            GET_CHAR_COORDINATES(playerPed, out Vector3 playerPos);
-            GET_CHAR_HEADING(playerPed, out float heading);
+            GET_CHAR_COORDINATES(playerPed, out playerPos);
+            GET_CHAR_HEADING(playerPed, out heading);
+
+            // CHandlingDataMgr test
+            tHandlingData handlingData = CHandlingDataMgr.GetHandlingData(CHandlingDataMgr.GetHandlingId("BANSHEE")); // Get handling of the BANSHEE
+            //ShowSubtitleMessage(string.Format("Name: {0}, HalogenLights: {1}", handlingData.Name, handlingData.TheHandlingFlags.HalogenLights.ToString()));
+
+            // CPlayerInfo test
+            CPlayerInfo playerInfo = CPlayerInfo.GetPlayerInfo(GET_PLAYER_ID());
+            //ShowSubtitleMessage(string.Format("PID: {0}, Name: {1}, LastRanLightTime: {2}, PlayerPed: {3}, PlayerPed2: {4}", playerInfo.PlayerId.ToString(), playerInfo.Name, playerInfo.LastRanLightTime.ToString(), playerInfo.PlayerPed != UIntPtr.Zero, playerInfo.PlayerPed2 != UIntPtr.Zero));
+
+            // CWeaponInfo test
+            CWeaponInfo weaponInfo = CWeaponInfo.GetWeaponInfo((uint)eWeaponType.WEAPON_MP5);
+            //ShowSubtitleMessage(string.Format("WeaponType: {0}, Silenced: {1}", (eWeaponType)weaponInfo.WeaponType, weaponInfo.TheWeaponFlags.Silenced.ToString()));
+
+            // CDraw test
+            CDraw draw = CDraw.Get();
+            if (draw != null)
+            {
+                //draw.ForceHudWidescreen = 0;
+                //ShowSubtitleMessage(string.Format("AspectRatio: {0}, ForceHudWidescreen: {1}", draw.CalculateAspectRatio(true).ToString(), draw.ForceHudWidescreen.ToString()));
+
+                tGlobalScene globalScene = draw.GlobalScene;
+                if (globalScene != null)
+                {
+                    CViewportGame viewportGame = globalScene.ViewportGame;
+                    if (viewportGame != null)
+                    {
+                        tViewportData viewportData = viewportGame.Data;
+                        if (viewportData != null)
+                        {
+                            RectangleF rect = viewportData.Rect;
+                            //ShowSubtitleMessage(string.Format("Rect: {0}, Resolution: {1}, Scale: {2}", rect.ToString(), viewportData.Resolution.ToString(), viewportData.Scale.ToString()));
+                        }
+                    }
+                }
+            }
+
+
+            //PedWeaponSlot slot4 = playerPedNEW.m_pWeaponData.Weapons[2];
+            //ShowSubtitleMessage(string.Format("Type: {0}, Ammo: {1}, Model loaded: {2}", ((eWeaponType)slot4.Type).ToString(), slot4.Ammo.ToString(), slot4.HasModelLoaded.ToString()));
+
+            //CCam finalCam = CCamera.GetFinalCam();
+            //uint finalCamHandle = CPools.GetCameraPool().GetIndex(finalCam.GetUIntPtr());
+
+            //GET_CAM_ROT((int)finalCamHandle, out Vector3 finalCamRot);
+
+            //float direction_to_that_coord = Vector3.Subtract(Vector3.Normalize(Vector3.Subtract(new Vector3(circleOrigin.X, circleOrigin.Y, 11f), finalCam.Matrix.pos)), Helper.RotationToDirection(finalCamRot)).Length();
+            //if (direction_to_that_coord > 0.6f)
+            //{
+            //    rot = direction_to_that_coord * 2f;
+            //}
+            //else
+            //{
+            //    rot = -direction_to_that_coord * 2f;
+            //}
+            //ShowSubtitleMessage(rot.ToString());
+
 
             // - - - - - - - Some tests - - - - - - -
 
@@ -248,21 +371,48 @@ namespace TestScript {
         private void Main_ProcessAutomobile(UIntPtr vehPtr)
         {
             CVehicle veh = CVehicle.FromPointer(vehPtr);
-            if (veh != null) {
-                veh.Alpha = 180; // Sets the alpha property of each vehicle in the world to 180.
+            if (veh != null)
+            {
+                //veh.Alpha = 180; // Sets the alpha property of each vehicle in the world to 180.
+
+                UIntPtr[] pass = veh.Passengers;
+                if (pass[0] != UIntPtr.Zero) // Front Left
+                {
+                    CPed passFL = CPed.FromPointer(pass[0]);
+                    Vector3 pos = passFL.Matrix.pos;
+                    DRAW_CHECKPOINT(pos, 1f, Color.Red);
+                }
+                if (pass[1] != UIntPtr.Zero) // Back Right
+                {
+                    CPed passBR = CPed.FromPointer(pass[1]);
+                    Vector3 pos = passBR.Matrix.pos;
+                    DRAW_CHECKPOINT(pos, 1f, Color.Green);
+                }
+                if (pass[2] != UIntPtr.Zero) // Back Left
+                {
+                    CPed passBL = CPed.FromPointer(pass[2]);
+                    Vector3 pos = passBL.Matrix.pos;
+                    DRAW_CHECKPOINT(pos, 1f, Color.Blue);
+                }
             }
         }
         private void Main_ProcessCamera(object sender, EventArgs e)
         {
-            if (IsKeyPressed(Keys.Add))
-                fov += 0.5f; // Zooms out
-            if (IsKeyPressed(Keys.Subtract))
-                fov -= 0.5f; // Zooms in
+            //if (IsKeyPressed(Keys.Add))
+            //    fov += 0.5f; // Zooms out
+            //if (IsKeyPressed(Keys.Subtract))
+            //    fov -= 0.5f; // Zooms in
 
-            CCam c = CCamera.GetFinalCam();
-            if (c != null) {
-                c.FOV = fov;
-            }
+            //CCam c = CCamera.GetFinalCam();
+            //if (c != null) {
+            //    c.FOV = fov;
+            //}
+        }
+
+        // When this script receives a script command
+        private void Main_ScriptCommandReceived(Script fromScript, string command)
+        {
+            CGame.Console.PrintWarning(string.Format("Received a script command from script {0}. Command: {1}", fromScript.GetName(), command));
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)
@@ -376,18 +526,36 @@ namespace TestScript {
                 CWorld.Add(veh, false);
             }
 
-            // Toggle hud/radar
-            if (e.KeyCode == Keys.X) {
-                if (showHudRadar) {
-                    CMenuManager.Display.HudOn = 0;
-                    CMenuManager.Display.RadarMode = 0;
-                    showHudRadar = false;
-                }
-                else {
-                    CMenuManager.Display.HudOn = 1;
-                    CMenuManager.Display.RadarMode = 1;
-                    showHudRadar = true;
-                }
+            // IV-SDK Task test
+            if (e.KeyCode == Keys.U)
+            {
+                int playerHandle = (int)CPools.GetPedPool().GetIndex(CPlayerInfo.FindPlayerPed());
+
+                //UIntPtr task = CTaskComplexDie.Create(0, 0, 44, 190, 4.0f, 0.0f, 1);
+                UIntPtr task = CTaskComplexWanderStandard.Create(2, 0f, true, 2.5f, 1);
+                CTheScripts.GivePedScriptedTask(playerHandle, task, 5);
+
+                // This works because the KeyDown/KeyUp events gets fired internally from the Tick event, and the Tick event uses the CTheScripts.SetDummyThread/CTheScripts.RestorePreviousThread method.
+                // This will later get changed so the KeyDown/KeyUp events get fired from the ProcessPad event instead of the Tick event, because the Tick event only runs when in-game and we also want to listen for key input in the main menu.
+                // Once this is changed, you would have to call this native (and all other native tasks) like so: CTheScripts.SetDummyThread(); _TASK_FALL_AND_GET_UP(playerHandle, 1, 1); CTheScripts.RestorePreviousThread();
+                //_TASK_FALL_AND_GET_UP(playerHandle, 1, 1);
+
+                ShowSubtitleMessage("IV-SDK Task test");
+
+                //if (pickup == 0)
+                //{
+                //    Vector3 posI = IVSDKDotNet.Helper.GetPositionInFrontOfEntity(playerPos, IVSDKDotNet.Helper.HeadingToDirection(heading), 5f);
+
+                //    GET_GROUND_Z_FOR_3D_COORD(posI.X, posI.Y, posI.Z, out float groundZ);
+
+                //    GET_WEAPONTYPE_MODEL((int)eWeaponType.WEAPON_AK47, out uint model);
+                //    CREATE_PICKUP_ROTATE(model, 23, 22, posI.X, posI.Y, groundZ, 90f, 0f, 0f, out pickup);
+                //}
+                //else
+                //{
+                //    REMOVE_PICKUP(pickup);
+                //    pickup = 0;
+                //}
             }
 
         }

@@ -72,6 +72,17 @@ namespace IVSDKDotNet {
 		float h = heading * (float)(Math::PI / 180);
 		return Vector3((float)-Math::Sin(h), (float)Math::Cos(h), 0.0F);
 	}
+	Vector3 Helper::RotationToDirection(Vector3 rotation)
+	{
+		float rotZ = DegreeToRadian(rotation.Z);
+		float rotX = DegreeToRadian(rotation.X);
+		float multXY = Math::Abs((float)Math::Cos(rotX));
+		Vector3 res;
+		res.X = float(-Math::Sin(rotZ)) * multXY;
+		res.Y = float(Math::Cos(rotZ)) * multXY;
+		res.Z = float(Math::Sin(rotX));
+		return res;
+	}
 
 	float Helper::Vector2Length(float X, float Y)
 	{

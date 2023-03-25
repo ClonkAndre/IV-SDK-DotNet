@@ -56,6 +56,16 @@ namespace IVSDKDotNet {
 		NativePointer = nativePtr;
 	}
 
+	void CVehicleModelInfo::SetHandlingParams(UIntPtr handlingData, Vector3 pCenterOfMass)
+	{
+		if (handlingData == UIntPtr::Zero)
+			return;
+
+		Native_CVector* vec = new Native_CVector(pCenterOfMass.X, pCenterOfMass.Y, pCenterOfMass.Z);
+		NativePointer->SetHandlingParams((Native_tHandlingData*)handlingData.ToPointer(), vec);
+		delete vec;
+	}
+
 	int CVehicleModelInfo::GetNumberOfSeats(int modelIndex)
 	{
 		return Native_CVehicleModelInfo::GetNumberOfSeats(modelIndex);

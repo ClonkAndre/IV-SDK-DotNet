@@ -53,6 +53,24 @@ namespace IVSDKDotNet {
 	{
 	public:
 
+		static property uint32_t PedModelBudget {
+			public:
+				uint32_t	get()				{ return Native_CStreaming::m_nPedModelBudget; }
+				void		set(uint32_t value) { Native_CStreaming::m_nPedModelBudget = value; }
+		}
+
+		static property uint32_t VehicleModelBudget {
+			public:
+				uint32_t	get() { return Native_CStreaming::m_nVehicleModelBudget; }
+				void		set(uint32_t value) { Native_CStreaming::m_nVehicleModelBudget = value; }
+		}
+
+		static property uint8_t DisableStreaming {
+			public:
+				uint8_t		get()				{ return Native_CStreaming::ms_disableStreaming; }
+				void		set(uint8_t value)	{ Native_CStreaming::ms_disableStreaming = value; }
+		}
+
 		static bool IsStreamingDisabled();
 
 		/// <summary>

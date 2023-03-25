@@ -3,14 +3,14 @@
 
 namespace IVSDKDotNet {
 
-	CRGBA^ CHudColours::GetHudColour()
+	Color CHudColours::GetHudColour()
 	{
 		Native_CRGBA* r = Native_CHudColours::GetHudColour();
 
 		if (r)
-			return gcnew CRGBA(r->r, r->g, r->b, r->a);
+			return Color::FromArgb(r->a, r->r, r->g, r->b);
 
-		return nullptr;
+		return Color::Empty;
 	}
 
 }
