@@ -61,6 +61,10 @@ namespace IVSDKDotNet {
 	{
 		if (ManagerScript::s_Instance) ManagerScript::s_Instance->ChangeTimerState(id, pause);
 	}
+	void Script::ChangeTimerInterval(Guid id, int interval)
+	{
+		if (ManagerScript::s_Instance) ManagerScript::s_Instance->ChangeTimerInterval(id, interval);
+	}
 
 	void Script::ShowSubtitleMessage(String^ str, uint32_t time)
 	{

@@ -62,7 +62,7 @@ namespace IVSDKDotNet {
 		event EventHandler^ MountDevice;
 
 		/// <summary>
-		/// Gets raised twice per frame when in game, and even works in main menu.
+		/// Gets raised twice per frame when in-game, and even works in main menu.
 		/// (CRenderPhasePostRenderViewport)
 		/// </summary>
 		event EventHandler^ Drawing;
@@ -154,6 +154,13 @@ namespace IVSDKDotNet {
 		/// <param name="id">The ID of the timer to change its pause state.</param>
 		/// <param name="pause">Pause, or not pause.</param>
 		void ChangeTimerState(Guid id, bool pause);
+
+		/// <summary>
+		/// Changes the interval of a timer.
+		/// </summary>
+		/// <param name="id">The ID of the timer to change its interval.</param>
+		/// <param name="interval">The new interval. Default is 100 milliseconds.</param>
+		void ChangeTimerInterval(Guid id, int interval);
 
 		/// <summary>
 		/// Shows text at the bottom center of the screen where the subtitles are located.
@@ -312,6 +319,14 @@ namespace IVSDKDotNet {
 				void set(SettingsFile^ value)	{ m_SettingsFile = value; }
 		}
 
+		/// <summary>
+		/// Gets or sets if the KeyDown and KeyUp events should only be raised when the player is actually in-game and not in main menu.
+		/// </summary>
+		property bool OnlyRaiseKeyEventsWhenInGame {
+			bool get()				{ return m_bOnlyInvokeKeyEventsWhenInGame; }
+			void set(bool value)	{ m_bOnlyInvokeKeyEventsWhenInGame = value; }
+		}
+
 #pragma region Measurement Properties
 		/// <summary>
 		/// Gets how much time the Initialized event took to execute.
@@ -394,6 +409,7 @@ namespace IVSDKDotNet {
 		String^ m_CustomAssembliesPath;
 		String^ m_ScriptResourceFolder;
 		SettingsFile^ m_SettingsFile;
+		bool m_bOnlyInvokeKeyEventsWhenInGame;
 
 		// Measurements
 		TimeSpan m_sInitializedEventExecutionTime;
@@ -439,8 +455,32 @@ namespace IVSDKDotNet {
 			virtual void PrintWarnToConsole(String^ str)	abstract;
 			virtual void PrintErrorToConsole(String^ str)	abstract;
 
+			virtual bool IsConsoleOpen()					abstract;
+
 			virtual bool RegisterConsoleCommand(Guid fromScript, String^ name, Action<array<String^>^>^ actionToExecute) abstract;
 			virtual bool ExecuteConsoleCommand(String^ name) abstract;
+
+			// Mouse
+			virtual void SetMouseVisibility(bool visible) abstract;
+			virtual bool GetMouseVisibility() abstract;
+
+			virtual bool GetMouseLeftButtonDown() abstract;
+			virtual bool GetMouseRightButtonDown() abstract;
+			virtual bool GetMouseXButton1Down() abstract;
+			virtual bool GetMouseXButton2Down() abstract;
+
+			virtual int GetMouseWheelValue() abstract;
+
+			virtual Size GetMouseCursorSize() abstract;
+			virtual void SetMouseCursorSize(Size size) abstract;
+
+			virtual void SetMousePosition(Point pos) abstract;
+			virtual Point GetMousePosition() abstract;
+
+			virtual bool GetMouseIntersectsWith(Drawing::Rectangle rect) abstract;
+
+			// Game
+			virtual bool IsGameInFocus() abstract;
 
 			// Script
 			virtual void RaiseTick()							abstract;
@@ -475,6 +515,7 @@ namespace IVSDKDotNet {
 			virtual void WaitInTask(Guid id, int waitTimeInMilliseconds)						abstract;
 			virtual void AbortTaskOrTimer(Guid id)												abstract;
 			virtual void ChangeTimerState(Guid id, bool pause)									abstract;
+			virtual void ChangeTimerInterval(Guid id, int interval)								abstract;
 
 			// Direct3D9 -> Graphics
 			virtual void Direct3D9_Graphics_CreateNewInstance(Object^% instance, Script^ forScript)	abstract;

@@ -60,6 +60,14 @@ namespace IVSDKDotNet {
 					void	set(IntPtr value)	{ m_pDevice = value; }
 			}
 
+			/// <summary>
+			/// Gets the Script this D3DGraphics object was initialized with.
+			/// </summary>
+			property Script^ CreatedFor {
+				public:		Script^ get()				{ return m_createForScript; }
+				private:	void	set(Script^ value)	{ m_createForScript = value; }
+			}
+
 #pragma region Measurement Properties
 			/// <summary>
 			/// Gets how much time the OnInit event took to execute.
@@ -96,14 +104,14 @@ namespace IVSDKDotNet {
 #pragma endregion
 
 			// Texture stuff
-			D3DResult^ CreateD3D9Texture(IntPtr device, String^ filePath, Size size);
-			D3DResult^ CreateD3D9Texture(IntPtr device, String^ filePath);
-			D3DResult^ CreateD3D9Texture(IntPtr device, array<Byte>^ data, Size size);
-			D3DResult^ CreateD3D9Texture(IntPtr device, array<Byte>^ data);
+			D3DResult^ CreateD3D9Texture(String^ filePath, Size size);
+			D3DResult^ CreateD3D9Texture(String^ filePath);
+			D3DResult^ CreateD3D9Texture(array<Byte>^ data, Size size);
+			D3DResult^ CreateD3D9Texture(array<Byte>^ data);
 			Exception^ ReleaseD3D9Texture(D3DResource^ textureResource);
 
 			// Font stuff
-			D3DResult^ CreateD3D9Font(IntPtr device, D3DFontDescription fontDescription);
+			D3DResult^ CreateD3D9Font(D3DFontDescription fontDescription);
 			Exception^ ReleaseD3D9Font(D3DResource^ fontResource);
 
 			Drawing::Rectangle MeasureText(D3DResource^ fontResource, String^ text, Drawing::Rectangle rect, eD3DFontDrawFlags drawFlags);
@@ -112,33 +120,33 @@ namespace IVSDKDotNet {
 			Drawing::Rectangle MeasureText(String^ text);
 
 			// Drawing functions
-			bool DrawLines(IntPtr device, array<Vector2>^ vertices, Color color, bool antialias, int pattern, float patternScale, float thickness);
-			bool DrawLines(IntPtr device, array<Vector2>^ vertices, Color color, bool antialias, float thickness);
-			bool DrawLine(IntPtr device, Vector2 point1, Vector2 point2, Color color, bool antialias, int pattern, float patternScale, float thickness);
-			bool DrawLine(IntPtr device, Vector2 point1, Vector2 point2, Color color, bool antialias, int pattern, float thickness);
-			bool DrawLine(IntPtr device, Vector2 point1, Vector2 point2, Color color, bool antialias, float thickness);
-			bool DrawLine(IntPtr device, Vector2 point1, Vector2 point2, Color color, float thickness);
+			bool DrawLines(array<Vector2>^ vertices, Color color, bool antialias, int pattern, float patternScale, float thickness);
+			bool DrawLines(array<Vector2>^ vertices, Color color, bool antialias, float thickness);
+			bool DrawLine(Vector2 point1, Vector2 point2, Color color, bool antialias, int pattern, float patternScale, float thickness);
+			bool DrawLine(Vector2 point1, Vector2 point2, Color color, bool antialias, int pattern, float thickness);
+			bool DrawLine(Vector2 point1, Vector2 point2, Color color, bool antialias, float thickness);
+			bool DrawLine(Vector2 point1, Vector2 point2, Color color, float thickness);
 
-			bool DrawCircle(IntPtr device, Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color);
-			bool DrawCircleFilled(IntPtr device, Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color);
+			bool DrawCircle(Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color);
+			bool DrawCircleFilled(Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color);
 
-			bool DrawBoxFilled(IntPtr device, Vector2 pos, SizeF size, Color color);
-			bool DrawBox(IntPtr device, Vector2 pos, SizeF size, float lineWidth, Color color);
-			bool DrawBoxBordered(IntPtr device, Vector2 pos, SizeF size, float borderWidth, Color color, Color borderColor);
-			bool DrawBoxRounded(IntPtr device, Vector2 pos, SizeF size, float radius, bool smoothing, Color color, Color borderColor);
+			bool DrawBoxFilled(Vector2 pos, SizeF size, Color color);
+			bool DrawBox(Vector2 pos, SizeF size, float lineWidth, Color color);
+			bool DrawBoxBordered(Vector2 pos, SizeF size, float borderWidth, Color color, Color borderColor);
+			bool DrawBoxRounded(Vector2 pos, SizeF size, float radius, bool smoothing, Color color, Color borderColor);
 
-			bool DrawTexture(IntPtr device, D3DResource^ txt, RectangleF rect, float rotation, Color tint);
-			bool DrawTexture(IntPtr device, D3DResource^ txt, RectangleF rect, Color tint);
-			bool DrawTexture(IntPtr device, D3DResource^ txt, RectangleF rect, float rotation);
-			bool DrawTexture(IntPtr device, D3DResource^ txt, RectangleF rect);
+			bool DrawTexture(D3DResource^ txt, RectangleF rect, float rotation, Color tint);
+			bool DrawTexture(D3DResource^ txt, RectangleF rect, Color tint);
+			bool DrawTexture(D3DResource^ txt, RectangleF rect, float rotation);
+			bool DrawTexture(D3DResource^ txt, RectangleF rect);
 
-			bool DrawString(IntPtr device, D3DResource^ fontResource, String^ text, Drawing::Rectangle rect, eD3DFontDrawFlags drawFlags, Color color);
-			bool DrawString(IntPtr device, D3DResource^ fontResource, String^ text, Point pos, Color color);
-			bool DrawString(IntPtr device, D3DResource^ fontResource, String^ text, int x, int y, Color color);
+			bool DrawString(D3DResource^ fontResource, String^ text, Drawing::Rectangle rect, eD3DFontDrawFlags drawFlags, Color color);
+			bool DrawString(D3DResource^ fontResource, String^ text, Point pos, Color color);
+			bool DrawString(D3DResource^ fontResource, String^ text, int x, int y, Color color);
 
-			bool DrawString(IntPtr device, String^ text, Drawing::Rectangle rect, eD3DFontDrawFlags drawFlags, Color color);
-			bool DrawString(IntPtr device, String^ text, Point pos, Color color);
-			bool DrawString(IntPtr device, String^ text, int x, int y, Color color);
+			bool DrawString(String^ text, Drawing::Rectangle rect, eD3DFontDrawFlags drawFlags, Color color);
+			bool DrawString(String^ text, Point pos, Color color);
+			bool DrawString(String^ text, int x, int y, Color color);
 
 		private:
 			Script^ m_createForScript;

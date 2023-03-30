@@ -70,7 +70,7 @@ public:
 	}
 	static uint32_t FindPlayerVehicle()
 	{
-		return ((uint32_t(__cdecl*)())(AddressSetter::Get(0x478890, 0x4B52F0)))();
+		return ((uint32_t(__cdecl*)())(AddressSetter::Get(0x478890, 0x4B52F0)))(); // Original line
 	}
 
 };
@@ -94,6 +94,9 @@ namespace IVSDKDotNet {
 	{
 	public:
 		CPlayerInfo(Native_CPlayerInfo* nativePtr);
+
+		static CPlayerInfo^ FromPointer(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
 
 		property String^ Name {
 			public: String^ get() { return gcnew String(m_cNativePlayerInfo->m_sName); }

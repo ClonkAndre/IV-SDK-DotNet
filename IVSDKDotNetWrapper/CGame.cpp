@@ -54,11 +54,29 @@ namespace IVSDKDotNet {
 	}
 #pragma endregion
 
+#pragma region Mouse
+	bool CGame::Mouse::IntersectsWith(Drawing::Rectangle rect)
+	{
+		if (Manager::ManagerScript::s_Instance)
+			return Manager::ManagerScript::s_Instance->GetMouseIntersectsWith(rect);
+
+		return false;
+	}
+#pragma endregion
+
 #pragma region CGame
 	bool CGame::Initialise(String^ sGameDat)
 	{
 		msclr::interop::marshal_context ctx;
 		return Native_CGame::Initialise(ctx.marshal_as<const char*>(sGameDat));
+	}
+
+	bool CGame::IsInFocus()
+	{
+		if (Manager::ManagerScript::s_Instance)
+			return Manager::ManagerScript::s_Instance->IsGameInFocus();
+
+		return false;
 	}
 
 	bool CGame::IsKeyPressed(Keys key)

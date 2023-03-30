@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -12,21 +13,6 @@ using static IVSDKDotNet.Native.Natives;
 
 namespace TestScript {
     public class Main : Script {
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct POINT {
-            public int X;
-            public int Y;
-
-            public override string ToString()
-            {
-                return string.Format("[X: {0}, Y: {1}]", X.ToString(), Y.ToString());
-            }
-        }
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool GetCursorPos(out POINT point);
 
         [StructLayout(LayoutKind.Sequential)]
         public struct TestNetworkStruct
@@ -49,7 +35,6 @@ namespace TestScript {
         private Vector3 playerPos;
         private float heading;
 
-        private Vector2 mousePos;
         private string text = "Hello world!";
 
         private float fov = 60f;
@@ -60,12 +45,16 @@ namespace TestScript {
         private D3DGraphics gfx;
         private D3DResource testTexture;
         private D3DResource arrowTexture;
+        private D3DResource speedBgTexture;
+        private D3DResource needleTexture;
         private D3DResource testFont;
         #endregion
 
         #region Constructor
         public Main()
         {
+            OnlyRaiseKeyEventsWhenInGame = true;
+
             // Subscribe to script events
             Initialized += Main_Initialized;
             Tick += Main_Tick;
@@ -73,6 +62,8 @@ namespace TestScript {
             ProcessAutomobile += Main_ProcessAutomobile;
             ProcessCamera += Main_ProcessCamera;
             ScriptCommandReceived += Main_ScriptCommandReceived;
+
+            CGame.OnWindowFocusChanged += CGame_OnWindowFocusChanged;
         }
         #endregion
 
@@ -87,6 +78,17 @@ namespace TestScript {
             return new Vector2((float)Math.Round(v.X, 0), (float)Math.Round(v.Y, 0));
         }
 
+        private void CGame_OnWindowFocusChanged(bool focused)
+        {
+            if (focused)
+            {
+                CGame.Console.PrintWarning("IN FOCUS");
+            }
+            else
+            {
+                CGame.Console.PrintError("NOT IN FOCUS");
+            }
+        }
         private void Main_Initialized(object sender, EventArgs e)
         {
             // 2 ways to register a custom console command for this script
@@ -120,11 +122,13 @@ namespace TestScript {
             gfx.OnDeviceEndScene += Gfx_OnDeviceEndScene;
         }
 
+        int intNum;
+
         // DirectX stuff
         private void Gfx_OnInit(IntPtr device)
         {
             // Try to create texture
-            D3DResult r = gfx.CreateD3D9Texture(device, Properties.Resources.discordTestLogo);
+            D3DResult r = gfx.CreateD3D9Texture(Properties.Resources.discordTestLogo);
             if (r.Error != null) {
                 CGame.Console.PrintError("(TestScript) Error while creating texture: " + r.Error.ToString());
             }
@@ -145,8 +149,12 @@ namespace TestScript {
             //    CGame.Console.Print(string.Format("(TestScript) Created font with ID: {0} Handle: {1}", r.ID.ToString(), testFont.Handle.ToString()));
             //}
 
+            // Try to create textures
+            speedBgTexture = (D3DResource)gfx.CreateD3D9Texture(Properties.Resources.Bck).DXObject;
+            needleTexture = (D3DResource)gfx.CreateD3D9Texture(Properties.Resources.Pin).DXObject;
+
             // Try to create font
-            r = gfx.CreateD3D9Font(device, D3DFontDescription.Default());
+            r = gfx.CreateD3D9Font(D3DFontDescription.Default());
             if (r.Error != null) {
                 CGame.Console.PrintError("(TestScript) Error while creating font: " + r.Error.ToString());
             }
@@ -157,35 +165,35 @@ namespace TestScript {
         }
         private void Gfx_OnDeviceEndScene(IntPtr device)
         {
-            //gfx.DrawTexture(device, arrowTexture, new RectangleF(CGame.Resolution.Width / 2f, 64f, 32f, 32f), rot);
+            //gfx.DrawTexture(arrowTexture, new RectangleF(CGame.Resolution.Width / 2f, 64f, 32f, 32f), rot);
 
-            string text = "TEST!!!!lol";
-            Size s = gfx.MeasureText(testFont, text, eD3DFontDrawFlags.Left).Size;
-            gfx.DrawBoxFilled(device, new Vector2(100f, 100f), new SizeF(s.Width - 10, s.Height), Color.Blue);
-            gfx.DrawString(device, text, new Rectangle(100, 100, s.Width - 10, s.Height), eD3DFontDrawFlags.Left, Color.Red);
+            string text2 = "TEST!!!!lol";
+            Size s = gfx.MeasureText(testFont, text2, eD3DFontDrawFlags.Left).Size;
+            gfx.DrawBoxFilled(new Vector2(100f, 100f), new SizeF(s.Width - 10, s.Height), Color.Blue);
+            gfx.DrawString(text2, new Rectangle(100, 100, s.Width - 10, s.Height), eD3DFontDrawFlags.Left, Color.Red);
 
-            gfx.DrawString(device, s.ToString(), new Point(100, 200), Color.Red);
+            gfx.DrawString(s.ToString(), new Point(100, 200), Color.Red);
+            gfx.DrawString(text, new Point(100, 400), Color.Red);
 
             return;
 
-            gfx.DrawLine(device, new Vector2(10f, 10f), new Vector2(50f, 100f), Color.Red, 5f);
-            gfx.DrawTexture(device, testTexture, new RectangleF(mousePos.X, mousePos.Y, 16f, 16f));
-            gfx.DrawLine(device, new Vector2(0f, 232f), new Vector2(300f, 232f), Color.Blue, 1f);
-            gfx.DrawString(device, testFont, text, 100, 60, Color.Red);
+            gfx.DrawLine(new Vector2(10f, 10f), new Vector2(50f, 100f), Color.Red, 5f);
+            gfx.DrawLine(new Vector2(0f, 232f), new Vector2(300f, 232f), Color.Blue, 1f);
+            gfx.DrawString(testFont, text, 100, 60, Color.Red);
 
-            gfx.DrawBox(device, new Vector2(128f, 128f), new SizeF(64f, 64f), 4f, Color.Red);
-            gfx.DrawBoxBordered(device, new Vector2(300f, 128f), new SizeF(64f, 64f), 4f, Color.FromArgb(100, Color.Blue), Color.Red);
-            gfx.DrawBoxFilled(device, new Vector2(400f, 128f), new SizeF(64f, 64f), Color.Red);
-            gfx.DrawBoxRounded(device, new Vector2(500f, 200f), new SizeF(64f, 64f), 5f, false, Color.FromArgb(100, Color.Blue), Color.Red);
-            gfx.DrawBoxRounded(device, new Vector2(600f, 200f), new SizeF(64f, 64f), 5f, true, Color.FromArgb(100, Color.Blue), Color.Red);
-            gfx.DrawCircle(device, new Vector2(700f, 200f), 16f, 0f, eD3DCircleType.Full, true, 32, Color.Red);
-            gfx.DrawCircle(device, new Vector2(500f, 400f), 16f, 0f, eD3DCircleType.Half, true, 32, Color.Red);
-            gfx.DrawCircle(device, new Vector2(200f, 400f), 16f, 0f, eD3DCircleType.Quarter, true, 32, Color.Red);
-            gfx.DrawCircleFilled(device, new Vector2(600f, 500f), 16f, 0f, eD3DCircleType.Quarter, true, 32, Color.Red);
+            gfx.DrawBox(new Vector2(128f, 128f), new SizeF(64f, 64f), 4f, Color.Red);
+            gfx.DrawBoxBordered(new Vector2(300f, 128f), new SizeF(64f, 64f), 4f, Color.FromArgb(100, Color.Blue), Color.Red);
+            gfx.DrawBoxFilled(new Vector2(400f, 128f), new SizeF(64f, 64f), Color.Red);
+            gfx.DrawBoxRounded(new Vector2(500f, 200f), new SizeF(64f, 64f), 5f, false, Color.FromArgb(100, Color.Blue), Color.Red);
+            gfx.DrawBoxRounded(new Vector2(600f, 200f), new SizeF(64f, 64f), 5f, true, Color.FromArgb(100, Color.Blue), Color.Red);
+            gfx.DrawCircle(new Vector2(700f, 200f), 16f, 0f, eD3DCircleType.Full, true, 32, Color.Red);
+            gfx.DrawCircle(new Vector2(500f, 400f), 16f, 0f, eD3DCircleType.Half, true, 32, Color.Red);
+            gfx.DrawCircle(new Vector2(200f, 400f), 16f, 0f, eD3DCircleType.Quarter, true, 32, Color.Red);
+            gfx.DrawCircleFilled(new Vector2(600f, 500f), 16f, 0f, eD3DCircleType.Quarter, true, 32, Color.Red);
 
             // Draw radar rectangle
             RectangleF radar = CGame.GetRadarRectangle();
-            gfx.DrawBoxRounded(device, new Vector2(radar.X, radar.Y), new SizeF(radar.Width, radar.Height), 15f, false, Color.FromArgb(100, Color.Yellow), Color.Red);
+            gfx.DrawBoxRounded(new Vector2(radar.X, radar.Y), new SizeF(radar.Width, radar.Height), 15f, false, Color.FromArgb(100, Color.Yellow), Color.Red);
 
             Vector2[] vertices = new Vector2[4] {
                 new Vector2(0f, 0f),
@@ -193,22 +201,12 @@ namespace TestScript {
                 new Vector2(700f, 700f),
                 new Vector2(500f, 1000f)
             };
-            gfx.DrawLines(device, vertices, Color.Green, false, 5f);
+            gfx.DrawLines(vertices, Color.Green, false, 5f);
         }
 
         // Runs every frame when in-game
         private void Main_Tick(object sender, EventArgs e)
         {
-            bool leftMouseButton = IsKeyPressed(Keys.LButton);
-            bool rightMouseButton = IsKeyPressed(Keys.RButton);
-
-            if (GetCursorPos(out POINT p)) {
-                mousePos = new Vector2(p.X, p.Y);
-            }
-
-            GET_MOUSE_WHEEL(out int wheel);
-            //text = string.Format("leftMouseButton: {0}, rightMouseButton: {1}, Wheel: {2}, Pos: {3}", leftMouseButton.ToString(), rightMouseButton.ToString(), wheel.ToString(), p.ToString());
-
             // The IV-SDK .NET method on how to get the player char and the char coordinates and heading
             CPed playerPedNEW = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
             Vector3 playerPosNEW = playerPedNEW.Matrix.pos;
@@ -217,11 +215,12 @@ namespace TestScript {
             CVehicle veh = playerPedNEW.GetVehicle();
             if (veh != null)
             {
+                int vehicleHandle = (int)CPools.GetVehiclePool().GetIndex(veh.GetUIntPtr());
+
                 //tHandlingData handlingData2 = tHandlingData.FromPointer(veh.Handling);
                 //ShowSubtitleMessage(handlingData2.Name);
 
-                //uint handle = CPools.GetVehiclePool().GetIndex(veh.GetUIntPtr());
-                ShowSubtitleMessage(string.Format("Engine Starting: {0}, Engine On: {1}", veh.TheVehicleFlags.EngineStarting.ToString(), veh.TheVehicleFlags.EngineOn.ToString()));
+                //ShowSubtitleMessage(string.Format("Engine Starting: {0}, Engine On: {1}", veh.TheVehicleFlags.EngineStarting.ToString(), veh.TheVehicleFlags.EngineOn.ToString()));
             }
 
             // The native method way on how to get the player index, the player char and the char coordinates and heading
@@ -264,6 +263,16 @@ namespace TestScript {
                     }
                 }
             }
+
+            // CPad test
+            CPad pad = CPad.GetPad();
+            if (pad != null)
+            {
+                //ShowSubtitleMessage(string.Format("IsUsingKeyboardForAim: {0}, IsUsingKeyboardForHeli: {1}, LastUpdateTime: {2}", pad.IsUsingKeyboardForAim.ToString(), pad.IsUsingKeyboardForHeli.ToString(), pad.LastUpdateTime.ToString()));
+            }
+
+
+
 
 
             //PedWeaponSlot slot4 = playerPedNEW.m_pWeaponData.Weapons[2];
@@ -404,7 +413,8 @@ namespace TestScript {
             //    fov -= 0.5f; // Zooms in
 
             //CCam c = CCamera.GetFinalCam();
-            //if (c != null) {
+            //if (c != null)
+            //{
             //    c.FOV = fov;
             //}
         }
@@ -526,22 +536,31 @@ namespace TestScript {
                 CWorld.Add(veh, false);
             }
 
-            // IV-SDK Task test
             if (e.KeyCode == Keys.U)
             {
+                // IV-SDK Task test
                 int playerHandle = (int)CPools.GetPedPool().GetIndex(CPlayerInfo.FindPlayerPed());
 
                 //UIntPtr task = CTaskComplexDie.Create(0, 0, 44, 190, 4.0f, 0.0f, 1);
-                UIntPtr task = CTaskComplexWanderStandard.Create(2, 0f, true, 2.5f, 1);
-                CTheScripts.GivePedScriptedTask(playerHandle, task, 5);
+                //UIntPtr task = CTaskComplexWanderStandard.Create(2, 0f, true, 2.5f, 1);
+                //CTheScripts.GivePedScriptedTask(playerHandle, task, 5);
 
-                // This works because the KeyDown/KeyUp events gets fired internally from the Tick event, and the Tick event uses the CTheScripts.SetDummyThread/CTheScripts.RestorePreviousThread method.
-                // This will later get changed so the KeyDown/KeyUp events get fired from the ProcessPad event instead of the Tick event, because the Tick event only runs when in-game and we also want to listen for key input in the main menu.
-                // Once this is changed, you would have to call this native (and all other native tasks) like so: CTheScripts.SetDummyThread(); _TASK_FALL_AND_GET_UP(playerHandle, 1, 1); CTheScripts.RestorePreviousThread();
+                // The KeyUp and KeyDown events will now get raised from the ProcessPad event which does NOT use the CTheScripts.SetDummyThread(); and CTheScripts.RestorePreviousThread(); method!
+                // SO SIMPLY DOING THIS NO LONGER WORKS IN IV-SDK.NET v0.8 AND UP:
                 //_TASK_FALL_AND_GET_UP(playerHandle, 1, 1);
+
+                // To get native tasks to work in the KeyUp and KeyDown events you will have to do this:
+                CTheScripts.SetDummyThread();
+                _TASK_FALL_AND_GET_UP(playerHandle, 1, 1);
+                CTheScripts.RestorePreviousThread();
+
 
                 ShowSubtitleMessage("IV-SDK Task test");
 
+                // Mouse test
+                //CGame.Mouse.IsVisible = !CGame.Mouse.IsVisible;
+
+                // Pickup test
                 //if (pickup == 0)
                 //{
                 //    Vector3 posI = IVSDKDotNet.Helper.GetPositionInFrontOfEntity(playerPos, IVSDKDotNet.Helper.HeadingToDirection(heading), 5f);

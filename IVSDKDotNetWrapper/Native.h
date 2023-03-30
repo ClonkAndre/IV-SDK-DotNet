@@ -221,6 +221,12 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_GET_KEY_FOR_CHAR_IN_ROOM, ped, &p);
 				pKey = p;
 			}
+			static void GET_OFFSET_FROM_CHAR_IN_WORLD_COORDS(Ped ped, Vector3 pos, [OutAttribute] Vector3% pOffset)
+			{
+				float x, y, z;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_OFFSET_FROM_CHAR_IN_WORLD_COORDS, ped, pos.X, pos.Y, pos.Z, &x, &y, &z);
+				pOffset = Vector3(x, y, z);
+			}
 			static void GET_OFFSET_FROM_CHAR_IN_WORLD_COORDS(Ped ped, float pX, float pY, float pZ, [OutAttribute] float% pOffX, [OutAttribute] float% pOffY, [OutAttribute] float% pOffZ)
 			{
 				float x, y, z;
@@ -268,7 +274,9 @@ namespace IVSDKDotNet
 			static void SET_CHAR_COMPONENT_VARIATION(Ped ped, unsigned int component, unsigned int modelVariation, unsigned int textureVariation) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_COMPONENT_VARIATION, ped, component, modelVariation, textureVariation); }
 			static void SET_CHAR_COORDINATES(Ped ped, Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_COORDINATES, ped, pos.X, pos.Y, pos.Z); }
 			static void SET_CHAR_COORDINATES(Ped ped, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_COORDINATES, ped, x, y, z); }
+			static void SET_CHAR_COORDINATES_DONT_WARP_GANG(Ped ped, Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_COORDINATES_DONT_WARP_GANG, ped, pos.X, pos.Y, pos.Z); }
 			static void SET_CHAR_COORDINATES_DONT_WARP_GANG(Ped ped, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_COORDINATES_DONT_WARP_GANG, ped, x, y, z); }
+			static void SET_CHAR_COORDINATES_DONT_WARP_GANG_NO_OFFSET(Ped ped, Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_COORDINATES_DONT_WARP_GANG_NO_OFFSET, ped, pos.X, pos.Y, pos.Z); }
 			static void SET_CHAR_COORDINATES_DONT_WARP_GANG_NO_OFFSET(Ped ped, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_COORDINATES_DONT_WARP_GANG_NO_OFFSET, ped, x, y, z); }
 			static void _SET_CHAR_COORDINATES_NO_OFFSET(Ped ped, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_COORDINATES_NO_OFFSET, ped, x, y, z); }
 			static void SET_CHAR_DEFAULT_COMPONENT_VARIATION(Ped ped) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_DEFAULT_COMPONENT_VARIATION, ped); }
@@ -409,6 +417,7 @@ namespace IVSDKDotNet
 			static void MAKE_PLAYER_GANG_DISAPPEAR() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_MAKE_PLAYER_GANG_DISAPPEAR); }
 			static void MAKE_PLAYER_GANG_REAPPEAR() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_MAKE_PLAYER_GANG_REAPPEAR); }
 			static void MAKE_PLAYER_SAFE_FOR_CUTSCENE(int player) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_MAKE_PLAYER_SAFE_FOR_CUTSCENE, player); }
+			static void REGISTER_PLAYER_RESPAWN_COORDS(Player playerIndex, Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REGISTER_PLAYER_RESPAWN_COORDS, playerIndex, pos.X, pos.Y, pos.Z); }
 			static void REGISTER_PLAYER_RESPAWN_COORDS(Player playerIndex, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REGISTER_PLAYER_RESPAWN_COORDS, playerIndex, x, y, z); }
 			static void REMOVE_PLAYER_HELMET(Player playerIndex, b8 remove) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REMOVE_PLAYER_HELMET, playerIndex, remove); }
 			static void RESET_NUM_OF_MODELS_KILLED_BY_PLAYER(unsigned int model) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_RESET_NUM_OF_MODELS_KILLED_BY_PLAYER, model); }
@@ -1021,6 +1030,12 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_VEHICLE_PLAYER_WOULD_ENTER, player, &p);
 				veh = p;
 			}
+			static void GET_VEHICLE_QUATERNION(Vehicle veh, [OutAttribute] Quaternion% quat)
+			{
+				float x, y, z, w;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_VEHICLE_QUATERNION, veh, &x, &y, &z, &w);
+				quat = Quaternion(x, y, z, w);
+			}
 			static void GET_VEHICLE_QUATERNION(Vehicle veh, [OutAttribute] float% qx, [OutAttribute] float% qy, [OutAttribute] float% qz, [OutAttribute] float% qw)
 			{
 				float x, y, z, w;
@@ -1150,6 +1165,7 @@ namespace IVSDKDotNet
 			static void SET_VEHICLE_DIRT_LEVEL(Vehicle vehicle, float intensity) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_VEHICLE_DIRT_LEVEL, vehicle, intensity); }
 			static void SET_VEHICLE_EXPLODES_ON_HIGH_EXPLOSION_DAMAGE(Vehicle veh, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_VEHICLE_EXPLODES_ON_HIGH_EXPLOSION_DAMAGE, veh, set); }
 			static void SET_VEHICLE_IS_CONSIDERED_BY_PLAYER(Vehicle veh, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_VEHICLE_IS_CONSIDERED_BY_PLAYER, veh, set); }
+			static void SET_VEHICLE_QUATERNION(Vehicle veh, Quaternion quat) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_VEHICLE_QUATERNION, veh, quat.X, quat.Y, quat.Z, quat.W); }
 			static void SET_VEHICLE_QUATERNION(Vehicle veh, float qx, float qy, float qz, float qw) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_VEHICLE_QUATERNION, veh, qx, qy, qz, qw); }
 			static void SET_VEHICLE_STEER_BIAS(Vehicle veh, float val) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_VEHICLE_STEER_BIAS, veh, val); }
 			static void SET_VEH_ALARM(Vehicle veh, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_VEH_ALARM, veh, set); }
@@ -1776,6 +1792,12 @@ namespace IVSDKDotNet
 				Unk499 = p1;
 				Unk500 = p2;
 			}
+			static void GET_HEADING_FROM_VECTOR_2D(Vector2 pos, [OutAttribute] float% pHeading)
+			{
+				float p;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_HEADING_FROM_VECTOR_2D, pos.X, pos.Y, &p);
+				pHeading = p;
+			}
 			static void GET_HEADING_FROM_VECTOR_2D(float x, float y, [OutAttribute] float% pHeading)
 			{
 				float p;
@@ -2264,6 +2286,12 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_GAME_VIEWPORT_ID, &p);
 				viewportid = p;
 			}
+			static void GET_GROUND_Z_FOR_3D_COORD(Vector3 pos, [OutAttribute] f32% pGroundZ)
+			{
+				f32 p;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_GROUND_Z_FOR_3D_COORD, pos.X, pos.Y, pos.Z, &p);
+				pGroundZ = p;
+			}
 			static void GET_GROUND_Z_FOR_3D_COORD(f32 x, f32 y, f32 z, [OutAttribute] f32% pGroundZ)
 			{
 				f32 p;
@@ -2339,6 +2367,7 @@ namespace IVSDKDotNet
 			static void SET_CAMERA_CONTROLS_DISABLED_WITH_PLAYER_CONTROLS(b8 value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CAMERA_CONTROLS_DISABLED_WITH_PLAYER_CONTROLS, value); }
 			static void SET_CAMERA_STATE(int cam, int state) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CAMERA_STATE, cam, state); }
 			static void SET_CAM_ACTIVE(int camera, b8 value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CAM_ACTIVE, camera, value); }
+			static void SET_CAM_ATTACH_OFFSET(int cam, Vector3 offset) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CAM_ATTACH_OFFSET, cam, offset.X, offset.Y, offset.Z); }
 			static void SET_CAM_ATTACH_OFFSET(int cam, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CAM_ATTACH_OFFSET, cam, x, y, z); }
 			static void SET_CAM_ATTACH_OFFSET_IS_RELATIVE(int cam, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CAM_ATTACH_OFFSET_IS_RELATIVE, cam, set); }
 			static void SET_CAM_BEHIND_PED(Ped ped) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CAM_BEHIND_PED, ped); }
@@ -2470,6 +2499,7 @@ namespace IVSDKDotNet
 				pMaxVector = p2;
 			}
 			static void LOAD_ALL_OBJECTS_NOW() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_LOAD_ALL_OBJECTS_NOW); }
+			static void LOAD_SCENE(Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_LOAD_SCENE, pos.X, pos.Y, pos.Z); }
 			static void LOAD_SCENE(float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_LOAD_SCENE, x, y, z); }
 			static void LOAD_SCENE_FOR_ROOM_BY_KEY(int interior, unsigned int roomhash) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_LOAD_SCENE_FOR_ROOM_BY_KEY, interior, roomhash); }
 			static void MARK_MODEL_AS_NO_LONGER_NEEDED(int model) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_MARK_MODEL_AS_NO_LONGER_NEEDED, model); }
@@ -2506,6 +2536,7 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REQUEST_ANIMS, ctx.marshal_as<const char*>(animName));
 			}
 			static void REQUEST_CAR_RECORDING(int CarRecId) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REQUEST_CAR_RECORDING, CarRecId); }
+			static void REQUEST_COLLISION_AT_POSN(Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REQUEST_COLLISION_AT_POSN, pos.X, pos.Y, pos.Z); }
 			static void REQUEST_COLLISION_AT_POSN(float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REQUEST_COLLISION_AT_POSN, x, y, z); }
 			static void REQUEST_COLLISION_FOR_MODEL(unsigned int model) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REQUEST_COLLISION_FOR_MODEL, model); }
 			static void REQUEST_INTERIOR_MODELS(unsigned int model, String^ interiorName)
@@ -3849,6 +3880,7 @@ namespace IVSDKDotNet
 			static void SET_SPRITE_HDR_MULTIPLIER(float multiplier) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_SPRITE_HDR_MULTIPLIER, multiplier); }
 			static void SET_UP_TRIP_SKIP_FOR_SPECIFIC_VEHICLE(float Unk1124, float Unk1125, float Unk1126, float Unk1127, Vehicle veh) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_UP_TRIP_SKIP_FOR_SPECIFIC_VEHICLE, Unk1124, Unk1125, Unk1126, Unk1127, veh); }
 			static void DISABLE_DEBUG_CAM_AND_PLAYER_WARPING(b8 disable) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DISABLE_DEBUG_CAM_AND_PLAYER_WARPING, disable); }
+			static void TELEPORT_NETWORK_PLAYER(int player, Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TELEPORT_NETWORK_PLAYER, player, pos.X, pos.Y, pos.Z); }
 			static void TELEPORT_NETWORK_PLAYER(int player, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TELEPORT_NETWORK_PLAYER, player, x, y, z); }
 			static void SET_PED_STOP_CLONING(Ped ped, b8 stop) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_PED_STOP_CLONING, ped, stop); }
 			static b8 ARE_ANY_CHARS_NEAR_CHAR(Ped ped, float radius) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_ARE_ANY_CHARS_NEAR_CHAR, ped, radius); }
@@ -4255,6 +4287,7 @@ namespace IVSDKDotNet
 			static b8 IS_MISSION_COMPLETE_PLAYING() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_MISSION_COMPLETE_PLAYING); }
 			static b8 IS_PAUSE_MENU_ACTIVE() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_PAUSE_MENU_ACTIVE); }
 			static b8 IS_PAY_N_SPRAY_ACTIVE() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_PAY_N_SPRAY_ACTIVE); }
+			static b8 IS_POINT_OBSCURED_BY_A_MISSION_ENTITY(Vector3 pos, Vector3 size) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_POINT_OBSCURED_BY_A_MISSION_ENTITY, pos.X, pos.Y, pos.Z, size.X, size.Y, size.Z); }
 			static b8 IS_POINT_OBSCURED_BY_A_MISSION_ENTITY(float pX, float pY, float pZ, float sizeX, float sizeY, float sizeZ) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_POINT_OBSCURED_BY_A_MISSION_ENTITY, pX, pY, pZ, sizeX, sizeY, sizeZ); }
 			static b8 IS_PROJECTILE_IN_AREA(float x0, float y0, float z0, float x1, float y1, float z1) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_PROJECTILE_IN_AREA, x0, y0, z0, x1, y1, z1); }
 			static b8 IS_RADIO_HUD_ON() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_RADIO_HUD_ON); }
@@ -4458,6 +4491,13 @@ namespace IVSDKDotNet
 				msclr::interop::marshal_context ctx;
 				return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_DOES_WEB_PAGE_EXIST, ctx.marshal_as<const char*>(webaddress));
 			}
+			static b8 GET_CLOSEST_CAR_NODE(Vector3 pos, [OutAttribute] Vector3% pResult)
+			{
+				float x, y, z;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_CLOSEST_CAR_NODE, pos.X, pos.Y, pos.Z, &x, &y, &z);
+				pResult = Vector3(x, y, z);
+				return r;
+			}
 			static b8 GET_CLOSEST_CAR_NODE(float pX, float pY, float pZ, [OutAttribute] float% pResX, [OutAttribute] float% pResY, [OutAttribute] float% pResZ)
 			{
 				float x, y, z;
@@ -4474,6 +4514,14 @@ namespace IVSDKDotNet
 				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_CLOSEST_NETWORK_RESTART_NODE, v, &v2, &f);
 				ret = v2;
 				heading = f;
+				return r;
+			}
+			static b8 GET_CLOSEST_CAR_NODE_FAVOUR_DIRECTION(int Unk802, Vector3 pos, [OutAttribute] Vector3% pResult, [OutAttribute] float% rHeading)
+			{
+				float x, y, z, h;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_CLOSEST_CAR_NODE_FAVOUR_DIRECTION, Unk802, pos.X, pos.Y, pos.Z, &x, &y, &z, &h);
+				pResult = Vector3(x, y, z);
+				rHeading = h;
 				return r;
 			}
 			static b8 GET_CLOSEST_CAR_NODE_FAVOUR_DIRECTION(int Unk802, float pX, float pY, float pZ, [OutAttribute] float% rX, [OutAttribute] float% rY, [OutAttribute] float% rZ, [OutAttribute] float% rHeading)
@@ -4496,6 +4544,14 @@ namespace IVSDKDotNet
 				pHeading = h;
 				return r;
 			}
+			static b8 GET_CLOSEST_CAR_NODE_WITH_HEADING(Vector3 pos, [OutAttribute] Vector3% pResult, [OutAttribute] float% pHeading)
+			{
+				float x, y, z, h;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_CLOSEST_CAR_NODE_WITH_HEADING, pos.X, pos.Y, pos.Z, &x, &y, &z, &h);
+				pResult = Vector3(x, y, z);
+				pHeading = h;
+				return r;
+			}
 			static b8 GET_CLOSEST_MAJOR_CAR_NODE(float pX, float pY, float pZ, [OutAttribute] float% pResX, [OutAttribute] float% pResY, [OutAttribute] float% pResZ)
 			{
 				float x, y, z;
@@ -4503,6 +4559,13 @@ namespace IVSDKDotNet
 				pResX = x;
 				pResY = y;
 				pResZ = z;
+				return r;
+			}
+			static b8 GET_CLOSEST_MAJOR_CAR_NODE(Vector3 pos, [OutAttribute] Vector3% pResult)
+			{
+				float x, y, z;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_CLOSEST_MAJOR_CAR_NODE, pos.X, pos.Y, pos.Z, &x, &y, &z);
+				pResult = Vector3(x, y, z);
 				return r;
 			}
 			static b8 GET_CLOSEST_ROAD(float pX, float pY, float pZ, float Unk803, int Unk804, [OutAttribute] Vector3% Unk805, [OutAttribute] Vector3% Unk806, [OutAttribute] float% Unk807, [OutAttribute] float% Unk808, [OutAttribute] float% Unk809)
@@ -4556,6 +4619,13 @@ namespace IVSDKDotNet
 				pRetHeading = h;
 				return r;
 			}
+			static b8 GET_NTH_CLOSEST_CAR_NODE(Vector3 pos, int pN, [OutAttribute] Vector3% pResult)
+			{
+				float x, y, z;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_NTH_CLOSEST_CAR_NODE, pos.X, pos.Y, pos.Z, pN, &x, &y, &z);
+				pResult = Vector3(x, y, z);
+				return r;
+			}
 			static b8 GET_NTH_CLOSEST_CAR_NODE(float pX, float pY, float pZ, int pN, [OutAttribute] float% pRetX, [OutAttribute] float% pRetY, [OutAttribute] float% pRetZ)
 			{
 				float x, y, z;
@@ -4563,6 +4633,14 @@ namespace IVSDKDotNet
 				pRetX = x;
 				pRetY = y;
 				pRetZ = z;
+				return r;
+			}
+			static b8 GET_NTH_CLOSEST_CAR_NODE_FAVOUR_DIRECTION(int Unk810, Vector3 pos, int pN, [OutAttribute] Vector3% pResult, [OutAttribute] float% pRetDirection)
+			{
+				float x, y, z, h;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_NTH_CLOSEST_CAR_NODE_FAVOUR_DIRECTION, Unk810, pos.X, pos.Y, pos.Z, pN, &x, &y, &z, &h);
+				pResult = Vector3(x, y, z);
+				pRetDirection = h;
 				return r;
 			}
 			static b8 GET_NTH_CLOSEST_CAR_NODE_FAVOUR_DIRECTION(int Unk810, float pX, float pY, float pZ, int pN, [OutAttribute] float% pRetX, [OutAttribute] float% pRetY, [OutAttribute] float% pRetZ, [OutAttribute] float% pRetDirection)
@@ -4575,6 +4653,14 @@ namespace IVSDKDotNet
 				pRetDirection = h;
 				return r;
 			}
+			static b8 GET_NTH_CLOSEST_CAR_NODE_WITH_HEADING(Vector3 pos, unsigned int nodeNum, [OutAttribute] Vector3% pResult, [OutAttribute] float% pHeading)
+			{
+				float x, y, z, h;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_NTH_CLOSEST_CAR_NODE_WITH_HEADING, pos.X, pos.Y, pos.Z, nodeNum, &x, &y, &z, &h);
+				pResult = Vector3(x, y, z);
+				pHeading = h;
+				return r;
+			}
 			static b8 GET_NTH_CLOSEST_CAR_NODE_WITH_HEADING(float pX, float pY, float pZ, unsigned int nodeNum, [OutAttribute] float% pResX, [OutAttribute] float% pResY, [OutAttribute] float% pResZ, [OutAttribute] float% pHeading)
 			{
 				float x, y, z, h;
@@ -4583,6 +4669,16 @@ namespace IVSDKDotNet
 				pResY = y;
 				pResZ = z;
 				pHeading = h;
+				return r;
+			}
+			static b8 GET_NTH_CLOSEST_CAR_NODE_WITH_HEADING_ON_ISLAND(Vector3 pos, unsigned int pNodeNum, unsigned int pAreaId, [OutAttribute] Vector3% pResult, [OutAttribute] float% pHeading, [OutAttribute] unsigned int% pUnknownMaybeAreaId)
+			{
+				float x, y, z, h;
+				unsigned int areaId;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_NTH_CLOSEST_CAR_NODE_WITH_HEADING_ON_ISLAND, pos.X, pos.Y, pos.Z, pNodeNum, pAreaId, &x, &y, &z, &h, &areaId);
+				pResult = Vector3(x, y, z);
+				pHeading = h;
+				pUnknownMaybeAreaId = areaId;
 				return r;
 			}
 			static b8 GET_NTH_CLOSEST_CAR_NODE_WITH_HEADING_ON_ISLAND(float pX, float pY, float pZ, unsigned int pNodeNum, unsigned int pAreaId, [OutAttribute] float% pResX, [OutAttribute] float% pResY, [OutAttribute] float% pResZ, [OutAttribute] float% pHeading, [OutAttribute] unsigned int% pUnknownMaybeAreaId)
@@ -4597,6 +4693,14 @@ namespace IVSDKDotNet
 				pUnknownMaybeAreaId = areaId;
 				return r;
 			}
+			static b8 GET_RANDOM_CAR_NODE(Vector3 pos, float pRadius, b8 flag0, b8 flag1, b8 flag2, [OutAttribute] Vector3% pResult, [OutAttribute] float% pRetHeading)
+			{
+				float x, y, z, h;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_RANDOM_CAR_NODE, pos.X, pos.Y, pos.Z, pRadius, flag0, flag1, flag2, &x, &y, &z, &h);
+				pResult = Vector3(x, y, z);
+				pRetHeading = h;
+				return r;
+			}
 			static b8 GET_RANDOM_CAR_NODE(float pX, float pY, float pZ, float pRadius, b8 flag0, b8 flag1, b8 flag2, [OutAttribute] float% pRetX, [OutAttribute] float% pRetY, [OutAttribute] float% pRetZ, [OutAttribute] float% pRetHeading)
 			{
 				float x, y, z, h;
@@ -4604,6 +4708,14 @@ namespace IVSDKDotNet
 				pRetX = x;
 				pRetY = y;
 				pRetZ = z;
+				pRetHeading = h;
+				return r;
+			}
+			static b8 GET_RANDOM_CAR_NODE_INCLUDE_SWITCHED_OFF_NODES(Vector3 pos, float pRadius, b8 flag0, b8 flag1, b8 flag2, [OutAttribute] Vector3% pResult, [OutAttribute] float% pRetHeading)
+			{
+				float x, y, z, h;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_RANDOM_CAR_NODE_INCLUDE_SWITCHED_OFF_NODES, pos.X, pos.Y, pos.Z, pRadius, flag0, flag1, flag2, &x, &y, &z, &h);
+				pResult = Vector3(x, y, z);
 				pRetHeading = h;
 				return r;
 			}
@@ -4615,6 +4727,13 @@ namespace IVSDKDotNet
 				pRetY = y;
 				pRetZ = z;
 				pRetHeading = h;
+				return r;
+			}
+			static b8 GET_SAFE_POSITION_FOR_CHAR(Vector3 pos, b8 unknownTrue, [OutAttribute] Vector3% pResult)
+			{
+				float x, y, z;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_SAFE_POSITION_FOR_CHAR, pos.X, pos.Y, pos.Z, unknownTrue, &x, &y, &z);
+				pResult = Vector3(x, y, z);
 				return r;
 			}
 			static b8 GET_SAFE_POSITION_FOR_CHAR(float pX, float pY, float pZ, b8 unknownTrue, [OutAttribute] float% pSafeX, [OutAttribute] float% pSafeY, [OutAttribute] float% pSafeZ)
@@ -4676,7 +4795,9 @@ namespace IVSDKDotNet
 			static b8 IS_USING_CONTROLLER() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_USING_CONTROLLER); }
 			static b8 USING_STANDARD_CONTROLS() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_USING_STANDARD_CONTROLS); }
 			static b8 DOES_SCRIPT_FIRE_EXIST(int fire) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_DOES_SCRIPT_FIRE_EXIST, fire); }
+			static b8 IS_EXPLOSION_IN_AREA(int expnum, Vector3 pos1, Vector3 pos2) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_EXPLOSION_IN_AREA, expnum, pos1.X, pos1.Y, pos1.Z, pos2.X, pos2.Y, pos2.Z); }
 			static b8 IS_EXPLOSION_IN_AREA(int expnum, float x0, float y0, float z0, float x1, float y1, float z1) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_EXPLOSION_IN_AREA, expnum, x0, y0, z0, x1, y1, z1); }
+			static b8 IS_EXPLOSION_IN_SPHERE(int expnum, Vector3 pos, float radius) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_EXPLOSION_IN_SPHERE, expnum, pos.X, pos.Y, pos.Z, radius); }
 			static b8 IS_EXPLOSION_IN_SPHERE(int expnum, float x, float y, float z, float radius) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_EXPLOSION_IN_SPHERE, expnum, x, y, z, radius); }
 			static b8 IS_SCRIPT_FIRE_EXTINGUISHED(FireId fire) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_SCRIPT_FIRE_EXTINGUISHED, fire); }
 			static b8 DOES_DECISION_MAKER_EXIST(DecisionMaker dm) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_DOES_DECISION_MAKER_EXIST, dm); }
@@ -4685,11 +4806,25 @@ namespace IVSDKDotNet
 				msclr::interop::marshal_context ctx;
 				return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_CHAR_IN_ZONE, ped, ctx.marshal_as<const char*>(zonename));
 			}
+			static b8 GET_WATER_HEIGHT(Vector3 pos, [OutAttribute] float% pheight)
+			{
+				float p;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_WATER_HEIGHT, pos.X, pos.Y, pos.Z, &p);
+				pheight = p;
+				return r;
+			}
 			static b8 GET_WATER_HEIGHT(float x, float y, float z, [OutAttribute] float% pheight)
 			{
 				float p;
 				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_WATER_HEIGHT, x, y, z, &p);
 				pheight = p;
+				return r;
+			}
+			static b8 GET_WATER_HEIGHT_NO_WAVES(Vector3 pos, [OutAttribute] float% height)
+			{
+				float p;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_WATER_HEIGHT_NO_WAVES, pos.X, pos.Y, pos.Z, &p);
+				height = p;
 				return r;
 			}
 			static b8 GET_WATER_HEIGHT_NO_WAVES(float x, float y, float z, [OutAttribute] float% height)

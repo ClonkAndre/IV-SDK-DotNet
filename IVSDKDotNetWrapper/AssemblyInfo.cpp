@@ -15,6 +15,6 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyTrademarkAttribute(L"")];
 [assembly:AssemblyCultureAttribute(L"")];
 
-[assembly:AssemblyVersionAttribute(L"0.7.0.*")];
+[assembly:AssemblyVersionAttribute(L"0.8.0.*")];
 
 [assembly:ComVisible(false)];

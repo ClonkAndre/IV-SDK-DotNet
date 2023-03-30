@@ -64,6 +64,15 @@ namespace IVSDKDotNet {
 	{
 		m_cNativePed->ProcessWeaponSwitch();
 	}
+	UIntPtr CPed::GetPadFromPlayer()
+	{
+		Native_CPad* ptr = PedPointer->GetPadFromPlayer();
+
+		if (!ptr)
+			return UIntPtr::Zero;
+
+		return UIntPtr(ptr);
+	}
 	void CPed::SetHealth(float health, int unk)
 	{
 		m_cNativePed->SetHealth(health, unk);

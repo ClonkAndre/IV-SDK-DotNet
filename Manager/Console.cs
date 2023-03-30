@@ -10,8 +10,12 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
+using IVSDKDotNet;
 using IVSDKDotNet.Enums;
 using IVSDKDotNet.Native;
+using IVSDKDotNet.Direct3D9;
+
+using Manager.Direct3D9;
 
 namespace Manager {
     public class Console {
@@ -21,9 +25,8 @@ namespace Manager {
         public List<string> InputHistory;
         public Dictionary<string, Action<string[]>> Commands;
         private string[] splitStr;
-
-        // Style
-        private SizeF TextScale;
+        private int maxTextLengthUntilSplit = 140;
+        public int ConsoleHeight = 350;
 
         // Input
         public Keys OpenCloseKey;
@@ -34,7 +37,7 @@ namespace Manager {
         // Navigation
         public bool IsConsoleVisible;
         private int selectedIndex = 0;
-        private int maxItemsVisibleAtOnce = 16;
+        private int maxItemsVisibleAtOnce = 13;
         private int viewRangeStart = 0, viewRangeEnd = 16;
         private int inputHistoryIndex = -1;
 
@@ -88,7 +91,7 @@ namespace Manager {
             windowAlpha = 0;
             textAlpha = 0;
             selectedIndex = 0;
-            maxItemsVisibleAtOnce = 16;
+            maxItemsVisibleAtOnce = 13;
             viewRangeStart = 0;
             viewRangeEnd = 16;
             inputHistoryIndex = -1;
@@ -118,14 +121,14 @@ namespace Manager {
                 return;
             }
 
-            if (str.Length > 98) {
+            if (str.Length > maxTextLengthUntilSplit) {
 
                 string correctedStr = str;
 
                 // Do parsing
                 do {
-                    string tmp = correctedStr.Substring(0, 98);
-                    correctedStr = correctedStr.Remove(0, 98);
+                    string tmp = correctedStr.Substring(0, maxTextLengthUntilSplit);
+                    correctedStr = correctedStr.Remove(0, maxTextLengthUntilSplit);
 
                     if (tmp.Contains(Environment.NewLine)) { // Contains custom new line character
                         string[] arr = tmp.Split(splitStr, StringSplitOptions.RemoveEmptyEntries);
@@ -137,10 +140,10 @@ namespace Manager {
                     else { // Contains no new line characters
                         Items.Add(new Line(DateTime.UtcNow, style, tmp));
                     }
-                } while (correctedStr.Length > 98);
+                } while (correctedStr.Length > maxTextLengthUntilSplit);
                 
                 // Add last string
-                if (correctedStr.Length <= 98) {
+                if (correctedStr.Length <= maxTextLengthUntilSplit) {
                     if (correctedStr.Contains(Environment.NewLine)) { // Contains custom new line character
                         string[] arr = correctedStr.Split(splitStr, StringSplitOptions.RemoveEmptyEntries);
                         for (int i = 0; i < arr.Length; i++) {
@@ -222,14 +225,6 @@ namespace Manager {
             viewRangeStart = (Items.Count - 1) - (maxItemsVisibleAtOnce - 1);
             viewRangeEnd = Items.Count;
         }
-
-        private void DrawText(string str, PointF pos, SizeF scale, Color color)
-        {
-            Natives.SET_TEXT_SCALE(scale.Width, scale.Height);
-            Natives.SET_TEXT_COLOUR(color.R, color.G, color.B, color.A);
-            Natives.SET_TEXT_DROPSHADOW(false, 0, 0, 0, 0);
-            Natives.DISPLAY_TEXT_WITH_LITERAL_STRING(pos.X, pos.Y, "NF_SERVER_NAME", str);
-        }
         #endregion
 
         #region Functions
@@ -278,6 +273,12 @@ namespace Manager {
             }
             return false;
         }
+
+        private Rectangle MeasureText(string text)
+        {
+            SharpDX.Mathematics.Interop.RawRectangle rawRect = Main.managerInstance.localD3D9Font.MeasureText(null, text, SharpDX.Direct3D9.FontDrawFlags.Left | SharpDX.Direct3D9.FontDrawFlags.SingleLine);
+            return new Rectangle(rawRect.Left, rawRect.Top, rawRect.Right, rawRect.Bottom);
+        }
         #endregion
 
         #region Commands
@@ -298,35 +299,41 @@ namespace Manager {
         }
         private void SavePlayerPosCommand()
         {
-            try {
-                Natives.GET_PLAYER_CHAR(Natives.CONVERT_INT_TO_PLAYERINDEX(Natives.GET_PLAYER_ID()), out int playerChar);
-                Natives.GET_CHAR_COORDINATES(playerChar, out Vector3 playerPos);
-                Natives.GET_CHAR_HEADING(playerChar, out float playerHeading);
+            try
+            {
+                CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
+                if (playerPed != null)
+                {
+                    Vector3 playerPos = playerPed.Matrix.pos;
 
-                bool success = false;
-                string str = string.Format("X: {0} Y: {1} Z: {2} H: {3}",
-                    playerPos.X.ToString(CultureInfo.InvariantCulture),         // 0
-                    playerPos.Y.ToString(CultureInfo.InvariantCulture),         // 1
-                    playerPos.Z.ToString(CultureInfo.InvariantCulture),         // 2
-                    playerHeading.ToString(CultureInfo.InvariantCulture));      // 3
+                    bool success = false;
+                    string str = string.Format("X: {0} Y: {1} Z: {2} H: {3}",
+                        playerPos.X.ToString(CultureInfo.InvariantCulture),                 // 0
+                        playerPos.Y.ToString(CultureInfo.InvariantCulture),                 // 1
+                        playerPos.Z.ToString(CultureInfo.InvariantCulture),                 // 2
+                        playerPed.CurrentHeading.ToString(CultureInfo.InvariantCulture));   // 3
 
-                Thread cpThread = new Thread(() => {
-                    Clipboard.SetText(str);
-                    success = Clipboard.GetText().Equals(str);
-                });
-                cpThread.SetApartmentState(ApartmentState.STA);
-                cpThread.Start();
-                cpThread.Join();
+                    Thread cpThread = new Thread(() => {
+                        Clipboard.SetText(str);
+                        success = Clipboard.GetText().Equals(str);
+                    });
+                    cpThread.SetApartmentState(ApartmentState.STA);
+                    cpThread.Start();
+                    cpThread.Join();
 
-                if (success) {
-                    Print("Current player coordinates saved to clipboard!");
+                    if (success)
+                        Print("Current player position and heading saved to clipboard!");
+                    else
+                        PrintError("Unknown error while trying to save current player position and heading to clipboard.");
                 }
-                else {
-                    Print("Current player coordinates did not got saved to clipboard.");
+                else
+                {
+                    PrintWarning("Could not save player position and heading to clipbard. Player was null. Ensure that you're actually calling this command while in-game.");
                 }
             }
-            catch (Exception ex) {
-                PrintError(string.Format("An error occured while trying to save player pos and heading to clipboard. Details: {0}", ex.ToString()));
+            catch (Exception ex)
+            {
+                PrintError(string.Format("An error occured while trying to save player position and heading to clipboard! Details: {0}", ex.ToString()));
             }
         }
         private void LoadScriptCommand(string[] args)
@@ -361,8 +368,6 @@ namespace Manager {
             Items = new List<Line>();
             InputHistory = new List<string>();
 
-            TextScale = new SizeF(.213f, .25f);
-
             // Create commands dictionary and register default commands
             Commands = new Dictionary<string, Action<string[]>>();
             RegisterCommand(Guid.Empty, "Help",                 (string[] args) => { HelpCommand(); });
@@ -380,7 +385,7 @@ namespace Manager {
         }
         #endregion
 
-        public void Draw()
+        public void Draw(IntPtr device)
         {
             if (IsConsoleVisible) {
 
@@ -393,44 +398,61 @@ namespace Manager {
                 if (textAlpha > 255)
                     textAlpha = 255;
 
+                IntPtr fontPtr = Main.managerInstance.localD3D9Font.NativePointer;
+                Rectangle bgRect = new Rectangle(10, 10, CGame.Resolution.Width - 20, ConsoleHeight);
+
                 // Draw Console Background
-                Natives.DRAW_CURVED_WINDOW(.0045f, .005f, .99f, .3f, windowAlpha);
+                Drawing.DrawBoxRounded(null, device, new Vector2(bgRect.X, bgRect.Y), new SizeF(bgRect.Width, bgRect.Height), 10f, false, Color.FromArgb((int)windowAlpha, Color.Black), Color.White);
+
+                bgRect = new Rectangle(bgRect.X + 8, bgRect.Y + 6, bgRect.Width, bgRect.Height);
 
                 // Draw Items
-                if (Items.Count < maxItemsVisibleAtOnce) {
-                    for (int i = 0; i < Items.Count; i++) {
+                if (Items.Count < maxItemsVisibleAtOnce)
+                {
+                    for (int i = 0; i < Items.Count; i++)
+                    {
                         Line item = Items[i];
 
-                        if (selectedIndex == i) {
-                            DrawText(">", new PointF(.014f, .015f + i * .0155f), TextScale, Color.FromArgb(textAlpha, 0, 255, 0));
-                            DrawText(item.Text, new PointF(.025f, .015f + i * .0155f), TextScale, GetColorFromConsoleLogStyle(textAlpha, item.Style));
+                        Rectangle textRect = MeasureText(item.Text);
+
+                        if (selectedIndex == i)
+                        {
+                            Drawing.DrawString(null, fontPtr, ">",          new Point(bgRect.X + 6, bgRect.Y + i * textRect.Height), Color.FromArgb(textAlpha, 0, 255, 0));
+                            Drawing.DrawString(null, fontPtr, item.Text,    new Rectangle(bgRect.X + 24, bgRect.Y + i * textRect.Height, textRect.Width, textRect.Height).ToRawRectangle(), eD3DFontDrawFlags.Left | eD3DFontDrawFlags.SingleLine, GetColorFromConsoleLogStyle(textAlpha, item.Style));
                         }
-                        else {
-                            DrawText(item.Text, new PointF(.014f, .015f + i * .0155f), TextScale, GetColorFromConsoleLogStyle(textAlpha, item.Style));
+                        else
+                        {
+                            Drawing.DrawString(null, fontPtr, item.Text, new Rectangle(bgRect.X, bgRect.Y + i * textRect.Height, textRect.Width, textRect.Height).ToRawRectangle(), eD3DFontDrawFlags.Left | eD3DFontDrawFlags.SingleLine, GetColorFromConsoleLogStyle(textAlpha, item.Style));
                         }
                     }
                 }
-                else {
-                    for (int i = viewRangeStart; i < viewRangeEnd; i++) {
+                else
+                {
+                    for (int i = viewRangeStart; i < viewRangeEnd; i++)
+                    {
                         Line item = Items[i];
 
-                        if (selectedIndex == i) {
-                            DrawText(">", new PointF(.014f, .015f + (i - viewRangeStart) * .0155f), TextScale, Color.FromArgb(textAlpha, 0, 255, 0));
-                            DrawText(item.Text, new PointF(.025f, .015f + (i - viewRangeStart) * .0155f), TextScale, GetColorFromConsoleLogStyle(textAlpha, item.Style));
+                        Rectangle textRect = MeasureText(item.Text);
+
+                        if (selectedIndex == i)
+                        {
+                            Drawing.DrawString(null, fontPtr, ">",          new Point(bgRect.X + 6, bgRect.Y + (i - viewRangeStart) * textRect.Height), Color.FromArgb(textAlpha, 0, 255, 0));
+                            Drawing.DrawString(null, fontPtr, item.Text,    new Rectangle(bgRect.X + 24, bgRect.Y + (i - viewRangeStart) * textRect.Height, textRect.Width, textRect.Height).ToRawRectangle(), eD3DFontDrawFlags.Left | eD3DFontDrawFlags.SingleLine, GetColorFromConsoleLogStyle(textAlpha, item.Style));
                         }
-                        else {
-                            DrawText(item.Text, new PointF(.014f, .015f + (i - viewRangeStart) * .0155f), TextScale, GetColorFromConsoleLogStyle(textAlpha, item.Style));
+                        else
+                        {
+                            Drawing.DrawString(null, fontPtr, item.Text, new Rectangle(bgRect.X, bgRect.Y + (i - viewRangeStart) * textRect.Height, textRect.Width, textRect.Height).ToRawRectangle(), eD3DFontDrawFlags.Left | eD3DFontDrawFlags.SingleLine, GetColorFromConsoleLogStyle(textAlpha, item.Style));
                         }
                     }
 
                     // Up/Down Navigation Arrows
-                    DrawText(@"/\", new PointF(.97f, .015f), TextScale, Color.FromArgb(textAlpha, 255, 255, 255));
-                    DrawText(@"\/", new PointF(.97f, .275f), TextScale, Color.FromArgb(textAlpha, 255, 255, 255));
+                    Drawing.DrawString(null, fontPtr, @"/\", new Point(bgRect.Right - 30, bgRect.Y + 10), Color.FromArgb(textAlpha, 255, 255, 255));
+                    Drawing.DrawString(null, fontPtr, @"\/", new Point(bgRect.Right - 30, bgRect.Bottom - 40), Color.FromArgb(textAlpha, 255, 255, 255));
 
                 }
 
                 // Draw Input Field
-                DrawText(string.Format("> {0}{1}", input, showCaret ? "-" : ""), new PointF(.014f, .275f), TextScale, Color.FromArgb(textAlpha, 255, 255, 255));
+                Drawing.DrawString(null, fontPtr, string.Format("> {0}{1}", input, showCaret ? "-" : ""), new Point(bgRect.X, bgRect.Bottom - 35), Color.FromArgb(textAlpha, 255, 255, 255));
 
             }
         }

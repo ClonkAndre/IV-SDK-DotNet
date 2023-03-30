@@ -3,7 +3,7 @@
 class Native_CCutsceneMgr
 {
 public:
-	//static inline uint32_t& ms_running = AddressSetter::GetRef<uint32_t>(0xDE45F0, 0xD515D0);
+	static inline uint32_t& ms_running = AddressSetter::GetRef<uint32_t>(0xDE45F0, 0xD515D0);
 
 	static bool IsRunning()
 	{

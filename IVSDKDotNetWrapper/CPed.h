@@ -160,9 +160,9 @@ public:																	// 000-210
 	{
 		((void(__thiscall*)(Native_CPed*))(AddressSetter::Get(0x5BE7D0, 0x597180)))(this);
 	}
-	CPad* GetPadFromPlayer()
+	Native_CPad* GetPadFromPlayer()
 	{
-		return ((CPad*(__thiscall*)(Native_CPed*))(AddressSetter::Get(0x5BE5D0, 0x596F80)))(this);
+		return ((Native_CPad*(__thiscall*)(Native_CPed*))(AddressSetter::Get(0x5BE5D0, 0x596F80)))(this);
 	}
 	Native_CVehicle* GetVehicle()
 	{
@@ -412,11 +412,36 @@ namespace IVSDKDotNet {
 				void	set(bool value)	{ PedPointer->m_bIsPlayer = value; }
 		}
 
-	//	property uint8_t m_pPlayerInfo {
-	//public:
-	//	uint8_t get() {}
-	//	void set(uint8_t value) {}
-	//	}
+		property UIntPtr PlayerInfo {
+			public:
+				UIntPtr get() {
+					Native_CPlayerInfo* ptr = PedPointer->m_pPlayerInfo;
+
+					if (!ptr)
+						return UIntPtr::Zero;
+
+					return UIntPtr(ptr);
+				}
+				void set(UIntPtr value) { if (value != UIntPtr::Zero) PedPointer->m_pPlayerInfo = (Native_CPlayerInfo*)value.ToPointer(); }
+		}
+
+		property bool NoHeadshots {
+			public:
+				bool	get()			{ return PedPointer->m_nPedFlags.bNoHeadshots; }
+				void	set(bool value) { PedPointer->m_nPedFlags.bNoHeadshots = value; }
+		}
+
+		property bool InCar {
+			public:
+				bool	get()			{ return PedPointer->m_nPedFlags2.bInCar; }
+				void	set(bool value) { PedPointer->m_nPedFlags2.bInCar = value; }
+		}
+
+		property bool InAir {
+			public:
+				bool	get()			{ return PedPointer->m_nPedFlags2.bInAir; }
+				void	set(bool value) { PedPointer->m_nPedFlags2.bInAir = value; }
+		}
 
 		property float ClimbAnimRate {
 			public:
@@ -424,12 +449,9 @@ namespace IVSDKDotNet {
 				void	set(float value)	{ PedPointer->m_fClimbAnimRate = value; }
 		}
 
-		property PedWeapons^ m_pWeaponData {
+		property PedWeapons^ WeaponData {
 			public:
-				PedWeapons^ get()
-				{
-					return gcnew PedWeapons(&PedPointer->m_pWeaponData);
-				}
+				PedWeapons^ get() { return gcnew PedWeapons(&PedPointer->m_pWeaponData); }
 				//void	set(float value)	{ PedPointer->m_pWeaponData = value; }
 		}
 
@@ -554,7 +576,7 @@ namespace IVSDKDotNet {
 		}
 
 		void ProcessWeaponSwitch();
-		//CPad* GetPadFromPlayer();
+		UIntPtr GetPadFromPlayer();
 		CVehicle^ GetVehicle();
 		void SetHealth(float health, int unk);
 		void AddHealth(float health);

@@ -47,6 +47,11 @@ namespace Manager {
         Default,
         Error
     }
+    public enum Priority
+    {
+        Default,
+        High
+    }
     #endregion
 
     #region Public Classes
@@ -407,12 +412,14 @@ namespace Manager {
                 // Raise OnInit event once
                 if (RaiseOnD3D9InitEvent)
                 {
+                    GFX.Device = device;
                     GFX.RaiseOnInit(device);
                     GFX.OnInitEventExecutionTime = DateTime.UtcNow - time;
                     RaiseOnD3D9InitEvent = false;
                 }
 
                 // Raise OnDeviceEndScene event
+                GFX.Device = device;
                 GFX.RaiseOnDeviceEndScene(device);
                 GFX.OnDeviceEndSceneEventExecutionTime = DateTime.UtcNow - time;
             }
@@ -435,6 +442,7 @@ namespace Manager {
                 }
 
                 DateTime time = DateTime.UtcNow;
+                GFX.Device = device;
                 GFX.RaiseOnBeforeDeviceReset(device, Marshal.PtrToStructure<SharpDX.Direct3D9.PresentParameters>(presentParameters).ToD3DPresentParameters());
                 GFX.OnBeforeDeviceResetEventExecutionTime = DateTime.UtcNow - time;
             }
@@ -457,6 +465,7 @@ namespace Manager {
                 }
 
                 DateTime time = DateTime.UtcNow;
+                GFX.Device = device;
                 GFX.RaiseOnAfterDeviceReset(device);
                 GFX.OnAfterDeviceResetEventExecutionTime = DateTime.UtcNow - time;
             }
@@ -593,7 +602,7 @@ namespace Manager {
 
     public class Main : ManagerScript {
 
-        public const string ManagerVersion = "0.7";
+        public const string ManagerVersion = "0.8";
 
         #region Variables
         internal static Main managerInstance;
@@ -613,16 +622,19 @@ namespace Manager {
         private KeyWatchDog keyWatchDog;
 
         // Local Direct3D9 Resources
-        private SharpDX.Direct3D9.Font localD3D9Font;
+        public SharpDX.Direct3D9.Font localD3D9Font;
 
         // Other
         public UpdateChecker UpdateChecker;
         public Process GTAIVProcess;
         private SettingsFile settings;
+        private Mouse mouse;
         private Guid processCheckerTimerID;
         private string ivSDKDotNetPath, ivSDKDotNetBinaryPath, scriptsPath;
         private bool firstFrame = true;
-        private bool pauseScriptExecutionWhenNotInFocus, isGTAIVWindowInFocus;
+        private bool pauseScriptExecutionWhenNotInFocus;
+        public bool IsGTAIVWindowInFocus;
+        private bool onWindowFocusChangedEventCalled;
         #endregion
 
         #region Events
@@ -652,10 +664,12 @@ namespace Manager {
         }
 
         // Direct3D9Hook
-        private void Direct3D9Hook_OnInit(IntPtr device)
+        private void Direct3D9Hook_InternalOnInit(IntPtr device)
         {
             SharpDX.Direct3D9.Device d = (SharpDX.Direct3D9.Device)device;
+
             localD3D9Font = new SharpDX.Direct3D9.Font(d, D3DFontDescription.Default().ToSharpDXFontDescription());
+            mouse = new Mouse(device);
         }
 
         // UpdateChecker
@@ -702,7 +716,7 @@ namespace Manager {
 
             // Hooks
             direct3D9Hook = new DXHook();
-            direct3D9Hook.OnInit +=         Direct3D9Hook_OnInit;
+            direct3D9Hook.OnInit +=         Direct3D9Hook_InternalOnInit;
             direct3D9Hook.OnEndScene +=     Direct3D9Hook_OnEndScene;
             direct3D9Hook.OnBeforeReset +=  Direct3D9Hook_OnBeforeReset;
             direct3D9Hook.OnAfterReset +=   Direct3D9Hook_OnAfterReset;
@@ -743,7 +757,27 @@ namespace Manager {
 
             // Start process in focus checker timer
             processCheckerTimerID = StartNewTimerInternel(1250, () => {
-                isGTAIVWindowInFocus = Helper.ProcessHelper.IsProcessInFocus(GTAIVProcess);
+
+                IsGTAIVWindowInFocus = Helper.ProcessHelper.IsProcessInFocus(GTAIVProcess);
+
+                // Invoke focus changed event
+                if (IsGTAIVWindowInFocus)
+                {
+                    if (!onWindowFocusChangedEventCalled)
+                    {
+                        CGame.RaiseOnWindowFocusChanged(true);
+                        onWindowFocusChangedEventCalled = true;
+                    }
+                }
+                else
+                {
+                    if (onWindowFocusChangedEventCalled)
+                    {
+                        CGame.RaiseOnWindowFocusChanged(false);
+                        onWindowFocusChangedEventCalled = false;
+                    }
+                }
+
             });
 
             // Print "about" text to console
@@ -761,21 +795,8 @@ namespace Manager {
         #region Raisers
         public override void RaiseTick()
         {
-            if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
+            if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
-
-            // Check for key presses
-            if (keyWatchDog != null)    keyWatchDog.ProcessCheck();
-
-            // Draw local things
-            if (notification != null)   notification.Draw();
-            if (console != null)        console.Draw();
-
-            // Do stuff on first frame
-            if (firstFrame) {
-                UpdateChecker.CheckForUpdates(true);
-                firstFrame = false;
-            }
 
             // Raise all script Tick events
             ActiveScripts.ForEach(fs => {
@@ -791,7 +812,7 @@ namespace Manager {
         }
         public override void RaiseGameLoad()
         {
-            if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
+            if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
             ActiveScripts.ForEach(fs => {
@@ -807,7 +828,7 @@ namespace Manager {
         }
         public override void RaiseGameLoadPriority()
         {
-            if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
+            if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
             ActiveScripts.ForEach(fs => {
@@ -823,7 +844,7 @@ namespace Manager {
         }
         public override void RaiseMountDevice()
         {
-            if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
+            if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
             ActiveScripts.ForEach(fs => {
@@ -839,7 +860,7 @@ namespace Manager {
         }
         public override void RaiseDrawing()
         {
-            if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
+            if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
             DateTime dtNow = DateTime.UtcNow;
@@ -875,7 +896,7 @@ namespace Manager {
         }
         public override void RaiseProcessCamera()
         {
-            if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
+            if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
             ActiveScripts.ForEach(fs => {
@@ -891,7 +912,7 @@ namespace Manager {
         }
         public override void RaiseProcessAutomobile(UIntPtr vehPtr)
         {
-            if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
+            if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
             ActiveScripts.ForEach(fs => {
@@ -907,9 +928,20 @@ namespace Manager {
         }
         public override void RaiseProcessPad()
         {
-            if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
+            if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
+            // Do stuff on first frame
+            if (firstFrame)
+            {
+                UpdateChecker.CheckForUpdates(true);
+                firstFrame = false;
+            }
+
+            // Check for key presses
+            if (keyWatchDog != null) keyWatchDog.ProcessCheck();
+
+            // Raise all script ProcessPad events
             ActiveScripts.ForEach(fs => {
                 try {
                     if (fs.IsScriptReady()) fs.RaiseProcessPad();
@@ -924,9 +956,10 @@ namespace Manager {
 
         private void Direct3D9Hook_OnEndScene(IntPtr device)
         {
-            if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
+            if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
+            // Draw script things
             ActiveScripts.ForEach(fs => {
                 try {
                     if (fs.IsScriptReady()) fs.RaiseOnEndScene(device);
@@ -937,10 +970,15 @@ namespace Manager {
                     AbortScript(fs.ID);
                 }
             });
+
+            // Draw local things over script things
+            if (console != null)        console.Draw(device);
+            if (notification != null)   notification.Draw(device);
+            if (mouse != null)          mouse.Draw(device);
         }
         private void Direct3D9Hook_OnBeforeReset(IntPtr device, IntPtr presentParameters)
         {
-            if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
+            if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
             ActiveScripts.ForEach(fs => {
@@ -956,7 +994,7 @@ namespace Manager {
         }
         private void Direct3D9Hook_OnAfterReset(IntPtr device)
         {
-            if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
+            if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
             ActiveScripts.ForEach(fs => {
@@ -973,7 +1011,7 @@ namespace Manager {
 
         private void KeyWatchDog_KeyDown(object sender, KeyEventArgs e)
         {
-            if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
+            if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
             // Raise local things
@@ -982,7 +1020,18 @@ namespace Manager {
             // Raise all script KeyDown events
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.IsScriptReady()) fs.RaiseKeyDown(e);
+                    if (fs.IsScriptReady())
+                    {
+                        if (fs.Script.OnlyRaiseKeyEventsWhenInGame)
+                        {
+                            if (CPlayerInfo.FindPlayerPed() != UIntPtr.Zero)
+                                fs.RaiseKeyDown(e);
+                        }
+                        else
+                        {
+                            fs.RaiseKeyDown(e);
+                        }
+                    }
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} KeyDown.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -993,13 +1042,24 @@ namespace Manager {
         }
         private void KeyWatchDog_KeyUp(object sender, KeyEventArgs e)
         {
-            if (pauseScriptExecutionWhenNotInFocus && !isGTAIVWindowInFocus)
+            if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
             // Raise all script KeyUp events
             ActiveScripts.ForEach(fs => {
                 try {
-                    if (fs.IsScriptReady()) fs.RaiseKeyUp(e);
+                    if (fs.IsScriptReady())
+                    {
+                        if (fs.Script.OnlyRaiseKeyEventsWhenInGame)
+                        {
+                            if (CPlayerInfo.FindPlayerPed() != UIntPtr.Zero)
+                                fs.RaiseKeyUp(e);
+                        }
+                        else
+                        {
+                            fs.RaiseKeyUp(e);
+                        }
+                    }
                 }
                 catch (Exception ex) {
                     notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} KeyUp.", fs.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs.Name));
@@ -1052,6 +1112,11 @@ namespace Manager {
             console.PrintError(str);
         }
 
+        public override bool IsConsoleOpen()
+        {
+            return console.IsConsoleVisible;
+        }
+
         public override bool RegisterConsoleCommand(Guid fromScript, string name, Action<string[]> actionToExecute)
         {
             return console.RegisterCommand(fromScript, name, actionToExecute);
@@ -1059,6 +1124,98 @@ namespace Manager {
         public override bool ExecuteConsoleCommand(string name)
         {
             return console.ExecuteCommand(name);
+        }
+        #endregion
+
+        #region Mouse Overrides
+        public override void SetMouseVisibility(bool visible)
+        {
+            if (mouse != null)
+                mouse.IsVisible = visible;
+        }
+        public override bool GetMouseVisibility()
+        {
+            if (mouse != null)
+                return mouse.IsVisible;
+
+            return false;
+        }
+
+        public override bool GetMouseLeftButtonDown()
+        {
+            if (mouse != null)
+                return mouse.LeftButtonDown;
+
+            return false;
+        }
+        public override bool GetMouseRightButtonDown()
+        {
+            if (mouse != null)
+                return mouse.RightButtonDown;
+
+            return false;
+        }
+        public override bool GetMouseXButton1Down()
+        {
+            if (mouse != null)
+                return mouse.XButton1Down;
+
+            return false;
+        }
+        public override bool GetMouseXButton2Down()
+        {
+            if (mouse != null)
+                return mouse.XButton2Down;
+
+            return false;
+        }
+        public override int GetMouseWheelValue()
+        {
+            if (mouse != null)
+                return mouse.MouseWheel;
+
+            return 0;
+        }
+
+        public override Size GetMouseCursorSize()
+        {
+            if (mouse != null)
+                return mouse.CursorSize;
+
+            return Size.Empty;
+        }
+        public override void SetMouseCursorSize(Size size)
+        {
+            if (mouse != null)
+                mouse.CursorSize = size;
+        }
+
+        public override void SetMousePosition(Point pos)
+        {
+            if (mouse != null)
+                mouse.Position = pos;
+        }
+        public override Point GetMousePosition()
+        {
+            if (mouse != null)
+                return mouse.Position;
+
+            return Point.Empty;
+        }
+
+        public override bool GetMouseIntersectsWith(Rectangle rect)
+        {
+            if (mouse != null)
+                return mouse.IntersectsWith(rect);
+
+            return false;
+        }
+        #endregion
+
+        #region Game Overrides
+        public override bool IsGameInFocus()
+        {
+            return IsGTAIVWindowInFocus;
         }
         #endregion
 
@@ -1393,7 +1550,7 @@ namespace Manager {
                 keyWatchDog = null;
 
                 // Uninit direct3D9Hook and destroy local resources
-                direct3D9Hook.OnInit -=         Direct3D9Hook_OnInit;
+                direct3D9Hook.OnInit -=         Direct3D9Hook_InternalOnInit;
                 direct3D9Hook.OnEndScene -=     Direct3D9Hook_OnEndScene;
                 direct3D9Hook.OnBeforeReset -=  Direct3D9Hook_OnBeforeReset;
                 direct3D9Hook.OnAfterReset -=   Direct3D9Hook_OnAfterReset;
@@ -1405,6 +1562,12 @@ namespace Manager {
 
                 direct3D9Hook.Dispose();
                 direct3D9Hook = null;
+
+                if (mouse != null)
+                {
+                    mouse.Dispose();
+                    mouse = null;
+                }
 
                 // Uninit wndProcHook
                 wndProcHook.OnWndMessage -= WndProcHook_OnWndMessage;
@@ -1515,10 +1678,16 @@ namespace Manager {
 
                                     ActiveScripts.Add(foundScript); // Add script to ActiveScripts list.
 
-                                    StartDelayedAction(Guid.NewGuid(), "Raise script init event", DateTime.UtcNow.AddSeconds(1), (DelayedAction dA, object param) => {
+                                    if (firstFrame) // The player was not actually in-game yet
+                                    {
+                                        StartDelayedAction(Guid.NewGuid(), "Raise script init event", DateTime.UtcNow.AddSeconds(3), (DelayedAction dA, object param) => {
+                                            foundScript.RaiseInitialized();
+                                        }, null);
+                                    }
+                                    else // The player was in-game and so we want to initialize the Script instantly
+                                    {
                                         foundScript.RaiseInitialized();
-                                    }, null);
-                                    //foundScript.RaiseInitialized();
+                                    }
                                 }
 
                                 return true;
@@ -1577,8 +1746,8 @@ namespace Manager {
                     switch (scriptAssembliesLocation) {
 
                         case eAssembliesLocation.GameRootDirectory:
-                            console.PrintWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the root directory of GTA IV!", foundScript.Name, assemblyName));
-                            return null;
+                            console.PrintWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the root directory of GTA IV! Aborting.", foundScript.Name, assemblyName));
+                            break;
 
                         case eAssembliesLocation.ScriptsDirectory:
 
@@ -1586,8 +1755,8 @@ namespace Manager {
                             if (File.Exists(fileFullPath))
                                 return Assembly.UnsafeLoadFrom(fileFullPath);
 
-                            console.PrintWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the scripts directory!", foundScript.Name, assemblyName));
-                            return null;
+                            console.PrintWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the scripts directory! Aborting.", foundScript.Name, assemblyName));
+                            break;
 
                         case eAssembliesLocation.DecideManuallyForEachAssembly:
 
@@ -1595,8 +1764,8 @@ namespace Manager {
                             if (File.Exists(fileFullPath))
                                 return Assembly.UnsafeLoadFrom(fileFullPath);
 
-                            console.PrintWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in directory ({2})!", foundScript.Name, assemblyName, Path.GetDirectoryName(fileFullPath)));
-                            return null;
+                            console.PrintWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in directory ({2})! Aborting.", foundScript.Name, assemblyName, Path.GetDirectoryName(fileFullPath)));
+                            break;
 
                         case eAssembliesLocation.Custom:
 
@@ -1604,17 +1773,22 @@ namespace Manager {
                             if (File.Exists(fileFullPath))
                                 return Assembly.UnsafeLoadFrom(fileFullPath);
 
-                            console.PrintWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the custom directory ({2})!", foundScript.Name, assemblyName, foundScript.Script.CustomAssembliesPath));
-                            return null;
+                            console.PrintWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the custom directory ({2})! Aborting.", foundScript.Name, assemblyName, foundScript.Script.CustomAssembliesPath));
+                            break;
                     }
+
                 }
                 else {
                     console.PrintWarning(string.Format("Could not find requesting script {0}! Assemblies couldn't get loaded for this script.", requestingAssemblyName));
                 }
             }
             catch (Exception ex) {
-                console.PrintError(string.Format("An error occured while loading assembly {0} for Script {1}. Details: {2}", args.Name, foundScript != null ? foundScript.Name : "UNKNOWN", ex.ToString()));
+                console.PrintError(string.Format("An error occured while loading assembly {0} for Script {1}. Aborting. Details: {2}", args.Name, foundScript != null ? foundScript.Name : "UNKNOWN", ex.ToString()));
             }
+
+            // Abort script
+            if (foundScript != null) AbortScriptInternal(AbortReason.Manager, foundScript.ID);
+
             return null;
         }
 
@@ -1721,6 +1895,25 @@ namespace Manager {
             for (int i = 0; i < LocalTasks.Count; i++) {
                 AdvancedTask at = LocalTasks[i];
                 if (at.ID == id) at.ShouldPause = pause;
+            }
+        }
+        public override void ChangeTimerInterval(Guid id, int interval)
+        {
+            // ActiveScripts
+            for (int i = 0; i < ActiveScripts.Count; i++)
+            {
+                for (int s = 0; s < ActiveScripts[i].ScriptTasks.Count; s++)
+                {
+                    AdvancedTask at = ActiveScripts[i].ScriptTasks[s];
+                    if (at.ID == id) at.SleepTime = interval;
+                }
+            }
+
+            // local tasks
+            for (int i = 0; i < LocalTasks.Count; i++)
+            {
+                AdvancedTask at = LocalTasks[i];
+                if (at.ID == id) at.SleepTime = interval;
             }
         }
 
@@ -1889,7 +2082,6 @@ namespace Manager {
 
             return Guid.Empty;
         }
-
         #endregion
 
     }

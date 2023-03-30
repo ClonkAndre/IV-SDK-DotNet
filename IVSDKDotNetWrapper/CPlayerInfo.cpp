@@ -8,6 +8,21 @@ namespace IVSDKDotNet {
 		PlayerInfoPointer = nativePtr;
 	}
 
+	CPlayerInfo^ CPlayerInfo::FromPointer(UIntPtr ptr)
+	{
+		if (ptr == UIntPtr::Zero)
+			return nullptr;
+
+		return gcnew CPlayerInfo((Native_CPlayerInfo*)ptr.ToPointer());
+	}
+	UIntPtr CPlayerInfo::GetUIntPtr()
+	{
+		if (!PlayerInfoPointer)
+			return UIntPtr::Zero;
+
+		return UIntPtr(PlayerInfoPointer);
+	}
+
 	void CPlayerInfo::KillPlayerOutsideWorld()
 	{
 		PlayerInfoPointer->KillPlayerOutsideWorld();
@@ -34,7 +49,7 @@ namespace IVSDKDotNet {
 	}
 	UIntPtr CPlayerInfo::FindPlayerVehicle()
 	{
-		//return Native_CPlayerInfo::FindPlayerVehicle();
+		//return UIntPtr(Native_CPlayerInfo::FindPlayerVehicle());
 		return UIntPtr::Zero;
 	}
 

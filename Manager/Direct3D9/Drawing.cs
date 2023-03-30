@@ -355,7 +355,7 @@ namespace Manager.Direct3D9 {
         {
             try
             {
-                if (string.IsNullOrEmpty(text))
+                if (string.IsNullOrWhiteSpace(text))
                     return false;
 
                 SharpDX.Direct3D9.Font f = (SharpDX.Direct3D9.Font)fontPtr;
@@ -375,7 +375,7 @@ namespace Manager.Direct3D9 {
         public static bool DrawString(D3DGraphics g, IntPtr fontPtr, string text, Point pos, Color color)
         {
             try {
-                if (string.IsNullOrEmpty(text))
+                if (string.IsNullOrWhiteSpace(text))
                     return false;
 
                 SharpDX.Direct3D9.Font f = (SharpDX.Direct3D9.Font)fontPtr;
