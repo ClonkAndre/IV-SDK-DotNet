@@ -276,5 +276,10 @@ namespace IVSDKDotNet {
 			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_DrawString(this, Device, nullptr, text, Point(x, y), color);
 		}
 
+		bool D3DGraphics::IsDrawingAvailable()
+		{
+			return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_IsDrawingAvailable();
+		}
+
 	}
 }

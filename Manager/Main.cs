@@ -19,7 +19,6 @@ using IVSDKDotNet.Manager;
 using IVSDKDotNet.Direct3D9;
 
 using Manager.Direct3D9;
-using Manager.Windows;
 
 namespace Manager {
 
@@ -155,7 +154,7 @@ namespace Manager {
 
         #region Functions
         /// <summary>
-        /// Starts the <see cref="ServerTask"/>.
+        /// Starts the <see cref="AdvancedTask"/>.
         /// </summary>
         /// <param name="options">The options of this task.</param>
         /// <param name="func">The function that should be executed by this task.</param>
@@ -568,6 +567,7 @@ namespace Manager {
         public void DestroyD3D9Objects()
         {
             GFX = null;
+
             if (D3D9Objects != null) {
                 D3D9Objects.Values.ToList().ForEach(x => {
                     if (x == null)
@@ -602,7 +602,7 @@ namespace Manager {
 
     public class Main : ManagerScript {
 
-        public const string ManagerVersion = "0.8";
+        public const string ManagerVersion = "0.9";
 
         #region Variables
         internal static Main managerInstance;
@@ -618,7 +618,6 @@ namespace Manager {
 
         // Hooks
         private DXHook direct3D9Hook;
-        private WndProcHook wndProcHook;
         private KeyWatchDog keyWatchDog;
 
         // Local Direct3D9 Resources
@@ -653,14 +652,14 @@ namespace Manager {
         }
 
         // WndProc
-        private void WndProcHook_OnWndMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam)
+        private bool WndProcHook_OnWndMessage(IntPtr hWnd, uint msg, UIntPtr wParam, IntPtr lParam)
         {
-            CGame.RaiseOnWndMessage(hWnd, msg, wParam, lParam);
             switch (msg) {
                 case 2: // WM_DESTROY - Window starts to being destroyed.
                     Cleanup();
                     break;
             }
+            return false;
         }
 
         // Direct3D9Hook
@@ -668,6 +667,7 @@ namespace Manager {
         {
             SharpDX.Direct3D9.Device d = (SharpDX.Direct3D9.Device)device;
 
+            // Create local D3D9 resources
             localD3D9Font = new SharpDX.Direct3D9.Font(d, D3DFontDescription.Default().ToSharpDXFontDescription());
             mouse = new Mouse(device);
         }
@@ -721,8 +721,7 @@ namespace Manager {
             direct3D9Hook.OnBeforeReset +=  Direct3D9Hook_OnBeforeReset;
             direct3D9Hook.OnAfterReset +=   Direct3D9Hook_OnAfterReset;
 
-            wndProcHook =   new WndProcHook();
-            wndProcHook.OnWndMessage += WndProcHook_OnWndMessage;
+            RAGE.OnWndProcMessageReceived += WndProcHook_OnWndMessage;
 
             keyWatchDog =   new KeyWatchDog();
             keyWatchDog.KeyDown +=  KeyWatchDog_KeyDown;
@@ -730,21 +729,34 @@ namespace Manager {
 
             // Init WndProc Hook
             StartDelayedAction(Guid.NewGuid(), "Initialize WndProc Hook", DateTime.UtcNow.AddSeconds(1), (DelayedAction dA, object param) => {
-                try {
-                    wndProcHook.Init(RAGE.GetHWND());
+                try
+                {
+                    bool result = RAGE.InitWndProcHook();
+                    if (result)
+                        console.PrintDebug("[WndProcHook] Hooked!");
+                    else
+                        console.PrintError("An unknown error occured while trying to initialize the WndProc hook! Scripts that rely on it may not work correctly.");
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     console.PrintError(string.Format("An error occured while trying to initialize the WndProc Hook. Details: {0}", ex.ToString()));
                 }
             }, null);
 
             // Init D3D9 Hook
             StartDelayedAction(Guid.NewGuid(), "Initialize D3D9 Hook", DateTime.UtcNow.AddSeconds(1), (DelayedAction dA, object param) => {
-                try {
+                try
+                {
                     direct3D9Hook.Init(RAGE.GetHWND());
                 }
-                catch (Exception ex) {
-                    console.PrintError(string.Format("An error occured while trying to initialize the D3D9 Hook. Drawing will not be available. Details: {0}", ex.ToString()));
+                catch (Exception ex)
+                {
+                    console.UseOldDrawingSystem = true;
+                    notification.UseOldDrawingSystem = true;
+
+                    console.PrintError("An error occured while trying to initialize the D3D9 Hook. D3D9 drawing will not be available. Using legacy console and notification drawing method.");
+                    console.PrintError("If you happen to have dxvk or an ENB installed, please note that IV-SDK .NET does not currently work in combination with dxvk or an ENB.");
+                    console.PrintError("Details: " + ex.ToString());
                 }
             }, null);
 
@@ -756,7 +768,7 @@ namespace Manager {
             GTAIVProcess = Process.GetCurrentProcess();
 
             // Start process in focus checker timer
-            processCheckerTimerID = StartNewTimerInternel(1250, () => {
+            processCheckerTimerID = StartNewTimerInternel(1000, () => {
 
                 IsGTAIVWindowInFocus = Helper.ProcessHelper.IsProcessInFocus(GTAIVProcess);
 
@@ -809,6 +821,10 @@ namespace Manager {
                     AbortScript(fs.ID);
                 }
             });
+
+            // Draw console and notifications
+            if (console.UseOldDrawingSystem)        console.Draw(IntPtr.Zero);
+            if (notification.UseOldDrawingSystem)   notification.Draw(IntPtr.Zero);
         }
         public override void RaiseGameLoad()
         {
@@ -871,7 +887,7 @@ namespace Manager {
                 if (dtNow >= dA.ExecuteIn) {
                     try {
                         if (dA.ActionToExecute != null) {
-                            if (!string.IsNullOrEmpty(dA.Purpose)) console.PrintDebug(string.Format("[DEBUG] Delayed Action triggered. Purpose: {0}", dA.Purpose));
+                            if (!string.IsNullOrEmpty(dA.Purpose)) console.PrintDebug(string.Format("Delayed Action triggered. Purpose: {0}", dA.Purpose));
                             dA.ActionToExecute.Invoke(dA, dA.Parameter);
                         }
                         delayedActions.RemoveAt(i);
@@ -959,6 +975,11 @@ namespace Manager {
             if (pauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
+            SharpDX.Direct3D9.Device d = (SharpDX.Direct3D9.Device)device;
+
+            // Enable scissor test render state
+            d.SetRenderState(SharpDX.Direct3D9.RenderState.ScissorTestEnable, true);
+
             // Draw script things
             ActiveScripts.ForEach(fs => {
                 try {
@@ -1015,7 +1036,8 @@ namespace Manager {
                 return;
 
             // Raise local things
-            if (console != null) console.KeyDown(e);
+            if (console != null)
+                console.KeyDown(e);
 
             // Raise all script KeyDown events
             ActiveScripts.ForEach(fs => {
@@ -1243,12 +1265,22 @@ namespace Manager {
                 return;
 
             FoundScript s = GetFoundScript(ofScript.ID);
-            if (s != null) {
+            if (s != null)
+            {
                 s.GFX = null;
             }
         }
 
         // Texture stuff
+        public override long Direct3D9_Graphics_GetAvailableTextureMemory()
+        {
+            if (direct3D9Hook == null)
+                return 0;
+            if (direct3D9Hook.DevicePtr == IntPtr.Zero)
+                return 0;
+
+            return ((SharpDX.Direct3D9.Device)direct3D9Hook.DevicePtr).AvailableTextureMemory;
+        }
         public override D3DResult Direct3D9_Graphics_CreateD3D9Texture(Script forScript, IntPtr device, string filePath, Size size)
         {
             if (forScript == null)
@@ -1521,6 +1553,27 @@ namespace Manager {
             return Drawing.DrawString((D3DGraphics)instance, fontResource != null ? fontResource.Handle : localD3D9Font.NativePointer, text, pos, color);
         }
 
+        // Other
+        public override void Direct3D9_Graphics_SetScissorRect(IntPtr device, Rectangle rect)
+        {
+            if (device == IntPtr.Zero)
+                return;
+
+            ((SharpDX.Direct3D9.Device)device).ScissorRect = rect.ToRawRectangle();
+        }
+        public override Rectangle Direct3D9_Graphics_GetScissorRect(IntPtr device)
+        {
+            if (device == IntPtr.Zero)
+                return Rectangle.Empty;
+
+            return ((SharpDX.Direct3D9.Device)device).ScissorRect.ToRectangle();
+        }
+
+        public override bool Direct3D9_Graphics_IsDrawingAvailable()
+        {
+            return !(console.UseOldDrawingSystem && notification.UseOldDrawingSystem);
+        }
+
         #endregion
 
         #region Methods
@@ -1569,10 +1622,8 @@ namespace Manager {
                     mouse = null;
                 }
 
-                // Uninit wndProcHook
-                wndProcHook.OnWndMessage -= WndProcHook_OnWndMessage;
-                wndProcHook.Dispose();
-                wndProcHook = null;
+                // Unregister from WndProc received event
+                RAGE.OnWndProcMessageReceived -= WndProcHook_OnWndMessage;
             }
             catch (Exception ex) {
                 console.PrintError(string.Format("Error while cleaning up. Details: {0}", ex.ToString()));
@@ -1634,67 +1685,93 @@ namespace Manager {
                 using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read)) {
 
                     byte[] fileByteArray = Helper.GetByteArray(fs);
-                    Assembly assembly = Assembly.Load(fileByteArray);
-                    string assemblyName = assembly.GetName().Name.Split('.')[0];
 
-                    // Get types from assembly
-                    Type[] containedTypes = assembly.GetTypes();
-                    for (int i = 0; i < containedTypes.Length; i++) {
-                        Type containedType = containedTypes[i];
+                        Assembly assembly = Assembly.Load(fileByteArray);
+                        string assemblyName = assembly.GetName().Name.Split('.')[0];
 
-                        if (containedType.IsSubclassOf(typeof(Script))) {
+                        // Get types from assembly
+                        Type[] containedTypes = assembly.GetTypes();
+                        for (int i = 0; i < containedTypes.Length; i++)
+                        {
+                            Type containedType = containedTypes[i];
 
-                            // Log
-                            console.Print(string.Format("Found script: {0}", containedType.FullName));
+                            if (containedType.IsSubclassOf(typeof(Script)))
+                            {
 
-                            // Create new instance of type for assembly
-                            Script script = (Script)assembly.CreateInstance(containedType.FullName);
+                                // Log
+                                console.Print(string.Format("Found script: {0}", containedType.FullName));
 
-                            if (script != null) {
+                                // Create new instance of type for assembly
+                                Script script = (Script)assembly.CreateInstance(containedType.FullName);
 
-                                // Register AssemblyResolve event
-                                script.ScriptDomain.AssemblyResolve += ScriptDomain_AssemblyResolve;
+                                if (script != null)
+                                {
 
-                                // Check for script settings file
-                                string settingsFilePath = string.Format("{0}\\{1}.ini", scriptsPath, assemblyName);
-                                if (File.Exists(settingsFilePath)) {
-                                    script.Settings = new SettingsFile(settingsFilePath);
-                                    script.Settings.Load();
-                                }
+                                    // Register AssemblyResolve event
+                                    script.ScriptDomain.AssemblyResolve += ScriptDomain_AssemblyResolve;
 
-                                // Check for script resource folder
-                                string resourceFolderPath = string.Format("{0}\\{1}", scriptsPath, assemblyName);
-                                if (Directory.Exists(resourceFolderPath)) script.ScriptResourceFolder = resourceFolderPath;
-
-                                // Check if FoundScript with this assembly name already exists in ActiveScripts list
-                                FoundScript foundScript = GetFoundScript(assemblyName);
-                                if (foundScript != null) { // FoundScript object with this assembly name already exists in ActiveScripts list. Create new instance for this class which inherits from Script
-                                    // Todo
-                                }
-                                else { // No FoundScript object found with this assembly name in ActiveScripts list. Create new FoundScript object and add to ActiveScripts list
-                                    foundScript = new FoundScript(script.ID, containedType, script);
-                                    foundScript.Name = assemblyName;
-                                    foundScript.FullPath = path;
-
-                                    ActiveScripts.Add(foundScript); // Add script to ActiveScripts list.
-
-                                    if (firstFrame) // The player was not actually in-game yet
+                                    // Check for script settings file
+                                    string settingsFilePath = string.Format("{0}\\{1}.ini", scriptsPath, assemblyName);
+                                    if (File.Exists(settingsFilePath))
                                     {
-                                        StartDelayedAction(Guid.NewGuid(), "Raise script init event", DateTime.UtcNow.AddSeconds(3), (DelayedAction dA, object param) => {
-                                            foundScript.RaiseInitialized();
-                                        }, null);
+                                        script.Settings = new SettingsFile(settingsFilePath);
+                                        script.Settings.Load();
                                     }
-                                    else // The player was in-game and so we want to initialize the Script instantly
-                                    {
-                                        foundScript.RaiseInitialized();
+
+                                    // Check for script resource folder
+                                    string resourceFolderPath = string.Format("{0}\\{1}", scriptsPath, assemblyName);
+                                    if (Directory.Exists(resourceFolderPath)) script.ScriptResourceFolder = resourceFolderPath;
+
+                                    // Check if FoundScript with this assembly name already exists in ActiveScripts list
+                                    FoundScript foundScript = GetFoundScript(assemblyName);
+                                    if (foundScript != null)
+                                    { // FoundScript object with this assembly name already exists in ActiveScripts list. Create new instance for this class which inherits from Script
+                                      // Todo
                                     }
+                                    else
+                                    { // No FoundScript object found with this assembly name in ActiveScripts list. Create new FoundScript object and add to ActiveScripts list
+                                        foundScript = new FoundScript(script.ID, containedType, script);
+                                        foundScript.Name = assemblyName;
+                                        foundScript.FullPath = path;
+
+                                        ActiveScripts.Add(foundScript); // Add script to ActiveScripts list.
+
+                                        if (firstFrame) // The player was not actually in-game yet. Raise Initialized event of the Script later.
+                                        {
+                                            StartDelayedAction(Guid.NewGuid(), "Raise script init event", DateTime.UtcNow.AddSeconds(3), (DelayedAction dA, object param) => {
+                                                FoundScript fs2 = (FoundScript)param;
+                                                try
+                                                {
+                                                    foundScript.RaiseInitialized();
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} Initialized.", fs2.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", fs2.Name));
+                                                    console.PrintError(string.Format("An error occured while processing initialized event for script {0}. Aborting script. Details: {1}", fs2.Name, ex.ToString()));
+                                                    AbortScript(fs2.ID);
+                                                }
+                                            }, foundScript);
+                                        }
+                                        else // The player was in-game and so we want to initialize the Script instantly
+                                        {
+                                            try
+                                            {
+                                                foundScript.RaiseInitialized();
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} Initialized.", foundScript.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", foundScript.Name));
+                                                console.PrintError(string.Format("An error occured while processing initialized event for script {0}. Aborting script. Details: {1}", foundScript.Name, ex.ToString()));
+                                                AbortScript(foundScript.ID);
+                                            }
+                                        }
+                                    }
+
+                                    return true;
                                 }
 
-                                return true;
                             }
-
                         }
-                    }
 
                 }
             }
@@ -1714,14 +1791,24 @@ namespace Manager {
         }
         private Assembly ScriptDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            string requestingAssemblyName = args.RequestingAssembly.GetName().Name;
-            if (requestingAssemblyName.EndsWith(".ivsdk")) requestingAssemblyName = requestingAssemblyName.Remove(requestingAssemblyName.Length - 6, 6);
-            FoundScript foundScript = GetFoundScript(requestingAssemblyName);
-
-            // Debug
-            console.PrintDebug(string.Format("Script {0} is searching for their required assembly {1}.", requestingAssemblyName, args.Name));
+            FoundScript foundScript = null;
 
             try {
+                if (args.RequestingAssembly == null)
+                    return null;
+                if (Path.GetExtension(args.Name.Split(new string[] { "," }, StringSplitOptions.None)[0]) == ".resources")
+                    return null;
+
+                string requestingAssemblyName = args.RequestingAssembly.GetName().Name;
+
+                if (requestingAssemblyName.ToLower().EndsWith(".ivsdk"))
+                    requestingAssemblyName = requestingAssemblyName.Remove(requestingAssemblyName.Length - 6, 6);
+
+                foundScript = GetFoundScript(requestingAssemblyName);
+
+                // Debug
+                console.PrintDebug(string.Format("Script {0} is searching for their required assembly {1}.", requestingAssemblyName, args.Name));
+
                 if (foundScript != null) {
 
                     string assemblyName = args.Name.Split(',')[0];
@@ -1787,7 +1874,8 @@ namespace Manager {
             }
 
             // Abort script
-            if (foundScript != null) AbortScriptInternal(AbortReason.Manager, foundScript.ID);
+            if (foundScript != null)
+                AbortScriptInternal(AbortReason.Manager, foundScript.ID);
 
             return null;
         }
@@ -1836,6 +1924,7 @@ namespace Manager {
             if (ActiveScripts.Count != 0) {
                 ActiveScripts.ForEach(x => x.Abort(showMessage));
                 ActiveScripts.Clear();
+                GC.Collect();
             }
             else {
                 if (showMessage) console.Print("There are no scripts to abort.");
@@ -2024,7 +2113,7 @@ namespace Manager {
             return false;
         }
 
-        public override Guid StartNewTask(Guid forScript, Func<object> funcToExecute)
+        public override Guid StartNewTask(Guid forScript, Func<object> funcToExecute, Action<object> continueWithAction)
         {
             FoundScript s = GetFoundScript(forScript);
 
@@ -2032,6 +2121,7 @@ namespace Manager {
                 AdvancedTask task = new AdvancedTask(Guid.NewGuid(), s, TaskUseCase.Custom);
 
                 bool r = task.Start(TaskCreationOptions.None, funcToExecute, (AdvancedTask.InvokeData args) => {
+                    continueWithAction?.Invoke(args.CustomData);
                     StartDelayedAction(args.STask.ID, string.Format("Disposing and deleting task {0} of script {1}. CFSM: TaskDisposer in AdvancedTask class", args.STask.ID.ToString(), args.STask.Owner.Name), DateTime.UtcNow.AddSeconds(5), AdvancedTask.TaskDisposer, args.STask);
                 });
 

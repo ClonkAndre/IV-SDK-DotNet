@@ -183,14 +183,7 @@ namespace IVSDKDotNet {
 
 		};
 
-		delegate void OnWndMessageDelegate(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
 		delegate void GameWindowFocusChangedDelegate(bool focused);
-
-		/// <summary>
-		/// Gets raised when the GTA IV window receives Windows Messages. See https://wiki.winehq.org/List_Of_Windows_Messages for a list of all Windows Messages.
-		/// </summary>
-		static event OnWndMessageDelegate^ OnWndMessage;
-		static void RaiseOnWndMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam) { OnWndMessage(hWnd, msg, wParam, lParam); }
 
 		/// <summary>
 		/// Gets raised when the focus of the GTA IV window changes.

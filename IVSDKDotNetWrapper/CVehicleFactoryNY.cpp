@@ -9,11 +9,19 @@ namespace IVSDKDotNet {
 
 		Native_CVehicleFactoryNY* vehicleFactory = AddressSetter::GetRef<Native_CVehicleFactoryNY*>(0x11F5514, 0xE52DE8);
 		Native_CVehicle* nativeVehicle = vehicleFactory->CreateVehicle(model, createdBy, matrix, bNetwork);
-		CVehicle^ vehicle = gcnew CVehicle(nativeVehicle);
+
+		if (nativeVehicle)
+		{
+			CVehicle^ vehicle = gcnew CVehicle(nativeVehicle);
+
+			delete matrix;
+
+			return vehicle;
+		}
 
 		delete matrix;
 
-		return vehicle;
+		return nullptr;
 	}
 
 }

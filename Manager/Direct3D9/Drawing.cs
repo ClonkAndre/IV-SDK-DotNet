@@ -13,7 +13,6 @@ using Vector3 =     System.Numerics.Vector3;
 using Color =       System.Drawing.Color;
 using Point =       System.Drawing.Point;
 using RectangleF =  System.Drawing.RectangleF;
-
 namespace Manager.Direct3D9 {
     internal class Drawing {
 
@@ -47,6 +46,7 @@ namespace Manager.Direct3D9 {
                     l.Width = thickness;
                     l.Draw(vertices, color.ToRawColorBGRA());
                 }
+
                 return true;
             }
             catch (Exception ex) {
@@ -334,9 +334,10 @@ namespace Manager.Direct3D9 {
                 // Create matrix for texture
                 Matrix m = Matrix.Transformation2D(SharpDX.Vector2.Zero, 0f, new SharpDX.Vector2(cW, cH), new SharpDX.Vector2(rect.Width / 2, rect.Height / 2), rotation, new SharpDX.Vector2(rect.X, rect.Y));
                 //Matrix m = Matrix.Identity * Matrix.Translation(-0.5f, -0.5f, 0.0f) * Matrix.Scaling(cW, cH, 1.0f) * Matrix.RotationZ(rotation) * Matrix.Translation(rect.X, rect.Y, 0.0f);
-                
+
                 // Draw texture on screen
-                using (Sprite s = new Sprite((Device)device)) {
+                using (Sprite s = new Sprite((Device)device))
+                {
                     s.Begin();
                     s.Transform = m;
                     s.Draw(texture, tint.ToRawColorBGRA());
@@ -379,7 +380,8 @@ namespace Manager.Direct3D9 {
                     return false;
 
                 SharpDX.Direct3D9.Font f = (SharpDX.Direct3D9.Font)fontPtr;
-                if (f != null) {
+                if (f != null)
+                {
                     f.DrawText(null, text, pos.X, pos.Y, color.ToRawColorBGRA());
                     return true;
                 }

@@ -82,53 +82,181 @@ namespace IVSDKDotNet {
 	public ref class CPhysical : CDynamicEntity
 	{
 	public:
+		ref class PhysicalFlags
+		{
+		public:
+			PhysicalFlags(CPhysical^ parent);
+
+			property bool BulletProof {
+				public:
+					bool get() { return m_cParent->PhysicalPointer->m_nPhysicalFlags.bBulletProof; }
+					void set(bool value) { m_cParent->PhysicalPointer->m_nPhysicalFlags.bBulletProof = value; }
+			}
+
+			property bool FireProof {
+				public:
+					bool get() { return m_cParent->PhysicalPointer->m_nPhysicalFlags.bFireProof; }
+					void set(bool value) { m_cParent->PhysicalPointer->m_nPhysicalFlags.bFireProof = value; }
+			}
+
+			property bool CollisionProof {
+				public:
+					bool get() { return m_cParent->PhysicalPointer->m_nPhysicalFlags.bCollisionProof; }
+					void set(bool value) { m_cParent->PhysicalPointer->m_nPhysicalFlags.bCollisionProof = value; }
+			}
+
+			property bool MeleeProof {
+				public:
+					bool get() { return m_cParent->PhysicalPointer->m_nPhysicalFlags.bMeleeProof; }
+					void set(bool value) { m_cParent->PhysicalPointer->m_nPhysicalFlags.bMeleeProof = value; }
+			}
+
+			property bool Invincible {
+				public:
+					bool get() { return m_cParent->PhysicalPointer->m_nPhysicalFlags.bInvincible; }
+					void set(bool value) { m_cParent->PhysicalPointer->m_nPhysicalFlags.bInvincible = value; }
+			}
+
+			property bool OnlyDamagedByPlayer {
+				public:
+					bool get() { return m_cParent->PhysicalPointer->m_nPhysicalFlags.bOnlyDamagedByPlayer; }
+					void set(bool value) { m_cParent->PhysicalPointer->m_nPhysicalFlags.bOnlyDamagedByPlayer = value; }
+			}
+
+			property bool ExplosionProof {
+				public:
+					bool get() { return m_cParent->PhysicalPointer->m_nPhysicalFlags.bExplosionProof; }
+					void set(bool value) { m_cParent->PhysicalPointer->m_nPhysicalFlags.bExplosionProof = value; }
+			}
+
+			property bool Destroyed {
+				public:
+					bool get() { return m_cParent->PhysicalPointer->m_nPhysicalFlags.bDestroyed; }
+					void set(bool value) { m_cParent->PhysicalPointer->m_nPhysicalFlags.bDestroyed = value; }
+			}
+
+		private:
+			CPhysical^ m_cParent;
+		};
+
+	public:
 		CPhysical(Native_CPhysical* native);
+
+		property PhysicalFlags^ ThePhysicalFlags {
+			public: PhysicalFlags^ get() { return m_cPhysicalFlags; }
+		}
 
 		property float PercentSubmerged {
 			public:
-				float	get()				{ return m_cNativePhysical->m_fPercentSubmerged; }
-				void	set(float value)	{ m_cNativePhysical->m_fPercentSubmerged = value; }
+				float	get()				{ return PhysicalPointer->m_fPercentSubmerged; }
+				void	set(float value)	{ PhysicalPointer->m_fPercentSubmerged = value; }
 		}
 
+		/// <summary>
+		/// 0 - not submerged, 1 - on water surface? (swimming for peds) 2 - below water surface?
+		/// </summary>
 		property uint32_t SubmergedState {
 			public:
-				uint32_t	get()				{ return m_cNativePhysical->m_nSubmergedState; }
-				void		set(uint32_t value) { m_cNativePhysical->m_nSubmergedState = value; }
+				uint32_t	get()				{ return PhysicalPointer->m_nSubmergedState; }
+				void		set(uint32_t value) { PhysicalPointer->m_nSubmergedState = value; }
+		}
+
+		property CEntity^ AttachedToEntity {
+			public:
+				CEntity^ get()
+				{
+					Native_CEntity* ptr = PhysicalPointer->m_pAttachedToEntity;
+
+					if (ptr)
+						return gcnew CEntity(ptr);
+
+					return nullptr;
+				}
+				void set(CEntity^ value)
+				{
+					if (value)
+					{
+						PhysicalPointer->m_pAttachedToEntity = value->EntityPointer;
+					}
+				}
 		}
 
 		property Vector3 AttachPositionOffset {
 			public:
-				Vector3 get()				{ return Vector3(m_cNativePhysical->m_vAttachOffset.x, m_cNativePhysical->m_vAttachOffset.y, m_cNativePhysical->m_vAttachOffset.z); }
-				void	set(Vector3 value)	{ m_cNativePhysical->m_vAttachOffset = Native_CVector(value.X, value.Y, value.Z); }
+				Vector3 get()				{ return Vector3(PhysicalPointer->m_vAttachOffset.x, PhysicalPointer->m_vAttachOffset.y, PhysicalPointer->m_vAttachOffset.z); }
+				void	set(Vector3 value)	{ PhysicalPointer->m_vAttachOffset = Native_CVector(value.X, value.Y, value.Z); }
 		}
 
 		property Quaternion AttachRotationOffset {
 			public:
-				Quaternion	get()					{ return Quaternion(m_cNativePhysical->m_qAttachOffset.x, m_cNativePhysical->m_qAttachOffset.y, m_cNativePhysical->m_qAttachOffset.z, m_cNativePhysical->m_qAttachOffset.w); }
-				void		set(Quaternion value)	{ m_cNativePhysical->m_qAttachOffset = Native_CQuaternion(value.X, value.Y, value.Z, value.W); }
+				Quaternion	get()					{ return Quaternion(PhysicalPointer->m_qAttachOffset.x, PhysicalPointer->m_qAttachOffset.y, PhysicalPointer->m_qAttachOffset.z, m_cNativePhysical->m_qAttachOffset.w); }
+				void		set(Quaternion value)	{ PhysicalPointer->m_qAttachOffset = Native_CQuaternion(value.X, value.Y, value.Z, value.W); }
+		}
+
+		property CEntity^ LastDamageEntity {
+			public:
+				CEntity^ get()
+				{
+					Native_CEntity* ptr = PhysicalPointer->m_pLastDamageEntity;
+
+					if (ptr)
+						return gcnew CEntity(ptr);
+
+					return nullptr;
+				}
+				void set(CEntity^ value)
+				{
+					if (value)
+					{
+						PhysicalPointer->m_pLastDamageEntity = value->EntityPointer;
+					}
+				}
 		}
 
 		property int32_t LastDamageWeapon {
 			public:
-				int32_t	get()				{ return m_cNativePhysical->m_nLastDamageWeapon; }
-				void	set(int32_t value)	{ m_cNativePhysical->m_nLastDamageWeapon = value; }
+				int32_t	get()				{ return PhysicalPointer->m_nLastDamageWeapon; }
+				void	set(int32_t value)	{ PhysicalPointer->m_nLastDamageWeapon = value; }
 		}
 
 		property float Health {
 			public:
-				float	get()				{ return m_cNativePhysical->m_fHealth; }
-				void	set(float value)	{ m_cNativePhysical->m_fHealth = value; }
+				float	get()				{ return PhysicalPointer->m_fHealth; }
+				void	set(float value)	{ PhysicalPointer->m_fHealth = value; }
+		}
+
+		property CEntity^ EntityIgnoredCollision {
+			public:
+				CEntity^ get()
+				{
+					Native_CEntity* ptr = PhysicalPointer->m_pEntityIgnoredCollision;
+
+					if (ptr)
+						return gcnew CEntity(ptr);
+
+					return nullptr;
+				}
+				void set(CEntity^ value)
+				{
+					if (value)
+					{
+						PhysicalPointer->m_pEntityIgnoredCollision = value->EntityPointer;
+					}
+				}
+		}
+
+		property Native_CPhysical* PhysicalPointer {
+			public:
+				Native_CPhysical*	get() { return m_cNativePhysical; }
+				void				set(Native_CPhysical* value) { m_cNativePhysical = value; }
 		}
 
 		bool ProcessWater();
 		float GetHealth();
 
-		//CEntity* m_pAttachedToEntity
-		//CEntity* m_pLastDamageEntity;
-		//CEntity* m_pEntityIgnoredCollision;
-
 	private:
 		Native_CPhysical* m_cNativePhysical;
+		PhysicalFlags^ m_cPhysicalFlags;
 	};
 
 }

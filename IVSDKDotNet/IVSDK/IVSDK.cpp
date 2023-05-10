@@ -33,34 +33,49 @@ namespace plugin
 		}
 		return 0;
 	}
+
 	void InitHooks()
 	{
-		processScriptsEvent::returnAddress = DoHook(AddressSetter::Get(0x21601, 0x95141), processScriptsEvent::MainHook);
-		gameLoadEvent::returnAddress = DoHook(AddressSetter::Get(0x4ADB38, 0x770748), gameLoadEvent::MainHook);
-		gameLoadPriorityEvent::returnAddress = DoHook(AddressSetter::Get(0x4ADA9D, 0x7706AD), gameLoadPriorityEvent::MainHook);
-		drawingEvent::returnAddress = DoHook(AddressSetter::Get(0x46AFA8, 0x60E1C8), drawingEvent::MainHook);
-		processAutomobileEvent::callAddress = DoHook(AddressSetter::Get(0x7FE9C6, 0x652C26), processAutomobileEvent::MainHook);
-		processPadEvent::callAddress = DoHook(AddressSetter::Get(0x3C4002, 0x46A802), processPadEvent::MainHook);
-		processCameraEvent::returnAddress = DoHook(AddressSetter::Get(0x52C4C2, 0x694232), processCameraEvent::MainHook);
-		mountDeviceEvent::returnAddress = DoHook(AddressSetter::Get(0x3B2E27, 0x456C27), mountDeviceEvent::MainHook);
+		processScriptsEvent::returnAddress =	DoHook(AddressSetter::Get(0x21601, 0x95141),	processScriptsEvent::MainHook);
+		gameLoadEvent::returnAddress =			DoHook(AddressSetter::Get(0x4ADB38, 0x770748),	gameLoadEvent::MainHook);
+		gameLoadPriorityEvent::returnAddress =	DoHook(AddressSetter::Get(0x4ADA9D, 0x7706AD),	gameLoadPriorityEvent::MainHook);
+		drawingEvent::returnAddress =			DoHook(AddressSetter::Get(0x46AFA8, 0x60E1C8),	drawingEvent::MainHook);
+		processAutomobileEvent::callAddress =	DoHook(AddressSetter::Get(0x7FE9C6, 0x652C26),	processAutomobileEvent::MainHook);
+		processPadEvent::callAddress =			DoHook(AddressSetter::Get(0x3C4002, 0x46A802),	processPadEvent::MainHook);
+		processCameraEvent::returnAddress =		DoHook(AddressSetter::Get(0x52C4C2, 0x694232),	processCameraEvent::MainHook);
+		mountDeviceEvent::returnAddress =		DoHook(AddressSetter::Get(0x3B2E27, 0x456C27),	mountDeviceEvent::MainHook);
 	}
+
 	void Init()
 	{
-		if (!AddressSetter::bAddressesRead) AddressSetter::Init();
-		if (gameVer != VERSION_NONE)
-		{
-			InitHooks();
+		// Initialize AddressSetter if addresses where not read yet
+		if (!AddressSetter::bAddressesRead)
+			AddressSetter::Init();
 
-			gameStartupEvent();
+		// Init stuff for specific versions
+		switch (gameVer)
+		{
+			// Initialize stuff for 1070 and 1080
+			case plugin::VERSION_1070:
+			case plugin::VERSION_1080:
+				InitHooks();
+				gameStartupEvent();
+				break;
 		}
+
 	}
 }
 
-BOOL APIENTRY DllMain(HMODULE, DWORD ul_reason_for_call, LPVOID lpReserved)
+// Entry point
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
-	switch (ul_reason_for_call) {
+	switch (ul_reason_for_call)
+	{
 		case DLL_PROCESS_ATTACH:
+
+			// Initialize plugin
 			plugin::Init();
+
 			break;
 	}
 	return TRUE;

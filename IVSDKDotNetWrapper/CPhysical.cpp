@@ -3,18 +3,32 @@
 
 namespace IVSDKDotNet {
 
+	// =========================================================================
+	// ======================= CPhysical.PhysicalFlags =========================
+	// =========================================================================
+	CPhysical::PhysicalFlags::PhysicalFlags(CPhysical^ parent)
+	{
+		m_cParent = parent;
+	}
+
+
+	// =========================================================================
+	// ============================== CPhysical ================================
+	// =========================================================================
 	CPhysical::CPhysical(Native_CPhysical* native) : CDynamicEntity(native)
 	{
-		m_cNativePhysical = native;
+		PhysicalPointer = native;
+		m_cPhysicalFlags = gcnew PhysicalFlags(this);
 	}
 
 	bool CPhysical::ProcessWater()
 	{
-		return m_cNativePhysical->ProcessWater();
+		return PhysicalPointer->ProcessWater();
 	}
 	float CPhysical::GetHealth()
 	{
-		return m_cNativePhysical->GetHealth();
+		return PhysicalPointer->GetHealth();
 	}
+
 
 }

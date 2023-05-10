@@ -8,7 +8,7 @@ namespace rage
 		uint8_t pad[0x4];													// 00-04
 		float m_fMinVelocity;												// 04-08
 	};
-	//VALIDATE_OFFSET(phSleep, m_fMinVelocity, 0x4);
+	VALIDATE_OFFSET(phSleep, m_fMinVelocity, 0x4);
 
 	struct tUnkColliderParams2
 	{
@@ -20,16 +20,18 @@ namespace rage
 		Native_CVector_pad m_vVelocity;										// 260-270
 		Native_CVector_pad m_vRotationVelocity;								// 270-280
 	};
-	//VALIDATE_OFFSET(tUnkColliderParams2, m_mMatrix, 0x1A0);
-	//VALIDATE_OFFSET(tUnkColliderParams2, m_vUnk, 0x1E0);
-	//VALIDATE_OFFSET(tUnkColliderParams2, m_vUnk2, 0x1F0);
-	//VALIDATE_OFFSET(tUnkColliderParams2, m_vVelocity, 0x260);
-	//VALIDATE_OFFSET(tUnkColliderParams2, m_vRotationVelocity, 0x270);
+	VALIDATE_OFFSET(tUnkColliderParams2, m_mMatrix, 0x1A0);
+	VALIDATE_OFFSET(tUnkColliderParams2, m_vUnk, 0x1E0);
+	VALIDATE_OFFSET(tUnkColliderParams2, m_vUnk2, 0x1F0);
+	VALIDATE_OFFSET(tUnkColliderParams2, m_vVelocity, 0x260);
+	VALIDATE_OFFSET(tUnkColliderParams2, m_vRotationVelocity, 0x270);
+
 	struct tUnkColliderParams
 	{
 		uint32_t pad;														// 000-004
 		tUnkColliderParams2* m_pParams2;									// 004-008
 	};
+
 	class phConstrainedCollider
 	{
 	public:
@@ -57,11 +59,11 @@ namespace rage
 			((void(__thiscall*)(phConstrainedCollider*, Native_CVector*))(*(void***)this)[42])(this, v);
 		}
 	};
-	//VALIDATE_SIZE(phConstrainedCollider, 0x380);
-	//VALIDATE_OFFSET(phConstrainedCollider, m_pSleep, 0x18);
-	//VALIDATE_OFFSET(phConstrainedCollider, m_vPos2, 0x90);
-	//VALIDATE_OFFSET(phConstrainedCollider, m_vPos, 0x100);
-	//VALIDATE_OFFSET(phConstrainedCollider, m_vPedVelocity, 0x110);
-	//VALIDATE_OFFSET(phConstrainedCollider, m_vUnk4, 0x120);
-	//VALIDATE_OFFSET(phConstrainedCollider, m_pUnkParameters, 0x2A0);
+	VALIDATE_SIZE(phConstrainedCollider, 0x380);
+	VALIDATE_OFFSET(phConstrainedCollider, m_pSleep, 0x18);
+	VALIDATE_OFFSET(phConstrainedCollider, m_vPos2, 0x90);
+	VALIDATE_OFFSET(phConstrainedCollider, m_vPos, 0x100);
+	VALIDATE_OFFSET(phConstrainedCollider, m_vPedVelocity, 0x110);
+	VALIDATE_OFFSET(phConstrainedCollider, m_vUnk4, 0x120);
+	VALIDATE_OFFSET(phConstrainedCollider, m_pUnkParameters, 0x2A0);
 }

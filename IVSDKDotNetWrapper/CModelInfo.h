@@ -4,8 +4,8 @@ class Native_CBaseModelInfo
 {
 public:
 	uint8_t pad[0x4];								// 00-04
-	phArchetypeGta* m_pArchetype;					// 04-08
-	gtaFragType* m_pFragType;						// 08-0C only valid if model's loaded
+	Native_phArchetypeGta* m_pArchetype;			// 04-08
+	Native_gtaFragType* m_pFragType;				// 08-0C only valid if model's loaded
 	//tDrawableStruct* m_pDrawableStruct;			// 0C-10 only valid if model's loaded
 	uint8_t pad1[0x10];								// 10-20
 	Native_CVector m_vMinBounds;					// 20-2C
@@ -179,6 +179,32 @@ namespace IVSDKDotNet {
 		uint8_t GetModelType();
 		void SetAnimGroup(String^ group);
 		void SetTexDictionary(String^ txd);
+
+		property phArchetypeGta^ Archetype {
+			public:
+				phArchetypeGta^ get()
+				{
+					Native_phArchetypeGta* ptr = NativePointer->m_pArchetype;
+
+					if (ptr)
+						return gcnew phArchetypeGta(ptr);
+
+					return nullptr;
+				}
+		}
+
+		property gtaFragType^ FragType {
+			public:
+				gtaFragType^ get()
+				{
+					Native_gtaFragType* ptr = NativePointer->m_pFragType;
+
+					if (ptr)
+						return gcnew gtaFragType(ptr);
+
+					return nullptr;
+				}
+		}
 
 		property Vector3 MinBounds {
 			public:

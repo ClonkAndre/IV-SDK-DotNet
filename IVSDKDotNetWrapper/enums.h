@@ -8,6 +8,7 @@ namespace IVSDKDotNet {
 			VERSION_NONE,
 			VERSION_1070,
 			VERSION_1080,
+			VERSION_1040,
 		};
 
 		public enum class eAssembliesLocation

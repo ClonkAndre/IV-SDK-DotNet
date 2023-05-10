@@ -128,6 +128,14 @@ namespace IVSDKDotNet {
 		Guid StartNewTask(Func<Object^>^ funcToExecute);
 
 		/// <summary>
+		/// Starts a new asynchronous task.
+		/// </summary>
+		/// <param name="funcToExecute">The function that should be executed.</param>
+		/// <param name="continueWithAction">The action that should be executed when the given tasks function completed and is about to reach its end. The object parameter of this action is the data returned from the function.</param>
+		/// <returns>The Guid of the just created Task which can be used to control the Task. If Guid is empty then Task could not get created.</returns>
+		Guid StartNewTask(Func<Object^>^ funcToExecute, Action<Object^>^ continueWithAction);
+
+		/// <summary>
 		/// Waits in the Task for the specified amount of time.
 		/// </summary>
 		/// <param name="id">The ID of the Task.</param>
@@ -171,7 +179,14 @@ namespace IVSDKDotNet {
 		void ShowSubtitleMessage(String^ str, uint32_t time);
 
 		/// <summary>
-		/// Shows text at the bottom center of the screen where the subtitles are located.
+		/// Shows text at the bottom center of the screen where the subtitles are located for 2 seconds.
+		/// Only works in-game.
+		/// </summary>
+		/// <param name="str">The text to be shown.</param>
+		void ShowSubtitleMessage(String^ str, ...array<System::Object^>^ args);
+
+		/// <summary>
+		/// Shows text at the bottom center of the screen where the subtitles are located for 2 seconds.
 		/// Only works in-game.
 		/// </summary>
 		/// <param name="str">The text to be shown.</param>
@@ -509,8 +524,8 @@ namespace IVSDKDotNet {
 			virtual bool SendScriptCommand(Script^ toScript, String^ command) abstract;
 
 			// Task
-			virtual Guid StartNewTask(Guid forScript, Func<Object^>^ actionToExecute)			abstract;
-			virtual Guid StartNewTimer(Guid forScript, int interval, Action^ actionToExecute)	abstract;
+			virtual Guid StartNewTask(Guid forScript, Func<Object^>^ actionToExecute, Action<Object^>^ continueWithAction)	abstract;
+			virtual Guid StartNewTimer(Guid forScript, int interval, Action^ actionToExecute)								abstract;
 
 			virtual void WaitInTask(Guid id, int waitTimeInMilliseconds)						abstract;
 			virtual void AbortTaskOrTimer(Guid id)												abstract;
@@ -521,6 +536,12 @@ namespace IVSDKDotNet {
 			virtual void Direct3D9_Graphics_CreateNewInstance(Object^% instance, Script^ forScript)	abstract;
 			virtual void Direct3D9_Graphics_DisposeInstance(Script^ ofScript)						abstract;
 
+			virtual bool Direct3D9_Graphics_IsDrawingAvailable() abstract;
+
+			virtual void Direct3D9_Graphics_SetScissorRect(IntPtr device, Drawing::Rectangle rect)	abstract;
+			virtual Drawing::Rectangle Direct3D9_Graphics_GetScissorRect(IntPtr device)				abstract;
+
+			virtual long long Direct3D9_Graphics_GetAvailableTextureMemory() abstract;
 			virtual Direct3D9::D3DResult^ Direct3D9_Graphics_CreateD3D9Texture(Script^ forScript, IntPtr device, String^ filePath, Size size)							abstract;
 			virtual Direct3D9::D3DResult^ Direct3D9_Graphics_CreateD3D9Texture(Script^ forScript, IntPtr device, array<Byte>^ data, Size size)							abstract;
 			virtual Exception^ Direct3D9_Graphics_ReleaseD3D9Texture(Script^ ofScript, Direct3D9::D3DResource^ resource)												abstract;

@@ -2,7 +2,7 @@
 
 class Native_CEntity;
 class CNetworkObject;
-class phInstGta;
+class Native_phInstGta;
 class CPhysical;
 namespace rage { class rmcDrawable; }
 
@@ -26,13 +26,13 @@ public:
 		unsigned int pad2 : 1;
 		unsigned int bIsVisible : 1; // >> 5 & 1 - visible
 		unsigned int pad3 : 26;
-	} m_nEntityFlags;													// 024-028 >> 5 & 1 - visible
+	} m_nEntityFlags;										// 024-028 >> 5 & 1 - visible
 	uint32_t m_nEntityFlags2;											// 028-02C 0x80 - cast shadows
 	uint8_t pad1[0x2];													// 02C-02E
 	int16_t m_nModelIndex;												// 02E-030
 	uint8_t pad2[0x4];													// 030-034
 	Native_tObjectDrawable* m_pDrawablePtr;								// 034-038
-	phInstGta* m_pInstGta;												// 038-03C cars have fraginst, peds have phinst
+	Native_phInstGta* m_pInstGta;										// 038-03C cars have fraginst, peds have phinst
 	uint8_t pad3[0x10];													// 03C-04C
 	uint32_t m_unkDeletePtr;											// 04C-050
 	float m_fDrawDistance;												// 050-054
@@ -106,6 +106,22 @@ namespace IVSDKDotNet {
 			public:
 				int16_t	get()				{ return m_cEntity->m_nModelIndex; }
 				void	set(int16_t value)	{ m_cEntity->m_nModelIndex = value; }
+		}
+
+		/// <summary>
+		/// Cars have fraginst, peds have phinst. Use with phInstGta.FromPointer.
+		/// </summary>
+		property UIntPtr InstGta {
+			public:
+				UIntPtr get()
+				{
+					Native_phInstGta* ptr = EntityPointer->m_pInstGta;
+
+					if (ptr)
+						return UIntPtr(ptr);
+
+					return UIntPtr::Zero;
+				}
 		}
 
 		property UIntPtr DeletePtr {

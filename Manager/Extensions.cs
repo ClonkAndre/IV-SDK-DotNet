@@ -32,6 +32,26 @@ namespace Manager {
         }
 
         // RawMatrix
+        public static string GetString(this RawMatrix m)
+        {
+            return string.Format("M11: {0}, M12: {1}, M13: {2}, M14: {3}, M21: {4}, M22: {5}, M23: {6}, M24: {7}, M31: {8}, M32: {9}, M33: {10}, M34: {11}, M41: {12}, M42: {13}, M43: {14}, M44: {15}",
+                m.M11,  // 0
+                m.M12,  // 1
+                m.M13,  // 2
+                m.M14,  // 3
+                m.M21,  // 4
+                m.M22,  // 5
+                m.M23,  // 6
+                m.M24,  // 7
+                m.M31,  // 8
+                m.M32,  // 9
+                m.M33,  // 10
+                m.M34,  // 11
+                m.M41,  // 12
+                m.M42,  // 13
+                m.M43,  // 14
+                m.M44); // 15
+        }
         public static float[] GetValues(this RawMatrix m)
         {
             float[] v = new float[16];
@@ -64,6 +84,10 @@ namespace Manager {
         public static RawRectangle ToRawRectangle(this Rectangle rect)
         {
             return new RawRectangle(rect.Left, rect.Top, rect.Right, rect.Bottom);
+        }
+        public static Rectangle ToRectangle(this RawRectangle rect)
+        {
+            return new Rectangle(rect.Left, rect.Top, rect.Right, rect.Bottom);
         }
 
         // SharpDX.Vector2

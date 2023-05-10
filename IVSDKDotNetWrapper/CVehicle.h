@@ -3,6 +3,7 @@
 namespace rage { class grmShaderGroup; }
 
 class Native_CPed;
+class Native_phInstGta;
 
 struct Native_tHandlingData;
 
@@ -80,7 +81,7 @@ public:
 	uint8_t pad1[0x3D7];												// 02B1-0688
 	float m_fEngineRPM;													// 0688-068C
 	uint8_t pad1_[0x788];												// 068C-0E14
-	phInstGta* m_pVehicleFragInst;										// 0E14-0E18
+	Native_phInstGta* m_pVehicleFragInst;								// 0E14-0E18
 	Native_tHandlingData* m_pHandling;									// 0E18-0E1C
 	struct
 	{
@@ -419,6 +420,22 @@ namespace IVSDKDotNet {
 				void	set(float value)	{ m_cNativeVehicle->m_fEngineRPM = value; }
 		}
 
+		/// <summary>
+		/// Use with phInstGta.FromPointer
+		/// </summary>
+		property UIntPtr VehicleFragInst {
+			public:
+				UIntPtr get()
+				{
+					Native_phInstGta* ptr = m_cNativeVehicle->m_pVehicleFragInst;
+
+					if (ptr)
+						return UIntPtr(ptr);
+
+					return UIntPtr::Zero;
+				}
+		}
+
 		property UIntPtr Handling {
 			public:
 				UIntPtr get()
@@ -604,6 +621,9 @@ namespace IVSDKDotNet {
 				void	set(float value)	{ m_cNativeVehicle->m_fPetrolTankHealth = value; }
 		}
 
+		/// <summary>
+		/// Array of all vehicle lights. "1" seems to be when a light is broken and "0" when it's working.
+		/// </summary>
 		property array<Byte>^ Lights {
 			public:
 				array<Byte>^ get()
@@ -621,6 +641,7 @@ namespace IVSDKDotNet {
 					}
 				}
 		}
+
 		property array<Byte>^ Sirens {
 			public:
 				array<Byte>^ get()

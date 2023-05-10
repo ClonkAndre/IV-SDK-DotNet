@@ -274,7 +274,8 @@ namespace Manager.Direct3D9 {
             DevicePtr = devicePtr;
             Device dev = (Device)devicePtr;
             
-            if (firstCall) {
+            if (firstCall)
+            {
                 OnInit?.Invoke(devicePtr);
                 firstCall = false;
             }

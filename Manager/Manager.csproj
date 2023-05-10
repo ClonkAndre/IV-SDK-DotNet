@@ -73,7 +73,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="UpdateChecker.cs" />
-    <Compile Include="Windows\WndProcHook.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="EasyHook32.dll">

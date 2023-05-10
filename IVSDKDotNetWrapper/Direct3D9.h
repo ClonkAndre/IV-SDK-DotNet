@@ -68,6 +68,41 @@ namespace IVSDKDotNet {
 				private:	void	set(Script^ value)	{ m_createForScript = value; }
 			}
 
+			/// <summary>
+			/// Gets the available texture memory.
+			/// </summary>
+			property long long AvailableTextureMemory {
+				long long get() {
+
+					if (Device == IntPtr::Zero)
+						return 0;
+
+					return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_GetAvailableTextureMemory();
+
+				}
+			}
+
+			/// <summary>
+			/// The scissor rectangle is used as a rectangular clipping region.
+			/// </summary>
+			property Drawing::Rectangle ScissorRect {
+				public:
+					Drawing::Rectangle get()
+					{
+						if (Device == IntPtr::Zero)
+							return Drawing::Rectangle::Empty;
+
+						return Manager::ManagerScript::s_Instance->Direct3D9_Graphics_GetScissorRect(Device);
+					}
+					void set(Drawing::Rectangle value)
+					{
+						if (Device == IntPtr::Zero)
+							return;
+
+						Manager::ManagerScript::s_Instance->Direct3D9_Graphics_SetScissorRect(Device, value);
+					}
+			}
+
 #pragma region Measurement Properties
 			/// <summary>
 			/// Gets how much time the OnInit event took to execute.
@@ -147,6 +182,13 @@ namespace IVSDKDotNet {
 			bool DrawString(String^ text, Drawing::Rectangle rect, eD3DFontDrawFlags drawFlags, Color color);
 			bool DrawString(String^ text, Point pos, Color color);
 			bool DrawString(String^ text, int x, int y, Color color);
+
+			// Other
+			/// <summary>
+			/// Checks if drawing is available with IV-SDK .NET.
+			/// </summary>
+			/// <returns>True if drawing is available. Otherwise, false.</returns>
+			bool IsDrawingAvailable();
 
 		private:
 			Script^ m_createForScript;

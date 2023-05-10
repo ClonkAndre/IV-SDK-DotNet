@@ -23,12 +23,21 @@ namespace IVSDKDotNet {
 
 		Native_CPedFactoryNY* pedFactory = AddressSetter::GetRef<Native_CPedFactoryNY*>(0x11E35A0, 0xE52DE0);
 		Native_CPed* nativePed = pedFactory->CreatePed(spawnData, model, matrix, bNetwork, bUnk1);
-		CPed^ ped = gcnew CPed(nativePed);
+
+		if (nativePed)
+		{
+			CPed^ ped = gcnew CPed(nativePed);
+
+			delete spawnData;
+			delete matrix;
+
+			return ped;
+		}
 
 		delete spawnData;
 		delete matrix;
 
-		return ped;
+		return nullptr;
 	}
 
 }

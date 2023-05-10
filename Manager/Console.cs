@@ -27,6 +27,7 @@ namespace Manager {
         private string[] splitStr;
         private int maxTextLengthUntilSplit = 140;
         public int ConsoleHeight = 350;
+        public bool UseOldDrawingSystem;
 
         // Input
         public Keys OpenCloseKey;
@@ -115,56 +116,65 @@ namespace Manager {
 
         private void Print(eConsoleLogStyle style, string str)
         {
-            if (string.IsNullOrWhiteSpace(str)) {
+            if (string.IsNullOrWhiteSpace(str))
+            {
                 Items.Add(new Line(DateTime.UtcNow, style, ""));
-                NavigateToBottom();
                 return;
             }
 
-            if (str.Length > maxTextLengthUntilSplit) {
+            if (str.Length > (UseOldDrawingSystem ? 98 : maxTextLengthUntilSplit))
+            {
 
                 string correctedStr = str;
 
                 // Do parsing
-                do {
-                    string tmp = correctedStr.Substring(0, maxTextLengthUntilSplit);
-                    correctedStr = correctedStr.Remove(0, maxTextLengthUntilSplit);
+                do
+                {
+                    string tmp =    correctedStr.Substring(0, (UseOldDrawingSystem ? 98 : maxTextLengthUntilSplit));
+                    correctedStr =  correctedStr.Remove(0, (UseOldDrawingSystem ? 98 : maxTextLengthUntilSplit));
 
-                    if (tmp.Contains(Environment.NewLine)) { // Contains custom new line character
+                    // Check if contains custom new line character
+                    if (tmp.Contains(Environment.NewLine))
+                    {
                         string[] arr = tmp.Split(splitStr, StringSplitOptions.RemoveEmptyEntries);
-                        for (int i = 0; i < arr.Length; i++) {
+                        for (int i = 0; i < arr.Length; i++)
+                        {
                             string line = arr[i];
                             Items.Add(new Line(DateTime.UtcNow, style, line));
                         }
                     }
-                    else { // Contains no new line characters
+                    else
+                    {
                         Items.Add(new Line(DateTime.UtcNow, style, tmp));
                     }
-                } while (correctedStr.Length > maxTextLengthUntilSplit);
+                } while (correctedStr.Length > (UseOldDrawingSystem ? 98 : maxTextLengthUntilSplit));
                 
                 // Add last string
-                if (correctedStr.Length <= maxTextLengthUntilSplit) {
-                    if (correctedStr.Contains(Environment.NewLine)) { // Contains custom new line character
+                if (correctedStr.Length <= (UseOldDrawingSystem ? 98 : maxTextLengthUntilSplit))
+                {
+                    // Check if contains custom new line character
+                    if (correctedStr.Contains(Environment.NewLine))
+                    {
                         string[] arr = correctedStr.Split(splitStr, StringSplitOptions.RemoveEmptyEntries);
-                        for (int i = 0; i < arr.Length; i++) {
+                        for (int i = 0; i < arr.Length; i++)
+                        {
                             string line = arr[i];
                             Items.Add(new Line(DateTime.UtcNow, style, line));
                         }
                     }
-                    else { // Contains no new line characters
+                    else
+                    {
                         Items.Add(new Line(DateTime.UtcNow, style, correctedStr));
                     }
                 }
             }
-            else {
+            else
+            {
                 Items.Add(new Line(DateTime.UtcNow, style, str));
             }
 
             // Write log file
             WriteLogFile();
-
-            // Jump to the latest item added in the console
-            NavigateToBottom();
         }
         public void Print(string str)
         {
@@ -173,7 +183,7 @@ namespace Manager {
         public void PrintDebug(string str)
         {
 #if DEBUG
-            Print(eConsoleLogStyle.Debug, str);
+            Print(eConsoleLogStyle.Debug, "[DEBUG] " + str);
 #endif
         }
         public void PrintWarning(string str)
@@ -224,6 +234,14 @@ namespace Manager {
             selectedIndex = (Items.Count - 1);
             viewRangeStart = (Items.Count - 1) - (maxItemsVisibleAtOnce - 1);
             viewRangeEnd = Items.Count;
+        }
+
+        private void DrawText(string str, PointF pos, SizeF scale, Color color)
+        {
+            Natives.SET_TEXT_SCALE(scale.Width, scale.Height);
+            Natives.SET_TEXT_COLOUR(color.R, color.G, color.B, color.A);
+            Natives.SET_TEXT_DROPSHADOW(false, 0, 0, 0, 0);
+            Natives.DISPLAY_TEXT_WITH_LITERAL_STRING(pos.X, pos.Y, "NF_SERVER_NAME", str);
         }
         #endregion
 
@@ -292,6 +310,7 @@ namespace Manager {
             Print("SavePlayerPos       - Saves the players coordinates and heading to clipboard.");
             Print("ReloadConfig        - Reloads the IV-SDK .NET config.ini file.");
             Print("AbortScripts        - Aborts all currently running scripts.");
+            Print("AbortScript         - Tries to abort a single script.");
             Print("ReloadScripts       - Aborts and reloads all scripts.");
             Print("GetRunningScripts   - Gets number of running scripts.");
             Print("LoadScript          - Tries to load a single script.");
@@ -336,14 +355,26 @@ namespace Manager {
                 PrintError(string.Format("An error occured while trying to save player position and heading to clipboard! Details: {0}", ex.ToString()));
             }
         }
+        private void AbortScriptCommand(string[] args)
+        {
+            if (args.Length > 1)
+            {
+                string scriptName = args[1];
+                Script s = Main.managerInstance.GetScript(scriptName);
+                if (s != null)
+                    Main.managerInstance.AbortScriptInternal(AbortReason.Manager, s.ID);
+                else
+                    PrintWarning(string.Format("Could not find script {0}. Script might already be aborted.", scriptName));
+            }
+            else
+                PrintWarning("AbortScript usage: AbortScript TheScriptToLoad");
+        }
         private void LoadScriptCommand(string[] args)
         {
-            if (args.Length > 1) {
+            if (args.Length > 1)
                 Main.managerInstance.LoadScript(args[1]);
-            }
-            else {
+            else
                 PrintWarning("LoadScript usage: LoadScript TheScriptToLoad.ivsdk.dll");
-            }
         }
         private void QuitCommand()
         {
@@ -378,6 +409,7 @@ namespace Manager {
             RegisterCommand(Guid.Empty, "SavePlayerPos",        (string[] args) => { SavePlayerPosCommand(); });
             RegisterCommand(Guid.Empty, "ReloadConfig",         (string[] args) => { Main.managerInstance.LoadConfig(false); });
             RegisterCommand(Guid.Empty, "AbortScripts",         (string[] args) => { Main.managerInstance.AbortScripts(true); });
+            RegisterCommand(Guid.Empty, "AbortScript",          (string[] args) => { AbortScriptCommand(args); });
             RegisterCommand(Guid.Empty, "ReloadScripts",        (string[] args) => { Main.managerInstance.LoadScripts(); });
             RegisterCommand(Guid.Empty, "GetRunningScripts",    (string[] args) => { Print(string.Format("There are currently {0} scripts running.", Main.managerInstance.ActiveScripts.Count.ToString())); });
             RegisterCommand(Guid.Empty, "LoadScript",           (string[] args) => { LoadScriptCommand(args); });
@@ -387,7 +419,8 @@ namespace Manager {
 
         public void Draw(IntPtr device)
         {
-            if (IsConsoleVisible) {
+            if (IsConsoleVisible)
+            {
 
                 // Animation
                 if (!(windowAlpha >= 200))
@@ -398,69 +431,119 @@ namespace Manager {
                 if (textAlpha > 255)
                     textAlpha = 255;
 
-                IntPtr fontPtr = Main.managerInstance.localD3D9Font.NativePointer;
-                Rectangle bgRect = new Rectangle(10, 10, CGame.Resolution.Width - 20, ConsoleHeight);
-
-                // Draw Console Background
-                Drawing.DrawBoxRounded(null, device, new Vector2(bgRect.X, bgRect.Y), new SizeF(bgRect.Width, bgRect.Height), 10f, false, Color.FromArgb((int)windowAlpha, Color.Black), Color.White);
-
-                bgRect = new Rectangle(bgRect.X + 8, bgRect.Y + 6, bgRect.Width, bgRect.Height);
-
-                // Draw Items
-                if (Items.Count < maxItemsVisibleAtOnce)
+                if (UseOldDrawingSystem)
                 {
-                    for (int i = 0; i < Items.Count; i++)
+                    SizeF textScale = new SizeF(.213f, .25f);
+
+                    // Draw Console Background
+                    Natives.DRAW_CURVED_WINDOW(.0045f, .005f, .99f, .3f, windowAlpha);
+
+                    // Draw Items
+                    if (Items.Count < maxItemsVisibleAtOnce)
                     {
-                        Line item = Items[i];
-
-                        Rectangle textRect = MeasureText(item.Text);
-
-                        if (selectedIndex == i)
+                        for (int i = 0; i < Items.Count; i++)
                         {
-                            Drawing.DrawString(null, fontPtr, ">",          new Point(bgRect.X + 6, bgRect.Y + i * textRect.Height), Color.FromArgb(textAlpha, 0, 255, 0));
-                            Drawing.DrawString(null, fontPtr, item.Text,    new Rectangle(bgRect.X + 24, bgRect.Y + i * textRect.Height, textRect.Width, textRect.Height).ToRawRectangle(), eD3DFontDrawFlags.Left | eD3DFontDrawFlags.SingleLine, GetColorFromConsoleLogStyle(textAlpha, item.Style));
-                        }
-                        else
-                        {
-                            Drawing.DrawString(null, fontPtr, item.Text, new Rectangle(bgRect.X, bgRect.Y + i * textRect.Height, textRect.Width, textRect.Height).ToRawRectangle(), eD3DFontDrawFlags.Left | eD3DFontDrawFlags.SingleLine, GetColorFromConsoleLogStyle(textAlpha, item.Style));
+                            Line item = Items[i];
+
+                            if (selectedIndex == i)
+                            {
+                                DrawText(">", new PointF(.014f, .015f + i * .0155f), textScale, Color.FromArgb(textAlpha, 0, 255, 0));
+                                DrawText(item.Text, new PointF(.025f, .015f + i * .0155f), textScale, GetColorFromConsoleLogStyle(textAlpha, item.Style));
+                            }
+                            else
+                            {
+                                DrawText(item.Text, new PointF(.014f, .015f + i * .0155f), textScale, GetColorFromConsoleLogStyle(textAlpha, item.Style));
+                            }
                         }
                     }
+                    else
+                    {
+                        for (int i = viewRangeStart; i < viewRangeEnd; i++)
+                        {
+                            Line item = Items[i];
+
+                            if (selectedIndex == i)
+                            {
+                                DrawText(">", new PointF(.014f, .015f + (i - viewRangeStart) * .0155f), textScale, Color.FromArgb(textAlpha, 0, 255, 0));
+                                DrawText(item.Text, new PointF(.025f, .015f + (i - viewRangeStart) * .0155f), textScale, GetColorFromConsoleLogStyle(textAlpha, item.Style));
+                            }
+                            else
+                            {
+                                DrawText(item.Text, new PointF(.014f, .015f + (i - viewRangeStart) * .0155f), textScale, GetColorFromConsoleLogStyle(textAlpha, item.Style));
+                            }
+                        }
+
+                        // Up/Down Navigation Arrows
+                        DrawText(@"/\", new PointF(.97f, .015f), textScale, Color.FromArgb(textAlpha, 255, 255, 255));
+                        DrawText(@"\/", new PointF(.97f, .275f), textScale, Color.FromArgb(textAlpha, 255, 255, 255));
+
+                    }
+
+                    // Draw Input Field
+                    DrawText(string.Format("> {0}{1}", input, showCaret ? "-" : ""), new PointF(.014f, .275f), textScale, Color.FromArgb(textAlpha, 255, 255, 255));
                 }
                 else
                 {
-                    for (int i = viewRangeStart; i < viewRangeEnd; i++)
+                    Rectangle bgRect = new Rectangle(10, 10, CGame.Resolution.Width - 20, ConsoleHeight);
+                    IntPtr fontPtr = Main.managerInstance.localD3D9Font.NativePointer;
+
+                    // Draw Console Background
+                    Drawing.DrawBoxRounded(null, device, new Vector2(bgRect.X, bgRect.Y), new SizeF(bgRect.Width, bgRect.Height), 10f, false, Color.FromArgb((int)windowAlpha, Color.Black), Color.White);
+
+                    bgRect = new Rectangle(bgRect.X + 8, bgRect.Y + 6, bgRect.Width, bgRect.Height);
+
+                    // Draw Items
+                    if (Items.Count < maxItemsVisibleAtOnce)
                     {
-                        Line item = Items[i];
-
-                        Rectangle textRect = MeasureText(item.Text);
-
-                        if (selectedIndex == i)
+                        for (int i = 0; i < Items.Count; i++)
                         {
-                            Drawing.DrawString(null, fontPtr, ">",          new Point(bgRect.X + 6, bgRect.Y + (i - viewRangeStart) * textRect.Height), Color.FromArgb(textAlpha, 0, 255, 0));
-                            Drawing.DrawString(null, fontPtr, item.Text,    new Rectangle(bgRect.X + 24, bgRect.Y + (i - viewRangeStart) * textRect.Height, textRect.Width, textRect.Height).ToRawRectangle(), eD3DFontDrawFlags.Left | eD3DFontDrawFlags.SingleLine, GetColorFromConsoleLogStyle(textAlpha, item.Style));
-                        }
-                        else
-                        {
-                            Drawing.DrawString(null, fontPtr, item.Text, new Rectangle(bgRect.X, bgRect.Y + (i - viewRangeStart) * textRect.Height, textRect.Width, textRect.Height).ToRawRectangle(), eD3DFontDrawFlags.Left | eD3DFontDrawFlags.SingleLine, GetColorFromConsoleLogStyle(textAlpha, item.Style));
+                            Line item = Items[i];
+
+                            Rectangle textRect = MeasureText(item.Text);
+
+                            if (selectedIndex == i)
+                            {
+                                Drawing.DrawString(null, fontPtr, ">", new Point(bgRect.X + 6, bgRect.Y + i * textRect.Height), Color.FromArgb(textAlpha, 0, 255, 0));
+                                Drawing.DrawString(null, fontPtr, item.Text, new Rectangle(bgRect.X + 24, bgRect.Y + i * textRect.Height, textRect.Width, textRect.Height).ToRawRectangle(), eD3DFontDrawFlags.Left | eD3DFontDrawFlags.SingleLine, GetColorFromConsoleLogStyle(textAlpha, item.Style));
+                            }
+                            else
+                                Drawing.DrawString(null, fontPtr, item.Text, new Rectangle(bgRect.X, bgRect.Y + i * textRect.Height, textRect.Width, textRect.Height).ToRawRectangle(), eD3DFontDrawFlags.Left | eD3DFontDrawFlags.SingleLine, GetColorFromConsoleLogStyle(textAlpha, item.Style));
                         }
                     }
+                    else
+                    {
+                        for (int i = viewRangeStart; i < viewRangeEnd; i++)
+                        {
+                            Line item = Items[i];
 
-                    // Up/Down Navigation Arrows
-                    Drawing.DrawString(null, fontPtr, @"/\", new Point(bgRect.Right - 30, bgRect.Y + 10), Color.FromArgb(textAlpha, 255, 255, 255));
-                    Drawing.DrawString(null, fontPtr, @"\/", new Point(bgRect.Right - 30, bgRect.Bottom - 40), Color.FromArgb(textAlpha, 255, 255, 255));
+                            Rectangle textRect = MeasureText(item.Text);
 
+                            if (selectedIndex == i)
+                            {
+                                Drawing.DrawString(null, fontPtr, ">", new Point(bgRect.X + 6, bgRect.Y + (i - viewRangeStart) * textRect.Height), Color.FromArgb(textAlpha, 0, 255, 0));
+                                Drawing.DrawString(null, fontPtr, item.Text, new Rectangle(bgRect.X + 24, bgRect.Y + (i - viewRangeStart) * textRect.Height, textRect.Width, textRect.Height).ToRawRectangle(), eD3DFontDrawFlags.Left | eD3DFontDrawFlags.SingleLine, GetColorFromConsoleLogStyle(textAlpha, item.Style));
+                            }
+                            else
+                                Drawing.DrawString(null, fontPtr, item.Text, new Rectangle(bgRect.X, bgRect.Y + (i - viewRangeStart) * textRect.Height, textRect.Width, textRect.Height).ToRawRectangle(), eD3DFontDrawFlags.Left | eD3DFontDrawFlags.SingleLine, GetColorFromConsoleLogStyle(textAlpha, item.Style));
+                        }
+
+                        // Up/Down Navigation Arrows
+                        Drawing.DrawString(null, fontPtr, @"/\", new Point(bgRect.Right - 30, bgRect.Y + 10), Color.FromArgb(textAlpha, 255, 255, 255));
+                        Drawing.DrawString(null, fontPtr, @"\/", new Point(bgRect.Right - 30, bgRect.Bottom - 40), Color.FromArgb(textAlpha, 255, 255, 255));
+
+                    }
+
+                    // Draw Input Field
+                    Drawing.DrawString(null, fontPtr, string.Format("> {0}{1}", input, showCaret ? "-" : ""), new Point(bgRect.X, bgRect.Bottom - 35), Color.FromArgb(textAlpha, 255, 255, 255));
                 }
-
-                // Draw Input Field
-                Drawing.DrawString(null, fontPtr, string.Format("> {0}{1}", input, showCaret ? "-" : ""), new Point(bgRect.X, bgRect.Bottom - 35), Color.FromArgb(textAlpha, 255, 255, 255));
-
             }
         }
 
         public void KeyDown(KeyEventArgs e)
         {
             // Navigation & Input
-            if (IsConsoleVisible) {
+            if (IsConsoleVisible)
+            {
 
                 // Navigation
                 switch (e.KeyCode) {
@@ -470,53 +553,75 @@ namespace Manager {
                     case Keys.PageDown:
                         NavigateDown();
                         break;
+                    case Keys.End:
+                        NavigateToBottom();
+                        break;
 
                     case Keys.Up:
-                        if (InputHistory.Count != 0) {
-
-                            inputHistoryIndex--;
-                            if (inputHistoryIndex < 0)
+                        if (InputHistory.Count != 0)
+                        {
+                            inputHistoryIndex++;
+                            if (inputHistoryIndex > InputHistory.Count - 1)
                                 inputHistoryIndex = 0;
 
                             string item = InputHistory[inputHistoryIndex];
                             input = item;
-
                         }
                         break;
                     case Keys.Down:
-                        if (InputHistory.Count != 0) {
-
-                            inputHistoryIndex++;
-                            if (inputHistoryIndex > InputHistory.Count - 1)
+                        if (InputHistory.Count != 0)
+                        {
+                            inputHistoryIndex--;
+                            if (inputHistoryIndex < 0)
                                 inputHistoryIndex = InputHistory.Count - 1;
 
                             string item = InputHistory[inputHistoryIndex];
                             input = item;
-
                         }
                         break;
                 }
 
                 // Input
                 string unicodeKey = IVSDKDotNet.Helper.KeyCodeToUnicode(e.KeyCode);
-                switch (e.KeyCode) {
+                switch (e.KeyCode)
+                {
 
+                    // Delete stuff
                     case Keys.Back: // Delete chars
-                        if (input.Length > 0) {
+                        if (input.Length > 0)
+                        {
                             input = input.Remove(input.Length - 1);
                             inputHistoryIndex = -1;
                         }
                         break;
+                    case Keys.Delete: // Delete all current text entered in the console text field
+                        input = string.Empty;
+                        break;
 
+                    // Add stuff
+                    case Keys.Insert: // Insert the text that is currently saved in clipboard into the text field
+                        string clipboardText = Clipboard.GetText();
+                        if (!string.IsNullOrWhiteSpace(clipboardText))
+                            input += clipboardText;
+                        break;
                     case Keys.Return: // Send command
-                        if (!string.IsNullOrWhiteSpace(input)) {
+                        if (!string.IsNullOrWhiteSpace(input))
+                        {
                             InputHistory.Add(input);
                             Print(input);
                             ExecuteCommand(input);
+                            NavigateToBottom();
                         }
                         input = string.Empty;
                         break;
 
+                    // Ignored keys
+                    case Keys.Escape:
+                    case Keys.LWin:
+                    case Keys.RWin:
+                        break;
+
+                    // Text input
                     default:
                         input += unicodeKey;
                         break;
@@ -526,13 +631,12 @@ namespace Manager {
             }
 
             // Open/Close Console
-            if (e.KeyCode == OpenCloseKey) {
-                if (IsConsoleVisible) {
+            if (e.KeyCode == OpenCloseKey)
+            {
+                if (IsConsoleVisible)
                     Close();
-                }
-                else {
+                else
                     Open();
-                }
             }
         }
 

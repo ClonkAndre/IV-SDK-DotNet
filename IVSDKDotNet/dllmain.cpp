@@ -1,3 +1,13 @@
+// ==================================================================
+// ==================================================================
+// ================ IV-SDK .NET by ItsClonkAndre ====================
+// =============== https://github.com/ClonkAndre ====================
+// ==================================================================
+// ==================== IV-SDK by Zolika1351 ========================
+// =============== https://github.com/Zolika1351 ====================
+// ==================================================================
+// ==================================================================
+
 #include "IVSDK.cpp"
 
 #pragma region Variables
@@ -31,7 +41,6 @@ void ProcessCamera()
 }
 void ProcessAutomobile(CVehicle* veh)
 {
-	// Todo: Make class CVehicle managed and add to parameter of method below.
 	CLR::CLRBridge::InvokeProcessAutomobileEvents((uint32_t*)veh);
 }
 void ProcessPad(CPad* pad)
@@ -44,11 +53,15 @@ void ProcessPad(CPad* pad)
 // Managed Entry Point Thread
 DWORD WINAPI ManagedEntryPoint(HMODULE hModule)
 {
+	// Initialize IV-SDK .NET
 	CLR::CLRBridge::Initialize((int)plugin::gameVer, AddressSetter::gBaseAddress);
 
-	while (true) {
+	// Keep the plugin alive. I guess.
+	while (true)
+	{
 		Sleep(1000);
 	}
+
 	FreeLibraryAndExitThread(hModule, 0);
 	return 0;
 }

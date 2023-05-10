@@ -36,10 +36,18 @@ namespace IVSDKDotNet {
 	Guid Script::StartNewTask(Func<Object^>^ funcToExecute)
 	{
 		if (ManagerScript::s_Instance)
-			return ManagerScript::s_Instance->StartNewTask(this->ID, funcToExecute);
+			return ManagerScript::s_Instance->StartNewTask(this->ID, funcToExecute, nullptr);
 
 		return Guid::Empty;
 	}
+	Guid Script::StartNewTask(Func<Object^>^ funcToExecute, Action<Object^>^ continueWithAction)
+	{
+		if (ManagerScript::s_Instance)
+			return ManagerScript::s_Instance->StartNewTask(this->ID, funcToExecute, continueWithAction);
+
+		return Guid::Empty;
+	}
+
 	Guid Script::StartNewTimer(int interval, Action^ actionToExecute)
 	{
 		if (ManagerScript::s_Instance)
@@ -69,6 +77,10 @@ namespace IVSDKDotNet {
 	void Script::ShowSubtitleMessage(String^ str, uint32_t time)
 	{
 		IVSDKDotNet::Native::Natives::PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", str, time, true);
+	}
+	void Script::ShowSubtitleMessage(String^ str, ...array<System::Object^>^ args)
+	{
+		IVSDKDotNet::Native::Natives::PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", String::Format(str, args), 2000, true);
 	}
 	void Script::ShowSubtitleMessage(String^ str)
 	{
