@@ -253,8 +253,19 @@ namespace IVSDKDotNet {
 
 		property CObject^ WeaponObject {
 			public:
-				CObject^	get()				{ return gcnew CObject(PedWeaponsPointer->m_pWeaponObject); }
-				void		set(CObject^ value) { PedWeaponsPointer->m_pWeaponObject = value->ObjectPointer; }
+				CObject^ get()
+				{
+					Native_CObject* ptr = PedWeaponsPointer->m_pWeaponObject;
+
+					if (ptr)
+						return gcnew CObject(ptr);
+
+					return nullptr;
+				}
+				void set(CObject^ value)
+				{
+					PedWeaponsPointer->m_pWeaponObject = value->ObjectPointer;
+				}
 		}
 
 		property array<PedWeaponSlot^>^ Weapons {
@@ -549,13 +560,14 @@ namespace IVSDKDotNet {
 
 		property CVehicle^ Vehicle {
 			public:
-				CVehicle^ get() {
+				CVehicle^ get()
+				{
 					Native_CVehicle* veh = PedPointer->m_pVehicle;
 
-					if (!veh)
-						return nullptr;
+					if (veh)
+						return gcnew CVehicle(veh);
 
-					return gcnew CVehicle(veh);
+					return nullptr;
 				}
 				void set(CVehicle^ value) { PedPointer->m_pVehicle = value->VehiclePointer; }
 		}

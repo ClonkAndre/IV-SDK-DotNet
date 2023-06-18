@@ -19,6 +19,9 @@ namespace IVSDKDotNet {
 	public:
 		CObject(Native_CObject* nativePtr);
 
+		static CObject^ FromPointer(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 		/// <summary>
 		/// Set by SET_OBJECT_SCALE but unused.
 		/// </summary>

@@ -462,8 +462,16 @@ namespace IVSDKDotNet {
 
 		property UIntPtr Driver {
 			public:
-				UIntPtr get()				{ return UIntPtr((uint32_t*)m_cNativeVehicle->m_pDriver); }
-				void	set(UIntPtr value)	{ m_cNativeVehicle->m_pDriver = (Native_CPed*)value.ToPointer(); }
+				UIntPtr get()
+				{
+					uint32_t* ptr = (uint32_t*)m_cNativeVehicle->m_pDriver;
+
+					if (ptr)
+						return UIntPtr(ptr);
+					
+					return UIntPtr::Zero;
+				}
+				void set(UIntPtr value)	{ m_cNativeVehicle->m_pDriver = (Native_CPed*)value.ToPointer(); }
 		}
 
 		property array<UIntPtr>^ Passengers {

@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 using EasyHook;
+using IVSDKDotNet;
 using SharpDX;
 using SharpDX.Direct3D9;
 
@@ -232,13 +233,19 @@ namespace Manager.Direct3D9 {
 
             // Create dummy window, to get a dummy device, so we can get the vtable from that device.
             Main.managerInstance.console.PrintDebug("[DXHook] Getting Device VTable.");
-            using (Direct3D d3d = new Direct3D()) {
-                using (Form renderForm = new Form()) {
-                    using (Device tempDevice = new Device(d3d, 0, DeviceType.NullReference, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, new PresentParameters() { BackBufferWidth = 1, BackBufferHeight = 1, DeviceWindowHandle = renderForm.Handle })) {
+            using (Direct3D d3d = new Direct3D())
+            {
+                using (Form renderForm = new Form())
+                {
+                    using (Device tempDevice = new Device(d3d, 0, DeviceType.NullReference, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, new PresentParameters() { BackBufferWidth = 1, BackBufferHeight = 1, DeviceWindowHandle = renderForm.Handle }))
+                    {
                         d3d9DeviceVTable.AddRange(GetVTblAddresses(tempDevice.NativePointer, 119));
                     }
                 }
             }
+
+            //d3d9DeviceVTable.AddRange(GetVTblAddresses(RAGE.GetDirect3DDevice9(), 119));
+            //Device d = (Device)RAGE.GetDirect3DDevice9();
 
             // Hooking stuff.
             Main.managerInstance.console.PrintDebug("[DXHook] Hooking EndScene.");
@@ -273,7 +280,7 @@ namespace Manager.Direct3D9 {
         {
             DevicePtr = devicePtr;
             Device dev = (Device)devicePtr;
-            
+
             if (firstCall)
             {
                 OnInit?.Invoke(devicePtr);

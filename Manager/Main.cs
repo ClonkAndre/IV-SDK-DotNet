@@ -494,22 +494,27 @@ namespace Manager {
 
             // Start cleanup process
             cleanUpTask = Task.Run(() => {
-                try {
+                try
+                {
                     // Delete all console commands registered by this script
-                    for (int i = 0; i < ConsoleCommands.Count; i++) {
+                    for (int i = 0; i < ConsoleCommands.Count; i++)
+                    {
                         string command = ConsoleCommands[i];
-                        if (Main.managerInstance.console.Commands.ContainsKey(command)) Main.managerInstance.console.Commands.Remove(command);
+                        if (Main.managerInstance.console.Commands.ContainsKey(command))
+                            Main.managerInstance.console.Commands.Remove(command);
                     }
                     ConsoleCommands.Clear();
 
                     // Stop all active script tasks
-                    if (ScriptTasks.Count != 0) {
+                    if (ScriptTasks.Count != 0)
+                    {
 
                         DateTime taskCleanUpStartTime = DateTime.UtcNow;
                         Task[] scriptTasks = new Task[ScriptTasks.Count];
 
                         // Put all active tasks in task array and cancel them
-                        for (int i = 0; i < ScriptTasks.Count; i++) {
+                        for (int i = 0; i < ScriptTasks.Count; i++)
+                        {
                             AdvancedTask sTask = ScriptTasks[i];
                             scriptTasks[i] = sTask.task;
                             sTask.taskController.Cancel();
@@ -519,7 +524,8 @@ namespace Manager {
                         Task.WaitAll(scriptTasks);
 
                         // Dispose and remove all tasks from user
-                        for (int i = 0; i < ScriptTasks.Count; i++) {
+                        for (int i = 0; i < ScriptTasks.Count; i++)
+                        {
                             AdvancedTask sTask = ScriptTasks[i];
                             sTask.Dispose();
                             ScriptTasks.RemoveAt(i);
@@ -541,15 +547,19 @@ namespace Manager {
 
                     return null;
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     return ex;
                 }
             }).ContinueWith(r => {
-                if (r.Result != null) {
+                if (r.Result != null)
+                {
                     Main.managerInstance.console.PrintError(string.Format("An error occured while aborting script {0}. Details: {1}", Name, r.Result.ToString()));
                 }
-                else {
-                    if (showMessage) Main.managerInstance.console.Print(string.Format("Successfully aborted script {0}.", Name));
+                else
+                {
+                    if (showMessage)
+                        Main.managerInstance.console.Print(string.Format("Successfully aborted script {0}.", Name));
                 }
 
                 // Clean everything else
@@ -602,7 +612,7 @@ namespace Manager {
 
     public class Main : ManagerScript {
 
-        public const string ManagerVersion = "0.9";
+        public const string ManagerVersion = "0.9.2";
 
         #region Variables
         internal static Main managerInstance;
@@ -644,9 +654,8 @@ namespace Manager {
             string assemblyName = args.Name.Split(',')[0];
             string assemblyPath = string.Format("{0}\\{1}.dll", ivSDKDotNetBinaryPath, assemblyName);
 
-            if (File.Exists(assemblyPath)) {
+            if (File.Exists(assemblyPath))
                 return Assembly.UnsafeLoadFrom(assemblyPath);
-            }
 
             return null;
         }
@@ -697,9 +706,6 @@ namespace Manager {
             // Set instance
             managerInstance = this;
 
-            // Subscribe to AppDomain events
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-
             // Set paths
             ivSDKDotNetPath =       Application.StartupPath + "\\IVSDKDotNet";
             ivSDKDotNetBinaryPath = ivSDKDotNetPath + "\\bin";
@@ -713,6 +719,9 @@ namespace Manager {
             // Logging/Notification stuff
             console =       new Console();
             notification =  new Notification();
+
+            // Subscribe to AppDomain events
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
             // Hooks
             direct3D9Hook = new DXHook();
@@ -1903,14 +1912,17 @@ namespace Manager {
             // Set stuff from loaded(?) settings file
             pauseScriptExecutionWhenNotInFocus = settings.GetBoolean("Scripts", "PauseExecutionWhenNotInFocus", true);
             console.OpenCloseKey = settings.GetKey("Console", "OpenCloseKey", Keys.F4);
+            console.CanDisablePlayerMovement = settings.GetBoolean("Console", "DisablePlayerControlWhenOpen", true);
         }
 
         // Console stuff
         public void AddConsoleCommandToScript(Guid id, string command)
         {
             FoundScript s = GetFoundScript(id);
-            if (s != null) {
-                if (!s.ConsoleCommands.Contains(command)) s.ConsoleCommands.Add(command);
+            if (s != null)
+            {
+                if (!s.ConsoleCommands.Contains(command))
+                    s.ConsoleCommands.Add(command);
             }
         }
 
@@ -1921,13 +1933,16 @@ namespace Manager {
         }
         public void AbortScriptsInternal(AbortReason reason, bool showMessage)
         {
-            if (ActiveScripts.Count != 0) {
+            if (ActiveScripts.Count != 0)
+            {
                 ActiveScripts.ForEach(x => x.Abort(showMessage));
                 ActiveScripts.Clear();
                 GC.Collect();
             }
-            else {
-                if (showMessage) console.Print("There are no scripts to abort.");
+            else
+            {
+                if (showMessage)
+                    console.Print("There are no scripts to abort.");
             }
         }
 

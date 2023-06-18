@@ -13,6 +13,7 @@ using Vector3 =     System.Numerics.Vector3;
 using Color =       System.Drawing.Color;
 using Point =       System.Drawing.Point;
 using RectangleF =  System.Drawing.RectangleF;
+
 namespace Manager.Direct3D9 {
     internal class Drawing {
 

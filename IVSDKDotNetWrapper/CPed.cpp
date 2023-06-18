@@ -54,10 +54,10 @@ namespace IVSDKDotNet {
 	{
 		Native_CVehicle* vehPtr = PedPointer->GetVehicle();
 
-		if (!vehPtr)
-			return nullptr;
+		if (vehPtr)
+			return gcnew CVehicle(vehPtr);
 
-		return gcnew CVehicle(vehPtr);
+		return nullptr;
 	}
 
 	void CPed::ProcessWeaponSwitch()

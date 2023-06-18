@@ -88,6 +88,7 @@ namespace IVSDKDotNet {
 
 		/// <summary>
 		/// Gets the amount of pools that are currently allocated of this type?
+		/// - I rather think it's a boolean that shows if this pool was allocted.
 		/// </summary>
 		property uint32_t Allocated {
 			public: uint32_t get() { return ((Native_CPool<int>*)m_cNativePool)->m_bAllocated; }
@@ -131,7 +132,7 @@ namespace IVSDKDotNet {
 		UIntPtr New();
 
 		/// <summary>
-		/// Helper function. Checks if the object at the given slot is valid.
+		/// Checks if the object at the given slot is valid.
 		/// </summary>
 		bool IsValid(int slot);
 

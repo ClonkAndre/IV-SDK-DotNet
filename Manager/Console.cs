@@ -37,6 +37,7 @@ namespace Manager {
 
         // Navigation
         public bool IsConsoleVisible;
+        public bool CanDisablePlayerMovement;
         private int selectedIndex = 0;
         private int maxItemsVisibleAtOnce = 13;
         private int viewRangeStart = 0, viewRangeEnd = 16;
@@ -73,6 +74,12 @@ namespace Manager {
             if (IsConsoleVisible)
                 return;
 
+            if (CanDisablePlayerMovement)
+            {
+                if (CPlayerInfo.FindPlayerPed() != UIntPtr.Zero)
+                    Natives.SET_PLAYER_CONTROL_FOR_TEXT_CHAT(0, true);
+            }
+
             IsConsoleVisible = true;
             NavigateToBottom();
 
@@ -86,6 +93,12 @@ namespace Manager {
                 return;
 
             Main.managerInstance.AbortTaskOrTimer(caretTimerID);
+
+            if (CanDisablePlayerMovement)
+            {
+                if (CPlayerInfo.FindPlayerPed() != UIntPtr.Zero)
+                    Natives.SET_PLAYER_CONTROL_FOR_TEXT_CHAT(0, false);
+            }
 
             IsConsoleVisible = false;
             input = string.Empty;
@@ -267,7 +280,8 @@ namespace Manager {
                 return false;
 
             Commands.Add(nameToLower, actionToExecute);
-            if (fromScript != Guid.Empty) Main.managerInstance.AddConsoleCommandToScript(fromScript, nameToLower);
+            if (fromScript != Guid.Empty)
+                Main.managerInstance.AddConsoleCommandToScript(fromScript, nameToLower);
 
             return true;
         }
