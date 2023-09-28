@@ -281,15 +281,27 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// The unique ID of this script.
 		/// </summary>
-		property Guid ID {
+		property Guid ID
+		{
 			public:		Guid get()				{ return m_id; }
 			private:	void set(Guid value)	{ m_id = value; }
 		}
 
 		/// <summary>
+		/// If you uploaded your Modification to the IV Launchers Workshop, you can set the value of this property to the ID of the Modification in the Workshop.
+		/// </summary>
+		property Guid IVLauncherWorkshopID
+		{
+			public:	
+				Guid get()				{ return m_ivLauncherWorkshopID; }
+				void set(Guid value)	{ m_ivLauncherWorkshopID = value; }
+		}
+
+		/// <summary>
 		/// Gets the current AppDomain of this script.
 		/// </summary>
-		property AppDomain^ ScriptDomain {
+		property AppDomain^ ScriptDomain
+		{
 			public:		AppDomain^ get()			{ return m_AppDomain; }
 			internal:	void set(AppDomain^ value)	{ m_AppDomain = value; }
 		}
@@ -297,7 +309,8 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// Gets or sets where the Assemblies are located for this script. Default: GameRootDirectory
 		/// </summary>
-		property eAssembliesLocation AssembliesLocation {
+		property eAssembliesLocation AssembliesLocation
+		{
 			public:
 				eAssembliesLocation get()			{ return m_AssembliesLocation; }
 				void set(eAssembliesLocation value) { m_AssembliesLocation = value; }
@@ -308,7 +321,8 @@ namespace IVSDKDotNet {
 		/// The path is relative to the root directory of GTA IV.
 		/// Example: IVSDKDotNet\scripts\AssembliesForMyEpicScript - The Assemblies for your Script will now be loaded from the AssembliesForMyEpicScript folder.
 		/// </summary>
-		property String^ CustomAssembliesPath {
+		property String^ CustomAssembliesPath
+		{
 			public:
 				String^ get()				{ return m_CustomAssembliesPath; }
 				void	set(String^ value)	{ m_CustomAssembliesPath = value; }
@@ -319,7 +333,8 @@ namespace IVSDKDotNet {
 		/// The folder has to be named the same name as your Script (without extension), and needs to be placed in the scripts folder.
 		/// The string will be null if the folder doesn't exist.
 		/// </summary>
-		property String^ ScriptResourceFolder {
+		property String^ ScriptResourceFolder
+		{
 			public:
 				String^ get()				{ return m_ScriptResourceFolder; }
 				void	set(String^ value)	{ m_ScriptResourceFolder = value; }
@@ -328,7 +343,8 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// The settings file of this script.
 		/// </summary>
-		property SettingsFile^ Settings {
+		property SettingsFile^ Settings
+		{
 			public: 
 				SettingsFile^ get()				{ return m_SettingsFile; }
 				void set(SettingsFile^ value)	{ m_SettingsFile = value; }
@@ -337,7 +353,8 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// Gets or sets if the KeyDown and KeyUp events should only be raised when the player is actually in-game and not in main menu.
 		/// </summary>
-		property bool OnlyRaiseKeyEventsWhenInGame {
+		property bool OnlyRaiseKeyEventsWhenInGame
+		{
 			bool get()				{ return m_bOnlyInvokeKeyEventsWhenInGame; }
 			void set(bool value)	{ m_bOnlyInvokeKeyEventsWhenInGame = value; }
 		}
@@ -346,15 +363,17 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// Gets how much time the Initialized event took to execute.
 		/// </summary>
-		property TimeSpan InitializedEventExecutionTime {
-		public:
-			TimeSpan	get() { return m_sInitializedEventExecutionTime; }
-			void		set(TimeSpan value) { m_sInitializedEventExecutionTime = value; }
+		property TimeSpan InitializedEventExecutionTime
+		{
+			public:
+				TimeSpan	get() { return m_sInitializedEventExecutionTime; }
+				void		set(TimeSpan value) { m_sInitializedEventExecutionTime = value; }
 		}
 		/// <summary>
 		/// Gets how much time the Tick event took to execute.
 		/// </summary>
-		property TimeSpan TickEventExecutionTime {
+		property TimeSpan TickEventExecutionTime
+		{
 			public:
 				TimeSpan	get()				{ return m_sTickEventExecutionTime; }
 				void		set(TimeSpan value) { m_sTickEventExecutionTime = value; }
@@ -362,7 +381,8 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// Gets how much time the GameLoad event took to execute.
 		/// </summary>
-		property TimeSpan GameLoadEventExecutionTime {
+		property TimeSpan GameLoadEventExecutionTime
+		{
 			public:
 				TimeSpan	get()				{ return m_sGameLoadEventExecutionTime; }
 				void		set(TimeSpan value) { m_sGameLoadEventExecutionTime = value; }
@@ -370,7 +390,8 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// Gets how much time the GameLoadPriority event took to execute.
 		/// </summary>
-		property TimeSpan GameLoadPriorityEventExecutionTime {
+		property TimeSpan GameLoadPriorityEventExecutionTime
+		{
 			public:
 				TimeSpan	get()				{ return m_sGameLoadPriorityEventExecutionTime; }
 				void		set(TimeSpan value) { m_sGameLoadPriorityEventExecutionTime = value; }
@@ -378,7 +399,8 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// Gets how much time the MountDevice event took to execute.
 		/// </summary>
-		property TimeSpan MountDeviceEventExecutionTime {
+		property TimeSpan MountDeviceEventExecutionTime
+		{
 			public:
 				TimeSpan	get()				{ return m_sMountDeviceEventExecutionTime; }
 				void		set(TimeSpan value) { m_sMountDeviceEventExecutionTime = value; }
@@ -386,7 +408,8 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// Gets how much time the Drawing event took to execute.
 		/// </summary>
-		property TimeSpan DrawingEventExecutionTime {
+		property TimeSpan DrawingEventExecutionTime
+		{
 			public:
 				TimeSpan	get()				{ return m_sDrawingEventExecutionTime; }
 				void		set(TimeSpan value) { m_sDrawingEventExecutionTime = value; }
@@ -394,7 +417,8 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// Gets how much time the ProcessCamera event took to execute.
 		/// </summary>
-		property TimeSpan ProcessCameraEventExecutionTime {
+		property TimeSpan ProcessCameraEventExecutionTime
+		{
 			public:
 				TimeSpan	get()				{ return m_sProcessCameraEventExecutionTime; }
 				void		set(TimeSpan value) { m_sProcessCameraEventExecutionTime = value; }
@@ -402,7 +426,8 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// Gets how much time the ProcessAutomobile event took to execute.
 		/// </summary>
-		property TimeSpan ProcessAutomobileEventExecutionTime {
+		property TimeSpan ProcessAutomobileEventExecutionTime
+		{
 			public:
 				TimeSpan	get()				{ return m_sProcessAutomobileEventExecutionTime; }
 				void		set(TimeSpan value) { m_sProcessAutomobileEventExecutionTime = value; }
@@ -410,7 +435,8 @@ namespace IVSDKDotNet {
 		/// <summary>
 		/// Gets how much time the ProcessPad event took to execute.
 		/// </summary>
-		property TimeSpan ProcessPadEventExecutionTime {
+		property TimeSpan ProcessPadEventExecutionTime
+		{
 			public:
 				TimeSpan	get()				{ return m_sProcessPadEventExecutionTime; }
 				void		set(TimeSpan value) { m_sProcessPadEventExecutionTime = value; }
@@ -419,6 +445,7 @@ namespace IVSDKDotNet {
 
 	private:
 		Guid m_id;
+		Guid m_ivLauncherWorkshopID;
 		AppDomain^ m_AppDomain;
 		eAssembliesLocation m_AssembliesLocation;
 		String^ m_CustomAssembliesPath;
@@ -439,7 +466,8 @@ namespace IVSDKDotNet {
 	};
 
 	/// <summary> Internal-only IV-SDK .NET Manager stuff. </summary>
-	namespace Manager {
+	namespace Manager
+	{
 
 		/// <summary>
 		/// Only used for the IV-SDK .NET Manager.
@@ -449,8 +477,6 @@ namespace IVSDKDotNet {
 		{
 		public:
 			ManagerScript();
-
-			static ManagerScript^ s_Instance;
 
 			void Debug_ShowMessageBox(String^ str);
 			void Debug_ShowInfoMessageBox(String^ str);
@@ -566,6 +592,9 @@ namespace IVSDKDotNet {
 
 			virtual bool Direct3D9_Graphics_DrawString(Object^ instance, IntPtr device, Direct3D9::D3DResource^ fontResource, String^ text, Drawing::Rectangle rect, Direct3D9::eD3DFontDrawFlags drawFlags, Color color)									abstract;
 			virtual bool Direct3D9_Graphics_DrawString(Object^ instance, IntPtr device, Direct3D9::D3DResource^ fontResource, String^ text, Point pos, Color color)									abstract;
+
+		internal:
+			static ManagerScript^ s_Instance;
 
 		};
 

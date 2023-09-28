@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
+
+using SharpDX;
+using SharpDX.Mathematics.Interop;
+using SharpDX.Direct3D9;
 
 using EasyHook;
 using IVSDKDotNet;
-using SharpDX;
-using SharpDX.Direct3D9;
 
-namespace Manager.Direct3D9 {
-    internal class DXHook : IDisposable {
+namespace Manager.Direct3D9
+{
+    public class DXHook : IDisposable
+    {
 
         #region Variables and Enums
         // Variables
@@ -17,6 +20,9 @@ namespace Manager.Direct3D9 {
         private LocalHook endSceneHooker, resetHooker;
         private bool firstCall = true, disposedValue;
         public IntPtr DevicePtr;
+
+        private VertexShader vertexShader;
+        private PixelShader pixelShader;
 
         // Enums
         public enum Direct3DDevice9FunctionOrdinals : short
@@ -232,10 +238,10 @@ namespace Manager.Direct3D9 {
                 throw new Exception("hWnd pointer is invalid.");
 
             // Create dummy window, to get a dummy device, so we can get the vtable from that device.
-            Main.managerInstance.console.PrintDebug("[DXHook] Getting Device VTable.");
+            Main.Instance.Console.PrintDebug("[DXHook] Getting Device VTable.");
             using (Direct3D d3d = new Direct3D())
             {
-                using (Form renderForm = new Form())
+                using (System.Windows.Forms.Form renderForm = new System.Windows.Forms.Form())
                 {
                     using (Device tempDevice = new Device(d3d, 0, DeviceType.NullReference, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, new PresentParameters() { BackBufferWidth = 1, BackBufferHeight = 1, DeviceWindowHandle = renderForm.Handle }))
                     {
@@ -245,19 +251,105 @@ namespace Manager.Direct3D9 {
             }
 
             //d3d9DeviceVTable.AddRange(GetVTblAddresses(RAGE.GetDirect3DDevice9(), 119));
-            //Device d = (Device)RAGE.GetDirect3DDevice9();
+
+            //CreateShaders();
 
             // Hooking stuff.
-            Main.managerInstance.console.PrintDebug("[DXHook] Hooking EndScene.");
+            Main.Instance.Console.PrintDebug("[DXHook] Hooking EndScene.");
             endSceneHooker = LocalHook.Create(d3d9DeviceVTable[(int)Direct3DDevice9FunctionOrdinals.EndScene], new EndSceneHookDelegate(EndSceneHook), this);
             endSceneHooker.ThreadACL.SetExclusiveACL(new int[1]);
 
-            Main.managerInstance.console.PrintDebug("[DXHook] Hooking Reset.");
+            Main.Instance.Console.PrintDebug("[DXHook] Hooking Reset.");
             resetHooker = LocalHook.Create(d3d9DeviceVTable[(int)Direct3DDevice9FunctionOrdinals.Reset], new ResetHookDelegate(ResetHook), this);
             resetHooker.ThreadACL.SetExclusiveACL(new int[1]);
 
             // Log
-            Main.managerInstance.console.PrintDebug("[DXHook] Done!");
+            Main.Instance.Console.PrintDebug("[DXHook] Done!");
+        }
+
+        public void CreateShaders()
+        {
+            Device d = (Device)RAGE.GetDirect3DDevice9();
+
+            // Vertex Shader
+            string vertexShaderSource =
+                @"uniform float4x4 Projection : register(c0);\
+                struct VSIn\
+                {\
+                	float3 Position : POSITION;\
+                	float4 Color : COLOR;\
+                	float2 UV : TEXCOORD0;\
+                };\
+                struct VSOut\
+                {\
+                    float4 Position : POSITION;\
+                    float4 Color : COLOR;\
+                    float2 UV : TEXCOORD0;\
+                };\
+                \
+                VSOut main(VSIn vsIn)\
+                {\
+                    VSOut vsOut;\
+                    vsOut.Position = mul(Projection, float4(vsIn.Position.xyz, 1.0));\
+                    vsOut.Color = vsIn.Color;\
+                    vsOut.UV = vsIn.UV;\
+                    \
+                    return vsOut;\
+                }
+                ";
+
+            CompilationResult vertexShaderCompResult = ShaderBytecode.Compile(vertexShaderSource, "main", "vs_3_0", ShaderFlags.None, null, null);
+            vertexShader = new VertexShader(d, vertexShaderCompResult.Bytecode);
+
+            // Pixel shader
+            string pixelShaderSource =
+                @"uniform sampler2D TextureSampler : register(s0);\
+                \
+                struct PSIn\
+                {\
+                    float4 Color : COLOR;\
+                    float2 UV : TEXCOORD0;\
+                };\
+                \
+                float4 main(PSIn psIn) : COLOR\
+                {\
+                    float4 outColor = tex2D(TextureSampler, psIn.UV) * psIn.Color;\
+                    return outColor;\
+                }";
+
+            CompilationResult pixelShaderCompResult = ShaderBytecode.Compile(pixelShaderSource, "main", "ps_3_0", ShaderFlags.None, null, null);
+            pixelShader = new PixelShader(d, pixelShaderCompResult.Bytecode);
+
+            // VertexDeclaration
+            VertexElement[] vertexDeclElements = new VertexElement[4] {
+
+                new VertexElement(0, 0, DeclarationType.Float3, DeclarationMethod.Default, DeclarationUsage.Position, 0),
+                new VertexElement(0, 12, DeclarationType.Color, DeclarationMethod.Default, DeclarationUsage.Color, 0),
+                new VertexElement(0, 16, DeclarationType.Float2, DeclarationMethod.Default, DeclarationUsage.TextureCoordinate, 0),
+                VertexElement.VertexDeclarationEnd
+
+            };
+            VertexDeclaration vertexDeclaration = new VertexDeclaration(d, vertexDeclElements);
+        }
+        public void SetupDeviceRenderState()
+        {
+            Device d = (Device)RAGE.GetDirect3DDevice9();
+            d.VertexShader = vertexShader;
+            d.PixelShader = pixelShader;
+            d.SetRenderState(RenderState.ZWriteEnable, false);
+            d.SetRenderState(RenderState.AlphaTestEnable, false);
+            d.SetRenderState(RenderState.CullMode, Cull.None);
+            d.SetRenderState(RenderState.ZEnable, false);
+            d.SetRenderState(RenderState.AlphaBlendEnable, true);
+            d.SetRenderState(RenderState.BlendOperation, BlendOperation.Add);
+            d.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
+            d.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
+            d.SetRenderState(RenderState.SeparateAlphaBlendEnable, true);
+            d.SetRenderState(RenderState.SourceBlendAlpha, Blend.One);
+            d.SetRenderState(RenderState.DestinationBlendAlpha, Blend.InverseSourceAlpha);
+            d.SetRenderState(RenderState.ScissorTestEnable, true);
+            d.SetSamplerState(0, SamplerState.MinFilter, TextureFilter.Linear);
+            d.SetSamplerState(0, SamplerState.MagFilter, TextureFilter.Linear);
         }
         #endregion
 

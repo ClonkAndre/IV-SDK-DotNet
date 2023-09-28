@@ -305,6 +305,9 @@ namespace IVSDKDotNet {
 	public:
 		CPedMoveBlendOnFoot(Native_CPedMoveBlendOnFoot* nativePtr);
 
+		static CPedMoveBlendOnFoot^ FromPointer(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 		/// <summary>
 		/// Move states: 0 - Stopped, 1 - Walk, 2 - Run, 3 - Sprint.
 		/// </summary>

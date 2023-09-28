@@ -14,10 +14,16 @@ using Color =       System.Drawing.Color;
 using Point =       System.Drawing.Point;
 using RectangleF =  System.Drawing.RectangleF;
 
-namespace Manager.Direct3D9 {
-    internal class Drawing {
+// Credits for this code goes to the user 64com on unknowncheats.me
+// https://www.unknowncheats.me/forum/d3d-tutorials-and-source/126704-drawing-function-directx-9-a.html
 
-        public struct Vertex {
+namespace Manager.Direct3D9
+{
+    internal class Drawing
+    {
+
+        public struct Vertex
+        {
 
             #region Variables
             public float x, y, z, rhw;
@@ -39,8 +45,10 @@ namespace Manager.Direct3D9 {
 
         public static bool DrawLines(D3DGraphics g, IntPtr device, RawVector2[] vertices, Color color, bool antialias, int pattern, float patternScale, float thickness)
         {
-            try {
-                using (Line l = new Line((Device)device)) {
+            try
+            {
+                using (Line l = new Line((Device)device))
+                {
                     l.Antialias = antialias;
                     l.Pattern = pattern;
                     l.PatternScale = patternScale;
@@ -50,14 +58,16 @@ namespace Manager.Direct3D9 {
 
                 return true;
             }
-            catch (Exception ex) {
-                Main.managerInstance.console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw line. Details: {0}", ex.ToString()));
+            catch (Exception ex)
+            {
+                Main.Instance.Console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw line. Details: {0}", ex.ToString()));
             }
             return false;
         }
         public static bool DrawLine(D3DGraphics g, IntPtr device, Vector2 point1, Vector2 point2, Color color, bool antialias, int pattern, float patternScale, float thickness)
         {
-            RawVector2[] vertices = new RawVector2[2] {
+            RawVector2[] vertices = new RawVector2[2]
+            {
                 point1.ToRawVector2(),
                 point2.ToRawVector2()
             };
@@ -67,7 +77,8 @@ namespace Manager.Direct3D9 {
 
         public static bool DrawCircle(D3DGraphics g, IntPtr device, Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color)
         {
-            try {
+            try
+            {
                 Vertex[] vertex = new Vertex[resolution + 2];
 
                 // Circle Type
@@ -76,7 +87,8 @@ namespace Manager.Direct3D9 {
                 if (type == eD3DCircleType.Half)    pi = (float)Math.PI / 2f;    // 1/2 circle
                 if (type == eD3DCircleType.Quarter) pi = (float)Math.PI / 4f;    // 1/4 circle
 
-                for (int i = 0; i < vertex.Length; i++) {
+                for (int i = 0; i < vertex.Length; i++)
+                {
                     vertex[i].x = (float)(pos.X - radius * Math.Cos(i * (2 * pi / resolution)));
                     vertex[i].y = (float)(pos.Y - radius * Math.Sin(i * (2 * pi / resolution)));
                     vertex[i].z = 0f;
@@ -86,7 +98,8 @@ namespace Manager.Direct3D9 {
 
                 // Rotate matrix
                 float angle = rotation * (float)Math.PI / 180f;
-                for (int i = 0; i < vertex.Length; i++) {
+                for (int i = 0; i < vertex.Length; i++)
+                {
 
                     // Translate point back to origin
                     vertex[i].x -= pos.X;
@@ -111,7 +124,8 @@ namespace Manager.Direct3D9 {
                 ds.WriteRange(vertex);
                 g_pVB.Unlock();
 
-                if (smoothing) {
+                if (smoothing)
+                {
                     d.SetRenderState(RenderState.MultisampleAntialias, true);
                     d.SetRenderState(RenderState.AntialiasedLineEnable, true);
                 }
@@ -124,18 +138,21 @@ namespace Manager.Direct3D9 {
                 d.DrawPrimitives(PrimitiveType.LineStrip, 0, resolution);
 
                 // Cleanup
-                if (g_pVB != null) g_pVB.Dispose();
+                if (g_pVB != null)
+                    g_pVB.Dispose();
 
                 return true;
             }
-            catch (Exception ex) {
-                Main.managerInstance.console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw circle. Details: {0}", ex.ToString()));
+            catch (Exception ex)
+            {
+                Main.Instance.Console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw circle. Details: {0}", ex.ToString()));
             }
             return false;
         }
         public static bool DrawCircleFilled(D3DGraphics g, IntPtr device, Vector2 pos, float radius, float rotation, eD3DCircleType type, bool smoothing, int resolution, Color color)
         {
-            try {
+            try
+            {
                 Vertex[] vertex = new Vertex[resolution + 2];
 
                 // Circle Type
@@ -150,7 +167,8 @@ namespace Manager.Direct3D9 {
                 vertex[0].rhw = 1f;
                 vertex[0].color = color.ToArgb();
 
-                for (int i = 1; i < vertex.Length; i++) {
+                for (int i = 1; i < vertex.Length; i++)
+                {
                     vertex[i].x = (float)(pos.X - radius * Math.Cos(pi * ((i - 1) / (resolution / 2.0f))));
                     vertex[i].y = (float)(pos.Y - radius * Math.Sin(pi * ((i - 1) / (resolution / 2.0f))));
                     vertex[i].z = 0f;
@@ -160,7 +178,8 @@ namespace Manager.Direct3D9 {
 
                 // Rotate matrix
                 float angle = rotation * (float)Math.PI / 180f;
-                for (int i = 0; i < vertex.Length; i++) {
+                for (int i = 0; i < vertex.Length; i++)
+                {
 
                     // Translate point back to origin
                     vertex[i].x -= pos.X;
@@ -185,7 +204,8 @@ namespace Manager.Direct3D9 {
                 ds.WriteRange(vertex);
                 g_pVB.Unlock();
 
-                if (smoothing) {
+                if (smoothing)
+                {
                     d.SetRenderState(RenderState.MultisampleAntialias, true);
                     d.SetRenderState(RenderState.AntialiasedLineEnable, true);
                 }
@@ -198,22 +218,25 @@ namespace Manager.Direct3D9 {
                 d.DrawPrimitives(PrimitiveType.TriangleFan, 0, resolution);
 
                 // Cleanup
-                if (g_pVB != null) g_pVB.Dispose();
+                if (g_pVB != null)
+                    g_pVB.Dispose();
 
                 return true;
             }
             catch (Exception ex) {
-                Main.managerInstance.console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw filled circle. Details: {0}", ex.ToString()));
+                Main.Instance.Console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw filled circle. Details: {0}", ex.ToString()));
             }
             return false;
         }
 
         public static bool DrawBoxFilled(D3DGraphics g, IntPtr device, Vector2 pos, SizeF size, Color color)
         {
-            try {
+            try
+            {
                 Vertex[] vertex = new Vertex[4];
 
-                for (int i = 0; i < vertex.Length; i++) {
+                for (int i = 0; i < vertex.Length; i++)
+                {
                     vertex[i].z = 0f;
                     vertex[i].rhw = 0f;
                     vertex[i].color = color.ToArgb();
@@ -255,25 +278,30 @@ namespace Manager.Direct3D9 {
                 d.DrawIndexedPrimitive(PrimitiveType.TriangleList, 0, 0, 4, 0, 2);
 
                 // Cleanup
-                if (g_pVB != null) g_pVB.Dispose();
-                if (g_pIB != null) g_pIB.Dispose();
+                if (g_pVB != null)
+                    g_pVB.Dispose();
+                if (g_pIB != null)
+                    g_pIB.Dispose();
 
                 return true;
             }
-            catch (Exception ex) {
-                Main.managerInstance.console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw filled box. Details: {0}", ex.ToString()));
+            catch (Exception ex)
+            {
+                Main.Instance.Console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw filled box. Details: {0}", ex.ToString()));
             }
             return false;
         }
         public static bool DrawBox(D3DGraphics g, IntPtr device, Vector2 pos, SizeF size, float lineWidth, Color color)
         {
-            if (lineWidth == 0 || lineWidth == 1) {
+            if (lineWidth == 0 || lineWidth == 1)
+            {
                 DrawBoxFilled(g, device, pos, new SizeF(size.Width, 1f), color);                                                           // Top
                 DrawBoxFilled(g, device, new Vector2(pos.X, pos.Y + size.Height - 1), new SizeF(size.Width, 1f), color);                   // Bottom
                 DrawBoxFilled(g, device, new Vector2(pos.X, pos.Y + 1f), new SizeF(1f, size.Height - 2f * 1f), color);                     // Left
                 DrawBoxFilled(g, device, new Vector2(pos.X + size.Width - 1f, pos.Y + 1f), new SizeF(1f, size.Height - 2f * 1f), color);   // Right
             }
-            else {
+            else
+            {
                 DrawBoxFilled(g, device, pos, new SizeF(size.Width, lineWidth), color);                                                                                // Top
                 DrawBoxFilled(g, device, new Vector2(pos.X, pos.Y + size.Height - lineWidth), new SizeF(size.Width, lineWidth), color);                                // Bottom
                 DrawBoxFilled(g, device, new Vector2(pos.X, pos.Y + lineWidth), new SizeF(lineWidth, size.Height - 2f * lineWidth), color);                            // Left
@@ -296,7 +324,8 @@ namespace Manager.Direct3D9 {
             DrawBoxFilled(g, device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + radius), new SizeF(radius, size.Height - 2f * radius - 1f), color);         // Right rect.
 
             // Smoothing method
-            if (smoothing) {
+            if (smoothing)
+            {
                 DrawCircleFilled(g, device, new Vector2(pos.X + radius, pos.Y + radius), radius - 1f, 0f, eD3DCircleType.Quarter, false, 16, color);                                               // Top-left corner
                 DrawCircleFilled(g, device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + radius), radius - 1f, 90f, eD3DCircleType.Quarter, false, 16, color);                            // Top-right corner
                 DrawCircleFilled(g, device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + size.Height - radius - 1f), radius - 1f, 180f, eD3DCircleType.Quarter, false, 16, color);        // Bottom-right corner
@@ -312,7 +341,8 @@ namespace Manager.Direct3D9 {
                 DrawLine(g, device, new Vector2(pos.X + 1f, pos.Y + radius), new Vector2(pos.X + 1f, pos.Y + size.Height - radius - 1f), borderColor, false, -1, 1.0f, 1f);                                // Left line
                 DrawLine(g, device, new Vector2(pos.X + size.Width - 2f, pos.Y + radius), new Vector2(pos.X + size.Width - 2f, pos.Y + size.Height - radius - 1f), borderColor, false, -1, 1.0f, 1f);      // Right line
             }
-            else {
+            else
+            {
                 DrawCircleFilled(g, device, new Vector2(pos.X + radius, pos.Y + radius), radius, 0f, eD3DCircleType.Quarter, false, 16, color);                                                    // Top-left corner
                 DrawCircleFilled(g, device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + radius), radius, 90f, eD3DCircleType.Quarter, false, 16, color);                                 // Top-right corner
                 DrawCircleFilled(g, device, new Vector2(pos.X + size.Width - radius - 1f, pos.Y + size.Height - radius - 1f), radius, 180f, eD3DCircleType.Quarter, false, 16, color);             // Bottom-right corner
@@ -324,7 +354,8 @@ namespace Manager.Direct3D9 {
 
         public static bool DrawTexture(D3DGraphics g, IntPtr device, IntPtr txt, RectangleF rect, float rotation, Color tint)
         {
-            try {
+            try
+            {
                 Texture texture = (Texture)txt;
 
                 // Convert pixel to screen units
@@ -347,8 +378,9 @@ namespace Manager.Direct3D9 {
 
                 return true;
             }
-            catch (Exception ex) {
-                Main.managerInstance.console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw texture. Details: {0}", ex.ToString()));
+            catch (Exception ex)
+            {
+                Main.Instance.Console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw texture. Details: {0}", ex.ToString()));
             }
             return false;
         }
@@ -370,13 +402,14 @@ namespace Manager.Direct3D9 {
             }
             catch (Exception ex)
             {
-                Main.managerInstance.console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw text. Details: {0}", ex.ToString()));
+                Main.Instance.Console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw text. Details: {0}", ex.ToString()));
             }
             return false;
         }
         public static bool DrawString(D3DGraphics g, IntPtr fontPtr, string text, Point pos, Color color)
         {
-            try {
+            try
+            {
                 if (string.IsNullOrWhiteSpace(text))
                     return false;
 
@@ -388,8 +421,9 @@ namespace Manager.Direct3D9 {
                 }
                 return false;
             }
-            catch (Exception ex) {
-                Main.managerInstance.console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw text. Details: {0}", ex.ToString()));
+            catch (Exception ex)
+            {
+                Main.Instance.Console.PrintError(string.Format("[Direct3D9] An error occured while trying to draw text. Details: {0}", ex.ToString()));
             }
             return false;
         }

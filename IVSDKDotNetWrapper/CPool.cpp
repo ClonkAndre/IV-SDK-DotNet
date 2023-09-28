@@ -80,7 +80,14 @@ namespace IVSDKDotNet {
 			case ePool::VehicleStructPool:
 				break;
 			case ePool::PedMoveBlendPool:
-				break;
+			{
+				Native_CPool<Native_CPedMoveBlendOnFoot>* pool = AddressSetter::GetRef<Native_CPool<Native_CPedMoveBlendOnFoot>*>(0x14A82BC, 0x14CB04C);
+
+				if (!pool)
+					return nullptr;
+
+				return gcnew CPool(pool, type);
+			}
 			case ePool::DummyPedPool:
 			{
 				Native_CPool<Native_CDummyPed>* pool = AddressSetter::GetRef<Native_CPool<Native_CDummyPed>*>(0x14A82BC, 0x14CB04C);
@@ -189,7 +196,14 @@ namespace IVSDKDotNet {
 			case ePool::VehicleStructPool:
 				break;
 			case ePool::PedMoveBlendPool:
-				break;
+			{
+				Native_CPedMoveBlendOnFoot* ptr = GetNativePool<Native_CPedMoveBlendOnFoot>()->Get(slot);
+
+				if (!ptr)
+					return UIntPtr::Zero;
+
+				return UIntPtr(ptr);
+			}
 			case ePool::DummyPedPool:
 			{
 				Native_CDummyPed* ptr = GetNativePool<Native_CDummyPed>()->Get(slot);
@@ -297,7 +311,14 @@ namespace IVSDKDotNet {
 			case ePool::VehicleStructPool:
 				break;
 			case ePool::PedMoveBlendPool:
-				break;
+			{
+				Native_CPedMoveBlendOnFoot* ptr = GetNativePool<Native_CPedMoveBlendOnFoot>()->GetAt(nHandle);
+
+				if (!ptr)
+					return UIntPtr::Zero;
+
+				return UIntPtr(ptr);
+			}
 			case ePool::DummyPedPool:
 			{
 				Native_CDummyPed* ptr = GetNativePool<Native_CDummyPed>()->GetAt(nHandle);
@@ -347,7 +368,7 @@ namespace IVSDKDotNet {
 			case ePool::TaskPool:				return GetNativePool<Native_CTask>()->GetIndex((Native_CTask*)pObject.ToPointer());
 			case ePool::InteriorInstPool:		return GetNativePool<Native_CInteriorInst>()->GetIndex((Native_CInteriorInst*)pObject.ToPointer());
 			case ePool::VehicleStructPool:		break;
-			case ePool::PedMoveBlendPool:		break;
+			case ePool::PedMoveBlendPool:		return GetNativePool<Native_CPedMoveBlendOnFoot>()->GetIndex((Native_CPedMoveBlendOnFoot*)pObject.ToPointer());
 			case ePool::DummyPedPool:			return GetNativePool<Native_CDummyPed>()->GetIndex((Native_CDummyPed*)pObject.ToPointer());
 			case ePool::DummyTaskPool:			return GetNativePool<Native_CDummyTask>()->GetIndex((Native_CDummyTask*)pObject.ToPointer());
 			case ePool::UnkPedDataPool:			break;
@@ -374,7 +395,7 @@ namespace IVSDKDotNet {
 			case ePool::TaskPool:				return UIntPtr(GetNativePool<Native_CTask>()->New());
 			case ePool::InteriorInstPool:		return UIntPtr(GetNativePool<Native_CInteriorInst>()->New());
 			case ePool::VehicleStructPool:		break;
-			case ePool::PedMoveBlendPool:		break;
+			case ePool::PedMoveBlendPool:		return UIntPtr(GetNativePool<Native_CPedMoveBlendOnFoot>()->New());
 			case ePool::DummyPedPool:			return UIntPtr(GetNativePool<Native_CDummyPed>()->New());
 			case ePool::DummyTaskPool:			return UIntPtr(GetNativePool<Native_CDummyTask>()->New());
 			case ePool::UnkPedDataPool:			break;
@@ -402,7 +423,7 @@ namespace IVSDKDotNet {
 			case ePool::TaskPool:				return GetNativePool<Native_CTask>()->IsValid(slot);
 			case ePool::InteriorInstPool:		return GetNativePool<Native_CInteriorInst>()->IsValid(slot);
 			case ePool::VehicleStructPool:		break;
-			case ePool::PedMoveBlendPool:		break;
+			case ePool::PedMoveBlendPool:		return GetNativePool<Native_CPedMoveBlendOnFoot>()->IsValid(slot);
 			case ePool::DummyPedPool:			return GetNativePool<Native_CDummyPed>()->IsValid(slot);
 			case ePool::DummyTaskPool:			return GetNativePool<Native_CDummyTask>()->IsValid(slot);
 			case ePool::UnkPedDataPool:			break;

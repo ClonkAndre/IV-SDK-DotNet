@@ -4,15 +4,18 @@
 
 using namespace IVSDKDotNet::Manager;
 
-namespace IVSDKDotNet {
-	namespace Manager {
+namespace IVSDKDotNet
+{
+	namespace Manager
+	{
 
 		// =========================================================================
 		// ============================= ManagerScript =============================
 		// =========================================================================
 		ManagerScript::ManagerScript()
 		{
-			if (ManagerScript::s_Instance) delete this; // There is already a instance of the ManagerScript class. Delete this class.
+			if (ManagerScript::s_Instance)
+				delete this; // There is already a instance of the ManagerScript class. Delete this class.
 		}
 
 		void ManagerScript::Debug_ShowMessageBox(String^ str)		{ SHOW_MESSAGE(str); }
@@ -58,20 +61,24 @@ namespace IVSDKDotNet {
 
 	void Script::WaitInTask(Guid id, int waitTimeInMilliseconds)
 	{
-		if (ManagerScript::s_Instance) ManagerScript::s_Instance->WaitInTask(id, waitTimeInMilliseconds);
+		if (ManagerScript::s_Instance)
+			ManagerScript::s_Instance->WaitInTask(id, waitTimeInMilliseconds);
 	}
 
 	void Script::AbortTaskOrTimer(Guid id)
 	{
-		if (ManagerScript::s_Instance) ManagerScript::s_Instance->AbortTaskOrTimer(id);
+		if (ManagerScript::s_Instance)
+			ManagerScript::s_Instance->AbortTaskOrTimer(id);
 	}
 	void Script::ChangeTimerState(Guid id, bool pause)
 	{
-		if (ManagerScript::s_Instance) ManagerScript::s_Instance->ChangeTimerState(id, pause);
+		if (ManagerScript::s_Instance)
+			ManagerScript::s_Instance->ChangeTimerState(id, pause);
 	}
 	void Script::ChangeTimerInterval(Guid id, int interval)
 	{
-		if (ManagerScript::s_Instance) ManagerScript::s_Instance->ChangeTimerInterval(id, interval);
+		if (ManagerScript::s_Instance)
+			ManagerScript::s_Instance->ChangeTimerInterval(id, interval);
 	}
 
 	void Script::ShowSubtitleMessage(String^ str, uint32_t time)

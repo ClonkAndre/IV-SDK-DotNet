@@ -12,6 +12,7 @@ namespace IVSDKDotNet
 {
 	namespace Native
 	{
+
 		/// <summary>
 		/// GTA IV Native Functions.
 		/// Natives with an underscore at the beginning will likely crash the game.
@@ -3886,6 +3887,7 @@ namespace IVSDKDotNet
 			static void SET_RICH_PRESENCE_TEMPLATESP1(ScriptAny Unk992, ScriptAny Unk993, ScriptAny Unk994) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_RICH_PRESENCE_TEMPLATESP1, Unk992, Unk993, Unk994); }
 			static void SET_RICH_PRESENCE_TEMPLATESP2(int Unk995) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_RICH_PRESENCE_TEMPLATESP2, Unk995); }
 			static void SET_SERVER_ID(int id) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_SERVER_ID, id); }
+			static int GET_SERVER_ID() { return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_GET_SERVER_ID); }
 			static void SET_START_FROM_FILTER_MENU(ScriptAny Unk996) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_START_FROM_FILTER_MENU, Unk996); }
 			static void SET_SYNC_WEATHER_AND_GAME_TIME(b8 Unk997) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_SYNC_WEATHER_AND_GAME_TIME, Unk997); }
 			static void SET_THIS_MACHINE_RUNNING_SERVER_SCRIPT(b8 host) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_THIS_MACHINE_RUNNING_SERVER_SCRIPT, host); }
@@ -3923,7 +3925,8 @@ namespace IVSDKDotNet
 			static void REMOVE_PTFX_FROM_OBJECT(Entity obj) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REMOVE_PTFX_FROM_OBJECT, obj); }
 			static void SET_PED_FIRE_FX_LOD_SCALER(float scale) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_SET_PED_FIRE_FX_LOD_SCALER, scale); }
 			static void STOP_PTFX(unsigned int ptfx) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_STOP_PTFX, ptfx); }
-			static void UPDATE_PTFX_OFFSETS(unsigned int ptfx, float x, float y, float z, float Unk1081, float Unk1082, float Unk1083) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_UPDATE_PTFX_OFFSETS, ptfx, x, y, z, Unk1081, Unk1082, Unk1083); }
+			static void UPDATE_PTFX_OFFSETS(int ptfx, Vector3 pos, Vector3 unkMaybeRotation) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_UPDATE_PTFX_OFFSETS, ptfx, pos.X, pos.Y, pos.Z, unkMaybeRotation.X, unkMaybeRotation.Y, unkMaybeRotation.Z); }
+			static void UPDATE_PTFX_OFFSETS(int ptfx, float x, float y, float z, float Unk1081, float Unk1082, float Unk1083) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_UPDATE_PTFX_OFFSETS, ptfx, x, y, z, Unk1081, Unk1082, Unk1083); }
 			static float GENERATE_RANDOM_FLOAT()
 			{
 				float p;
@@ -5214,45 +5217,69 @@ namespace IVSDKDotNet
 				return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_START_NEW_SCRIPT, ctx.marshal_as<const char*>(scriptName), stacksize);
 			}
 
-			static uint32_t START_PTFX(String^ name, float x, float y, float z, float yaw, float pitch, float roll, float scale)
+			static int START_PTFX(String^ name, Vector3 pos, Vector3 rot, float scale)
 			{
 				msclr::interop::marshal_context ctx;
-				return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_START_PTFX, ctx.marshal_as<const char*>(name), x, y, z, yaw, pitch, roll, scale);
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_START_PTFX, ctx.marshal_as<const char*>(name), pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z, scale);
 			}
-			static uint32_t START_PTFX_ON_PED(String^ name, Ped ped, float x, float y, float z, float yaw, float pitch, float roll, float scale)
+			static int START_PTFX(String^ name, float x, float y, float z, float yaw, float pitch, float roll, float scale)
 			{
 				msclr::interop::marshal_context ctx;
-				return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_START_PTFX_ON_PED, ctx.marshal_as<const char*>(name), ped, x, y, z, yaw, pitch, roll, scale);
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_START_PTFX, ctx.marshal_as<const char*>(name), x, y, z, yaw, pitch, roll, scale);
 			}
-			static uint32_t START_PTFX_ON_PED_BONE(String^ name, Ped ped, float x, float y, float z, float yaw, float pitch, float roll, int bone, float scale)
+			static int START_PTFX_ON_PED(String^ name, Ped ped, Vector3 pos, Vector3 rot, float scale)
 			{
 				msclr::interop::marshal_context ctx;
-				return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_START_PTFX_ON_PED_BONE, ctx.marshal_as<const char*>(name), ped, x, y, z, yaw, pitch, roll, bone, scale);
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_START_PTFX_ON_PED, ctx.marshal_as<const char*>(name), ped, pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z, scale);
 			}
-			static uint32_t START_PTFX_ON_VEH(String^ name, Vehicle veh, float x, float y, float z, float yaw, float pitch, float roll, float scale)
+			static int START_PTFX_ON_PED(String^ name, Ped ped, float x, float y, float z, float yaw, float pitch, float roll, float scale)
 			{
 				msclr::interop::marshal_context ctx;
-				return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_START_PTFX_ON_VEH, ctx.marshal_as<const char*>(name), veh, x, y, z, yaw, pitch, roll, scale);
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_START_PTFX_ON_PED, ctx.marshal_as<const char*>(name), ped, x, y, z, yaw, pitch, roll, scale);
 			}
-			static uint32_t START_PTFX_ON_OBJ(String^ name, Entity obj, float x, float y, float z, float yaw, float pitch, float roll, float scale)
+			static int START_PTFX_ON_PED_BONE(String^ name, Ped ped, Vector3 pos, Vector3 rot, int bone, float scale)
 			{
 				msclr::interop::marshal_context ctx;
-				return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_START_PTFX_ON_OBJ, ctx.marshal_as<const char*>(name), obj, x, y, z, yaw, pitch, roll, scale);
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_START_PTFX_ON_PED_BONE, ctx.marshal_as<const char*>(name), ped, pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z, bone, scale);
 			}
-			static uint32_t START_PTFX_ON_OBJ_BONE(String^ name, Entity obj, float x, float y, float z, float yaw, float pitch, float roll, int bone, float scale)
+			static int START_PTFX_ON_PED_BONE(String^ name, Ped ped, float x, float y, float z, float yaw, float pitch, float roll, int bone, float scale)
 			{
 				msclr::interop::marshal_context ctx;
-				return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_START_PTFX_ON_OBJ_BONE, ctx.marshal_as<const char*>(name), obj, x, y, z, yaw, pitch, roll, bone, scale);
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_START_PTFX_ON_PED_BONE, ctx.marshal_as<const char*>(name), ped, x, y, z, yaw, pitch, roll, bone, scale);
+			}
+			static int START_PTFX_ON_VEH(String^ name, Vehicle veh, Vector3 pos, Vector3 rot, float scale)
+			{
+				msclr::interop::marshal_context ctx;
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_START_PTFX_ON_VEH, ctx.marshal_as<const char*>(name), veh, pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z, scale);
+			}
+			static int START_PTFX_ON_VEH(String^ name, Vehicle veh, float x, float y, float z, float yaw, float pitch, float roll, float scale)
+			{
+				msclr::interop::marshal_context ctx;
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_START_PTFX_ON_VEH, ctx.marshal_as<const char*>(name), veh, x, y, z, yaw, pitch, roll, scale);
+			}
+			static int START_PTFX_ON_OBJ(String^ name, Entity obj, Vector3 pos, Vector3 rot, float scale)
+			{
+				msclr::interop::marshal_context ctx;
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_START_PTFX_ON_OBJ, ctx.marshal_as<const char*>(name), obj, pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z, scale);
+			}
+			static int START_PTFX_ON_OBJ(String^ name, Entity obj, float x, float y, float z, float yaw, float pitch, float roll, float scale)
+			{
+				msclr::interop::marshal_context ctx;
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_START_PTFX_ON_OBJ, ctx.marshal_as<const char*>(name), obj, x, y, z, yaw, pitch, roll, scale);
+			}
+			static int START_PTFX_ON_OBJ_BONE(String^ name, Entity obj, Vector3 pos, Vector3 rot, int bone, float scale)
+			{
+				msclr::interop::marshal_context ctx;
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_START_PTFX_ON_OBJ_BONE, ctx.marshal_as<const char*>(name), obj, pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z, bone, scale);
+			}
+			static int START_PTFX_ON_OBJ_BONE(String^ name, Entity obj, float x, float y, float z, float yaw, float pitch, float roll, int bone, float scale)
+			{
+				msclr::interop::marshal_context ctx;
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_START_PTFX_ON_OBJ_BONE, ctx.marshal_as<const char*>(name), obj, x, y, z, yaw, pitch, roll, bone, scale);
 			}
 
-			static void UPDATE_PTFX_TINT(uint32_t ptfx, float r, float g, float b, float a)
-			{
-				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_UPDATE_PTFX_TINT, ptfx, r, g, b, a);
-			}
-			static void REMOVE_PTFX(uint32_t ptfx)
-			{
-				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_REMOVE_PTFX, ptfx);
-			}
+			static void UPDATE_PTFX_TINT(int ptfx, float r, float g, float b, float a) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_UPDATE_PTFX_TINT, ptfx, r, g, b, a); }
+			static void REMOVE_PTFX(int ptfx) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_REMOVE_PTFX, ptfx); }
 
 			static void DISABLE_LOCAL_PLAYER_PICKUPS(b8 b1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DISABLE_LOCAL_PLAYER_PICKUPS, b1); }
 			static void LOOP_RACE_TRACK(b8 b1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_LOOP_RACE_TRACK, b1); }
@@ -5347,6 +5374,65 @@ namespace IVSDKDotNet
 			// ctx.marshal_as<const char*>(
 
 		};
+
+		/// <summary>
+		/// This class gives you the possiblity to manually call native functions by their name.
+		/// </summary>
+		public ref class Function
+		{
+		public:
+
+			/// <summary>
+			/// Calls a native function by name and returns the result the native returned.
+			/// </summary>
+			/// <typeparam name="T">The return type of the native.</typeparam>
+			/// <param name="name">The name of the native function to call.</param>
+			/// <param name="args">The arguments of the native function.</param>
+			/// <returns>The result of the called native function.</returns>
+			generic <typename T>
+			static T Call(String^ name, ...array<Object^>^ args)
+			{
+				Type^ type = Natives::typeid;
+
+				// Get all methods
+				array<MethodInfo^>^ methodsArray = type->GetMethods(BindingFlags::Public | BindingFlags::Static);
+				
+				// Try to find method that match the name and argument count
+				MethodInfo^ foundMethod = nullptr;
+
+				for (size_t i = 0; i < methodsArray->Length; i++)
+				{
+					MethodInfo^ method = methodsArray[i];
+
+					if (!method)
+						continue;
+
+					if (method->Name == name && method->GetParameters()->Length == args->Length)
+					{
+						foundMethod = method;
+						break;
+					}
+				}
+
+				// Invoke found method
+				if (foundMethod)
+					return (T)foundMethod->Invoke(nullptr, args);
+
+				return T();
+			}
+
+			/// <summary>
+			/// Calls a native function by name.
+			/// </summary>
+			/// <param name="name">The name of the native function to call.</param>
+			/// <param name="args">The arguments of the native function.</param>
+			static void Call(String^ name, ...array<Object^>^ args)
+			{
+				Call<Object^>(name, args);
+			}
+
+		};
+
 	}
 }
 

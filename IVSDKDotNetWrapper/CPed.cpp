@@ -27,6 +27,21 @@ namespace IVSDKDotNet {
 		Pointer = nativePtr;
 	}
 
+	CPedMoveBlendOnFoot^ CPedMoveBlendOnFoot::FromPointer(UIntPtr ptr)
+	{
+		if (ptr == UIntPtr::Zero)
+			return nullptr;
+
+		return gcnew CPedMoveBlendOnFoot((Native_CPedMoveBlendOnFoot*)ptr.ToPointer());
+	}
+	UIntPtr CPedMoveBlendOnFoot::GetUIntPtr()
+	{
+		if (!Pointer)
+			return UIntPtr::Zero;
+
+		return UIntPtr(Pointer);
+	}
+
 	// =========================================================================
 	// ================================= CPed ==================================
 	// =========================================================================

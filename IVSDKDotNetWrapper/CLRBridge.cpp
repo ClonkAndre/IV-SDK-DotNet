@@ -4,7 +4,8 @@
 using namespace IVSDKDotNet;
 using namespace IVSDKDotNet::Manager;
 
-namespace CLR {
+namespace CLR
+{
 
 	void CLRBridge::Initialize(int version, uint32_t baseAddress)
 	{
@@ -17,7 +18,8 @@ namespace CLR {
 		MemoryAccess::Initialise(version, baseAddress);
 
 		// Load manager script
-		try {
+		try
+		{
 			String^ managerScriptPath = Application::StartupPath + "\\IVSDKDotNet\\IVSDKDotNet.Manager.dll";
 
 			if (!File::Exists(managerScriptPath))
@@ -27,15 +29,18 @@ namespace CLR {
 
 			// Get types from assembly
 			array<Type^>^ containedTypes = assembly->GetTypes();
-			for (int i = 0; i < containedTypes->Length; i++) {
+			for (int i = 0; i < containedTypes->Length; i++)
+			{
 				Type^ containedType = containedTypes[i];
 
-				if (containedType->IsSubclassOf(ManagerScript::typeid)) {
+				if (containedType->IsSubclassOf(ManagerScript::typeid))
+				{
 
 					// Create new instance of type for assembly
 					ManagerScript^ ms = (ManagerScript^)assembly->CreateInstance(containedType->FullName);
 
-					if (ms) {
+					if (ms)
+					{
 						// Set static instance
 						ManagerScript::s_Instance = ms;
 
@@ -49,22 +54,27 @@ namespace CLR {
 				}
 			}
 
-		} catch (ReflectionTypeLoadException^ ex) {
+		}
+		catch (ReflectionTypeLoadException^ ex)
+		{
 
 			array<Exception^>^ exs = ex->LoaderExceptions;
-			for (int i = 0; i < exs->Length; i++) {
+			for (int i = 0; i < exs->Length; i++)
+			{
 				Exception^ e = exs[i];
 				SHOW_ERROR_MESSAGE(String::Format("A ReflectionTypeLoadException occured while loading manager assembly. Details: {0}", e->ToString()));
 			}
 
-		} catch (Exception^ ex) {
+		}
+		catch (Exception^ ex)
+		{
 			SHOW_ERROR_MESSAGE(String::Format("An unknown exception occured while loading manager assembly. Details: {0}", ex->ToString()));
 		}
 
 ERR:
 
-		//CLRBridge::IsBridgeDisabled = true;
-		SHOW_WARN_MESSAGE("CLR Bridge got disabled due to IV-SDK DotNet load errors.");
+		CLRBridge::IsBridgeDisabled = true;
+		SHOW_WARN_MESSAGE("CLR Bridge got disabled due to IV-SDK .NET load errors.");
 	}
 
 	void CLRBridge::InvokeTickEvents()
@@ -72,56 +82,64 @@ ERR:
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance) ManagerScript::s_Instance->RaiseTick();
+		if (ManagerScript::s_Instance)
+			ManagerScript::s_Instance->RaiseTick();
 	}
 	void CLRBridge::InvokeGameLoadEvents()
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance) ManagerScript::s_Instance->RaiseGameLoad();
+		if (ManagerScript::s_Instance)
+			ManagerScript::s_Instance->RaiseGameLoad();
 	}
 	void CLRBridge::InvokeGameLoadPriorityEvents()
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance) ManagerScript::s_Instance->RaiseGameLoadPriority();
+		if (ManagerScript::s_Instance)
+			ManagerScript::s_Instance->RaiseGameLoadPriority();
 	}
 	void CLRBridge::InvokeMountDeviceEvents()
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 		
-		if (ManagerScript::s_Instance) ManagerScript::s_Instance->RaiseMountDevice();
+		if (ManagerScript::s_Instance)
+			ManagerScript::s_Instance->RaiseMountDevice();
 	}
 	void CLRBridge::InvokeDrawingEvents()
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance) ManagerScript::s_Instance->RaiseDrawing();
+		if (ManagerScript::s_Instance)
+			ManagerScript::s_Instance->RaiseDrawing();
 	}
 	void CLRBridge::InvokeProcessCameraEvents()
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance) ManagerScript::s_Instance->RaiseProcessCamera();
+		if (ManagerScript::s_Instance)
+			ManagerScript::s_Instance->RaiseProcessCamera();
 	}
 	void CLRBridge::InvokeProcessAutomobileEvents(uint32_t* vehPtr)
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance) ManagerScript::s_Instance->RaiseProcessAutomobile(UIntPtr(vehPtr));
+		if (ManagerScript::s_Instance)
+			ManagerScript::s_Instance->RaiseProcessAutomobile(UIntPtr(vehPtr));
 	}
 	void CLRBridge::InvokeProcessPadEvents()
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance) ManagerScript::s_Instance->RaiseProcessPad();
+		if (ManagerScript::s_Instance)
+			ManagerScript::s_Instance->RaiseProcessPad();
 	}
 
 }

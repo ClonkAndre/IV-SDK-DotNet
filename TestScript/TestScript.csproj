@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ClonksCodingLib.GTAIV">
+      <HintPath>..\..\ClonksCodingLib.GTAIV\ClonksCodingLib.GTAIV\ClonksCodingLib.GTAIV\bin\Release\ClonksCodingLib.GTAIV.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -71,6 +74,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\arrowUp.bin" />
+    <Resource Include="Resources\Bck.bin" />
+    <Resource Include="Resources\Pin.bin" />
+    <Resource Include="Resources\rpm_needle.bin" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

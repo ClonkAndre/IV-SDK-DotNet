@@ -73,9 +73,39 @@ namespace TestScript.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] Bck {
+            get {
+                object obj = ResourceManager.GetObject("Bck", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] discordTestLogo {
             get {
                 object obj = ResourceManager.GetObject("discordTestLogo", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] Pin {
+            get {
+                object obj = ResourceManager.GetObject("Pin", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] rpm_needle {
+            get {
+                object obj = ResourceManager.GetObject("rpm_needle", resourceCulture);
                 return ((byte[])(obj));
             }
         }

@@ -3,14 +3,17 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Manager {
-    internal class Helper {
+namespace Manager
+{
+    internal class Helper
+    {
 
         #region Classes
         /// <summary>
         /// Some helper functions in use with <see cref="Process"/>.
         /// </summary>
-        public class ProcessHelper {
+        public class ProcessHelper
+        {
 
             #region DllImports
             [DllImport("user32.dll")]
@@ -26,7 +29,8 @@ namespace Manager {
             #endregion
 
             #region Structs
-            private struct WINDOWPLACEMENT {
+            private struct WINDOWPLACEMENT
+            {
                 public int length;
                 public int flags;
                 public int showCmd;
@@ -48,7 +52,8 @@ namespace Manager {
             /// </returns>
             public static int GetProcessWindowState(Process p)
             {
-                if (p.MainWindowHandle != IntPtr.Zero) {
+                if (p.MainWindowHandle != IntPtr.Zero)
+                {
                     WINDOWPLACEMENT placement = new WINDOWPLACEMENT();
                     GetWindowPlacement(p.MainWindowHandle, ref placement);
                     return placement.showCmd;
@@ -64,9 +69,9 @@ namespace Manager {
             public static bool IsProcessInFocus(Process p)
             {
                 var activatedHandle = GetForegroundWindow();
-                if (activatedHandle == IntPtr.Zero) {
+
+                if (activatedHandle == IntPtr.Zero)
                     return false; // No window is currently activated
-                }
 
                 int procId = p.Id;
                 int activeProcId;
@@ -80,7 +85,8 @@ namespace Manager {
 
         public static byte[] GetByteArray(Stream input)
         {
-            using (MemoryStream ms = new MemoryStream()) {
+            using (MemoryStream ms = new MemoryStream())
+            {
                 input.CopyTo(ms);
                 return ms.ToArray();
             }

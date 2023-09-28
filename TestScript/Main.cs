@@ -11,8 +11,10 @@ using IVSDKDotNet.Direct3D9;
 using IVSDKDotNet.Enums;
 using static IVSDKDotNet.Native.Natives;
 
-namespace TestScript {
-    public class Main : Script {
+namespace TestScript
+{
+    public class Main : Script
+    {
 
         [StructLayout(LayoutKind.Sequential)]
         public struct TestNetworkStruct
@@ -96,7 +98,8 @@ namespace TestScript {
             CGame.Console.RegisterCommand(this, "Test2",    (string[] args) => { CGame.Console.PrintWarning("Custom command 'Test2' called!"); });
 
             // Read TestScripts settings file (TestScript.ini)
-            if (Settings != null) {
+            if (Settings != null)
+            {
                 CGame.Console.PrintWarning("bool: "    + Settings.GetBoolean("Section1", "bool", false).ToString());
                 CGame.Console.PrintWarning("int: "     + Settings.GetInteger("Section1", "int", -1).ToString());
                 CGame.Console.PrintWarning("float: "   + Settings.GetFloat("Section1", "float", -1.0f).ToString(CultureInfo.InvariantCulture));
@@ -108,7 +111,9 @@ namespace TestScript {
                 CGame.Console.PrintWarning("key: "     + Settings.GetKey("Section1", "key", Keys.None).ToString());
 
                 // Add a new section to the ini
-                if (Settings.AddSection("TEST_SECTION")) { // Section got added
+                if (Settings.AddSection("TEST_SECTION"))
+                    // Section got added
+                {
 
                     Settings.AddKeyToSection("TEST_SECTION", "New_Key"); // Add key to added section
                     Settings.Save(); // Save changes
@@ -167,15 +172,15 @@ namespace TestScript {
         {
             //gfx.DrawTexture(arrowTexture, new RectangleF(CGame.Resolution.Width / 2f, 64f, 32f, 32f), rot);
 
-            string text2 = "TEST!!!!lol";
+            GET_MOUSE_INPUT(out int x, out int y);
+
+            string text2 = string.Format("x: {0}, y: {1}", x, y);
             Size s = gfx.MeasureText(testFont, text2, eD3DFontDrawFlags.Left).Size;
             gfx.DrawBoxFilled(new Vector2(100f, 100f), new SizeF(s.Width - 10, s.Height), Color.Blue);
             gfx.DrawString(text2, new Rectangle(100, 100, s.Width - 10, s.Height), eD3DFontDrawFlags.Left, Color.Red);
 
             gfx.DrawString(s.ToString(), new Point(100, 200), Color.Red);
             gfx.DrawString(text, new Point(100, 400), Color.Red);
-
-            return;
 
             gfx.DrawLine(new Vector2(10f, 10f), new Vector2(50f, 100f), Color.Red, 5f);
             gfx.DrawLine(new Vector2(0f, 232f), new Vector2(300f, 232f), Color.Blue, 1f);
@@ -209,6 +214,13 @@ namespace TestScript {
         {
             // The IV-SDK .NET method on how to get the player char and the char coordinates and heading
             CPed playerPedNEW = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
+            
+            if (playerPedNEW.WeaponData.WeaponObject != null)
+            {
+                //ShowSubtitleMessage("ok");
+                //NativeCheckpoint.DrawCheckpoint(playerPedNEW.WeaponData.WeaponObject.Matrix.pos, 1f, Color.Red);
+            }
+
             Vector3 playerPosNEW = playerPedNEW.Matrix.pos;
             heading = playerPedNEW.CurrentHeading;
 
@@ -271,9 +283,8 @@ namespace TestScript {
                 //ShowSubtitleMessage(string.Format("IsUsingKeyboardForAim: {0}, IsUsingKeyboardForHeli: {1}, LastUpdateTime: {2}", pad.IsUsingKeyboardForAim.ToString(), pad.IsUsingKeyboardForHeli.ToString(), pad.LastUpdateTime.ToString()));
             }
 
-
-
-
+            // Manual Native Caller Test
+            ShowSubtitleMessage(IVSDKDotNet.Native.Function.Call<string>("GET_PLAYER_NAME", 0));
 
             //PedWeaponSlot slot4 = playerPedNEW.m_pWeaponData.Weapons[2];
             //ShowSubtitleMessage(string.Format("Type: {0}, Ammo: {1}, Model loaded: {2}", ((eWeaponType)slot4.Type).ToString(), slot4.Ammo.ToString(), slot4.HasModelLoaded.ToString()));
@@ -317,6 +328,7 @@ namespace TestScript {
             //    DRAW_CORONA(lightPos, 1900f, 1, 0f, Color.White); // Just a visualizer how far the light is actually up (It's very far up)
             //    CShadows.StoreStaticShadow(true, lightPos, Color.White, 2f, 800f);
             //}
+
 
             // Gets the nearest street node position from the players position
             //if (IsKeyPressed(Keys.U)) {
@@ -407,12 +419,13 @@ namespace TestScript {
         }
         private void Main_ProcessCamera(object sender, EventArgs e)
         {
+            CCam c = CCamera.GetFinalCam();
+
             //if (IsKeyPressed(Keys.Add))
             //    fov += 0.5f; // Zooms out
             //if (IsKeyPressed(Keys.Subtract))
             //    fov -= 0.5f; // Zooms in
 
-            //CCam c = CCamera.GetFinalCam();
             //if (c != null)
             //{
             //    c.FOV = fov;
@@ -428,7 +441,10 @@ namespace TestScript {
         private void Main_KeyDown(object sender, KeyEventArgs e)
         {
             // Creates an explosion infront of the player
-            if (e.KeyCode == Keys.NumPad9) {
+            if (e.KeyCode == Keys.NumPad9)
+            {
+
+                //UNPAUSE_GAME();
 
                 // Get player coordinates
                 GET_CHAR_COORDINATES(playerPed, out Vector3 pos);
@@ -445,14 +461,20 @@ namespace TestScript {
             }
 
             // Ped handle pool test
-            if (e.KeyCode == Keys.NumPad7) {
+            if (e.KeyCode == Keys.NumPad7)
+            {
+
+                //PAUSE_GAME();
 
                 // Explodes every ped except the player
                 int[] peds = CPools.GetAllPedHandles();
-                for (int i = 0; i < peds.Length; i++) {
+                for (int i = 0; i < peds.Length; i++)
+                {
                     int ped = peds[i];
-                    if (ped != 0 && ped != playerPed) {
-                        if (!IS_CHAR_DEAD(ped)) {
+                    if (ped != 0 && ped != playerPed)
+                    {
+                        if (!IS_CHAR_DEAD(ped))
+                        {
 
                             // Get ped coordinates
                             GET_CHAR_COORDINATES(ped, out Vector3 pos);
@@ -467,14 +489,17 @@ namespace TestScript {
             }
 
             // Vehicle handle pool test
-            if (e.KeyCode == Keys.NumPad3) {
+            if (e.KeyCode == Keys.NumPad3)
+            {
 
                 // Explodes every vehicle
                 int[] vehicles = CPools.GetAllVehicleHandles();
-                for (int i = 0; i < vehicles.Length; i++) {
+                for (int i = 0; i < vehicles.Length; i++)
+                {
                     int veh = vehicles[i];
                     if (veh != 0) {
-                        if (!IS_CAR_DEAD(veh)) {
+                        if (!IS_CAR_DEAD(veh))
+                        {
 
                             // Get vehicle coordinates
                             GET_CAR_COORDINATES(veh, out Vector3 pos);
@@ -489,13 +514,16 @@ namespace TestScript {
             }
 
             // Object handle pool test
-            if (e.KeyCode == Keys.NumPad1) {
+            if (e.KeyCode == Keys.NumPad1)
+            {
 
                 // Create explosion at object position
                 int[] objects = CPools.GetAllObjectHandles();
-                for (int i = 0; i < objects.Length; i++) {
+                for (int i = 0; i < objects.Length; i++)
+                {
                     int obj = objects[i];
-                    if (obj != 0) {
+                    if (obj != 0)
+                    {
 
                         // Get object coordinates
                         GET_OBJECT_COORDINATES(obj, out Vector3 pos);
@@ -509,7 +537,8 @@ namespace TestScript {
             }
 
             // CPedFactoryNY Test
-            if (e.KeyCode == Keys.B) {
+            if (e.KeyCode == Keys.B)
+            {
                 uint modelHash = RAGE.atStringHash("F_Y_NURSE");
                 CModelInfo.GetModelInfo(modelHash, out int index);
                 CStreaming.ScriptRequestModel((int)modelHash);
@@ -523,7 +552,8 @@ namespace TestScript {
             }
 
             // CVehicleFactoryNY Test
-            if (e.KeyCode == Keys.N) {
+            if (e.KeyCode == Keys.N)
+            {
                 uint modelHash = RAGE.atStringHash("admiral");
                 CModelInfo.GetModelInfo(modelHash, out int index);
                 CStreaming.ScriptRequestModel((int)modelHash);
@@ -554,7 +584,6 @@ namespace TestScript {
                 _TASK_FALL_AND_GET_UP(playerHandle, 1, 1);
                 CTheScripts.RestorePreviousThread();
 
-
                 ShowSubtitleMessage("IV-SDK Task test");
 
                 // Mouse test
@@ -576,6 +605,8 @@ namespace TestScript {
                 //    pickup = 0;
                 //}
             }
+
+
 
         }
 

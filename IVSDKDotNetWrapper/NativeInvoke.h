@@ -68,6 +68,34 @@ public:
 		m_nArgCount++;
 	}
 
+	inline void Push2(void* value, int size)
+	{
+		// Have we reached our argument count?
+		if (m_nArgCount == MaxNativeParams)
+		{
+			// We can only store 16 arguments
+			return;
+		}
+
+		// Is the argument too big?
+		if (size > ArgSize)
+		{
+			// We only accept 4 byte or less arguments
+			return;
+		}
+		else if (size < ArgSize) // Is the argument too small?
+		{
+			// Reset the argument data
+			*(unsigned int*)(m_TempStack + ArgSize * m_nArgCount) = 0;
+		}
+
+		// Add to argument to the argument stack
+		*(void**)(m_TempStack + ArgSize * m_nArgCount) = value;
+
+		// Increment the total argument count
+		m_nArgCount++;
+	}
+
 	template <typename T>
 	inline T GetResult()
 	{
@@ -125,6 +153,32 @@ private:
 	}
 
 public:
+
+	static bool Invoke2(uint32_t uiHash, IVNativeCallContext* pNativeContext)
+	{
+		auto NativeFunc = (NativeCall)Native_CTheScripts::FindNativeAddress(uiHash);
+		if (NativeFunc != NULL)
+		{
+			NativeFunc(pNativeContext);
+			return true;
+		}
+		return false;
+	}
+
+	template <typename R>
+	static inline R AInvoke(eNativeHash hash, void* args, uint32_t size)
+	{
+		NativeContext cxt;
+
+		// Add native functions args to NativeContext
+		for (uint32_t i = 0; i < size; i++)
+		{
+			cxt.Push2(args[i]);
+		}
+
+		Invoke((uint32_t)hash, &cxt);
+		return cxt.GetResult<R>();
+	}
 
 	template <typename R>
 	static inline R Invoke(eNativeHash hash)
