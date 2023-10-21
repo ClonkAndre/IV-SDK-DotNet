@@ -1,5 +1,4 @@
 #define _CRT_SECURE_NO_WARNINGS
-#define UNICODE
 #pragma comment(lib, "version.lib")
 #include <windows.h>
 #include <stdint.h>
@@ -10,6 +9,7 @@
 
 #include "Addresses.h"
 #include "IVSDK.h"
+#include "Scripting/Scripting.h"
 #include "Hooks.h"
 
 namespace plugin
@@ -21,63 +21,51 @@ namespace plugin
 		return hModule;
 	}
 
-	uint32_t DoHook(uint32_t address, void(*Function)())
+	// apparently the plugin unloads without this? wtf
+	DWORD WINAPI DummyThread(HMODULE hModule)
 	{
-		if (address)
+		while (true)
 		{
-			uint32_t origcall = (uint32_t)injector::ReadRelativeOffset(address + 1);
-
-			injector::MakeCALL(address, Function);
-
-			return origcall;
+			Sleep(1000);
 		}
 		return 0;
 	}
-
+	uintptr_t DoHook(uintptr_t address, void(*Function)())
+	{
+		if (address) return (uintptr_t)injector::MakeCALL(address, Function);
+		return 0;
+	}
 	void InitHooks()
 	{
-		processScriptsEvent::returnAddress =	DoHook(AddressSetter::Get(0x21601, 0x95141),	processScriptsEvent::MainHook);
-		gameLoadEvent::returnAddress =			DoHook(AddressSetter::Get(0x4ADB38, 0x770748),	gameLoadEvent::MainHook);
-		gameLoadPriorityEvent::returnAddress =	DoHook(AddressSetter::Get(0x4ADA9D, 0x7706AD),	gameLoadPriorityEvent::MainHook);
-		drawingEvent::returnAddress =			DoHook(AddressSetter::Get(0x46AFA8, 0x60E1C8),	drawingEvent::MainHook);
-		processAutomobileEvent::callAddress =	DoHook(AddressSetter::Get(0x7FE9C6, 0x652C26),	processAutomobileEvent::MainHook);
-		processPadEvent::callAddress =			DoHook(AddressSetter::Get(0x3C4002, 0x46A802),	processPadEvent::MainHook);
-		processCameraEvent::returnAddress =		DoHook(AddressSetter::Get(0x52C4C2, 0x694232),	processCameraEvent::MainHook);
-		mountDeviceEvent::returnAddress =		DoHook(AddressSetter::Get(0x3B2E27, 0x456C27),	mountDeviceEvent::MainHook);
+		processScriptsEvent::returnAddress = DoHook(AddressSetter::Get(0x21601, 0x95141), processScriptsEvent::MainHook);
+		gameLoadEvent::returnAddress = DoHook(AddressSetter::Get(0x4ADB38, 0x770748), gameLoadEvent::MainHook);
+		gameLoadPriorityEvent::returnAddress = DoHook(AddressSetter::Get(0x4ADA9D, 0x7706AD), gameLoadPriorityEvent::MainHook);
+		drawingEvent::returnAddress = DoHook(AddressSetter::Get(0x46AFA8, 0x60E1C8), drawingEvent::MainHook);
+		processAutomobileEvent::callAddress = DoHook(AddressSetter::Get(0x7FE9C6, 0x652C26), processAutomobileEvent::MainHook);
+		processPadEvent::callAddress = DoHook(AddressSetter::Get(0x3C4002, 0x46A802), processPadEvent::MainHook);
+		processCameraEvent::returnAddress = DoHook(AddressSetter::Get(0x52C4C2, 0x694232), processCameraEvent::MainHook);
+		mountDeviceEvent::returnAddress = DoHook(AddressSetter::Get(0x3B2E27, 0x456C27), mountDeviceEvent::MainHook);
+		ingameStartupEvent::returnAddress = DoHook(AddressSetter::Get(0x20379, 0x93F09), ingameStartupEvent::MainHook);
 	}
-
 	void Init()
 	{
-		// Initialize AddressSetter if addresses where not read yet
-		if (!AddressSetter::bAddressesRead)
-			AddressSetter::Init();
+#ifndef IVSDK_NO_DUMMY_THREAD
+		CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)DummyThread, GetCurrentModule(), 0, nullptr);
+#endif
 
-		// Init stuff for specific versions
-		switch (gameVer)
+		if (!AddressSetter::bAddressesRead) AddressSetter::Init();
+		if (gameVer != VERSION_NONE)
 		{
-			// Initialize stuff for 1070 and 1080
-			case plugin::VERSION_1070:
-			case plugin::VERSION_1080:
-				InitHooks();
-				gameStartupEvent();
-				break;
-		}
+			InitHooks();
 
+			gameStartupEvent();
+		}
 	}
 }
 
-// Entry point
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HMODULE module, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
-	switch (ul_reason_for_call)
-	{
-		case DLL_PROCESS_ATTACH:
-
-			// Initialize plugin
-			plugin::Init();
-
-			break;
-	}
+	if (ul_reason_for_call == DLL_PROCESS_ATTACH) plugin::Init();
 	return TRUE;
 }
 
