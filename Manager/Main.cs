@@ -764,7 +764,6 @@ namespace Manager {
                     notification.UseOldDrawingSystem = true;
 
                     console.PrintError("An error occured while trying to initialize the D3D9 Hook. D3D9 drawing will not be available. Using legacy console and notification drawing method.");
-                    console.PrintError("If you happen to have dxvk or an ENB installed, please note that IV-SDK .NET does not currently work in combination with dxvk or an ENB.");
                     console.PrintError("Details: " + ex.ToString());
                 }
             }, null);
