@@ -12,8 +12,9 @@ Not everything from IV-SDK was ported over to IV-SDK .NET yet. More things will 
 ## Documentation
 Not created yet. Check out the [TestScript](https://github.com/ClonkAndre/IV-SDK-DotNet/tree/main/TestScript) to see how you could create a script.  
   
-The process is pretty easy tho: Create a new C# Class Library (choose whatever .NET language you would like to develop a script for), add a reference to **IVSDKDotNetWrapper.dll** and derive your main class from "**IVSDKDotNetWrapper.Script**". If you want to compile the script you have to add **.ivsdk** to your **Assembly name** in the Project **Properties** so it will be compiled as "**YourScript.ivsdk.dll**".
+The process is pretty easy tho: Create a new C# Class Library (choose whatever .NET language you would like to develop a script for), add a reference to **IVSDKDotNetWrapper.dll** and derive your main class from "**IVSDKDotNetWrapper.Script**". If you want to compile the script you have to add **.ivsdk** to your **Assembly name** in the Project **Properties** so it will be compiled as "**YourScript.ivsdk.dll**".  
 
+If you need help with IV-SDK .NET, ask in the [#modding-help](https://discord.com/channels/528764831508070410/1174780962652045384) forum inside our [discord server](https://discord.gg/QtAgvkMeJ5)!
 
 **Very** useful pages for looking up native functions
 - https://pastebin.com/n7CAnpZB
