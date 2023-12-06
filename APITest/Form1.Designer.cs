@@ -47,6 +47,9 @@
             this.getRunningScriptsButton = new System.Windows.Forms.Button();
             this.loadScriptButton = new System.Windows.Forms.Button();
             this.abortScriptsButton = new System.Windows.Forms.Button();
+            this.sendScriptCommandButton = new System.Windows.Forms.Button();
+            this.scriptCommandToScriptTextBox = new System.Windows.Forms.TextBox();
+            this.commandTextBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // testButton
@@ -146,7 +149,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(9, 131);
+            this.label4.Location = new System.Drawing.Point(9, 165);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(35, 13);
             this.label4.TabIndex = 9;
@@ -155,7 +158,7 @@
             // getSessionInfoButton
             // 
             this.getSessionInfoButton.ForeColor = System.Drawing.Color.Black;
-            this.getSessionInfoButton.Location = new System.Drawing.Point(12, 147);
+            this.getSessionInfoButton.Location = new System.Drawing.Point(12, 181);
             this.getSessionInfoButton.Name = "getSessionInfoButton";
             this.getSessionInfoButton.Size = new System.Drawing.Size(91, 23);
             this.getSessionInfoButton.TabIndex = 10;
@@ -166,7 +169,7 @@
             // getPlayerNameNativeButton
             // 
             this.getPlayerNameNativeButton.ForeColor = System.Drawing.Color.Black;
-            this.getPlayerNameNativeButton.Location = new System.Drawing.Point(109, 147);
+            this.getPlayerNameNativeButton.Location = new System.Drawing.Point(109, 181);
             this.getPlayerNameNativeButton.Name = "getPlayerNameNativeButton";
             this.getPlayerNameNativeButton.Size = new System.Drawing.Size(183, 23);
             this.getPlayerNameNativeButton.TabIndex = 11;
@@ -177,7 +180,7 @@
             // button1
             // 
             this.button1.ForeColor = System.Drawing.Color.Black;
-            this.button1.Location = new System.Drawing.Point(298, 147);
+            this.button1.Location = new System.Drawing.Point(298, 181);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(183, 23);
             this.button1.TabIndex = 12;
@@ -247,12 +250,40 @@
             this.abortScriptsButton.UseVisualStyleBackColor = true;
             this.abortScriptsButton.Click += new System.EventHandler(this.abortScriptsButton_Click);
             // 
+            // sendScriptCommandButton
+            // 
+            this.sendScriptCommandButton.ForeColor = System.Drawing.Color.Black;
+            this.sendScriptCommandButton.Location = new System.Drawing.Point(12, 125);
+            this.sendScriptCommandButton.Name = "sendScriptCommandButton";
+            this.sendScriptCommandButton.Size = new System.Drawing.Size(117, 23);
+            this.sendScriptCommandButton.TabIndex = 19;
+            this.sendScriptCommandButton.Text = "SendScriptCommand";
+            this.sendScriptCommandButton.UseVisualStyleBackColor = true;
+            this.sendScriptCommandButton.Click += new System.EventHandler(this.sendScriptCommandButton_Click);
+            // 
+            // scriptCommandToScriptTextBox
+            // 
+            this.scriptCommandToScriptTextBox.Location = new System.Drawing.Point(135, 127);
+            this.scriptCommandToScriptTextBox.Name = "scriptCommandToScriptTextBox";
+            this.scriptCommandToScriptTextBox.Size = new System.Drawing.Size(138, 20);
+            this.scriptCommandToScriptTextBox.TabIndex = 20;
+            // 
+            // commandTextBox
+            // 
+            this.commandTextBox.Location = new System.Drawing.Point(279, 127);
+            this.commandTextBox.Name = "commandTextBox";
+            this.commandTextBox.Size = new System.Drawing.Size(138, 20);
+            this.commandTextBox.TabIndex = 21;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.ClientSize = new System.Drawing.Size(706, 433);
+            this.Controls.Add(this.commandTextBox);
+            this.Controls.Add(this.scriptCommandToScriptTextBox);
+            this.Controls.Add(this.sendScriptCommandButton);
             this.Controls.Add(this.abortScriptsButton);
             this.Controls.Add(this.loadScriptButton);
             this.Controls.Add(this.getRunningScriptsButton);
@@ -304,6 +335,9 @@
         private System.Windows.Forms.Button getRunningScriptsButton;
         private System.Windows.Forms.Button loadScriptButton;
         private System.Windows.Forms.Button abortScriptsButton;
+        private System.Windows.Forms.Button sendScriptCommandButton;
+        private System.Windows.Forms.TextBox scriptCommandToScriptTextBox;
+        private System.Windows.Forms.TextBox commandTextBox;
     }
 }
 

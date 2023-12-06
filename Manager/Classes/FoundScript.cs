@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using IVSDKDotNet;
-using IVSDKDotNet.Direct3D9;
 
 namespace Manager.Classes
 {
@@ -18,205 +15,238 @@ namespace Manager.Classes
         public Guid ID;
         public string Name;
         public string FullPath;
-        public bool RaiseOnD3D9InitEvent = true;
+        public bool RaiseOnFirstD3D9FrameEvent = true;
 
         public Type EntryPoint;
         public FieldInfo[] PublicFields;
-        public Script Script;
+        public Script TheScript;
         public List<AdvancedTask> ScriptTasks;
         public List<string> ConsoleCommands;
 
-        // Graphics
-        public D3DGraphics GFX;
-        public Dictionary<Guid, D3DResource> D3D9Objects;
+        // Dear ImGui
+        public List<IntPtr> Textures;
 
         // Other
-        private bool running;
-        private bool initEventCalled;
+        public bool Running;
+        public bool InitEventCalled;
         private Task cleanUpTask;
         public Exception AbortError;
         #endregion
 
         #region Constructor
-        public FoundScript(Guid id, Type entryPoint, Script script)
+        public FoundScript(string name, string fullPath, Script script, Type entryPoint)
         {
-            ID = id;
+            Name = name;
+            FullPath = fullPath;
+            TheScript = script;
+            ID = TheScript.ID;
+
             EntryPoint = entryPoint;
-            PublicFields = EntryPoint.GetFields();
-            Script = script;
-            ScriptTasks = new List<AdvancedTask>();
-            ConsoleCommands = new List<string>();
-            D3D9Objects = new Dictionary<Guid, D3DResource>();
-            running = true;
+            PublicFields = EntryPoint.GetFields(BindingFlags.Instance | BindingFlags.Public);
+            
+            // Lists
+            // Initializing all lists with a Capacity of 8 so they don't need to resize for every new item that is added to them (Aslong as they don't reach the set Capacity).
+            ScriptTasks = new List<AdvancedTask>(8);
+            ConsoleCommands = new List<string>(8);
+            Textures = new List<IntPtr>(8);
+
+            Running = true;
         }
         #endregion
 
         #region Raisers
         public void RaiseInitialized()
         {
-            if (!initEventCalled)
+            if (!InitEventCalled)
             {
-                Script.RaiseInitialized();
-                initEventCalled = true;
+                TheScript.RaiseInitialized();
+                InitEventCalled = true;
             }
         }
+        public void RaiseUninitialize()
+        {
+            TheScript.RaiseUninitialize();
+        }
+
         public void RaiseTick()
         {
+            if (!IsScriptReady())
+                return;
+
             DateTime time = DateTime.UtcNow;
-            Script.RaiseTick();
-            Script.TickEventExecutionTime = DateTime.UtcNow - time;
+            TheScript.RaiseTick();
+            TheScript.TickEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseGameLoad()
         {
+            if (!IsScriptReady())
+                return;
+
             DateTime time = DateTime.UtcNow;
-            Script.RaiseGameLoad();
-            Script.GameLoadEventExecutionTime = DateTime.UtcNow - time;
+            TheScript.RaiseGameLoad();
+            TheScript.GameLoadEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseGameLoadPriority()
         {
+            if (!IsScriptReady())
+                return;
+
             DateTime time = DateTime.UtcNow;
-            Script.RaiseGameLoadPriority();
-            Script.GameLoadPriorityEventExecutionTime = DateTime.UtcNow - time;
+            TheScript.RaiseGameLoadPriority();
+            TheScript.GameLoadPriorityEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseMountDevice()
         {
+            if (!IsScriptReady())
+                return;
+
             DateTime time = DateTime.UtcNow;
-            Script.RaiseMountDevice();
-            Script.MountDeviceEventExecutionTime = DateTime.UtcNow - time;
+            TheScript.RaiseMountDevice();
+            TheScript.MountDeviceEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseDrawing()
         {
+            if (!IsScriptReady())
+                return;
+
             DateTime time = DateTime.UtcNow;
-            Script.RaiseDrawing();
-            Script.DrawingEventExecutionTime = DateTime.UtcNow - time;
+            TheScript.RaiseDrawing();
+            TheScript.DrawingEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseProcessCamera()
         {
+            if (!IsScriptReady())
+                return;
+
             DateTime time = DateTime.UtcNow;
-            Script.RaiseProcessCamera();
-            Script.ProcessCameraEventExecutionTime = DateTime.UtcNow - time;
+            TheScript.RaiseProcessCamera();
+            TheScript.ProcessCameraEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseProcessAutomobile(UIntPtr vehPtr)
         {
+            if (!IsScriptReady())
+                return;
+
             DateTime time = DateTime.UtcNow;
-            Script.RaiseProcessAutomobile(vehPtr);
-            Script.ProcessAutomobileEventExecutionTime = DateTime.UtcNow - time;
+            TheScript.RaiseProcessAutomobile(vehPtr);
+            TheScript.ProcessAutomobileEventExecutionTime = DateTime.UtcNow - time;
         }
-        public void RaiseProcessPad()
+        public void RaiseProcessPad(UIntPtr padPtr)
         {
+            if (!IsScriptReady())
+                return;
+
             DateTime time = DateTime.UtcNow;
-            Script.RaiseProcessPad();
-            Script.ProcessPadEventExecutionTime = DateTime.UtcNow - time;
+            TheScript.RaiseProcessPad(padPtr);
+            TheScript.ProcessPadEventExecutionTime = DateTime.UtcNow - time;
         }
-
-        public void RaiseOnEndScene(IntPtr device)
+        public void RaiseOnFirstD3D9Frame()
         {
-            if (GFX != null)
-            {
-                DateTime time = DateTime.UtcNow;
+            if (!IsScriptReady())
+                return;
 
-                // Raise OnInit event once
-                if (RaiseOnD3D9InitEvent)
-                {
-                    GFX.Device = device;
-                    GFX.RaiseOnInit(device);
-                    GFX.OnInitEventExecutionTime = DateTime.UtcNow - time;
-                    RaiseOnD3D9InitEvent = false;
-                }
-
-                // Raise OnDeviceEndScene event
-                GFX.Device = device;
-                GFX.RaiseOnDeviceEndScene(device);
-                GFX.OnDeviceEndSceneEventExecutionTime = DateTime.UtcNow - time;
-            }
-        }
-        public void RaiseOnBeforeReset(IntPtr device, IntPtr presentParameters)
-        {
-            if (GFX != null)
+            if (RaiseOnFirstD3D9FrameEvent)
             {
-                // Reset D3DResources
-                D3DResource[] res = D3D9Objects.Values.ToArray();
-                for (int i = 0; i < res.Length; i++)
-                {
-                    D3DResource obj = res[i];
-                    switch (obj.DXType)
-                    {
-                        case eD3D9ResourceType.Font:
-                            ((SharpDX.Direct3D9.Font)obj.Handle).OnLostDevice();
-                            break;
-                    }
-                }
+                RaiseOnFirstD3D9FrameEvent = false;
 
                 DateTime time = DateTime.UtcNow;
-                GFX.Device = device;
-                GFX.RaiseOnBeforeDeviceReset(device, Marshal.PtrToStructure<SharpDX.Direct3D9.PresentParameters>(presentParameters).ToD3DPresentParameters());
-                GFX.OnBeforeDeviceResetEventExecutionTime = DateTime.UtcNow - time;
-            }
-        }
-        public void RaiseOnAfterReset(IntPtr device)
-        {
-            if (GFX != null)
-            {
-                // Refresh D3DResources
-                D3DResource[] res = D3D9Objects.Values.ToArray();
-                for (int i = 0; i < res.Length; i++)
-                {
-                    D3DResource obj = res[i];
-                    switch (obj.DXType)
-                    {
-                        case eD3D9ResourceType.Font:
-                            ((SharpDX.Direct3D9.Font)obj.Handle).OnResetDevice();
-                            break;
-                    }
-                }
-
-                DateTime time = DateTime.UtcNow;
-                GFX.Device = device;
-                GFX.RaiseOnAfterDeviceReset(device);
-                GFX.OnAfterDeviceResetEventExecutionTime = DateTime.UtcNow - time;
+                TheScript.RaiseOnFirstD3D9Frame();
+                TheScript.OnFirstD3D9FrameEventExecutionTime = DateTime.UtcNow - time;
             }
         }
 
         public void RaiseKeyDown(KeyEventArgs e)
         {
-            Script.RaiseKeyDown(e);
+            if (!IsScriptReady())
+                return;
+
+            DateTime time = DateTime.UtcNow;
+            TheScript.RaiseKeyDown(e);
+            TheScript.KeyDownEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseKeyUp(KeyEventArgs e)
         {
-            Script.RaiseKeyUp(e);
+            if (!IsScriptReady())
+                return;
+
+            DateTime time = DateTime.UtcNow;
+            TheScript.RaiseKeyUp(e);
+            TheScript.KeyUpEventExecutionTime = DateTime.UtcNow - time;
         }
         #endregion
 
         #region Methods
-        public void Abort(bool showMessage, bool wasApiCall = false)
+        public void Abort(AbortReason reason, bool showMessage)
         {
             if (cleanUpTask != null)
                 return;
 
-            // Disable the functionality to raise any script events (except for the Uninitialize event)
+            // Stop active script tasks
+            StopActiveScriptTasks();
+
+            // Disable the functionality to raise any script events (Except for the Uninitialize event)
             Stop();
 
             // Raise Uninitialize event
-            Script.RaiseUninitialize();
+            RaiseUninitialize();
 
-            // Start cleanup process
+            // Clear ImGui Draw Calls List for this Script
+            ClearImGuiDrawCalls();
+
+            // Delete all console commands registered by this script
+            for (int i = 0; i < ConsoleCommands.Count; i++)
+            {
+                string command = ConsoleCommands[i];
+
+                if (Main.Instance.Console.Commands.ContainsKey(command))
+                    Main.Instance.Console.Commands.Remove(command);
+            }
+            ConsoleCommands.Clear();
+
+            // Destroy textures created by script
+            DestroyScriptTextures();
+
+            // Log
+            if (showMessage)
+            {
+                switch (reason)
+                {
+                    case AbortReason.API:
+                        Logger.Log(string.Format("An API Client has successfully aborted the script {0}.", Name));
+                        break;
+                    case AbortReason.Manual:
+                        Logger.Log(string.Format("Script {0} was successfully aborted by user.", Name));
+                        break;
+                    case AbortReason.Script:
+                        Logger.Log(string.Format("Script {0} was successfully aborted by another script.", Name));
+                        break;
+                    case AbortReason.Manager:
+                        Logger.Log(string.Format("Manager successfully aborted script {0}.", Name));
+                        break;
+                }
+            }
+
+            // Cleanup other script things
+            TheScript.Dispose();
+            TheScript = null;
+            ID = Guid.Empty;
+            Name = null;
+            FullPath = null;
+            EntryPoint = null;
+        }
+        public void Stop()
+        {
+            Running = false;
+        }
+
+        private void StopActiveScriptTasks()
+        {
             cleanUpTask = Task.Run(() =>
             {
                 try
                 {
-                    // Delete all console commands registered by this script
-                    for (int i = 0; i < ConsoleCommands.Count; i++)
-                    {
-                        string command = ConsoleCommands[i];
-                        if (Main.Instance.Console.Commands.ContainsKey(command))
-                            Main.Instance.Console.Commands.Remove(command);
-                    }
-                    ConsoleCommands.Clear();
-
-                    // Stop all active script tasks
                     if (ScriptTasks.Count != 0)
                     {
-
                         DateTime taskCleanUpStartTime = DateTime.UtcNow;
                         Task[] scriptTasks = new Task[ScriptTasks.Count];
 
@@ -241,17 +271,11 @@ namespace Manager.Classes
 
                         // Log how long this process took
                         TimeSpan timeResult = (taskCleanUpStartTime - DateTime.UtcNow);
-                        Main.Instance.Console.PrintDebug(string.Format("{0} active tasks stopped for script {1}. This process took {2}.{3} seconds.", scriptTasks.Length.ToString(), Name, timeResult.Seconds, timeResult.Milliseconds));
+                        Logger.LogDebug(string.Format("{0} active tasks stopped for script {1}. This process took {2}.{3} seconds.", scriptTasks.Length.ToString(), Name, timeResult.Seconds, timeResult.Milliseconds));
 
                     }
+
                     ScriptTasks.Clear();
-
-                    // Dispose script
-                    Script.Dispose();
-                    Script = null;
-
-                    // Destroy script resources
-                    DestroyD3D9Objects();
 
                     return null;
                 }
@@ -259,69 +283,63 @@ namespace Manager.Classes
                 {
                     return ex;
                 }
-            }).ContinueWith(r =>
+            }).ContinueWith(x =>
             {
-                if (r.Result != null)
+                if (x.Result != null)
                 {
-                    AbortError = r.Result;
-                    Main.Instance.Console.PrintError(string.Format("An error occured while aborting script {0}. Details: {1}", Name, r.Result.ToString()));
+                    AbortError = x.Result;
+                    Logger.LogError(string.Format("An error occured while stopping active scripts tasks for {0}. Details: {1}", Name, x.Result));
                 }
-                else
-                {
-                    if (showMessage)
-                    {
-                        if (wasApiCall)
-                            Main.Instance.Console.Print(string.Format("An API Client has successfully aborted the script {0}.", Name));
-                        else
-                            Main.Instance.Console.Print(string.Format("Successfully aborted script {0}.", Name));
-                    }
-                }
-
-                // Clean everything else
-                ID = Guid.Empty;
-                Name = null;
-                FullPath = null;
-                EntryPoint = null;
             });
         }
-        public void Stop()
+        private void ClearImGuiDrawCalls()
         {
-            running = false;
-        }
+            List<ImGuiIV_DrawCommandData> list = ImGuiIV.DrawCommandsList;
 
-        public void DestroyD3D9Objects()
-        {
-            GFX = null;
-
-            if (D3D9Objects != null)
+            for (int i = 0; i < list.Count; i++)
             {
-                D3D9Objects.Values.ToList().ForEach(x => {
-                    if (x == null)
-                        return;
+                ImGuiIV_DrawCommandData drawData = list[i];
 
-                    SharpDX.ComObject obj = (SharpDX.ComObject)x.Handle;
-
-                    if (obj != null)
-                    {
-                        if (!obj.IsDisposed) obj.Dispose();
-                    }
-                });
-                D3D9Objects.Clear();
-
-                // Log
-                Main.Instance.Console.PrintDebug(string.Format("Destroyed D3D9 objects of script {0}", string.IsNullOrEmpty(Name) ? "UNKNOWN" : Name));
+                if (drawData.CallerScriptID == ID)
+                    ImGuiIV.DrawCommandsList.RemoveAt(i);
             }
+        }
+        private void DestroyScriptTextures()
+        {
+            string scriptName = string.IsNullOrEmpty(Name) ? "UNKNOWN" : Name;
+            int texturesCount = Textures.Count;
+
+            if (texturesCount == 0)
+            {
+                Logger.LogDebug(string.Format("There are no Direct3D9 Textures to destroy for script {0}", scriptName));
+                return;
+            }
+
+            // Get rid of each Texture this Script created
+            for (int i = 0; i < texturesCount; i++)
+            {
+                IntPtr txtPtr = Textures[i];
+
+                if (!ImGuiIV.ReleaseTexture(TheScript, ref txtPtr))
+                    Logger.LogWarning(string.Format("Could not release texture {0} of script {1}.", txtPtr, scriptName));
+            }
+
+            // Clear list
+            Textures.Clear();
+
+            // Log
+            Logger.LogDebug(string.Format("Destroyed {0} Direct3D9 Textures of script {1}", texturesCount, scriptName));
         }
         #endregion
 
         #region Functions
         /// <summary>
-        /// Gets if the <see cref="IVSDKDotNet.Script"/> is ready so their events can be executed.
+        /// Gets if the <see cref="Script"/> is ready so their events can be executed.
         /// </summary>
-        /// <returns>True if the <see cref="IVSDKDotNet.Script"/> is ready. Otherwise false.</returns>
+        /// <returns>True if the <see cref="Script"/> is ready. Otherwise false.</returns>
         public bool IsScriptReady()
         {
-            return running && initEventCalled;
+            return Running && InitEventCalled;
         }
         #endregion
     }

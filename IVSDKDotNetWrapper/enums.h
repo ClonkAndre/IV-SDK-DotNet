@@ -1,7 +1,9 @@
 #pragma once
 
-namespace IVSDKDotNet {
-	namespace Enums {
+namespace IVSDKDotNet
+{
+	namespace Enums
+	{
 
 		public enum class eGameVersion
 		{
@@ -4326,7 +4328,9 @@ namespace IVSDKDotNet {
 			PedDataPool,
 			QuadTreeNodePool,
 			TxdPool,
-			IplPool
+			IplPool,
+			PedTargettingPool,
+			StuntJumpPool
 		};
 
 		public enum class eHudColour
@@ -5118,6 +5122,1219 @@ namespace IVSDKDotNet {
 			nm307_instanceIndex,
 			nm308_pointSwingLimit,
 			nm309_useZeroPoseWhenNotPointing,
+		};
+
+		// ImGui
+		public enum class eImDrawFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// PathStroke(), AddPolyline(): specify that shape should be closed (Important: this is always == 1 for legacy reason)
+			/// </summary>
+			Closed = 1 << 0,
+
+			/// <summary>
+			/// AddRect(), AddRectFilled(), PathRect(): enable rounding top-left corner only (when rounding > 0.0f, we default to all corners). Was 0x01.
+			/// </summary>
+			RoundCornersTopLeft = 1 << 4,
+
+			/// <summary>
+			/// AddRect(), AddRectFilled(), PathRect(): enable rounding top-right corner only (when rounding > 0.0f, we default to all corners). Was 0x02.
+			/// </summary>
+			RoundCornersTopRight = 1 << 5,
+
+			/// <summary>
+			/// AddRect(), AddRectFilled(), PathRect(): enable rounding bottom-left corner only (when rounding > 0.0f, we default to all corners). Was 0x04.
+			/// </summary>
+			RoundCornersBottomLeft = 1 << 6,
+
+			/// <summary>
+			/// AddRect(), AddRectFilled(), PathRect(): enable rounding bottom-right corner only (when rounding > 0.0f, we default to all corners). Wax 0x08.
+			/// </summary>
+			RoundCornersBottomRight = 1 << 7,
+
+			/// <summary>
+			/// AddRect(), AddRectFilled(), PathRect(): disable rounding on all corners (when rounding > 0.0f). This is NOT zero, NOT an implicit flag!
+			/// </summary>
+			RoundCornersNone = 1 << 8,
+
+			RoundCornersTop = RoundCornersTopLeft | RoundCornersTopRight,
+			RoundCornersBottom = RoundCornersBottomLeft | RoundCornersBottomRight,
+			RoundCornersLeft = RoundCornersBottomLeft | RoundCornersTopLeft,
+			RoundCornersRight = RoundCornersBottomRight | RoundCornersTopRight,
+			RoundCornersAll = RoundCornersTopLeft | RoundCornersTopRight | RoundCornersBottomLeft | RoundCornersBottomRight,
+			
+			/// <summary>
+			/// Default to ALL corners if none of the _RoundCornersXX flags are specified.
+			/// </summary>
+			RoundCornersDefault_ = RoundCornersAll,
+
+			RoundCornersMask_ = RoundCornersAll | RoundCornersNone,
+		};
+		public enum class eImGuiKey : int
+		{
+			// Keyboard
+			ImGuiKey_None = 0,
+			ImGuiKey_Tab = 512,             // == ImGuiKey_NamedKey_BEGIN
+			ImGuiKey_LeftArrow,
+			ImGuiKey_RightArrow,
+			ImGuiKey_UpArrow,
+			ImGuiKey_DownArrow,
+			ImGuiKey_PageUp,
+			ImGuiKey_PageDown,
+			ImGuiKey_Home,
+			ImGuiKey_End,
+			ImGuiKey_Insert,
+			ImGuiKey_Delete,
+			ImGuiKey_Backspace,
+			ImGuiKey_Space,
+			ImGuiKey_Enter,
+			ImGuiKey_Escape,
+			ImGuiKey_LeftCtrl, ImGuiKey_LeftShift, ImGuiKey_LeftAlt, ImGuiKey_LeftSuper,
+			ImGuiKey_RightCtrl, ImGuiKey_RightShift, ImGuiKey_RightAlt, ImGuiKey_RightSuper,
+			ImGuiKey_Menu,
+			ImGuiKey_0, ImGuiKey_1, ImGuiKey_2, ImGuiKey_3, ImGuiKey_4, ImGuiKey_5, ImGuiKey_6, ImGuiKey_7, ImGuiKey_8, ImGuiKey_9,
+			ImGuiKey_A, ImGuiKey_B, ImGuiKey_C, ImGuiKey_D, ImGuiKey_E, ImGuiKey_F, ImGuiKey_G, ImGuiKey_H, ImGuiKey_I, ImGuiKey_J,
+			ImGuiKey_K, ImGuiKey_L, ImGuiKey_M, ImGuiKey_N, ImGuiKey_O, ImGuiKey_P, ImGuiKey_Q, ImGuiKey_R, ImGuiKey_S, ImGuiKey_T,
+			ImGuiKey_U, ImGuiKey_V, ImGuiKey_W, ImGuiKey_X, ImGuiKey_Y, ImGuiKey_Z,
+			ImGuiKey_F1, ImGuiKey_F2, ImGuiKey_F3, ImGuiKey_F4, ImGuiKey_F5, ImGuiKey_F6,
+			ImGuiKey_F7, ImGuiKey_F8, ImGuiKey_F9, ImGuiKey_F10, ImGuiKey_F11, ImGuiKey_F12,
+			ImGuiKey_F13, ImGuiKey_F14, ImGuiKey_F15, ImGuiKey_F16, ImGuiKey_F17, ImGuiKey_F18,
+			ImGuiKey_F19, ImGuiKey_F20, ImGuiKey_F21, ImGuiKey_F22, ImGuiKey_F23, ImGuiKey_F24,
+			ImGuiKey_Apostrophe,        // '
+			ImGuiKey_Comma,             // ,
+			ImGuiKey_Minus,             // -
+			ImGuiKey_Period,            // .
+			ImGuiKey_Slash,             // /
+			ImGuiKey_Semicolon,         // ;
+			ImGuiKey_Equal,             // =
+			ImGuiKey_LeftBracket,       // [
+			ImGuiKey_Backslash,         // \ (this text inhibit multiline comment caused by backslash)
+			ImGuiKey_RightBracket,      // ]
+			ImGuiKey_GraveAccent,       // `
+			ImGuiKey_CapsLock,
+			ImGuiKey_ScrollLock,
+			ImGuiKey_NumLock,
+			ImGuiKey_PrintScreen,
+			ImGuiKey_Pause,
+			ImGuiKey_Keypad0, ImGuiKey_Keypad1, ImGuiKey_Keypad2, ImGuiKey_Keypad3, ImGuiKey_Keypad4,
+			ImGuiKey_Keypad5, ImGuiKey_Keypad6, ImGuiKey_Keypad7, ImGuiKey_Keypad8, ImGuiKey_Keypad9,
+			ImGuiKey_KeypadDecimal,
+			ImGuiKey_KeypadDivide,
+			ImGuiKey_KeypadMultiply,
+			ImGuiKey_KeypadSubtract,
+			ImGuiKey_KeypadAdd,
+			ImGuiKey_KeypadEnter,
+			ImGuiKey_KeypadEqual,
+			ImGuiKey_AppBack,               // Available on some keyboard/mouses. Often referred as "Browser Back"
+			ImGuiKey_AppForward,
+
+			// Gamepad (some of those are analog values, 0.0f to 1.0f)                          // NAVIGATION ACTION
+			// (download controller mapping PNG/PSD at http://dearimgui.com/controls_sheets)
+			ImGuiKey_GamepadStart,          // Menu (Xbox)      + (Switch)   Start/Options (PS)
+			ImGuiKey_GamepadBack,           // View (Xbox)      - (Switch)   Share (PS)
+			ImGuiKey_GamepadFaceLeft,       // X (Xbox)         Y (Switch)   Square (PS)        // Tap: Toggle Menu. Hold: Windowing mode (Focus/Move/Resize windows)
+			ImGuiKey_GamepadFaceRight,      // B (Xbox)         A (Switch)   Circle (PS)        // Cancel / Close / Exit
+			ImGuiKey_GamepadFaceUp,         // Y (Xbox)         X (Switch)   Triangle (PS)      // Text Input / On-screen Keyboard
+			ImGuiKey_GamepadFaceDown,       // A (Xbox)         B (Switch)   Cross (PS)         // Activate / Open / Toggle / Tweak
+			ImGuiKey_GamepadDpadLeft,       // D-pad Left                                       // Move / Tweak / Resize Window (in Windowing mode)
+			ImGuiKey_GamepadDpadRight,      // D-pad Right                                      // Move / Tweak / Resize Window (in Windowing mode)
+			ImGuiKey_GamepadDpadUp,         // D-pad Up                                         // Move / Tweak / Resize Window (in Windowing mode)
+			ImGuiKey_GamepadDpadDown,       // D-pad Down                                       // Move / Tweak / Resize Window (in Windowing mode)
+			ImGuiKey_GamepadL1,             // L Bumper (Xbox)  L (Switch)   L1 (PS)            // Tweak Slower / Focus Previous (in Windowing mode)
+			ImGuiKey_GamepadR1,             // R Bumper (Xbox)  R (Switch)   R1 (PS)            // Tweak Faster / Focus Next (in Windowing mode)
+			ImGuiKey_GamepadL2,             // L Trig. (Xbox)   ZL (Switch)  L2 (PS) [Analog]
+			ImGuiKey_GamepadR2,             // R Trig. (Xbox)   ZR (Switch)  R2 (PS) [Analog]
+			ImGuiKey_GamepadL3,             // L Stick (Xbox)   L3 (Switch)  L3 (PS)
+			ImGuiKey_GamepadR3,             // R Stick (Xbox)   R3 (Switch)  R3 (PS)
+			ImGuiKey_GamepadLStickLeft,     // [Analog]                                         // Move Window (in Windowing mode)
+			ImGuiKey_GamepadLStickRight,    // [Analog]                                         // Move Window (in Windowing mode)
+			ImGuiKey_GamepadLStickUp,       // [Analog]                                         // Move Window (in Windowing mode)
+			ImGuiKey_GamepadLStickDown,     // [Analog]                                         // Move Window (in Windowing mode)
+			ImGuiKey_GamepadRStickLeft,     // [Analog]
+			ImGuiKey_GamepadRStickRight,    // [Analog]
+			ImGuiKey_GamepadRStickUp,       // [Analog]
+			ImGuiKey_GamepadRStickDown,     // [Analog]
+
+			// Aliases: Mouse Buttons (auto-submitted from AddMouseButtonEvent() calls)
+			// - This is mirroring the data also written to io.MouseDown[], io.MouseWheel, in a format allowing them to be accessed via standard key API.
+			ImGuiKey_MouseLeft, ImGuiKey_MouseRight, ImGuiKey_MouseMiddle, ImGuiKey_MouseX1, ImGuiKey_MouseX2, ImGuiKey_MouseWheelX, ImGuiKey_MouseWheelY,
+
+			// [Internal] Reserved for mod storage
+			ImGuiKey_ReservedForModCtrl, ImGuiKey_ReservedForModShift, ImGuiKey_ReservedForModAlt, ImGuiKey_ReservedForModSuper,
+			ImGuiKey_COUNT,
+
+			// Keyboard Modifiers (explicitly submitted by backend via AddKeyEvent() calls)
+			// - This is mirroring the data also written to io.KeyCtrl, io.KeyShift, io.KeyAlt, io.KeySuper, in a format allowing
+			//   them to be accessed via standard key API, allowing calls such as IsKeyPressed(), IsKeyReleased(), querying duration etc.
+			// - Code polling every key (e.g. an interface to detect a key press for input mapping) might want to ignore those
+			//   and prefer using the real keys (e.g. ImGuiKey_LeftCtrl, ImGuiKey_RightCtrl instead of ImGuiMod_Ctrl).
+			// - In theory the value of keyboard modifiers should be roughly equivalent to a logical or of the equivalent left/right keys.
+			//   In practice: it's complicated; mods are often provided from different sources. Keyboard layout, IME, sticky keys and
+			//   backends tend to interfere and break that equivalence. The safer decision is to relay that ambiguity down to the end-user...
+			ImGuiMod_None = 0,
+			ImGuiMod_Ctrl = 1 << 12, // Ctrl
+			ImGuiMod_Shift = 1 << 13, // Shift
+			ImGuiMod_Alt = 1 << 14, // Option/Menu
+			ImGuiMod_Super = 1 << 15, // Cmd/Super/Windows
+			ImGuiMod_Shortcut = 1 << 11, // Alias for Ctrl (non-macOS) _or_ Super (macOS).
+			ImGuiMod_Mask_ = 0xF800,  // 5-bits
+
+			// [Internal] Prior to 1.87 we required user to fill io.KeysDown[512] using their own native index + the io.KeyMap[] array.
+			// We are ditching this method but keeping a legacy path for user code doing e.g. IsKeyPressed(MY_NATIVE_KEY_CODE)
+			// If you need to iterate all keys (for e.g. an input mapper) you may use ImGuiKey_NamedKey_BEGIN..ImGuiKey_NamedKey_END.
+			ImGuiKey_NamedKey_BEGIN = 512,
+			ImGuiKey_NamedKey_END = ImGuiKey_COUNT,
+			ImGuiKey_NamedKey_COUNT = ImGuiKey_NamedKey_END - ImGuiKey_NamedKey_BEGIN,
+#ifdef IMGUI_DISABLE_OBSOLETE_KEYIO
+			ImGuiKey_KeysData_SIZE = ImGuiKey_NamedKey_COUNT,  // Size of KeysData[]: only hold named keys
+			ImGuiKey_KeysData_OFFSET = ImGuiKey_NamedKey_BEGIN,  // Accesses to io.KeysData[] must use (key - ImGuiKey_KeysData_OFFSET) index.
+#else
+			ImGuiKey_KeysData_SIZE = ImGuiKey_COUNT,           // Size of KeysData[]: hold legacy 0..512 keycodes + named keys
+			ImGuiKey_KeysData_OFFSET = 0,                        // Accesses to io.KeysData[] must use (key - ImGuiKey_KeysData_OFFSET) index.
+#endif
+
+#ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+			ImGuiKey_ModCtrl = ImGuiMod_Ctrl, ImGuiKey_ModShift = ImGuiMod_Shift, ImGuiKey_ModAlt = ImGuiMod_Alt, ImGuiKey_ModSuper = ImGuiMod_Super, // Renamed in 1.89
+			ImGuiKey_KeyPadEnter = ImGuiKey_KeypadEnter,    // Renamed in 1.87
+#endif
+		};
+		public enum class eImGuiInputFlags
+		{
+			// Flags for IsKeyPressed(), IsMouseClicked(), Shortcut()
+			None = 0,
+			Repeat = 1 << 0,   // Return true on successive repeats. Default for legacy IsKeyPressed(). NOT Default for legacy IsMouseClicked(). MUST BE == 1.
+			RepeatRateDefault = 1 << 1,   // Repeat rate: Regular (default)
+			RepeatRateNavMove = 1 << 2,   // Repeat rate: Fast
+			RepeatRateNavTweak = 1 << 3,   // Repeat rate: Faster
+			RepeatRateMask_ = RepeatRateDefault | RepeatRateNavMove | RepeatRateNavTweak,
+
+			// Flags for SetItemKeyOwner()
+			CondHovered = 1 << 4,   // Only set if item is hovered (default to both)
+			CondActive = 1 << 5,   // Only set if item is active (default to both)
+			CondDefault_ = CondHovered | CondActive,
+			CondMask_ = CondHovered | CondActive,
+
+			// Flags for SetKeyOwner(), SetItemKeyOwner()
+			LockThisFrame = 1 << 6,   // Access to key data will require EXPLICIT owner ID (ImGuiKeyOwner_Any/0 will NOT accepted for polling). Cleared at end of frame. This is useful to make input-owner-aware code steal keys from non-input-owner-aware code.
+			LockUntilRelease = 1 << 7,   // Access to key data will require EXPLICIT owner ID (ImGuiKeyOwner_Any/0 will NOT accepted for polling). Cleared when the key is released or at end of each frame if key is released. This is useful to make input-owner-aware code steal keys from non-input-owner-aware code.
+
+			// Routing policies for Shortcut() + low-level SetShortcutRouting()
+			// - The general idea is that several callers register interest in a shortcut, and only one owner gets it.
+			// - When a policy (other than _RouteAlways) is set, Shortcut() will register itself with SetShortcutRouting(),
+			//   allowing the system to decide where to route the input among other route-aware calls.
+			// - Shortcut() uses RouteFocused by default: meaning that a simple Shortcut() poll
+			//   will register a route and only succeed when parent window is in the focus stack and if no-one
+			//   with a higher priority is claiming the shortcut.
+			// - Using RouteAlways is roughly equivalent to doing e.g. IsKeyPressed(key) + testing mods.
+			// - Priorities: GlobalHigh > Focused (when owner is active item) > Global > Focused (when focused window) > GlobalLow.
+			// - Can select only 1 policy among all available.
+			RouteFocused = 1 << 8,   // (Default) Register focused route: Accept inputs if window is in focus stack. Deep-most focused window takes inputs. ActiveId takes inputs over deep-most focused window.
+			RouteGlobalLow = 1 << 9,   // Register route globally (lowest priority: unless a focused window or active item registered the route) -> recommended Global priority.
+			RouteGlobal = 1 << 10,  // Register route globally (medium priority: unless an active item registered the route, e.g. CTRL+A registered by InputText).
+			RouteGlobalHigh = 1 << 11,  // Register route globally (highest priority: unlikely you need to use that: will interfere with every active items)
+			RouteMask_ = RouteFocused | RouteGlobal | RouteGlobalLow | RouteGlobalHigh, // _Always not part of this!
+			RouteAlways = 1 << 12,  // Do not register route, poll keys directly.
+			RouteUnlessBgFocused = 1 << 13,  // Global routes will not be applied if underlying background/void is focused (== no Dear ImGui windows are focused). Useful for overlay applications.
+			RouteExtraMask_ = RouteAlways | RouteUnlessBgFocused,
+
+			// [Internal] Mask of which function support which flags
+			SupportedByIsKeyPressed = Repeat | RepeatRateMask_,
+			SupportedByShortcut = Repeat | RepeatRateMask_ | RouteMask_ | RouteExtraMask_,
+			SupportedBySetKeyOwner = LockThisFrame | LockUntilRelease,
+			SupportedBySetItemKeyOwner = SupportedBySetKeyOwner | CondMask_,
+		};
+		public enum class eImGuiMouseButton
+		{
+			Left = 0,
+			Right = 1,
+			Middle = 2,
+			COUNT = 5
+		};
+		public enum class eImGuiMouseCursor
+		{
+			None = -1,
+			Arrow = 0,
+			TextInput,         // When hovering over InputText, etc.
+			ResizeAll,         // (Unused by Dear ImGui functions)
+			ResizeNS,          // When hovering over a horizontal border
+			ResizeEW,          // When hovering over a vertical border or a column
+			ResizeNESW,        // When hovering over the bottom-left corner of a window
+			ResizeNWSE,        // When hovering over the bottom-right corner of a window
+			Hand,              // (Unused by Dear ImGui functions. Use for e.g. hyperlinks)
+			NotAllowed,        // When hovering something with disallowed interaction. Usually a crossed circle.
+			COUNT
+		};
+		public enum class eImGuiButtonFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// React on left mouse button (default).
+			/// </summary>
+			MouseButtonLeft = 1 << 0,
+			/// <summary>
+			/// React on right mouse button.
+			/// </summary>
+			MouseButtonRight = 1 << 1,
+			/// <summary>
+			/// React on center mouse button
+			/// </summary>
+			MouseButtonMiddle = 1 << 2,
+
+			// [Internal]
+			MouseButtonMask_ = MouseButtonLeft | MouseButtonRight | MouseButtonMiddle,
+			MouseButtonDefault_ = MouseButtonLeft,
+		};
+
+		/// <summary>
+		/// Flags for ImGui::BeginTabItem().
+		/// </summary>
+		public enum class eImGuiTabItemFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// Display a dot next to the title + tab is selected when clicking the X + closure is not assumed (will wait for user to stop submitting the tab). Otherwise closure is assumed when pressing the X, so if you keep submitting the tab may reappear at end of tab bar.
+			/// </summary>
+			UnsavedDocument = 1 << 0,
+			/// <summary>
+			/// Trigger flag to programmatically make the tab selected when calling BeginTabItem().
+			/// </summary>
+			SetSelected = 1 << 1,
+			/// <summary>
+			/// Disable behavior of closing tabs (that are submitted with p_open != NULL) with middle mouse button. You can still repro this behavior on user's side with if (IsItemHovered() and IsMouseClicked(2)) *p_open = false.
+			/// </summary>
+			NoCloseWithMiddleMouseButton = 1 << 2,
+			/// <summary>
+			/// Don't call PushID(tab->ID)/PopID() on BeginTabItem()/EndTabItem().
+			/// </summary>
+			NoPushId = 1 << 3,
+			/// <summary>
+			/// Disable tooltip for the given tab.
+			/// </summary>
+			NoTooltip = 1 << 4,
+			/// <summary>
+			/// Disable reordering this tab or having another tab cross over this tab.
+			/// </summary>
+			NoReorder = 1 << 5,
+			/// <summary>
+			/// Enforce the tab position to the left of the tab bar (after the tab list popup button).
+			/// </summary>
+			Leading = 1 << 6,
+			/// <summary>
+			/// Enforce the tab position to the right of the tab bar (before the scrolling buttons).
+			/// </summary>
+			Trailing = 1 << 7,
+		};
+
+		public enum class eImGuiSeparatorFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// Axis default to current layout type, so generally Horizontal unless e.g. in a menu bar.
+			/// </summary>
+			Horizontal = 1 << 0,
+			Vertical = 1 << 1,
+
+			/// <summary>
+			/// Make separator cover all columns of a legacy Columns() set.
+			/// </summary>
+			SpanAllColumns = 1 << 2,
+		};
+
+		public enum class eImGuiTooltipFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// Clear/ignore previously submitted tooltip (defaults to append).
+			/// </summary>
+			OverridePrevious = 1 << 1,
+		};
+
+		public enum class eImGuiPopupFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// For BeginPopupContext*(): open on Left Mouse release. Guaranteed to always be == 0 (same as ImGuiMouseButton_Left).
+			/// </summary>
+			MouseButtonLeft = 0,
+			/// <summary>
+			/// For BeginPopupContext*(): open on Right Mouse release. Guaranteed to always be == 1 (same as ImGuiMouseButton_Right).
+			/// </summary>
+			MouseButtonRight = 1,
+			/// <summary>
+			/// For BeginPopupContext*(): open on Middle Mouse release. Guaranteed to always be == 2 (same as ImGuiMouseButton_Middle).
+			/// </summary>
+			MouseButtonMiddle = 2,
+			MouseButtonMask_ = 0x1F,
+			MouseButtonDefault_ = 1,
+			/// <summary>
+			/// For OpenPopup*(), BeginPopupContext*(): don't open if there's already a popup at the same level of the popup stack.
+			/// </summary>
+			NoOpenOverExistingPopup = 1 << 5,
+			/// <summary>
+			/// For BeginPopupContextWindow(): don't return true when hovering items, only when hovering empty space.
+			/// </summary>
+			NoOpenOverItems = 1 << 6,
+			/// <summary>
+			/// For IsPopupOpen(): ignore the ImGuiID parameter and test for any popup.
+			/// </summary>
+			AnyPopupId = 1 << 7,
+			/// <summary>
+			/// For IsPopupOpen(): search/test at any level of the popup stack (default test in the current level).
+			/// </summary>
+			AnyPopupLevel = 1 << 8,
+
+			AnyPopup = AnyPopupId | AnyPopupLevel,
+		};
+
+		/// <summary>
+		/// Flags for ColorEdit3() / ColorEdit4() / ColorPicker3() / ColorPicker4() / ColorButton().
+		/// </summary>
+		public enum class eImGuiColorEditFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// ColorEdit, ColorPicker, ColorButton: ignore Alpha component (will only read 3 components from the input pointer).
+			/// </summary>
+			NoAlpha = 1 << 1,
+			/// <summary>
+			/// ColorEdit: disable picker when clicking on color square.
+			/// </summary>
+			NoPicker = 1 << 2,
+			/// <summary>
+			/// ColorEdit: disable toggling options menu when right-clicking on inputs/small preview.
+			/// </summary>
+			NoOptions = 1 << 3,
+			/// <summary>
+			/// ColorEdit, ColorPicker: disable color square preview next to the inputs. (e.g. to show only the inputs).
+			/// </summary>
+			NoSmallPreview = 1 << 4,
+			/// <summary>
+			/// ColorEdit, ColorPicker: disable inputs sliders/text widgets (e.g. to show only the small preview color square).
+			/// </summary>
+			NoInputs = 1 << 5,
+			/// <summary>
+			/// ColorEdit, ColorPicker, ColorButton: disable tooltip when hovering the preview.
+			/// </summary>
+			NoTooltip = 1 << 6,
+			/// <summary>
+			/// ColorEdit, ColorPicker: disable display of inline text label (the label is still forwarded to the tooltip and picker).
+			/// </summary>
+			NoLabel = 1 << 7,
+			/// <summary>
+			/// ColorPicker: disable bigger color preview on right side of the picker, use small color square preview instead.
+			/// </summary>
+			NoSidePreview = 1 << 8,
+			/// <summary>
+			/// ColorEdit: disable drag and drop target. ColorButton: disable drag and drop source.
+			/// </summary>
+			NoDragDrop = 1 << 9,
+			/// <summary>
+			/// ColorButton: disable border (which is enforced by default).
+			/// </summary>
+			NoBorder = 1 << 10,
+
+			// User Options (right-click on widget to change some of them).
+
+			/// <summary>
+			/// ColorEdit, ColorPicker: show vertical alpha bar/gradient in picker.
+			/// </summary>
+			AlphaBar = 1 << 16,
+			/// <summary>
+			/// ColorEdit, ColorPicker, ColorButton: display preview as a transparent color over a checkerboard, instead of opaque.
+			/// </summary>
+			AlphaPreview = 1 << 17,
+			/// <summary>
+			/// ColorEdit, ColorPicker, ColorButton: display half opaque / half checkerboard, instead of opaque.
+			/// </summary>
+			AlphaPreviewHalf = 1 << 18,
+			/// <summary>
+			/// (WIP) ColorEdit: Currently only disable 0.0f..1.0f limits in RGBA edition (note: you probably want to use Float flag as well).
+			/// </summary>
+			HDR = 1 << 19,
+			/// <summary>
+			/// [Display] ColorEdit: override _display_ type among RGB/HSV/Hex. ColorPicker: select any combination using one or more of RGB/HSV/Hex.
+			/// </summary>
+			DisplayRGB = 1 << 20,
+			DisplayHSV = 1 << 21,
+			DisplayHex = 1 << 22,
+			/// <summary>
+			/// [DataType] ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0..255.
+			/// </summary>
+			Uint8 = 1 << 23,
+			/// <summary>
+			/// [DataType] ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0.0f..1.0f floats instead of 0..255 integers. No round-trip of value via integers.
+			/// </summary>
+			Float = 1 << 24,
+			/// <summary>
+			/// [Picker] ColorPicker: bar for Hue, rectangle for Sat/Value.
+			/// </summary>
+			PickerHueBar = 1 << 25,
+			/// <summary>
+			/// [Picker] ColorPicker: wheel for Hue, triangle for Sat/Value.
+			/// </summary>
+			PickerHueWheel = 1 << 26,
+			/// <summary>
+			/// [Input] ColorEdit, ColorPicker: input and output data in RGB format.
+			/// </summary>
+			InputRGB = 1 << 27,
+			/// <summary>
+			/// [Input] ColorEdit, ColorPicker: input and output data in HSV format.
+			/// </summary>
+			InputHSV = 1 << 28,
+
+			/// <summary>
+			/// Defaults Options. You can set application defaults using SetColorEditOptions(). The intent is that you probably don't want to
+			/// override them in most of your calls. Let the user choose via the option menu and/or call SetColorEditOptions() once during startup.
+			/// </summary>
+			DefaultOptions_ = Uint8 | DisplayRGB | InputRGB | PickerHueBar,
+
+			// [Internal] Masks
+			DisplayMask_ = DisplayRGB | DisplayHSV | DisplayHex,
+			DataTypeMask_ = Uint8 | Float,
+			PickerMask_ = PickerHueWheel | PickerHueBar,
+			InputMask_ = InputRGB | InputHSV,
+		};
+
+		// Enumeration for ImGui::SetWindow***(), SetNextWindow***(), SetNextItem***() functions
+		// Represent a condition.
+		// Important: Treat as a regular enum! Do NOT combine multiple values using binary operators! All the functions above treat 0 as a shortcut to ImGuiCond_Always.
+		public enum class eImGuiCond
+		{
+			/// <summary>
+			/// No condition (always set the variable), same as _Always.
+			/// </summary>
+			None = 0,
+			/// <summary>
+			/// No condition (always set the variable), same as _None.
+			/// </summary>
+			Always = 1 << 0,
+			/// <summary>
+			/// Set the variable once per runtime session (only the first call will succeed).
+			/// </summary>
+			Once = 1 << 1,
+			/// <summary>
+			/// Set the variable if the object/window has no persistently saved data (no entry in .ini file).
+			/// </summary>
+			FirstUseEver = 1 << 2,
+			/// <summary>
+			/// Set the variable if the object/window is appearing after being hidden/inactive (or the first time).
+			/// </summary>
+			Appearing = 1 << 3,
+		};
+
+		/// <summary>
+		/// Flags for ImGui::BeginDragDropSource(), ImGui::AcceptDragDropPayload().
+		/// </summary>
+		public enum class eImGuiDragDropFlags
+		{
+			None = 0,
+
+			// BeginDragDropSource() flags
+			
+			/// <summary>
+			/// Disable preview tooltip. By default, a successful call to BeginDragDropSource opens a tooltip so you can display a preview or description of the source contents. This flag disables this behavior.
+			/// </summary>
+			SourceNoPreviewTooltip = 1 << 0,
+			/// <summary>
+			/// By default, when dragging we clear data so that IsItemHovered() will return false, to avoid subsequent user code submitting tooltips. This flag disables this behavior so you can still call IsItemHovered() on the source item.
+			/// </summary>
+			SourceNoDisableHover = 1 << 1,
+			/// <summary>
+			/// Disable the behavior that allows to open tree nodes and collapsing header by holding over them while dragging a source item.
+			/// </summary>
+			SourceNoHoldToOpenOthers = 1 << 2,
+			/// <summary>
+			/// Allow items such as Text(), Image() that have no unique identifier to be used as drag source, by manufacturing a temporary identifier based on their window-relative position. This is extremely unusual within the dear imgui ecosystem and so we made it explicit.
+			/// </summary>
+			SourceAllowNullID = 1 << 3,
+			/// <summary>
+			/// External source (from outside of dear imgui), won't attempt to read current item/window info. Will always return true. Only one Extern source can be active simultaneously.
+			/// </summary>
+			SourceExtern = 1 << 4,
+			/// <summary>
+			/// Automatically expire the payload if the source cease to be submitted (otherwise payloads are persisting while being dragged).
+			/// </summary>
+			SourceAutoExpirePayload = 1 << 5,
+			
+			// AcceptDragDropPayload() flags
+			
+			/// <summary>
+			/// AcceptDragDropPayload() will returns true even before the mouse button is released. You can then call IsDelivery() to test if the payload needs to be delivered.
+			/// </summary>
+			AcceptBeforeDelivery = 1 << 10,
+			/// <summary>
+			/// Do not draw the default highlight rectangle when hovering over target.
+			/// </summary>
+			AcceptNoDrawDefaultRect = 1 << 11,
+			/// <summary>
+			/// Request hiding the BeginDragDropSource tooltip from the BeginDragDropTarget site.
+			/// </summary>
+			AcceptNoPreviewTooltip = 1 << 12,
+
+			AcceptPeekOnly = AcceptBeforeDelivery | AcceptNoDrawDefaultRect, // For peeking ahead and inspecting the payload before delivery.
+		};
+
+		// Early work-in-progress API for ScrollToItem()
+		public enum class eImGuiScrollFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// If item is not visible: scroll as little as possible on X axis to bring item back into view [default for X axis].
+			/// </summary>
+			KeepVisibleEdgeX = 1 << 0,
+			/// <summary>
+			/// If item is not visible: scroll as little as possible on Y axis to bring item back into view [default for Y axis for windows that are already visible].
+			/// </summary>
+			KeepVisibleEdgeY = 1 << 1,
+			/// <summary>
+			/// If item is not visible: scroll to make the item centered on X axis [rarely used].
+			/// </summary>
+			KeepVisibleCenterX = 1 << 2,
+			/// <summary>
+			/// If item is not visible: scroll to make the item centered on Y axis.
+			/// </summary>
+			KeepVisibleCenterY = 1 << 3,
+			/// <summary>
+			/// Always center the result item on X axis [rarely used].
+			/// </summary>
+			AlwaysCenterX = 1 << 4,
+			/// <summary>
+			/// Always center the result item on Y axis [default for Y axis for appearing window).
+			/// </summary>
+			AlwaysCenterY = 1 << 5,
+			/// <summary>
+			/// Disable forwarding scrolling to parent window if required to keep item/rect visible (only scroll window the function was applied to)..
+			/// </summary>
+			NoScrollParent = 1 << 6,
+
+			MaskX_ = KeepVisibleEdgeX | KeepVisibleCenterX | AlwaysCenterX,
+			MaskY_ = KeepVisibleEdgeY | KeepVisibleCenterY | AlwaysCenterY,
+		};
+
+		public enum class eImGuiSliderFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// Clamp value to min/max bounds when input manually with CTRL+Click. By default CTRL+Click allows going out of bounds.
+			/// </summary>
+			AlwaysClamp = 1 << 4,
+			/// <summary>
+			/// Make the widget logarithmic (linear otherwise). Consider using ImGuiSliderFlags_NoRoundToFormat with this if using a format-string with small amount of digits.
+			/// </summary>
+			Logarithmic = 1 << 5,
+			/// <summary>
+			/// Disable rounding underlying value to match precision of the display format string (e.g. %.3f values are rounded to those 3 digits).
+			/// </summary>
+			NoRoundToFormat = 1 << 6,
+			/// <summary>
+			/// Disable CTRL+Click or Enter key allowing to input text directly into the widget.
+			/// </summary>
+			NoInput = 1 << 7,
+
+			/// <summary>
+			/// [Internal] We treat using those bits as being potentially a 'float power' argument from the previous API that has got miscast to this enum, and will trigger an assert if needed.
+			/// </summary>
+			InvalidMask_ = 0x7000000F,
+		};
+
+		/// <summary>
+		/// Flags for ImGui::BeginTabBar().
+		/// </summary>
+		public enum class eImGuiTabBarFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// Allow manually dragging tabs to re-order them + New tabs are appended at the end of list-
+			/// </summary>
+			Reorderable = 1 << 0,
+			/// <summary>
+			/// Automatically select new tabs when they appear.
+			/// </summary>
+			AutoSelectNewTabs = 1 << 1,
+			/// <summary>
+			/// Disable buttons to open the tab list popup.
+			/// </summary>
+			TabListPopupButton = 1 << 2,
+			/// <summary>
+			/// Disable behavior of closing tabs (that are submitted with p_open != NULL) with middle mouse button. You can still repro this behavior on user's side with if (IsItemHovered() and IsMouseClicked(2)) *p_open = false.
+			/// </summary>
+			NoCloseWithMiddleMouseButton = 1 << 3,
+			/// <summary>
+			/// Disable scrolling buttons (apply when fitting policy is FittingPolicyScroll).
+			/// </summary>
+			NoTabListScrollingButtons = 1 << 4,
+			/// <summary>
+			/// Disable tooltips when hovering a tab.
+			/// </summary>
+			NoTooltip = 1 << 5,
+			/// <summary>
+			/// Resize tabs when they don't fit.
+			/// </summary>
+			FittingPolicyResizeDown = 1 << 6,
+			/// <summary>
+			/// Add scroll buttons when tabs don't fit.
+			/// </summary>
+			FittingPolicyScroll = 1 << 7,
+
+			FittingPolicyMask_ = FittingPolicyResizeDown | FittingPolicyScroll,
+			FittingPolicyDefault_ = FittingPolicyResizeDown,
+		};
+
+		/// <summary>
+		/// Flags for ImGui::Selectable().
+		/// </summary>
+		public enum class eImGuiSelectableFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// Clicking this doesn't close parent popup window.
+			/// </summary>
+			DontClosePopups = 1 << 0,
+			/// <summary>
+			/// Frame will span all columns of its container table (text will still fit in current column).
+			/// </summary>
+			SpanAllColumns = 1 << 1,
+			/// <summary>
+			/// Generate press events on double clicks too.
+			/// </summary>
+			AllowDoubleClick = 1 << 2,
+			/// <summary>
+			/// Cannot be selected, display grayed out text.
+			/// </summary>
+			Disabled = 1 << 3,
+			/// <summary>
+			/// (WIP) Hit testing to allow subsequent widgets to overlap this one.
+			/// </summary>
+			AllowOverlap = 1 << 4,
+		};
+
+		/// <summary>
+		/// Flags for ImGui::BeginCombo().
+		/// </summary>
+		public enum class eImGuiComboFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// Align the popup toward the left by default.
+			/// </summary>
+			PopupAlignLeft = 1 << 0,
+			/// <summary>
+			/// Max ~4 items visible. Tip: If you want your combo popup to be a specific size you can use SetNextWindowSizeConstraints() prior to calling BeginCombo().
+			/// </summary>
+			HeightSmall = 1 << 1,
+			/// <summary>
+			/// Max ~8 items visible (default).
+			/// </summary>
+			HeightRegular = 1 << 2,
+			/// <summary>
+			/// Max ~20 items visible.
+			/// </summary>
+			HeightLarge = 1 << 3,
+			/// <summary>
+			/// As many fitting items as possible.
+			/// </summary>
+			HeightLargest = 1 << 4,
+			/// <summary>
+			/// Display on the preview box without the square arrow button.
+			/// </summary>
+			NoArrowButton = 1 << 5,
+			/// <summary>
+			/// Display only a square arrow button.
+			/// </summary>
+			NoPreview = 1 << 6,
+			/// <summary>
+			/// Width dynamically calculated from preview contents.
+			/// </summary>
+			WidthFitPreview = 1 << 7,
+
+			HeightMask_ = HeightSmall | HeightRegular | HeightLarge | HeightLargest,
+		};
+		
+		/// <summary>
+		/// X/Y enums are fixed to 0/1 so they may be used to index Vector2.
+		/// </summary>
+		public enum class eImGuiAxis
+		{
+			None = -1,
+			X = 0,
+			Y = 1
+		};
+
+		/// <summary>
+		/// A cardinal direction.
+		/// </summary>
+		public enum class eImGuiDir
+		{
+			None = -1,
+			Left = 0,
+			Right = 1,
+			Up = 2,
+			Down = 3,
+			COUNT
+		};
+
+		/// <summary>
+		/// Flags for ImGuiIV.Begin()
+		/// </summary>
+		public enum class eImGuiWindowFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// Disable title-bar.
+			/// </summary>
+			NoTitleBar = 1 << 0,
+			/// <summary>
+			/// Disable user resizing with the lower-right grip.
+			/// </summary>
+			NoResize = 1 << 1,
+			/// <summary>
+			/// Disable user moving the window.
+			/// </summary>
+			NoMove = 1 << 2,
+			/// <summary>
+			/// Disable scrollbars (window can still scroll with mouse or programmatically).
+			/// </summary>
+			NoScrollbar = 1 << 3,
+			/// <summary>
+			/// Disable user vertically scrolling with mouse wheel. On child window, mouse wheel will be forwarded to the parent unless NoScrollbar is also set.
+			/// </summary>
+			NoScrollWithMouse = 1 << 4,
+			/// <summary>
+			/// Disable user collapsing window by double-clicking on it. Also referred to as Window Menu Button (e.g. within a docking node).
+			/// </summary>
+			NoCollapse = 1 << 5,
+			/// <summary>
+			/// Resize every window to its content every frame.
+			/// </summary>
+			AlwaysAutoResize = 1 << 6,
+			/// <summary>
+			/// Disable drawing background color (WindowBg, etc.) and outside border. Similar as using SetNextWindowBgAlpha(0.0f).
+			/// </summary>
+			NoBackground = 1 << 7,
+			/// <summary>
+			/// Never load/save settings in .ini file.
+			/// </summary>
+			NoSavedSettings = 1 << 8,
+			/// <summary>
+			/// Disable catching mouse, hovering test with pass through.
+			/// </summary>
+			NoMouseInputs = 1 << 9,
+			/// <summary>
+			/// Has a menu-bar.
+			/// </summary>
+			MenuBar = 1 << 10,
+			/// <summary>
+			/// Allow horizontal scrollbar to appear (off by default). You may use SetNextWindowContentSize(ImVec2(width,0.0f)); prior to calling Begin() to specify width. Read code in imgui_demo in the "Horizontal Scrolling" section.
+			/// </summary>
+			HorizontalScrollbar = 1 << 11,
+			/// <summary>
+			/// Disable taking focus when transitioning from hidden to visible state
+			/// </summary>
+			NoFocusOnAppearing = 1 << 12,
+			/// <summary>
+			/// Disable bringing window to front when taking focus (e.g. clicking on it or programmatically giving it focus).
+			/// </summary>
+			NoBringToFrontOnFocus = 1 << 13,
+			/// <summary>
+			/// Always show vertical scrollbar (even if ContentSize.y is smaller then Size.y).
+			/// </summary>
+			AlwaysVerticalScrollbar = 1 << 14,
+			/// <summary>
+			/// Always show horizontal scrollbar (even if ContentSize.x is smaller then Size.x).
+			/// </summary>
+			AlwaysHorizontalScrollbar = 1 << 15,
+			/// <summary>
+			/// Ensure child windows without border uses style.WindowPadding (ignored by default for non-bordered child windows, because more convenient).
+			/// </summary>
+			AlwaysUseWindowPadding = 1 << 16,
+			/// <summary>
+			/// No gamepad/keyboard navigation within the window.
+			/// </summary>
+			NoNavInputs = 1 << 18,
+			/// <summary>
+			/// No focusing toward this window with gamepad/keyboard navigation (e.g. skipped by CTRL+TAB).
+			/// </summary>
+			NoNavFocus = 1 << 19,
+			/// <summary>
+			/// Display a dot next to the title. When used in a tab/docking context, tab is selected when clicking the X + closure is not assumed (will wait for user to stop submitting the tab). Otherwise closure is assumed when pressing the X, so if you keep submitting the tab may reappear at end of tab bar.
+			/// </summary>
+			UnsavedDocument = 1 << 20,
+
+			NoNav = NoNavInputs | NoNavFocus,
+			NoDecoration = NoTitleBar | NoResize | NoScrollbar | NoCollapse,
+			NoInputs = NoMouseInputs | NoNavInputs | NoNavFocus,
+
+			// [INTERNAL]
+			/// <summary>
+			/// [BETA] On child window: allow gamepad/keyboard navigation to cross over parent border to this child or between sibling child windows.
+			/// </summary>
+			NavFlattened = 1 << 23,
+			/// <summary>
+			/// Don't use! For internal use by BeginChild().
+			/// </summary>
+			ChildWindow = 1 << 24,
+			/// <summary>
+			/// Don't use! For internal use by BeginTooltip().
+			/// </summary>
+			Tooltip = 1 << 25,
+			/// <summary>
+			/// Don't use! For internal use by BeginPopup().
+			/// </summary>
+			Popup = 1 << 26,
+			/// <summary>
+			/// Don't use! For internal use by BeginPopupModal().
+			/// </summary>
+			Modal = 1 << 27,
+			/// <summary>
+			/// Don't use! For internal use by BeginMenu().
+			/// </summary>
+			ChildMenu = 1 << 28,
+		};
+
+		/// <summary>
+		/// See ImGuiStyle for descriptions
+		/// </summary>
+		public enum class eImGuiStyleVar
+		{
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_Alpha,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_DisabledAlpha,
+			/// <summary>
+			/// Type: Vector2
+			/// </summary>
+			ImGuiStyleVar_WindowPadding,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_WindowRounding,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_WindowBorderSize,
+			/// <summary>
+			/// Type: Vector2
+			/// </summary>
+			ImGuiStyleVar_WindowMinSize,
+			/// <summary>
+			/// Type: Vector2
+			/// </summary>
+			ImGuiStyleVar_WindowTitleAlign,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_ChildRounding,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_ChildBorderSize,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_PopupRounding,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_PopupBorderSize,
+			/// <summary>
+			/// Type: Vector2
+			/// </summary>
+			ImGuiStyleVar_FramePadding,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_FrameRounding,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_FrameBorderSize,
+			/// <summary>
+			/// Type: Vector2
+			/// </summary>
+			ImGuiStyleVar_ItemSpacing,
+			/// <summary>
+			/// Type: Vector2
+			/// </summary>
+			ImGuiStyleVar_ItemInnerSpacing,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_IndentSpacing,
+			/// <summary>
+			/// Type: Vector2
+			/// </summary>
+			ImGuiStyleVar_CellPadding,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_ScrollbarSize,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_ScrollbarRounding,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_GrabMinSize,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_GrabRounding,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_TabRounding,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_TabBarBorderSize,
+			/// <summary>
+			/// Type: Vector2
+			/// </summary>
+			ImGuiStyleVar_ButtonTextAlign,
+			/// <summary>
+			/// Type: Vector2
+			/// </summary>
+			ImGuiStyleVar_SelectableTextAlign,
+			/// <summary>
+			/// Type: float
+			/// </summary>
+			ImGuiStyleVar_SeparatorTextBorderSize,
+			/// <summary>
+			/// Type: Vector2
+			/// </summary>
+			ImGuiStyleVar_SeparatorTextAlign,
+			/// <summary>
+			/// Type: Vector2
+			/// </summary>
+			ImGuiStyleVar_SeparatorTextPadding,
+
+			ImGuiStyleVar_COUNT
+		};
+
+		/// <summary>
+		/// Enumeration for ImGuiIV.PushStyleColor() / ImGuiIV.PopStyleColor().
+		/// </summary>
+		public enum class eImGuiCol
+		{
+			ImGuiCol_Text,
+			ImGuiCol_TextDisabled,
+			/// <summary>
+			/// Background of normal windows.
+			/// </summary>
+			ImGuiCol_WindowBg,
+			/// <summary>
+			/// Background of child windows.
+			/// </summary>
+			ImGuiCol_ChildBg,
+			/// <summary>
+			/// Background of popups, menus, tooltips windows.
+			/// </summary>
+			ImGuiCol_PopupBg,
+			ImGuiCol_Border,
+			ImGuiCol_BorderShadow,
+			/// <summary>
+			/// Background of checkbox, radio button, plot, slider, text input.
+			/// </summary>
+			ImGuiCol_FrameBg,
+			ImGuiCol_FrameBgHovered,
+			ImGuiCol_FrameBgActive,
+			ImGuiCol_TitleBg,
+			ImGuiCol_TitleBgActive,
+			ImGuiCol_TitleBgCollapsed,
+			ImGuiCol_MenuBarBg,
+			ImGuiCol_ScrollbarBg,
+			ImGuiCol_ScrollbarGrab,
+			ImGuiCol_ScrollbarGrabHovered,
+			ImGuiCol_ScrollbarGrabActive,
+			ImGuiCol_CheckMark,
+			ImGuiCol_SliderGrab,
+			ImGuiCol_SliderGrabActive,
+			ImGuiCol_Button,
+			ImGuiCol_ButtonHovered,
+			ImGuiCol_ButtonActive,
+			/// <summary>
+			/// Header* colors are used for CollapsingHeader, TreeNode, Selectable, MenuItem.
+			/// </summary>
+			ImGuiCol_Header,
+			ImGuiCol_HeaderHovered,
+			ImGuiCol_HeaderActive,
+			ImGuiCol_Separator,
+			ImGuiCol_SeparatorHovered,
+			ImGuiCol_SeparatorActive,
+			/// <summary>
+			/// Resize grip in lower-right and lower-left corners of windows.
+			/// </summary>
+			ImGuiCol_ResizeGrip,
+			ImGuiCol_ResizeGripHovered,
+			ImGuiCol_ResizeGripActive,
+			/// <summary>
+			/// TabItem in a TabBar.
+			/// </summary>
+			ImGuiCol_Tab,
+			ImGuiCol_TabHovered,
+			ImGuiCol_TabActive,
+			ImGuiCol_TabUnfocused,
+			ImGuiCol_TabUnfocusedActive,
+			ImGuiCol_PlotLines,
+			ImGuiCol_PlotLinesHovered,
+			ImGuiCol_PlotHistogram,
+			ImGuiCol_PlotHistogramHovered,
+			/// <summary>
+			/// Table header background.
+			/// </summary>
+			ImGuiCol_TableHeaderBg,
+			/// <summary>
+			/// Table outer and header borders (prefer using Alpha=1.0 here).
+			/// </summary>
+			ImGuiCol_TableBorderStrong,
+			/// <summary>
+			/// Table inner borders (prefer using Alpha=1.0 here).
+			/// </summary>
+			ImGuiCol_TableBorderLight,
+			/// <summary>
+			/// Table row background (even rows).
+			/// </summary>
+			ImGuiCol_TableRowBg,
+			/// <summary>
+			/// Table row background (odd rows).
+			/// </summary>
+			ImGuiCol_TableRowBgAlt,
+			ImGuiCol_TextSelectedBg,
+			/// <summary>
+			/// Rectangle highlighting a drop target.
+			/// </summary>
+			ImGuiCol_DragDropTarget,
+			/// <summary>
+			/// Gamepad/keyboard: current highlighted item.
+			/// </summary>
+			ImGuiCol_NavHighlight,
+			/// <summary>
+			/// Highlight window when using CTRL+TAB.
+			/// </summary>
+			ImGuiCol_NavWindowingHighlight,
+			/// <summary>
+			/// Darken/colorize entire screen behind the CTRL+TAB window list, when active.
+			/// </summary>
+			ImGuiCol_NavWindowingDimBg,
+			/// <summary>
+			/// Darken/colorize entire screen behind a modal window, when one is active.
+			/// </summary>
+			ImGuiCol_ModalWindowDimBg,
+
+			ImGuiCol_COUNT
+		};
+
+		/// <summary>
+		/// Flags for ImGuiIV.InputText()
+		/// (Those are per-item flags. There are shared flags in ImGuiIO: io.ConfigInputTextCursorBlink and io.ConfigInputTextEnterKeepActive)
+		/// </summary>
+		public enum class eImGuiInputTextFlags
+		{
+			None = 0,
+
+			/// <summary>
+			/// Allow 0123456789.+-*/
+			/// </summary>
+			CharsDecimal = 1 << 0,
+			/// <summary>
+			/// 0123456789ABCDEFabcdef
+			/// </summary>
+			CharsHexadecimal = 1 << 1,
+			/// <summary>
+			/// Turn a..z into A..Z
+			/// </summary>
+			CharsUppercase = 1 << 2,
+			/// <summary>
+			/// Filter out spaces, tabs
+			/// </summary>
+			CharsNoBlank = 1 << 3,
+			/// <summary>
+			/// Select entire text when first taking mouse focus.
+			/// </summary>
+			AutoSelectAll = 1 << 4,
+			/// <summary>
+			/// Return 'true' when Enter is pressed (as opposed to every time the value was modified). Consider looking at the IsItemDeactivatedAfterEdit() function.
+			/// </summary>
+			EnterReturnsTrue = 1 << 5,
+			/// <summary>
+			/// Callback on pressing TAB (for completion handling).
+			/// </summary>
+			CallbackCompletion = 1 << 6,
+			/// <summary>
+			/// Callback on pressing Up/Down arrows (for history handling).
+			/// </summary>
+			CallbackHistory = 1 << 7,
+			/// <summary>
+			/// Callback on each iteration. User code may query cursor position, modify text buffer.
+			/// </summary>
+			CallbackAlways = 1 << 8,
+			/// <summary>
+			/// Callback on character inputs to replace or discard them. Modify 'EventChar' to replace or discard, or return 1 in callback to discard.
+			/// </summary>
+			CallbackCharFilter = 1 << 9,
+			/// <summary>
+			/// Pressing TAB input a '\t' character into the text field.
+			/// </summary>
+			AllowTabInput = 1 << 10,
+			/// <summary>
+			/// In multi-line mode, unfocus with Enter, add new line with Ctrl+Enter (default is opposite: unfocus with Ctrl+Enter, add line with Enter).
+			/// </summary>
+			CtrlEnterForNewLine = 1 << 11,
+			/// <summary>
+			/// Disable following the cursor horizontally.
+			/// </summary>
+			NoHorizontalScroll = 1 << 12,
+			/// <summary>
+			/// Overwrite mode.
+			/// </summary>
+			AlwaysOverwrite = 1 << 13,
+			/// <summary>
+			/// Read-only mode.
+			/// </summary>
+			ReadOnly = 1 << 14,
+			/// <summary>
+			/// Password mode, display all characters as '*'.
+			/// </summary>
+			Password = 1 << 15,
+			/// <summary>
+			/// Disable undo/redo. Note that input text owns the text data while active, if you want to provide your own undo/redo stack you need e.g. to call ClearActiveID().
+			/// </summary>
+			NoUndoRedo = 1 << 16,
+			/// <summary>
+			/// Allow 0123456789.+-*/eE (Scientific notation input).
+			/// </summary>
+			CharsScientific = 1 << 17,
+			/// <summary>
+			/// Callback on buffer capacity changes request (beyond 'buf_size' parameter value), allowing the string to grow. Notify when the string wants to be resized (for string types which hold a cache of their Size). You will be provided a new BufSize in the callback and NEED to honor it. (see misc/cpp/imgui_stdlib.h for an example of using this).
+			/// </summary>
+			CallbackResize = 1 << 18,
+			/// <summary>
+			/// Callback on any edit (note that InputText() already returns true on edit, the callback is useful mainly to manipulate the underlying buffer while focus is active).
+			/// </summary>
+			CallbackEdit = 1 << 19,
+			/// <summary>
+			/// Escape key clears content if not empty, and deactivate otherwise (contrast to default behavior of Escape to revert).
+			/// </summary>
+			EscapeClearsAll = 1 << 20,
 		};
 
 	}

@@ -2,10 +2,13 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Numerics;
+
+using IVSDKDotNet;
 
 namespace Manager
 {
-    internal class Helper
+    internal static class Helper
     {
 
         #region Classes
@@ -83,6 +86,26 @@ namespace Manager
         }
         #endregion
 
+        #region ImGUI
+        public static void AskToOpenWebPageButton(string buttonText, Vector2 size, Uri uri)
+        {
+            string id = "Open " + uri.ToString();
+
+            if (ImGuiIV.Button(buttonText, size))
+                ImGuiIV.OpenPopup(id);
+
+            Helper.AskToOpenWebPage(id, uri);
+        }
+        public static void AskToOpenWebPage(string name, Uri uri)
+        {
+            if (uri == null)
+                return;
+
+            ImGuiIV.CreateSimplePopupDialog(name, string.Format("This link takes you to {1} ({2}).{0}Do you want to go there?", Environment.NewLine, uri.Host, uri), true, true, true, "Yes", "No", () => Process.Start(uri.ToString()), null);
+        }
+        #endregion
+
+        #region Functions
         public static byte[] GetByteArray(Stream input)
         {
             using (MemoryStream ms = new MemoryStream())
@@ -91,6 +114,7 @@ namespace Manager
                 return ms.ToArray();
             }
         }
+        #endregion
 
     }
 }

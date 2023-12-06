@@ -185,6 +185,19 @@ namespace APITest
                 }
             });
         }
+        private void sendScriptCommandButton_Click(object sender, EventArgs e)
+        {
+            connection.Manager.SendScriptCommand(scriptCommandToScriptTextBox.Text, commandTextBox.Text).ContinueWith(x =>
+            {
+                if (x.Result.Error != null)
+                {
+                    LogMessage("Could not send script command! Details: {0}", x.Result.Error.Message);
+                    return;
+                }
+
+                LogMessage("result: {0}", x.Result.Value.ToString());
+            });
+        }
 
         // Game
         private void getSessionInfoButton_Click(object sender, EventArgs e)
@@ -195,10 +208,13 @@ namespace APITest
 
                 LogMessage("IsNetworkSession: {0}", info.IsNetworkSession);
                 LogMessage("IsNetworkSessionStarted: {0}", info.IsNetworkSessionStarted);
+                LogMessage("IsLANSession: {0}", info.IsLANSession);
                 LogMessage("GameMode: {0}", info.GameMode);
                 LogMessage("PlayerCount: {0}", info.PlayerCount);
                 LogMessage("MaxPlayerCount: {0}", info.MaxPlayerCount);
                 LogMessage("Score: {0}", info.Score);
+                LogMessage("ServerName: {0}", info.ServerName);
+                LogMessage("ServerID: {0}", info.ServerID);
                 LogMessage("Players:");
 
                 for (int i = 0; i < info.Players.Count; i++)

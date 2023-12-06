@@ -22,6 +22,12 @@
         Manager_IsScriptRunningRequest,
         Manager_IsScriptRunningResponse,
 
+        Manager_SendScriptCommandRequest,
+        Manager_SendScriptCommandResponse,
+
+        Manager_GetPreferencesRequest,
+        Manager_GetPreferencesResponse,
+
         // Game
         Game_GetSessionInfoRequest,
         Game_GetSessionInfoResponse,
@@ -29,39 +35,6 @@
         Game_CallNativeRequest,
         Game_CallNativeResponse,
     }
-
-    public enum TaskUseCase
-    {
-        TickRaiser,
-        GameLoadRaiser,
-        GameLoadPriorityRaiser,
-        MountDeviceRaiser,
-        DrawingRaiser,
-        ProcessCameraRaiser,
-        ProcessAutomobileRaiser,
-        ProcessPadRaiser,
-        Timer,
-        Custom
-    }
-
-    public enum AbortReason
-    {
-        Manager,
-        Script
-    }
-
-    public enum NotificationType
-    {
-        Default,
-        Error
-    }
-
-    public enum Priority
-    {
-        Default,
-        High
-    }
-
     public enum IVGameMode
     {
         None = -1,
@@ -92,6 +65,49 @@
         TLaD_ChopperVsChopper = 17,
         TLaD_WitnessProtection = 18,
         TLaD_OwnTheCity = 22
+    }
+
+    public enum TaskUseCase
+    {
+        TickRaiser,
+        GameLoadRaiser,
+        GameLoadPriorityRaiser,
+        MountDeviceRaiser,
+        DrawingRaiser,
+        ProcessCameraRaiser,
+        ProcessAutomobileRaiser,
+        ProcessPadRaiser,
+        Timer,
+        Custom
+    }
+    public enum Priority
+    {
+        Default,
+        High
+    }
+    public enum AbortReason
+    {
+        /// <summary>
+        /// The script was aborted by an API Client.
+        /// </summary>
+        API,
+        /// <summary>
+        /// The script was aborted manually by a user.
+        /// </summary>
+        Manual,
+        /// <summary>
+        /// The script was aborted by another script (Or by the same script).
+        /// </summary>
+        Script,
+        /// <summary>
+        /// The script was aborted because the manager wanted to.
+        /// </summary>
+        Manager
+    }
+    public enum NotificationType
+    {
+        Default,
+        Error
     }
 
 }

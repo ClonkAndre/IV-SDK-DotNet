@@ -37,20 +37,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EasyHook, Version=2.7.7097.0, Culture=neutral, PublicKeyToken=4b580fca19d0b0c5, processorArchitecture=MSIL">
-      <HintPath>..\packages\EasyHook.2.7.7097\lib\net40\EasyHook.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.4.2.0\lib\net45\SharpDX.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct3D9, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.Direct3D9.4.2.0\lib\net45\SharpDX.Direct3D9.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Mathematics, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.Mathematics.4.2.0\lib\net45\SharpDX.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -62,28 +50,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\AdvancedTask.cs" />
+    <Compile Include="Classes\Config.cs" />
     <Compile Include="Classes\DelayedAction.cs" />
     <Compile Include="Classes\FoundScript.cs" />
     <Compile Include="Classes\Json\IVPresenceInfo.cs" />
     <Compile Include="Classes\Json\IVSessionInfo.cs" />
+    <Compile Include="Classes\Json\ManagerApiPreferences.cs" />
     <Compile Include="Classes\Json\NativeCallContext.cs" />
     <Compile Include="Classes\Json\NativeCallResult.cs" />
     <Compile Include="Classes\Json\RunningScriptInfo.cs" />
-    <Compile Include="Managers\ConsoleManager.cs" />
-    <Compile Include="Direct3D9\Drawing.cs" />
-    <Compile Include="Direct3D9\DXHook.cs" />
+    <Compile Include="UI\ManagerUI.cs" />
+    <Compile Include="UI\ConsoleUI.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="Extensions\SharpDXExtensions.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="Classes\Mouse.cs" />
-    <Compile Include="Managers\NotificationManager.cs" />
+    <Compile Include="UI\NotificationUI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Managers\RemoteConnectionManager.cs" />
     <Compile Include="Riptide\Client.cs" />
     <Compile Include="Riptide\Connection.cs" />
@@ -117,26 +99,16 @@
     <Compile Include="Classes\UpdateChecker.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="EasyHook32.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Riptide\version.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Resource Include="Resources\cursor.bin" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IVSDKDotNetWrapper\IVSDKDotNetWrapper.vcxproj">
       <Project>{b674035b-d958-4876-b593-1e44e5385e95}</Project>
       <Name>IVSDKDotNetWrapper</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

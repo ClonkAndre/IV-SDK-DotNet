@@ -14,8 +14,9 @@ namespace IVSDKDotNet
 		// =========================================================================
 		ManagerScript::ManagerScript()
 		{
+			// If there already is a instance of the ManagerScript class. Delete this class.
 			if (ManagerScript::s_Instance)
-				delete this; // There is already a instance of the ManagerScript class. Delete this class.
+				delete this;
 		}
 
 		void ManagerScript::Debug_ShowMessageBox(String^ str)		{ SHOW_MESSAGE(str); }
@@ -28,6 +29,10 @@ namespace IVSDKDotNet
 	// =========================================================================
 	// ================================== Script ===============================
 	// =========================================================================
+	Script::Script(Guid id)
+	{
+		ID = id;
+	}
 	Script::Script()
 	{
 		AssembliesLocation = eAssembliesLocation::GameRootDirectory;
@@ -108,7 +113,10 @@ namespace IVSDKDotNet
 
 	bool Script::RegisterConsoleCommand(String^ name, Action<array<String^>^>^ actionToExecute)
 	{
-		return CGame::Console::RegisterCommand(this, name, actionToExecute);
+		if (ManagerScript::s_Instance)
+			return ManagerScript::s_Instance->RegisterConsoleCommand(ID, name, actionToExecute);
+
+		return false;
 	}
 
 	String^ Script::GetName()
@@ -173,11 +181,12 @@ namespace IVSDKDotNet
 		return nullptr;
 	}
 
-	bool Script::SendScriptCommand(Script^ toScript, String^ command)
+	bool Script::SendScriptCommand(Script^ toScript, String^ command, [OutAttribute] Object^% result)
 	{
 		if (ManagerScript::s_Instance)
-			return ManagerScript::s_Instance->SendScriptCommand(toScript, command);
+			return ManagerScript::s_Instance->SendScriptCommand(toScript, command, result);
 
+		result = nullptr;
 		return false;
 	}
 

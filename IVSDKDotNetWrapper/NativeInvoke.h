@@ -1,7 +1,5 @@
 #pragma once
 
-#include "pch.h"
-
 using namespace IVSDKDotNet::Native;
 
 class IVNativeCallContext
@@ -11,8 +9,8 @@ public:
 	unsigned int m_nArgCount;					// 04-08
 	void* m_pArgs;								// 08-0C
 	unsigned int m_nDataCount;					// 0C-10
-	Native_CVector* m_pOriginalData[4];			// 10-20
-	Native_CQuaternion m_TemporaryData[4];		// 20-60
+	CVector* m_pOriginalData[4];			    // 10-20
+	CQuaternion m_TemporaryData[4];		        // 20-60
 };
 VALIDATE_OFFSET(IVNativeCallContext, m_pOriginalData, 0x10);
 VALIDATE_OFFSET(IVNativeCallContext, m_TemporaryData, 0x20);
@@ -45,13 +43,15 @@ public:
 	inline void Push(T value)
 	{
 		// Have we reached our argument count?
-		if (m_nArgCount == MaxNativeParams) {
+		if (m_nArgCount == MaxNativeParams)
+		{
 			// We can only store 16 arguments
 			return;
 		}
 
 		// Is the argument too big?
-		if (sizeof(T) > ArgSize) {
+		if (sizeof(T) > ArgSize)
+		{
 			// We only accept 4 byte or less arguments
 			return;
 		}
@@ -68,42 +68,15 @@ public:
 		m_nArgCount++;
 	}
 
-	inline void Push2(void* value, int size)
-	{
-		// Have we reached our argument count?
-		if (m_nArgCount == MaxNativeParams)
-		{
-			// We can only store 16 arguments
-			return;
-		}
-
-		// Is the argument too big?
-		if (size > ArgSize)
-		{
-			// We only accept 4 byte or less arguments
-			return;
-		}
-		else if (size < ArgSize) // Is the argument too small?
-		{
-			// Reset the argument data
-			*(unsigned int*)(m_TempStack + ArgSize * m_nArgCount) = 0;
-		}
-
-		// Add to argument to the argument stack
-		*(void**)(m_TempStack + ArgSize * m_nArgCount) = value;
-
-		// Increment the total argument count
-		m_nArgCount++;
-	}
-
 	template <typename T>
 	inline T GetResult()
 	{
 		// Copy back any vector results
-		while (m_nDataCount > 0) {
+		while (m_nDataCount > 0)
+		{
 			m_nDataCount--;
-			Native_CVector* pVec3 = m_pOriginalData[m_nDataCount];
-			Native_CQuaternion* pVec4 = &m_TemporaryData[m_nDataCount];
+			CVector* pVec3 = m_pOriginalData[m_nDataCount];
+			CQuaternion* pVec4 = &m_TemporaryData[m_nDataCount];
 			pVec3->x = pVec4->x;
 			pVec3->y = pVec4->y;
 			pVec3->z = pVec4->z;
@@ -117,9 +90,12 @@ public:
 	{
 		uintptr_t* arguments = (uintptr_t*)m_pArgs;
 
-		if (arguments) {
-			if (&arguments[idx]) {
-				if (arguments[idx]) {
+		if (arguments)
+		{
+			if (&arguments[idx])
+			{
+				if (arguments[idx])
+				{
 					return *(T*)&arguments[idx];
 				}
 			}
@@ -144,19 +120,7 @@ private:
 
 	static bool Invoke(uint32_t uiHash, IVNativeCallContext* pNativeContext)
 	{
-		auto NativeFunc = (NativeCall)Native_CTheScripts::FindNativeAddress(uiHash);
-		if (NativeFunc != NULL) {
-			NativeFunc(pNativeContext);
-			return true;
-		}
-		return false;
-	}
-
-public:
-
-	static bool Invoke2(uint32_t uiHash, IVNativeCallContext* pNativeContext)
-	{
-		auto NativeFunc = (NativeCall)Native_CTheScripts::FindNativeAddress(uiHash);
+		auto NativeFunc = (NativeCall)CTheScripts::FindNativeAddress(uiHash);
 		if (NativeFunc != NULL)
 		{
 			NativeFunc(pNativeContext);
@@ -165,20 +129,7 @@ public:
 		return false;
 	}
 
-	template <typename R>
-	static inline R AInvoke(eNativeHash hash, void* args, uint32_t size)
-	{
-		NativeContext cxt;
-
-		// Add native functions args to NativeContext
-		for (uint32_t i = 0; i < size; i++)
-		{
-			cxt.Push2(args[i]);
-		}
-
-		Invoke((uint32_t)hash, &cxt);
-		return cxt.GetResult<R>();
-	}
+public:
 
 	template <typename R>
 	static inline R Invoke(eNativeHash hash)
@@ -480,6 +431,5 @@ public:
 		Invoke((uint32_t)hash, &cxt);
 		return cxt.GetResult<R>();
 	}
-
 
 };

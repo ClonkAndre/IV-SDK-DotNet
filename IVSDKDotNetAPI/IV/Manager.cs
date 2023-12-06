@@ -109,6 +109,39 @@ namespace IVSDKDotNetAPI.IV
                     PendingResponses[RemoteMessageID.Manager_IsScriptRunningRequest] = new Result<bool>(e.Message.GetBool(), null);
                     break;
 
+                case RemoteMessageID.Manager_SendScriptCommandResponse:
+                    {
+                        bool success = e.Message.GetBool();
+
+                        if (success)
+                        {
+                            object result = JsonConvert.DeserializeObject(e.Message.GetString());
+                            PendingResponses[RemoteMessageID.Manager_SendScriptCommandRequest] = new Result<object>(result, null);
+                        }
+                        else
+                        {
+                            byte errorId = e.Message.GetByte();
+
+                            switch (errorId)
+                            {
+                                case 0: // Invalid ID
+                                    PendingResponses[RemoteMessageID.Manager_SendScriptCommandRequest] = new Result<object>(null, new Exception("Invalid ID!"));
+                                    break;
+                                case 1: // Script not found
+                                    PendingResponses[RemoteMessageID.Manager_SendScriptCommandRequest] = new Result<object>(null, new Exception("Script not found!"));
+                                    break;
+                                case 2: // SendScriptCommand failed
+                                    PendingResponses[RemoteMessageID.Manager_SendScriptCommandRequest] = new Result<object>(null, new Exception("SendScriptCommand failed!"));
+                                    break;
+                            }
+                        }
+                    }
+                    break;
+
+                case RemoteMessageID.Manager_GetPreferencesResponse:
+                    PendingResponses[RemoteMessageID.Manager_GetPreferencesRequest] = new Result<ManagerApiPreferences>(JsonConvert.DeserializeObject<ManagerApiPreferences>(e.Message.GetString()), null);
+                    break;
+
             }
         }
         #endregion
@@ -121,6 +154,72 @@ namespace IVSDKDotNetAPI.IV
         #endregion
 
         #region Functions
+        /// <summary>
+        /// Gets the IV-SDK .NET Manager API Preferences.
+        /// </summary>
+        /// <returns>If successful, the IV-SDK .NET API Preferences is returned.</returns>
+        public Task<Result<ManagerApiPreferences>> GetPreferences()
+        {
+            RemoteMessageID messageID = RemoteMessageID.Manager_GetPreferencesRequest;
+
+            if (!ConnectionInstance.IsConnected)
+                return Task.FromResult(new Result<ManagerApiPreferences>(null, new Exception("There is no connection to the IV-SDK .NET Manager.")));
+
+            // If request was already made, return
+            if (PendingResponses.ContainsKey(messageID))
+                return Task.FromResult(new Result<ManagerApiPreferences>(null, new APIExceptions.RequestAlreadyMadeException("A request to get the preferences was already made.")));
+
+            // Add to pending responses and message timeouts list
+            PendingResponses.Add(messageID, null);
+            ConnectionInstance.MessageTimeouts.Add(messageID, DateTime.UtcNow);
+
+            // Send request
+            Send(Message.Create(MessageSendMode.Unreliable, messageID));
+
+            // Wait for response
+            return Task.Run(() =>
+            {
+
+                object responseObject = PendingResponses[messageID];
+
+                // Wait for result or abort if not connected anymore
+                while (responseObject == null)
+                {
+                    if (!ConnectionInstance.IsConnected)
+                        break;
+
+                    // See if object is still null
+                    responseObject = PendingResponses[messageID];
+
+                    if (responseObject != null)
+                        break;
+
+                    // Check timeout
+                    if (ConnectionInstance.MessageTimeouts.ContainsKey(messageID))
+                    {
+                        DateTime dt = ConnectionInstance.MessageTimeouts[messageID];
+
+                        // If after 10 seconds no response arrived, break from loop and return default result
+                        if (DateTime.UtcNow > dt.AddSeconds(10))
+                            break;
+                    }
+
+                    // Wait
+                    Thread.Sleep(20);
+                }
+
+                // Remove message from pending responses and message timeouts list
+                PendingResponses.Remove(messageID);
+                ConnectionInstance.MessageTimeouts.Remove(messageID);
+
+                // Return result
+                if (responseObject == null)
+                    return Result<ManagerApiPreferences>.Empty();
+
+                return (Result<ManagerApiPreferences>)responseObject;
+            });
+        }
+
         /// <summary>
         /// Tells the IV-SDK .NET Manager to reload the scripts.
         /// <para>Note: If the user turned off remote reloading of scripts, this call fails.</para>
@@ -532,6 +631,80 @@ namespace IVSDKDotNetAPI.IV
                     return Result<bool>.Empty();
 
                 return (Result<bool>)responseObject;
+            });
+        }
+
+        /// <summary>
+        /// Sends a script command to the script with the given <paramref name="id"/>
+        /// </summary>
+        /// <param name="id">The ID or the Name of the Script that should receive this command.</param>
+        /// <param name="command">The command that should be sent to the Script.</param>
+        /// <returns>The result <see cref="object"/> the script returned.</returns>
+        public Task<Result<object>> SendScriptCommand(string script, string command)
+        {
+            RemoteMessageID messageID = RemoteMessageID.Manager_SendScriptCommandRequest;
+
+            if (!ConnectionInstance.IsConnected)
+                return Task.FromResult(new Result<object>(null, new Exception("There is no connection to the IV-SDK .NET Manager.")));
+
+            // Dummy checks
+            if (string.IsNullOrWhiteSpace(script))
+                return Task.FromResult(new Result<object>(null, new Exception("script cannot be null or empty!")));
+            if (string.IsNullOrWhiteSpace(command))
+                return Task.FromResult(new Result<object>(null, new Exception("command cannot be null or empty!")));
+
+            // If request was already made, return
+            if (PendingResponses.ContainsKey(messageID))
+                return Task.FromResult(new Result<object>(null, new APIExceptions.RequestAlreadyMadeException("A request to check if the script is running was already made.")));
+
+            // Add to pending responses and message timeouts list
+            PendingResponses.Add(messageID, null);
+            ConnectionInstance.MessageTimeouts.Add(messageID, DateTime.UtcNow);
+
+            // Send request
+            Send(Message.Create(MessageSendMode.Unreliable, messageID).AddString(script).AddString(command));
+
+            // Wait for response
+            return Task.Run(() =>
+            {
+
+                object responseObject = PendingResponses[messageID];
+
+                // Wait for result or abort if not connected anymore
+                while (responseObject == null)
+                {
+                    if (!ConnectionInstance.IsConnected)
+                        break;
+
+                    // See if object is still null
+                    responseObject = PendingResponses[messageID];
+
+                    if (responseObject != null)
+                        break;
+
+                    // Check timeout
+                    if (ConnectionInstance.MessageTimeouts.ContainsKey(messageID))
+                    {
+                        DateTime dt = ConnectionInstance.MessageTimeouts[messageID];
+
+                        // If after 10 seconds no response arrived, break from loop and return default result
+                        if (DateTime.UtcNow > dt.AddSeconds(10))
+                            break;
+                    }
+
+                    // Wait
+                    Thread.Sleep(20);
+                }
+
+                // Remove message from pending responses and message timeouts list
+                PendingResponses.Remove(messageID);
+                ConnectionInstance.MessageTimeouts.Remove(messageID);
+
+                // Return result
+                if (responseObject == null)
+                    return Result<object>.Empty();
+
+                return (Result<object>)responseObject;
             });
         }
         #endregion

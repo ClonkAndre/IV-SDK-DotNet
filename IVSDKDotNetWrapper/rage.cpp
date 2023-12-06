@@ -1,48 +1,28 @@
 #include "pch.h"
 #include "rage.h"
 
-extern LONG_PTR oriWndProc = NULL;
-
-LRESULT __stdcall WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+namespace IVSDKDotNet
 {
-	bool result = RAGE::InvokeOnWndProcMessageReceived(IntPtr(hWnd), uMsg, UIntPtr(wParam), IntPtr(lParam));
 
-	if (result)
-		return 0;
-
-	// Call the original function
-	return CallWindowProcW((WNDPROC)oriWndProc, hWnd, uMsg, wParam, lParam);
-}
-
-namespace IVSDKDotNet {
-
+	// - - - Methods / Functions - - -
 	IntPtr RAGE::GetHWND()
 	{
-		return IntPtr(Native_RAGE::GetHWND());
+		return IntPtr(rage::g_pHWND);
 	}
 	IntPtr RAGE::GetDirect3DDevice9()
 	{
-		return IntPtr(Native_RAGE::GetDirect3DDevice9());
+		return IntPtr(rage::g_pDirect3DDevice);
 	}
 
-	bool RAGE::InitWndProcHook()
-	{
-		if (m_bWndProcInitialized)
-			return true;
-
-		m_bWndProcInitialized = Native_RAGE::InitWndProcHook();
-		return m_bWndProcInitialized;
-	}
-
-	uint32_t RAGE::atStringHash(String^ sString)
+	uint32_t RAGE::AtStringHash(String^ sString)
 	{
 		msclr::interop::marshal_context ctx;
-		return Native_RAGE::atStringHash(ctx.marshal_as<const char*>(sString));
+		return rage::atStringHash(ctx.marshal_as<const char*>(sString));
 	}
-	uint32_t RAGE::atStringHash(String^ sString, UIntPtr nExistingHash)
+	uint32_t RAGE::AtStringHash(String^ sString, UIntPtr nExistingHash)
 	{
 		msclr::interop::marshal_context ctx;
-		return Native_RAGE::atStringHash(ctx.marshal_as<const char*>(sString), (uint32_t*)nExistingHash.ToPointer());
+		return rage::atStringHash(ctx.marshal_as<const char*>(sString), (uint32_t*)nExistingHash.ToPointer());
 	}
 
 }

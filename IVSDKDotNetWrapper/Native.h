@@ -88,10 +88,12 @@ namespace IVSDKDotNet
 			static void CREATE_RANDOM_FEMALE_CHAR(float x, float y, float z, Ped% pPed) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_FEMALE_CHAR, x, y, z, pPed); }
 			static void CREATE_RANDOM_MALE_CHAR(float x, float y, float z, Ped% pPed) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_MALE_CHAR, x, y, z, pPed); }
 			static void DAMAGE_CHAR(Ped ped, unsigned int hitPoints, b8 unknown) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DAMAGE_CHAR, ped, hitPoints, unknown); }
-
-			[System::ObsoleteAttribute("This native is obsolete. Use CPools.DeleteChar instead.")]
-			static void DELETE_CHAR(Ped* pPed) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DELETE_CHAR, pPed); }
-
+			static void DELETE_CHAR(Ped% pPed)
+			{
+				Ped ped = pPed;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_DELETE_CHAR, &ped);
+				pPed = ped;
+			}
 			static void DONT_REMOVE_CHAR(Ped ped) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DONT_REMOVE_CHAR, ped); }
 			static void END_CHAR_SEARCH_CRITERIA() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_END_CHAR_SEARCH_CRITERIA); }
 			static void EXPLODE_CHAR_HEAD(Ped ped) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_EXPLODE_CHAR_HEAD, ped); }
@@ -207,6 +209,12 @@ namespace IVSDKDotNet
 				float p;
 				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_GET_CHAR_SPEED, ped, &p);
 				pValue = p;
+			}
+			static void GET_CHAR_VELOCITY(Ped ped, [OutAttribute] Vector3% velocity)
+			{
+				float x, y, z;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_GET_CHAR_VELOCITY, ped, &x, &y, &z);
+				velocity = Vector3(x, y, z);
 			}
 			static void GET_CHAR_VELOCITY(Ped ped, [OutAttribute] float% pX, [OutAttribute] float% pY, [OutAttribute] float% pZ)
 			{
@@ -383,7 +391,8 @@ namespace IVSDKDotNet
 				pPlayerIndex = p;
 			}
 			static void DELETE_PLAYER() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DELETE_PLAYER); }
-			static void DISABLE_PLAYER_LOCKON(Player playerIndex, b8 disabled) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DISABLE_PLAYER_LOCKON, playerIndex, disabled); }
+			static void DISABLE_PLAYER_LOCKON(Player playerIndex, b8 disabled) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_DISABLE_PLAYER_LOCKON, playerIndex, disabled); }
+			static void DISABLE_PLAYER_SPRINT(Player playerIndex, b8 disabled) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_DISABLE_PLAYER_SPRINT, playerIndex, disabled); }
 			static void FAKE_DEATHARREST() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_FAKE_DEATHARREST); }
 			static void FORCE_AIR_DRAG_MULT_FOR_PLAYERS_CAR(int player, float multiplier) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_FORCE_AIR_DRAG_MULT_FOR_PLAYERS_CAR, player, multiplier); }
 			static void GET_NUM_OF_MODELS_KILLED_BY_PLAYER(int player, unsigned int model, [OutAttribute] int% num)
@@ -749,15 +758,19 @@ namespace IVSDKDotNet
 			}
 			static void DAMAGE_CAR(Vehicle car, float x, float y, float z, float unkforce0, float unkforce1, b8 flag) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DAMAGE_CAR, car, x, y, z, unkforce0, unkforce1, flag); }
 			static void DELETE_ALL_TRAINS() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DELETE_ALL_TRAINS); }
-
-			[System::ObsoleteAttribute("This native is obsolete. Use CPools.DeleteCar instead.")]
-			static void DELETE_CAR(Vehicle* pVehicle)
+			static void DELETE_CAR(Vehicle% pVehicle)
 			{
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DELETE_CAR, pVehicle);
+				Vehicle veh = pVehicle;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_DELETE_CAR, &veh);
+				pVehicle = veh;
 			}
-
 			static void DELETE_CAR_GENERATOR(int handle) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DELETE_CAR_GENERATOR, handle); }
-			static void DELETE_MISSION_TRAIN(Train% pTrain) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DELETE_MISSION_TRAIN, pTrain); }
+			static void DELETE_MISSION_TRAIN(Train% pTrain)
+			{
+				Train train = pTrain;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_DELETE_MISSION_TRAIN, &train);
+				pTrain = train;
+			}
 			static void DELETE_MISSION_TRAINS() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DELETE_MISSION_TRAINS); }
 			static void DETACH_CAR(Vehicle vehicle) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DETACH_CAR, vehicle); }
 			static void DISABLE_CAR_GENERATORS(b8 flag0, b8 flag1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DISABLE_CAR_GENERATORS, flag0, flag1); }
@@ -986,6 +999,12 @@ namespace IVSDKDotNet
 				Unk67 = v1;
 				Unk68 = v2;
 			}
+			static void GET_OFFSET_FROM_CAR_GIVEN_WORLD_COORDS(Vehicle vehicle, Vector3 pos, [OutAttribute] Vector3% offset)
+			{
+				float x, y, z;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_OFFSET_FROM_CAR_GIVEN_WORLD_COORDS, vehicle, pos.X, pos.Y, pos.Z, &x, &y, &z);
+				offset = Vector3(x, y, z);
+			}
 			static void GET_OFFSET_FROM_CAR_GIVEN_WORLD_COORDS(Vehicle vehicle, float pX, float pY, float pZ, [OutAttribute] float% pOffX, [OutAttribute] float% pOffY, [OutAttribute] float% pOffZ)
 			{
 				float x, y, z;
@@ -993,6 +1012,12 @@ namespace IVSDKDotNet
 				pOffX = x;
 				pOffY = y;
 				pOffZ = z;
+			}
+			static void GET_OFFSET_FROM_CAR_IN_WORLD_COORDS(Vehicle vehicle, Vector3 pos, [OutAttribute] Vector3% offset)
+			{
+				float x, y, z;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_OFFSET_FROM_CAR_IN_WORLD_COORDS, vehicle, pos.X, pos.Y, pos.Z, &x, &y, &z);
+				offset = Vector3(x, y, z);
 			}
 			static void GET_OFFSET_FROM_CAR_IN_WORLD_COORDS(Vehicle vehicle, float pX, float pY, float pZ, [OutAttribute] float% pOffX, [OutAttribute] float% pOffY, [OutAttribute] float% pOffZ)
 			{
@@ -1291,10 +1316,12 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CREATE_OBJECT_NO_OFFSET, model, x, y, z, &p, unknownTrue);
 				pObj = p;
 			}
-
-			[System::ObsoleteAttribute("This native is obsolete. Use CPools.DeleteObject instead.")]
-			static void DELETE_OBJECT(Entity* pObj) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DELETE_OBJECT, pObj); }
-
+			static void DELETE_OBJECT(Entity% pObj)
+			{
+				Entity obj = pObj;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_DELETE_OBJECT, &obj);
+				pObj = obj;
+			}
 			static void DETACH_OBJECT(Entity obj, b8 unknown) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DETACH_OBJECT, obj, unknown); }
 			static void DETACH_OBJECT_NO_COLLIDE(Entity obj, b8 flag) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DETACH_OBJECT_NO_COLLIDE, obj, flag); }
 			static void DONT_REMOVE_OBJECT(Entity obj) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DONT_REMOVE_OBJECT, obj); }
@@ -1405,6 +1432,12 @@ namespace IVSDKDotNet
 				pX = x;
 				pY = y;
 				pZ = z;
+			}
+			static void GET_OFFSET_FROM_OBJECT_IN_WORLD_COORDS(Entity obj, Vector3 pos, [OutAttribute] Vector3% offset)
+			{
+				float x, y, z;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_OFFSET_FROM_OBJECT_IN_WORLD_COORDS, obj, pos.X, pos.Y, pos.Z, &x, &y, &z);
+				offset = Vector3(x, y, z);
 			}
 			static void GET_OFFSET_FROM_OBJECT_IN_WORLD_COORDS(Entity obj, float pX, float pY, float pZ, [OutAttribute] float% pOffX, [OutAttribute] float% pOffY, [OutAttribute] float% pOffZ)
 			{
@@ -3326,8 +3359,8 @@ namespace IVSDKDotNet
 			static void GET_SCREEN_RESOLUTION([OutAttribute] Vector2% res)
 			{
 				int x, y;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_SCREEN_RESOLUTION, &x, &y);
-				res = Vector2(x, y);
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_GET_SCREEN_RESOLUTION, &x, &y);
+				res = Vector2(Convert::ToSingle(x), Convert::ToSingle(y));
 			}
 			static void GET_SCREEN_RESOLUTION([OutAttribute] int% pX, [OutAttribute] int% pY)
 			{
@@ -3754,7 +3787,12 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_NETWORK_ID_FROM_VEHICLE, vehicle, &p);
 				netid = p;
 			}
-			static void GET_NETWORK_TIMER(int Unk917) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_NETWORK_TIMER, Unk917); }
+			static void GET_NETWORK_TIMER([OutAttribute] int% timer)
+			{
+				int t;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_GET_NETWORK_TIMER, &t);
+				timer = t;
+			}
 			static void GET_OBJECT_FROM_NETWORK_ID(int netid, [OutAttribute] Entity% obj)
 			{
 				Entity p;
@@ -4607,6 +4645,7 @@ namespace IVSDKDotNet
 				pMaxAmmo = p;
 				return r;
 			}
+			static Entity GET_OBJECT_PED_IS_HOLDING(Ped ped) { return NativeInvoke::Invoke<Entity>(eNativeHash::NATIVE_GET_OBJECT_PED_IS_HOLDING, ped); }
 			static Texture GET_TEXTURE_FROM_STREAMED_TXD(String^ txdName, String^ textureName)
 			{
 				msclr::interop::marshal_context ctx;
@@ -5201,6 +5240,21 @@ namespace IVSDKDotNet
 			{
 				return gcnew String(NativeInvoke::Invoke< const ch*>(eNativeHash::NATIVE_NETWORK_GET_NEXT_TEXT_CHAT));
 			}
+
+			static String^ NETWORK_GET_SERVER_NAME()
+			{
+				return gcnew String(NativeInvoke::Invoke<const ch*>(eNativeHash::NATIVE_NETWORK_GET_SERVER_NAME));
+			}
+			static String^ NETWORK_GET_HOST_SERVER_NAME(int host)
+			{
+				return gcnew String(NativeInvoke::Invoke<const ch*>(eNativeHash::NATIVE_NETWORK_GET_HOST_SERVER_NAME, host));
+			}
+			static bool NETWORK_SET_SERVER_NAME(String^ name)
+			{
+				msclr::interop::marshal_context ctx;
+				return NativeInvoke::Invoke<bool>(eNativeHash::NATIVE_NETWORK_SET_SERVER_NAME, ctx.marshal_as<const char*>(name));
+			}
+
 			static uint32_t GET_PLAYER_ID() { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_PLAYER_ID); }
 			static uint32_t GET_HOST_ID() { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_HOST_ID); }
 			static Player CONVERT_INT_TO_PLAYERINDEX(uint32_t playerId) { return NativeInvoke::Invoke< Player>(eNativeHash::NATIVE_CONVERT_INT_TO_PLAYERINDEX, playerId); }
@@ -5400,7 +5454,7 @@ namespace IVSDKDotNet
 				// Try to find method that match the name and argument count
 				MethodInfo^ foundMethod = nullptr;
 
-				for (size_t i = 0; i < methodsArray->Length; i++)
+				for (int i = 0; i < methodsArray->Length; i++)
 				{
 					MethodInfo^ method = methodsArray[i];
 

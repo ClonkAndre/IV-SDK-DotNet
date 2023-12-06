@@ -13,7 +13,7 @@ namespace IVSDKDotNetAPI
         #endregion
 
         #region Events
-        internal virtual void RemoteClient_MessageReceived(object sender, Riptide.MessageReceivedEventArgs e)
+        internal virtual void RemoteClient_MessageReceived(object sender, MessageReceivedEventArgs e)
         {
 
         }

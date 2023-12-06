@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\IVSDKDotNetAPI.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -48,6 +49,7 @@
     <Compile Include="APIEndPointBase.cs" />
     <Compile Include="APIExceptions.cs" />
     <Compile Include="Classes\IVSessionInfo.cs" />
+    <Compile Include="Classes\ManagerApiPreferences.cs" />
     <Compile Include="Classes\NativeCallContext.cs" />
     <Compile Include="Classes\NativeCallResult.cs" />
     <Compile Include="Classes\RunningScriptInfo.cs" />

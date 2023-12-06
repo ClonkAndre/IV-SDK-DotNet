@@ -10,10 +10,6 @@
 
 #include "IVSDK.cpp"
 
-#pragma region Variables
-HANDLE managedThreadHandle;
-#pragma endregion
-
 #pragma region Events
 void ScriptLoop()
 {
@@ -45,8 +41,11 @@ void ProcessAutomobile(CVehicle* veh)
 }
 void ProcessPad(CPad* pad)
 {
-	// Todo: Make class CPad managed and add to parameter of method below.
-	CLR::CLRBridge::InvokeProcessPadEvents();
+	CLR::CLRBridge::InvokeProcessPadEvents((uint32_t*)pad);
+}
+void IngameStartupEvent()
+{
+	CLR::CLRBridge::InvokeIngameStartupEvent();
 }
 #pragma endregion
 
@@ -70,7 +69,7 @@ DWORD WINAPI ManagedEntryPoint(HMODULE hModule)
 void plugin::gameStartupEvent()
 {
 	// Launch a thread to get a managed entry point and to keep the plugin alive
-	managedThreadHandle = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ManagedEntryPoint, GetCurrentModule(), 0, nullptr);
+	HANDLE managedThreadHandle = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ManagedEntryPoint, GetCurrentModule(), 0, nullptr);
 
 	// Subscribe to IV-SDK Events
 	plugin::processScriptsEvent::Add(ScriptLoop);
@@ -81,4 +80,5 @@ void plugin::gameStartupEvent()
 	plugin::processCameraEvent::Add(ProcessCamera);
 	plugin::processAutomobileEvent::Add(ProcessAutomobile);
 	plugin::processPadEvent::Add(ProcessPad);
+	plugin::ingameStartupEvent::Add(IngameStartupEvent);
 }

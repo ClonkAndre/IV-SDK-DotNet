@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
 using Newtonsoft.Json;
 using Riptide;
@@ -9,6 +8,7 @@ using Riptide.Transports.Udp;
 using Manager.Classes;
 using Manager.Classes.Json;
 
+using IVSDKDotNet;
 using IVSDKDotNet.Native;
 using static IVSDKDotNet.Native.Natives;
 
@@ -17,62 +17,17 @@ namespace Manager.Managers
     public class RemoteConnectionManager : IDisposable
     {
 
-        #region Variables and Properties
+        #region Variables
         // Lists
-        private readonly object lockObj = new object();
-
         private Dictionary<ushort, string> connectionNames;
 
         // Server
         private Server server;
-        
-        private ushort serverPort;
-        private ushort maxServerClients;
 
         // Other
         private bool disposed;
-        private bool showNotificationOnConnection;
-        private bool allowRemoteReloadScripts;
-        private bool allowRemoteLoadScripts;
-        private bool allowRemoteAbortScripts;
-        private bool allowRemoteNativeFunctionCalls;
 
-        // Properties
-        public ushort ServerPort
-        {
-            get { return serverPort; }
-            set { serverPort = value; }
-        }
-        public ushort MaxServerClients
-        {
-            get { return maxServerClients; }
-            set { maxServerClients = value; }
-        }
-        public bool ShowNotificationOnConnection
-        {
-            get { return showNotificationOnConnection; }
-            set { showNotificationOnConnection = value; }
-        }
-        public bool AllowRemoteReloadScripts
-        {
-            get { return allowRemoteReloadScripts; }
-            set { allowRemoteReloadScripts = value; }
-        }
-        public bool AllowRemoteLoadScripts
-        {
-            get { return allowRemoteLoadScripts; }
-            set { allowRemoteLoadScripts = value; }
-        }
-        public bool AllowRemoteAbortScripts
-        {
-            get { return allowRemoteAbortScripts; }
-            set { allowRemoteAbortScripts = value; }
-        }
-        public bool AllowRemoteNativeFunctionCalls
-        {
-            get { return allowRemoteNativeFunctionCalls; }
-            set { allowRemoteNativeFunctionCalls = value; }
-        }
+        private ManagerApiPreferences preferences;
         #endregion
 
         #region Events
@@ -84,23 +39,23 @@ namespace Manager.Managers
                 if (connectMessage == null)
                 {
                     server.Reject(pendingConnection);
-                    Main.Instance.Console.PrintDebug(string.Format("[RemoteConnectionManager] (1) Rejected API connection."));
+                    Logger.LogDebug(string.Format("[RemoteConnectionManager] (1) Rejected API connection."));
                     return;
                 }
 
                 string connectionName = connectMessage.GetString();
 
                 connectionNames.Add(pendingConnection.Id, connectionName);
-                Main.Instance.Console.PrintDebug(string.Format("[RemoteConnectionManager] API Connection {0} (ID {1}) added to list.", connectionName, pendingConnection.Id));
+                Logger.LogDebug(string.Format("[RemoteConnectionManager] API Connection {0} (ID {1}) added to list.", connectionName, pendingConnection.Id));
 
                 server.Accept(pendingConnection);
             }
             catch (Exception ex)
             {
-                Main.Instance.Console.PrintError(string.Format("[RemoteConnectionManager] An error occured while handling API connection. Details: {0}", ex));
+                Logger.LogError(string.Format("[RemoteConnectionManager] An error occured while handling API connection. Details: {0}", ex));
                 
                 server.Reject(pendingConnection);
-                Main.Instance.Console.PrintDebug(string.Format("[RemoteConnectionManager] (2) Rejected API connection."));
+                Logger.LogDebug(string.Format("[RemoteConnectionManager] (2) Rejected API connection."));
             }
         }
         private void Server_ClientConnected(object sender, ServerConnectedEventArgs e)
@@ -110,27 +65,27 @@ namespace Manager.Managers
                 string connectionAddress = ((UdpConnection)e.Client).RemoteEndPoint.ToString();
 
                 ushort id = (ushort)(e.Client.Id - 1);
-                Main.Instance.Console.PrintDebug(string.Format("[RemoteConnectionManager] Trying to get name of API connection from {0}", id));
+                Logger.LogDebug(string.Format("[RemoteConnectionManager] Trying to get name of API connection from {0}", id));
 
                 if (!connectionNames.ContainsKey(id))
                 {
                     server.DisconnectClient(e.Client.Id);
-                    Main.Instance.Console.PrintWarning(string.Format("[RemoteConnectionManager] Could not find id {0} in the list of connected API clients! Disconnecting client {1}.", id, connectionAddress));
+                    Logger.LogWarning(string.Format("[RemoteConnectionManager] Could not find id {0} in the list of connected API clients! Disconnecting client {1}.", id, connectionAddress));
                     return;
                 }
 
                 string connectionName = connectionNames[id];
 
                 // Log connection
-                Main.Instance.Console.PrintWarning(string.Format("[RemoteConnectionManager] '{0}' ({1}) has connected to IV-SDK .NET!", connectionName, connectionAddress));
+                Logger.LogWarning(string.Format("[RemoteConnectionManager] '{0}' ({1}) has connected to IV-SDK .NET!", connectionName, connectionAddress));
 
                 // Show connect information to user
-                if (ShowNotificationOnConnection)
+                if (Config.ShowNotificationOnConnection)
                     Main.Instance.Notification.ShowNotification(NotificationType.Default, DateTime.UtcNow.AddSeconds(6), "New API Connection", string.Format("'{0}' has connected to IV-SDK .NET!", connectionName), null);
             }
             catch (Exception ex)
             {
-                Main.Instance.Console.PrintError(string.Format("[RemoteConnectionManager] An error occured in the client connected event. Details: {0}", ex));
+                Logger.LogError(string.Format("[RemoteConnectionManager] An error occured in the client connected event. Details: {0}", ex));
             }
         }
         private void Server_ClientDisconnected(object sender, ServerDisconnectedEventArgs e)
@@ -148,11 +103,11 @@ namespace Manager.Managers
                 connectionNames.Remove(id);
 
                 // Log connection disconnect
-                Main.Instance.Console.PrintWarning(string.Format("[RemoteConnectionManager] '{0}' ({1}) has disconnected from IV-SDK .NET!", connectionName, connectionAddress));
+                Logger.LogWarning(string.Format("[RemoteConnectionManager] '{0}' ({1}) has disconnected from IV-SDK .NET!", connectionName, connectionAddress));
             }
             catch (Exception ex)
             {
-                Main.Instance.Console.PrintError(string.Format("[RemoteConnectionManager] An error occured in the client disconnected event. Details: {0}", ex));
+                Logger.LogError(string.Format("[RemoteConnectionManager] An error occured in the client disconnected event. Details: {0}", ex));
             }
         }
         private void Server_MessageReceived(object sender, MessageReceivedEventArgs e)
@@ -165,7 +120,7 @@ namespace Manager.Managers
                     // Manager Requests
                     case RemoteMessageID.Manager_ReloadScriptsRequest:
                         {
-                            if (AllowRemoteReloadScripts)
+                            if (Config.AllowRemoteReloadScripts)
                             {
                                 Main.Instance.LoadScripts();
 
@@ -184,7 +139,7 @@ namespace Manager.Managers
                         {
 
                             // Can load scripts remotely?
-                            if (!AllowRemoteLoadScripts)
+                            if (!Config.AllowRemoteLoadScripts)
                             {
                                 Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_LoadScriptResponse);
                                 msg.AddBool(false); // Request failed
@@ -207,14 +162,14 @@ namespace Manager.Managers
                                 {
 
                                     // Get path to script file
-                                    string scriptPath = string.Format("{0}\\{1}", Main.Instance.ScriptsPath, scriptFileName);
+                                    string scriptPath = string.Format("{0}\\{1}", CLR.CLRBridge.IVSDKDotNetScriptsPath, scriptFileName);
 
                                     // Load assembly
-                                    if (Main.Instance.LoadAssembly(scriptPath, true))
+                                    if (Main.Instance.LoadAssembly(scriptPath))
                                     {
                                         server.Send(Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_LoadScriptResponse).AddBool(true), e.FromConnection);
                                         // TODO: Log which API Client has loaded this script.
-                                        Main.Instance.Console.Print(string.Format("An API Client has loaded script {0}!", scriptFileName));
+                                        Logger.Log(string.Format("An API Client has loaded script {0}!", scriptFileName));
                                     }
 
                                 }
@@ -243,7 +198,7 @@ namespace Manager.Managers
                         {
 
                             // Can abort scripts remotely?
-                            if (!AllowRemoteAbortScripts)
+                            if (!Config.AllowRemoteAbortScripts)
                             {
                                 Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_AbortScriptResponse);
                                 msg.AddBool(false); // Request failed
@@ -262,7 +217,7 @@ namespace Manager.Managers
                             {
 
                                 // Abort script
-                                fs.Abort(true, true);
+                                fs.Abort(AbortReason.API, true);
 
                                 if (fs.AbortError == null)
                                     // Success
@@ -307,7 +262,7 @@ namespace Manager.Managers
                                 if (fs == null)
                                     continue;
 
-                                runningScriptInfo.Add(new RunningScriptInfo(fs.Name, fs.FullPath, fs.ID, fs.Script.IVLauncherWorkshopID));
+                                runningScriptInfo.Add(new RunningScriptInfo(fs.Name, fs.FullPath, fs.ID, fs.TheScript.IVLauncherWorkshopID));
                             }
 
                             // Send response
@@ -323,6 +278,80 @@ namespace Manager.Managers
                         server.Send(Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_IsScriptRunningResponse).AddBool(Main.Instance.IsScriptRunning(e.Message.GetString())), e.FromConnection);
                         break;
 
+                    case RemoteMessageID.Manager_SendScriptCommandRequest:
+                        {
+                            string script = e.Message.GetString();
+                            string command = e.Message.GetString();
+
+                            if (Guid.TryParse(script, out Guid id))
+                            {
+                                Script s = Main.Instance.GetScript(id);
+                                
+                                if (s == null)
+                                {
+                                    // Send response
+                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_SendScriptCommandResponse);
+                                    msg.AddBool(false); // Request failed
+                                    msg.AddByte(1); // Error ID
+                                    server.Send(msg, e.FromConnection);
+                                    return;
+                                }
+
+                                if (s.SendScriptCommand(s, command, out object result))
+                                {
+                                    // Send response
+                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_SendScriptCommandResponse);
+                                    msg.AddBool(true); // Request successful
+                                    msg.AddString(JsonConvert.SerializeObject(result));
+                                    server.Send(msg, e.FromConnection);
+                                }
+                                else
+                                {
+                                    // Send response
+                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_SendScriptCommandResponse);
+                                    msg.AddBool(false); // Request failed
+                                    msg.AddByte(2); // Error ID
+                                    server.Send(msg, e.FromConnection);
+                                }
+                            }
+                            else
+                            {
+                                Script s = Main.Instance.GetScript(script);
+
+                                if (s == null)
+                                {
+                                    // Send response
+                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_SendScriptCommandResponse);
+                                    msg.AddBool(false); // Request failed
+                                    msg.AddByte(1); // Error ID
+                                    server.Send(msg, e.FromConnection);
+                                    return;
+                                }
+
+                                if (s.SendScriptCommand(s, command, out object result))
+                                {
+                                    // Send response
+                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_SendScriptCommandResponse);
+                                    msg.AddBool(true); // Request successful
+                                    msg.AddString(JsonConvert.SerializeObject(result));
+                                    server.Send(msg, e.FromConnection);
+                                }
+                                else
+                                {
+                                    // Send response
+                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_SendScriptCommandResponse);
+                                    msg.AddBool(false); // Request failed
+                                    msg.AddByte(2); // Error ID
+                                    server.Send(msg, e.FromConnection);
+                                }
+                            }
+                        }
+                        break;
+
+                    case RemoteMessageID.Manager_GetPreferencesRequest:
+                        server.Send(Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_GetPreferencesResponse).AddString(JsonConvert.SerializeObject(preferences)), e.FromConnection);
+                        break;
+
                     // Game Requests
                     case RemoteMessageID.Game_GetSessionInfoRequest:
                         {
@@ -334,11 +363,14 @@ namespace Manager.Managers
                                 uint playerId = GET_PLAYER_ID();
 
                                 info.IsNetworkSessionStarted = NETWORK_IS_SESSION_STARTED();
+                                info.IsLANSession = NETWORK_GET_LAN_SESSION();
                                 info.IsThisMachineTheServer = IS_THIS_MACHINE_THE_SERVER();
                                 info.PlayerCount = GET_NUMBER_OF_PLAYERS();
                                 info.GameMode = (IVGameMode)NETWORK_GET_GAME_MODE();
                                 info.MaxPlayerCount = NETWORK_GET_MAX_SLOTS();
                                 info.Team = GET_PLAYER_TEAM((int)playerId);
+                                info.ServerName = NETWORK_GET_SERVER_NAME();
+                                info.ServerID = GET_SERVER_ID();
 
                                 // Get player score
                                 STORE_SCORE(CONVERT_INT_TO_PLAYERINDEX(playerId), out uint score);
@@ -359,7 +391,7 @@ namespace Manager.Managers
 
                     case RemoteMessageID.Game_CallNativeRequest:
                         {
-                            if (AllowRemoteNativeFunctionCalls)
+                            if (Config.AllowRemoteNativeFunctionCalls)
                             {
                                 // Get native call context
                                 NativeCallContext context = JsonConvert.DeserializeObject<NativeCallContext>(e.Message.GetString());
@@ -382,14 +414,14 @@ namespace Manager.Managers
                                             // Convert Int64 to Int32
                                             if (currentType == typeof(Int64) && targetType == typeof(Int32))
                                             {
-                                                Main.Instance.Console.PrintDebug("Converting Int64 value to Int32");
+                                                Logger.LogDebug("Converting Int64 value to Int32");
                                                 context.Arguments[i] = Convert.ToInt32(context.Arguments[i]);
                                             }
 
                                             // Convert Int64 to UInt32
                                             if (currentType == typeof(Int64) && targetType == typeof(UInt32))
                                             {
-                                                Main.Instance.Console.PrintDebug("Converting Int64 value to UInt32");
+                                                Logger.LogDebug("Converting Int64 value to UInt32");
                                                 context.Arguments[i] = Convert.ToUInt32(context.Arguments[i]);
                                             }
                                         }
@@ -417,7 +449,7 @@ namespace Manager.Managers
             }
             catch (Exception ex)
             {
-                Main.Instance.Console.PrintError(string.Format("[RemoteConnectionManager] Error while handling message {0}! Details: {1}", e.MessageId, ex));
+                Logger.LogError(string.Format("[RemoteConnectionManager] Error while handling message {0}! Details: {1}", e.MessageId, ex));
             }
         }
         #endregion
@@ -427,6 +459,9 @@ namespace Manager.Managers
         {
             // Lists
             connectionNames = new Dictionary<ushort, string>();
+
+            // Other
+            preferences = new ManagerApiPreferences();
 
             // Server
             server = new Server();
@@ -453,11 +488,13 @@ namespace Manager.Managers
                 if (server.IsRunning)
                 {
                     server.Stop();
-                    Main.Instance.Console.Print("[RemoteConnectionManager] Stopped.");
+                    Logger.Log("[RemoteConnectionManager] Stopped.");
                 }
             }
 
             connectionNames.Clear();
+
+            preferences = null;
 
             disposed = true;
         }
@@ -467,12 +504,40 @@ namespace Manager.Managers
             if (disposed)
                 return;
 
+            // Already running
+            if (server.IsRunning)
+            {
+                Logger.Log("[RemoteConnectionManager] Already running.");
+                return;
+            }
+
             // Start server
-            server.Start(ServerPort, MaxServerClients);
+            server.Start(Config.ServerPort, Config.MaxServerClients);
 
             // Log message if server got started
             if (server.IsRunning)
-                Main.Instance.Console.Print("[RemoteConnectionManager] Started.");
+                Logger.Log("[RemoteConnectionManager] Started.");
+        }
+        public void Stop()
+        {
+            if (disposed)
+                return;
+
+            // Already stopped
+            if (!server.IsRunning)
+            {
+                Logger.Log("[RemoteConnectionManager] Already stopped.");
+                return;
+            }
+
+            bool wasRunning = server.IsRunning;
+
+            // Stop server
+            server.Stop();
+
+            // Log message if server got stopped
+            if (!server.IsRunning && wasRunning)
+                Logger.Log("[RemoteConnectionManager] Stopped.");
         }
         public void Update()
         {

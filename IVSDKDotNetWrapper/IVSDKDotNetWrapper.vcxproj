@@ -60,13 +60,13 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\IVSDKDotNet\IVSDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;dxguid.lib;libMinHook-x86-v141-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -76,142 +76,374 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\IVSDKDotNet\IVSDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\IVSDKDotNet\IVSDK;ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;dxguid.lib;libMinHook-x86-v141-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AddressSetter.h" />
-    <ClInclude Include="audRadioAudioEntity.h" />
-    <ClInclude Include="CBuilding.h" />
-    <ClInclude Include="CCam.h" />
-    <ClInclude Include="CCamera.h" />
-    <ClInclude Include="CClock.h" />
-    <ClInclude Include="CCustomShaderEffectBase.h" />
-    <ClInclude Include="CCutsceneMgr.h" />
-    <ClInclude Include="CDraw.h" />
-    <ClInclude Include="CdStream.h" />
-    <ClInclude Include="CHandlingDataMgr.h" />
-    <ClInclude Include="CInteriorInst.h" />
-    <ClInclude Include="CTask.h" />
-    <ClInclude Include="CTasks.h" />
-    <ClInclude Include="CWeaponInfo.h" />
-    <ClInclude Include="Dummies.h" />
-    <ClInclude Include="CDynamicEntity.h" />
-    <ClInclude Include="CEntity.h" />
-    <ClInclude Include="CFileLoader.h" />
-    <ClInclude Include="CFont.h" />
-    <ClInclude Include="CHudColours.h" />
+    <ClInclude Include="MemoryAccess.h" />
+    <ClInclude Include="Attributes.h" />
+    <ClInclude Include="DirectInputHook.h" />
     <ClInclude Include="CLRBridge.h" />
-    <ClInclude Include="CMenuManager.h" />
-    <ClInclude Include="CModelInfo.h" />
-    <ClInclude Include="CNetwork.h" />
-    <ClInclude Include="CObject.h" />
-    <ClInclude Include="CPad.h" />
-    <ClInclude Include="CPed.h" />
-    <ClInclude Include="CPedFactoryNY.h" />
-    <ClInclude Include="CPedType.h" />
-    <ClInclude Include="CPhysical.h" />
-    <ClInclude Include="CPickups.h" />
-    <ClInclude Include="CPlayerInfo.h" />
-    <ClInclude Include="CPool.h" />
-    <ClInclude Include="CPools.h" />
-    <ClInclude Include="CRGBA.h" />
-    <ClInclude Include="CShaderLib.h" />
-    <ClInclude Include="CShadows.h" />
-    <ClInclude Include="CStreaming.h" />
-    <ClInclude Include="CTheScripts.h" />
-    <ClInclude Include="CTimeCycle.h" />
-    <ClInclude Include="CTimer.h" />
-    <ClInclude Include="CVectors.h" />
-    <ClInclude Include="CVehicle.h" />
-    <ClInclude Include="CVehicleFactoryNY.h" />
-    <ClInclude Include="CVisibilityPlugins.h" />
-    <ClInclude Include="CWorld.h" />
     <ClInclude Include="defines.h" />
-    <ClInclude Include="Direct3D9.h" />
+    <ClInclude Include="DXHook.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="EventArgs.h" />
-    <ClInclude Include="CGame.h" />
     <ClInclude Include="Helper.h" />
+    <ClInclude Include="ImGuiDraw.h" />
+    <ClInclude Include="ImGuiStuff.h" />
+    <ClInclude Include="ImGui\EmbeddedFont.h" />
+    <ClInclude Include="ImGui\imconfig.h" />
+    <ClInclude Include="ImGui\imgui.h" />
+    <ClInclude Include="ImGui\imgui_impl_dx9_shader.h" />
+    <ClInclude Include="ImGui\imgui_impl_win32.h" />
+    <ClInclude Include="ImGui\imgui_internal.h" />
+    <ClInclude Include="ImGui\imgui_stdlib.h" />
+    <ClInclude Include="ImGui\imstb_rectpack.h" />
+    <ClInclude Include="ImGui\imstb_textedit.h" />
+    <ClInclude Include="ImGui\imstb_truetype.h" />
+    <ClInclude Include="IVAchievements.h" />
+    <ClInclude Include="IVAnimManager.h" />
+    <ClInclude Include="IVAudConfig.h" />
+    <ClInclude Include="IVAudEngine.h" />
+    <ClInclude Include="IVAudioZones.h" />
+    <ClInclude Include="IVAudRadioAudioEntity.h" />
+    <ClInclude Include="IVBaseDC.h" />
+    <ClInclude Include="IVBaseModelInfo.h" />
+    <ClInclude Include="IVBoundBox.h" />
+    <ClInclude Include="IVBuilding.h" />
+    <ClInclude Include="IVCam.h" />
+    <ClInclude Include="IVCamera.h" />
+    <ClInclude Include="IVCamFollowVehicle.h" />
+    <ClInclude Include="IVCDStream.h" />
+    <ClInclude Include="IVCheat.h" />
+    <ClInclude Include="IVClock.h" />
+    <ClInclude Include="IVControlRemapInfo.h" />
+    <ClInclude Include="IVCrSkeleton.h" />
+    <ClInclude Include="IVCrSkeletonData.h" />
+    <ClInclude Include="IVCustomShaderEffectBase.h" />
+    <ClInclude Include="IVCustomShaderEffectPedBoneDamageFX.h" />
+    <ClInclude Include="IVCustomShaderEffectVehicleFX.h" />
+    <ClInclude Include="IVCutsceneMgr.h" />
+    <ClInclude Include="IVDraw.h" />
+    <ClInclude Include="IVDrawCurvedWindowDC.h" />
+    <ClInclude Include="IVDrawRectDC.h" />
+    <ClInclude Include="IVDynamicEntity.h" />
+    <ClInclude Include="IVEntity.h" />
+    <ClInclude Include="IVExplosion.h" />
+    <ClInclude Include="IVFiDevice.h" />
+    <ClInclude Include="IVFileLoader.h" />
+    <ClInclude Include="IVFileMgr.h" />
+    <ClInclude Include="IVFiPackfile.h" />
+    <ClInclude Include="IVFont.h" />
+    <ClInclude Include="IVFrontEnd.h" />
+    <ClInclude Include="IVGame.h" />
+    <ClInclude Include="IVGameConfigReader.h" />
+    <ClInclude Include="IVGameLogic.h" />
+    <ClInclude Include="IVGangInfo.h" />
+    <ClInclude Include="IVGangs.h" />
+    <ClInclude Include="IVGarage.h" />
+    <ClInclude Include="IVGarages.h" />
+    <ClInclude Include="IVGenericGameStorage.h" />
+    <ClInclude Include="IVGlobalScene.h" />
+    <ClInclude Include="IVGrcTexture.h" />
+    <ClInclude Include="IVGrcTextureFactory.h" />
+    <ClInclude Include="IVGtaFragType.h" />
+    <ClInclude Include="IVHandlingData.h" />
+    <ClInclude Include="IVHandlingDataMgr.h" />
+    <ClInclude Include="IVHudColours.h" />
+    <ClInclude Include="IVInteriorInst.h" />
+    <ClInclude Include="IVIplStore.h" />
+    <ClInclude Include="IVLineOfSightResults.h" />
+    <ClInclude Include="IVMatrix.h" />
+    <ClInclude Include="IVMenuManager.h" />
+    <ClInclude Include="IVModelInfo.h" />
+    <ClInclude Include="IVNetwork.h" />
+    <ClInclude Include="IVObject.h" />
+    <ClInclude Include="IVPad.h" />
+    <ClInclude Include="IVPadValues.h" />
+    <ClInclude Include="IVPcSave.h" />
+    <ClInclude Include="IVPed.h" />
+    <ClInclude Include="IVPedComponentModels.h" />
+    <ClInclude Include="IVPedDrawableInfo.h" />
+    <ClInclude Include="IVPedFactoryNY.h" />
+    <ClInclude Include="IVPedModelInfo.h" />
+    <ClInclude Include="IVPedMoveBlendOnFoot.h" />
+    <ClInclude Include="IVPedType.h" />
+    <ClInclude Include="IVPedWeapons.h" />
+    <ClInclude Include="IVPedWeaponSlot.h" />
+    <ClInclude Include="IVPhArchetypeGta.h" />
+    <ClInclude Include="IVPhBound.h" />
+    <ClInclude Include="IVPhConstrainedCollider.h" />
+    <ClInclude Include="IVPhInst.h" />
+    <ClInclude Include="IVPhInstGta.h" />
+    <ClInclude Include="IVPhSleep.h" />
+    <ClInclude Include="IVPhysical.h" />
+    <ClInclude Include="IVPickups.h" />
+    <ClInclude Include="IVPlayerInfo.h" />
+    <ClInclude Include="IVPool.h" />
+    <ClInclude Include="IVPools.h" />
+    <ClInclude Include="IVPopulation.h" />
+    <ClInclude Include="IVProjectileInfo.h" />
+    <ClInclude Include="IVQuadTreeNode.h" />
+    <ClInclude Include="IVRadar.h" />
+    <ClInclude Include="IVRadioStation.h" />
+    <ClInclude Include="IVRadioTrackManager.h" />
+    <ClInclude Include="IVRenderPhases.h" />
+    <ClInclude Include="IVReplay.h" />
+    <ClInclude Include="IVRestart.h" />
+    <ClInclude Include="IVRmcDrawable.h" />
+    <ClInclude Include="IVSafehouse.h" />
+    <ClInclude Include="IVSaveGarage.h" />
+    <ClInclude Include="IVSDKForwardDeclarations.h" />
+    <ClInclude Include="IVShaderLib.h" />
+    <ClInclude Include="IVShadows.h" />
+    <ClInclude Include="IVSkyDome.h" />
+    <ClInclude Include="IVSkyhatMiniNoise.h" />
+    <ClInclude Include="IVSprite2D.h" />
+    <ClInclude Include="IVStats.h" />
+    <ClInclude Include="IVStoredCar.h" />
+    <ClInclude Include="IVStreaming.h" />
+    <ClInclude Include="IVStuntJump.h" />
+    <ClInclude Include="IVStuntJumpManager.h" />
+    <ClInclude Include="IVTask.h" />
+    <ClInclude Include="IVTaskComplexClimbLadder.h" />
+    <ClInclude Include="IVTaskComplexDie.h" />
+    <ClInclude Include="IVTaskComplexInWater.h" />
+    <ClInclude Include="IVTaskComplexMobileMakeCall.h" />
+    <ClInclude Include="IVTaskComplexNewGetInVehicle.h" />
+    <ClInclude Include="IVTaskComplexNM.h" />
+    <ClInclude Include="IVTaskComplexPlayerOnFoot.h" />
+    <ClInclude Include="IVTaskComplexPlayerSettingsTask.h" />
+    <ClInclude Include="IVTaskComplexWander.h" />
+    <ClInclude Include="IVTaskComplexWanderStandard.h" />
+    <ClInclude Include="IVTaskSimpleNMHighFall.h" />
+    <ClInclude Include="IVTaskSimpleNMJumpRollFromRoadVehicle.h" />
+    <ClInclude Include="IVTaskSimpleSidewaysDive.h" />
+    <ClInclude Include="IVText.h" />
+    <ClInclude Include="IVTheScripts.h" />
+    <ClInclude Include="IVTheZones.h" />
+    <ClInclude Include="IVTimeCycle.h" />
+    <ClInclude Include="IVTimer.h" />
+    <ClInclude Include="IVTxdStore.h" />
+    <ClInclude Include="IVUnkColliderParams.h" />
+    <ClInclude Include="IVValueHistory.h" />
+    <ClInclude Include="IVValueHistoryItem.h" />
+    <ClInclude Include="IVVehicle.h" />
+    <ClInclude Include="IVVehicleDoor.h" />
+    <ClInclude Include="IVVehicleFactoryNY.h" />
+    <ClInclude Include="IVVehicleModelInfo.h" />
+    <ClInclude Include="IVVehicleStructure.h" />
+    <ClInclude Include="IVVehicleWheel.h" />
+    <ClInclude Include="IVViewport.h" />
+    <ClInclude Include="IVViewportData.h" />
+    <ClInclude Include="IVVisibilityPlugins.h" />
+    <ClInclude Include="IVWanted.h" />
+    <ClInclude Include="IVWeaponInfo.h" />
+    <ClInclude Include="IVWeather.h" />
+    <ClInclude Include="IVWorld.h" />
+    <ClInclude Include="IVZone.h" />
     <ClInclude Include="KeyWatchDog.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="Native.h" />
     <ClInclude Include="NativeHashes.h" />
     <ClInclude Include="NativeInvoke.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="phBound.h" />
-    <ClInclude Include="phConstrainedCollider.h" />
-    <ClInclude Include="phInstGta.h" />
     <ClInclude Include="rage.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="D3D9Stuff.h" />
     <ClInclude Include="Scripts.h" />
     <ClInclude Include="SettingsFile.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AddressSetter.cpp" />
+    <ClCompile Include="MemoryAccess.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
-    <ClCompile Include="audRadioAudioEntity.cpp" />
-    <ClCompile Include="CBuilding.cpp" />
-    <ClCompile Include="CCam.cpp" />
-    <ClCompile Include="CCamera.cpp" />
-    <ClCompile Include="CCustomShaderEffectBase.cpp" />
-    <ClCompile Include="CCutsceneMgr.cpp" />
-    <ClCompile Include="CDraw.cpp" />
-    <ClCompile Include="CdStream.cpp" />
-    <ClCompile Include="CDynamicEntity.cpp" />
-    <ClCompile Include="CEntity.cpp" />
-    <ClCompile Include="CFileLoader.cpp" />
-    <ClCompile Include="CFont.cpp" />
-    <ClCompile Include="CHandlingDataMgr.cpp" />
-    <ClCompile Include="CHudColours.cpp" />
     <ClCompile Include="CLRBridge.cpp" />
-    <ClCompile Include="CMenuManager.cpp" />
-    <ClCompile Include="CModelInfo.cpp" />
-    <ClCompile Include="CNetwork.cpp" />
-    <ClCompile Include="CObject.cpp" />
-    <ClCompile Include="CPad.cpp" />
-    <ClCompile Include="CPed.cpp" />
-    <ClCompile Include="CPedFactoryNY.cpp" />
-    <ClCompile Include="CPedType.cpp" />
-    <ClCompile Include="CPhysical.cpp" />
-    <ClCompile Include="CPickups.cpp" />
-    <ClCompile Include="CPlayerInfo.cpp" />
-    <ClCompile Include="CPool.cpp" />
-    <ClCompile Include="CPools.cpp" />
-    <ClCompile Include="CRGBA.cpp" />
-    <ClCompile Include="CShaderLib.cpp" />
-    <ClCompile Include="CShadows.cpp" />
-    <ClCompile Include="CStreaming.cpp" />
-    <ClCompile Include="CTasks.cpp" />
-    <ClCompile Include="CTheScripts.cpp" />
-    <ClCompile Include="CTimeCycle.cpp" />
-    <ClCompile Include="CTimer.cpp" />
-    <ClCompile Include="CVectors.cpp" />
-    <ClCompile Include="CVehicle.cpp" />
-    <ClCompile Include="CVehicleFactoryNY.cpp" />
-    <ClCompile Include="CVisibilityPlugins.cpp" />
-    <ClCompile Include="CWeaponInfo.cpp" />
-    <ClCompile Include="CWorld.cpp" />
-    <ClCompile Include="D3D9Stuff.cpp" />
-    <ClCompile Include="Direct3D9.cpp" />
     <ClCompile Include="EventArgs.cpp" />
-    <ClCompile Include="CGame.cpp" />
     <ClCompile Include="Helper.cpp" />
+    <ClCompile Include="ImGui\imgui.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_demo.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_draw.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_impl_dx9_shader.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_impl_win32.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_stdlib.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_tables.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_widgets.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="IVAchievements.cpp" />
+    <ClCompile Include="IVAnimManager.cpp" />
+    <ClCompile Include="IVAudConfig.cpp" />
+    <ClCompile Include="IVAudEngine.cpp" />
+    <ClCompile Include="IVAudioZones.cpp" />
+    <ClCompile Include="IVAudRadioAudioEntity.cpp" />
+    <ClCompile Include="IVBaseDC.cpp" />
+    <ClCompile Include="IVBaseModelInfo.cpp" />
+    <ClCompile Include="IVBoundBox.cpp" />
+    <ClCompile Include="IVBuilding.cpp" />
+    <ClCompile Include="IVCam.cpp" />
+    <ClCompile Include="IVCamera.cpp" />
+    <ClCompile Include="IVCamFollowVehicle.cpp" />
+    <ClCompile Include="IVCDStream.cpp" />
+    <ClCompile Include="IVCheat.cpp" />
+    <ClCompile Include="IVClock.cpp" />
+    <ClCompile Include="IVControlRemapInfo.cpp" />
+    <ClCompile Include="IVCrSkeleton.cpp" />
+    <ClCompile Include="IVCrSkeletonData.cpp" />
+    <ClCompile Include="IVCustomShaderEffectBase.cpp" />
+    <ClCompile Include="IVCustomShaderEffectPedBoneDamageFX.cpp" />
+    <ClCompile Include="IVCustomShaderEffectVehicleFX.cpp" />
+    <ClCompile Include="IVCutsceneMgr.cpp" />
+    <ClCompile Include="IVDraw.cpp" />
+    <ClCompile Include="IVDrawCurvedWindowDC.cpp" />
+    <ClCompile Include="IVDrawRectDC.cpp" />
+    <ClCompile Include="IVDynamicEntity.cpp" />
+    <ClCompile Include="IVEntity.cpp" />
+    <ClCompile Include="IVExplosion.cpp" />
+    <ClCompile Include="IVFiDevice.cpp" />
+    <ClCompile Include="IVFileLoader.cpp" />
+    <ClCompile Include="IVFileMgr.cpp" />
+    <ClCompile Include="IVFiPackfile.cpp" />
+    <ClCompile Include="IVFont.cpp" />
+    <ClCompile Include="IVFrontEnd.cpp" />
+    <ClCompile Include="IVGame.cpp" />
+    <ClCompile Include="IVGameConfigReader.cpp" />
+    <ClCompile Include="IVGameLogic.cpp" />
+    <ClCompile Include="IVGangInfo.cpp" />
+    <ClCompile Include="IVGangs.cpp" />
+    <ClCompile Include="IVGarage.cpp" />
+    <ClCompile Include="IVGarages.cpp" />
+    <ClCompile Include="IVGenericGameStorage.cpp" />
+    <ClCompile Include="IVGlobalScene.cpp" />
+    <ClCompile Include="IVGrcTexture.cpp" />
+    <ClCompile Include="IVGrcTextureFactory.cpp" />
+    <ClCompile Include="IVGtaFragType.cpp" />
+    <ClCompile Include="IVHandlingData.cpp" />
+    <ClCompile Include="IVHandlingDataMgr.cpp" />
+    <ClCompile Include="IVHudColours.cpp" />
+    <ClCompile Include="IVInteriorInst.cpp" />
+    <ClCompile Include="IVIplStore.cpp" />
+    <ClCompile Include="IVLineOfSightResults.cpp" />
+    <ClCompile Include="IVMatrix.cpp" />
+    <ClCompile Include="IVMenuManager.cpp" />
+    <ClCompile Include="IVModelInfo.cpp" />
+    <ClCompile Include="IVNetwork.cpp" />
+    <ClCompile Include="IVObject.cpp" />
+    <ClCompile Include="IVPad.cpp" />
+    <ClCompile Include="IVPadValues.cpp" />
+    <ClCompile Include="IVPcSave.cpp" />
+    <ClCompile Include="IVPed.cpp" />
+    <ClCompile Include="IVPedComponentModels.cpp" />
+    <ClCompile Include="IVPedDrawableInfo.cpp" />
+    <ClCompile Include="IVPedFactoryNY.cpp" />
+    <ClCompile Include="IVPedModelInfo.cpp" />
+    <ClCompile Include="IVPedMoveBlendOnFoot.cpp" />
+    <ClCompile Include="IVPedType.cpp" />
+    <ClCompile Include="IVPedWeapons.cpp" />
+    <ClCompile Include="IVPedWeaponSlot.cpp" />
+    <ClCompile Include="IVPhArchetypeGta.cpp" />
+    <ClCompile Include="IVPhBound.cpp" />
+    <ClCompile Include="IVPhConstrainedCollider.cpp" />
+    <ClCompile Include="IVPhInst.cpp" />
+    <ClCompile Include="IVPhInstGta.cpp" />
+    <ClCompile Include="IVPhSleep.cpp" />
+    <ClCompile Include="IVPhysical.cpp" />
+    <ClCompile Include="IVPickups.cpp" />
+    <ClCompile Include="IVPlayerInfo.cpp" />
+    <ClCompile Include="IVPool.cpp" />
+    <ClCompile Include="IVPools.cpp" />
+    <ClCompile Include="IVPopulation.cpp" />
+    <ClCompile Include="IVProjectileInfo.cpp" />
+    <ClCompile Include="IVQuadTreeNode.cpp" />
+    <ClCompile Include="IVRadar.cpp" />
+    <ClCompile Include="IVRadioStation.cpp" />
+    <ClCompile Include="IVRadioTrackManager.cpp" />
+    <ClCompile Include="IVRenderPhases.cpp" />
+    <ClCompile Include="IVReplay.cpp" />
+    <ClCompile Include="IVRestart.cpp" />
+    <ClCompile Include="IVRmcDrawable.cpp" />
+    <ClCompile Include="IVSafehouse.cpp" />
+    <ClCompile Include="IVSaveGarage.cpp" />
+    <ClCompile Include="IVShaderLib.cpp" />
+    <ClCompile Include="IVShadows.cpp" />
+    <ClCompile Include="IVSkyDome.cpp" />
+    <ClCompile Include="IVSkyhatMiniNoise.cpp" />
+    <ClCompile Include="IVSprite2D.cpp" />
+    <ClCompile Include="IVStats.cpp" />
+    <ClCompile Include="IVStoredCar.cpp" />
+    <ClCompile Include="IVStreaming.cpp" />
+    <ClCompile Include="IVStuntJump.cpp" />
+    <ClCompile Include="IVStuntJumpManager.cpp" />
+    <ClCompile Include="IVTask.cpp" />
+    <ClCompile Include="IVTaskComplexClimbLadder.cpp" />
+    <ClCompile Include="IVTaskComplexDie.cpp" />
+    <ClCompile Include="IVTaskComplexInWater.cpp" />
+    <ClCompile Include="IVTaskComplexMobileMakeCall.cpp" />
+    <ClCompile Include="IVTaskComplexNewGetInVehicle.cpp" />
+    <ClCompile Include="IVTaskComplexNM.cpp" />
+    <ClCompile Include="IVTaskComplexPlayerOnFoot.cpp" />
+    <ClCompile Include="IVTaskComplexPlayerSettingsTask.cpp" />
+    <ClCompile Include="IVTaskComplexWander.cpp" />
+    <ClCompile Include="IVTaskComplexWanderStandard.cpp" />
+    <ClCompile Include="IVTaskSimpleNMHighFall.cpp" />
+    <ClCompile Include="IVTaskSimpleNMJumpRollFromRoadVehicle.cpp" />
+    <ClCompile Include="IVTaskSimpleSidewaysDive.cpp" />
+    <ClCompile Include="IVText.cpp" />
+    <ClCompile Include="IVTheScripts.cpp" />
+    <ClCompile Include="IVTheZones.cpp" />
+    <ClCompile Include="IVTimeCycle.cpp" />
+    <ClCompile Include="IVTimer.cpp" />
+    <ClCompile Include="IVTxdStore.cpp" />
+    <ClCompile Include="IVUnkColliderParams.cpp" />
+    <ClCompile Include="IVValueHistory.cpp" />
+    <ClCompile Include="IVValueHistoryItem.cpp" />
+    <ClCompile Include="IVVehicle.cpp" />
+    <ClCompile Include="IVVehicleDoor.cpp" />
+    <ClCompile Include="IVVehicleFactoryNY.cpp" />
+    <ClCompile Include="IVVehicleModelInfo.cpp" />
+    <ClCompile Include="IVVehicleStructure.cpp" />
+    <ClCompile Include="IVVehicleWheel.cpp" />
+    <ClCompile Include="IVViewport.cpp" />
+    <ClCompile Include="IVViewportData.cpp" />
+    <ClCompile Include="IVVisibilityPlugins.cpp" />
+    <ClCompile Include="IVWanted.cpp" />
+    <ClCompile Include="IVWeaponInfo.cpp" />
+    <ClCompile Include="IVWeather.cpp" />
+    <ClCompile Include="IVWorld.cpp" />
+    <ClCompile Include="IVZone.cpp" />
     <ClCompile Include="KeyWatchDog.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="phBound.cpp" />
-    <ClCompile Include="phConstrainedCollider.cpp" />
-    <ClCompile Include="phInstGta.cpp" />
     <ClCompile Include="rage.cpp" />
     <ClCompile Include="Scripts.cpp" />
     <ClCompile Include="SettingsFile.cpp" />

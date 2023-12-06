@@ -44,6 +44,7 @@ namespace plugin
 		processPadEvent::callAddress =			DoHook(AddressSetter::Get(0x3C4002, 0x46A802),	processPadEvent::MainHook);
 		processCameraEvent::returnAddress =		DoHook(AddressSetter::Get(0x52C4C2, 0x694232),	processCameraEvent::MainHook);
 		mountDeviceEvent::returnAddress =		DoHook(AddressSetter::Get(0x3B2E27, 0x456C27),	mountDeviceEvent::MainHook);
+		ingameStartupEvent::returnAddress =		DoHook(AddressSetter::Get(0x20379, 0x93F09),	ingameStartupEvent::MainHook);
 	}
 
 	void Init()
@@ -80,4 +81,3 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	}
 	return TRUE;
 }
-

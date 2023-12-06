@@ -61,6 +61,12 @@ namespace IVSDKDotNet {
 	{
 		return degrees * float(System::Math::PI / 180.0);
 	}
+	float Helper::DirectionToHeading(Vector3 dir)
+	{
+		dir.Z = 0.0f;
+		dir = Vector3::Normalize(dir);
+		return RadianToDegree(-System::Math::Atan2(dir.X, dir.Y));
+	}
 
 	Vector3 Helper::GetPositionInFrontOfEntity(Vector3 entityPos, Vector3 entityDir, float multiplier)
 	{
@@ -279,18 +285,6 @@ namespace IVSDKDotNet {
 	Vector3				Helper::Drawing::ConvertToPixel(Vector3 pos,		float resolutionWidth, float resolutionHeight, eFontScaling sourceScaling)
 	{
 		return Vector3(Helper::Drawing::ConvertX(pos.X, resolutionWidth, sourceScaling, eFontScaling::Pixel), Helper::Drawing::ConvertY(pos.Y, resolutionHeight, sourceScaling, eFontScaling::Pixel), pos.Z);
-	}
-
-	// =========================================================================
-	// =============================== Helper::JSON ============================
-	// =========================================================================
-	String^			Helper::JSON::ConvertObjectToJsonString(System::Object^ obj)
-	{
-		return Manager::ManagerScript::s_Instance->Helper_JSON_ConvertObjectToJsonString(obj);
-	}
-	System::Object^ Helper::JSON::ConvertJsonStringToObject(String^ str)
-	{
-		return Manager::ManagerScript::s_Instance->Helper_JSON_ConvertJsonStringToObject(str);
 	}
 
 }

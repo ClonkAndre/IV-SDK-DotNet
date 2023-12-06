@@ -2,6 +2,11 @@
 #define VALIDATE_OFFSET(struc, member, offset) \
 	static_assert(offsetof(struc, member) == offset, "The offset of " #member " in " #struc " is not " #offset "...")
 
+#ifndef INCLUDE_GUARD
+#define INCLUDE_GUARD
+
+#pragma comment(lib, "version.lib")
+
 namespace plugin
 {
 	enum eGameVersion
@@ -10,7 +15,7 @@ namespace plugin
 		VERSION_1070,
 		VERSION_1080,
 	};
-	eGameVersion gameVer = VERSION_NONE;
+	static eGameVersion gameVer = VERSION_NONE;
 	void gameStartupEvent();
 }
 
@@ -103,3 +108,26 @@ namespace plugin
 #include "CPedType.h"
 #include "CQuadTreeNode.h"
 #include "CIplStore.h"
+#include "CGameLogic.h"
+#include "CStats.h"
+#include "CGenericGameStorage.h"
+#include "CReplay.h"
+#include "CAudioZones.h"
+#include "CStore.h"
+#include "CAnimManager.h"
+#include "CPopulation.h"
+#include "CWeather.h"
+#include "CAchievements.h"
+#include "CProjectileInfo.h"
+#include "CCheat.h"
+#include "CWanted.h"
+#include "CText.h"
+#include "C_PcSave.h"
+#include "CRestart.h"
+#include "CTheZones.h"
+#include "CGangs.h"
+#include "CStuntJumpManager.h"
+#include "CAERadioTrackManager.h"
+#include "CFrontEnd.h"
+
+#endif

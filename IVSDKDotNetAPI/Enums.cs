@@ -22,6 +22,12 @@
         Manager_IsScriptRunningRequest,
         Manager_IsScriptRunningResponse,
 
+        Manager_SendScriptCommandRequest,
+        Manager_SendScriptCommandResponse,
+
+        Manager_GetPreferencesRequest,
+        Manager_GetPreferencesResponse,
+
         // Game
         Game_GetSessionInfoRequest,
         Game_GetSessionInfoResponse,

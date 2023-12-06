@@ -8,6 +8,7 @@ namespace IVSDKDotNetAPI.Classes
         #region Variables
         public bool IsNetworkSession;
         public bool IsNetworkSessionStarted;
+        public bool IsLANSession;
         public bool IsThisMachineTheServer;
         public IVGameMode GameMode;
         public List<string> Players;
@@ -17,6 +18,9 @@ namespace IVSDKDotNetAPI.Classes
 
         public uint Team;
         public uint Score;
+
+        public string ServerName;
+        public int ServerID;
         #endregion
 
         #region Constructor
