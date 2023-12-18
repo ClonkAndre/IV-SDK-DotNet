@@ -37,9 +37,8 @@ namespace IVSDKDotNet
 		event EventHandler^ Uninitialize;
 
 		/// <summary>
-		/// Gets raised every frame when in-game.
-		/// (CGame.Process).
-		/// This event uses the CTheScripts.SetDummyThread/RestorePreviousThread method.
+		/// Gets raised every frame when in-game (CGame.Process).
+		/// This event uses the CTheScripts.SetDummyThread/RestorePreviousThread method that means that any natives calls in this event will work just fine.
 		/// </summary>
 		event EventHandler^ Tick;
 
@@ -62,18 +61,17 @@ namespace IVSDKDotNet
 		event EventHandler^ MountDevice;
 
 		/// <summary>
-		/// Gets raised twice per frame when in-game, and even works in main menu.
-		/// (CRenderPhasePostRenderViewport)
+		/// Gets raised twice per frame when in-game, and even works in main menu (CRenderPhasePostRenderViewport).
 		/// </summary>
 		event EventHandler^ Drawing;
 
 		/// <summary>
-		/// Gets raised after CCamera.m_pFinalCam has been written to.
+		/// Gets raised after IVCamera.FinalCam has been written to.
 		/// </summary>
 		event EventHandler^ ProcessCamera;
 
 		/// <summary>
-		/// Gets raised after CAutomobile.Process, overriding steer and pedals works here.
+		/// Gets raised after IVAutomobile.Process, overriding steer and pedals works here.
 		/// </summary>
 		event ProcessAutomobileDelegate^ ProcessAutomobile;
 
@@ -107,7 +105,7 @@ namespace IVSDKDotNet
 		/// <summary>
 		/// Gets raised on the very first Direct3D9 Frame. You can use this to create Textures.
 		/// </summary>
-		static event EventHandler^ OnFirstD3D9Frame;
+		event EventHandler^ OnFirstD3D9Frame;
 
 		void RaiseInitialized()													{ Initialized(this, EventArgs::Empty); }
 		void RaiseUninitialize()												{ Uninitialize(this, EventArgs::Empty); }
@@ -511,6 +509,9 @@ namespace IVSDKDotNet
 		/// </summary>
 		public ref class ManagerScript abstract
 		{
+		public:
+			bool SwitchImGuiForceCursorProperty;
+
 		public:
 			event RAGE::GameWindowFocusChangedDelegate^ WindowFocusChanged;
 			void RaiseWindowFocusChanged(bool focused) { WindowFocusChanged(focused); }

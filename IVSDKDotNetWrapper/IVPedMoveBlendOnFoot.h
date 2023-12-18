@@ -105,6 +105,10 @@ namespace IVSDKDotNet
 			}
 		}
 
+	public:
+		static IVPedMoveBlendOnFoot^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 	internal:
 		IVPedMoveBlendOnFoot(CPedMoveBlendOnFoot* nativePtr);
 

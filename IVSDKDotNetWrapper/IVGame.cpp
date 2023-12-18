@@ -79,4 +79,29 @@ namespace IVSDKDotNet
 	{
 		ShowSubtitleMessage(str, 2000);
 	}
+
+	RectangleF IVGame::GetRadarRectangle(eFontScaling scaling)
+	{
+		Size res = Resolution;
+
+		float w = float(res.Width);
+		float h = float(res.Height);
+		float pixel = System::Math::Min(w * 0.156f, h * 0.2f);
+		RectangleF rect;
+
+		rect.Width = Helper::Drawing::ConvertX(pixel, w, eFontScaling::Pixel, scaling);
+		rect.Height = Helper::Drawing::ConvertY(pixel, h, eFontScaling::Pixel, scaling);
+		rect.X = rect.Width * 0.45f;
+		if (res.Width >= res.Height)
+			rect.Y = Helper::Drawing::ConvertY(0.75f, h, eFontScaling::ScreenUnits, scaling);
+		else
+			rect.Y = Helper::Drawing::ConvertY(h - pixel - h * 0.05f, h, eFontScaling::Pixel, scaling);
+
+		return rect;
+	}
+	RectangleF IVGame::GetRadarRectangle()
+	{
+		return GetRadarRectangle(eFontScaling::Pixel);
+	}
+
 }

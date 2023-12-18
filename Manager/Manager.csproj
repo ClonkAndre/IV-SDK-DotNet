@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\AdvancedTask.cs" />
+    <Compile Include="Classes\Checker.cs" />
     <Compile Include="Classes\Config.cs" />
     <Compile Include="Classes\DelayedAction.cs" />
     <Compile Include="Classes\FoundScript.cs" />

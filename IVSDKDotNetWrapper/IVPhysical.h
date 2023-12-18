@@ -284,7 +284,7 @@ namespace IVSDKDotNet
 
 	public:
 		/// <summary>
-		/// Use with: IVPhConstrainedCollider.FromPointer(...);
+		/// Use with: IVPhConstrainedCollider.FromUIntPtr(...);
 		/// </summary>
 		/// <returns></returns>
 		UIntPtr GetConstrainedCollider();

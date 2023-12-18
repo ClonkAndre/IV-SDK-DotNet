@@ -2935,43 +2935,44 @@ namespace IVSDKDotNet
 			}
 		}
 
-		property IVPed^ Driver
+		property UIntPtr Driver
 		{
 		public:
-			IVPed^ get()
+			UIntPtr get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, nullptr);
-				NULLPTR_CHECK_WITH_RETURN(NativeVehicle->m_pDriver, nullptr);
-				return gcnew IVPed(NativeVehicle->m_pDriver);
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, UIntPtr::Zero);
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle->m_pDriver, UIntPtr::Zero);
+				return UIntPtr(NativeVehicle->m_pDriver);
 			}
-			void set(IVPed^ value)
+			void set(UIntPtr value)
 			{
 				NULLPTR_CHECK(NativeVehicle);
-				NativeVehicle->m_pDriver = value->NativePed;
+				UINTPTR_ZERO_CHECK(value);
+				NativeVehicle->m_pDriver = (CPed*)value.ToPointer();
 			}
 		}
-		property array<IVPed^>^ Passengers
+		property array<UIntPtr>^ Passengers
 		{
 		public:
-			array<IVPed^>^ get()
+			array<UIntPtr>^ get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, nullptr);
 				NULLPTR_CHECK_WITH_RETURN(NativeVehicle->m_pPassengers, nullptr);
 
-				array<IVPed^>^ arr = gcnew array<IVPed^>(8);
+				array<UIntPtr>^ arr = gcnew array<UIntPtr>(8);
 
 				for(int i = 0; i < arr->Length; i++)
-					arr[i] = gcnew IVPed(NativeVehicle->m_pPassengers[i]);
+					arr[i] = UIntPtr(NativeVehicle->m_pPassengers[i]);
 
 				return arr;
 			}
-			void set(array<IVPed^>^ value)
+			void set(array<UIntPtr>^ value)
 			{
 				NULLPTR_CHECK(NativeVehicle);
 				NULLPTR_CHECK(value);
 				
 				for(int i = 0; i < value->Length; i++)
-					NativeVehicle->m_pPassengers[i] = value[i]->NativePed;
+					NativeVehicle->m_pPassengers[i] = (CPed*)value[i].ToPointer();
 			}
 		}
 

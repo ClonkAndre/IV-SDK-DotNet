@@ -37,6 +37,9 @@ namespace IVSDKDotNet
 		}
 
 	public:
+		static IVPhInstGta^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 		/// <summary>
 		/// This is what's used to detach car parts, groupId is in the same order as groups are in the .oft file.
 	    /// Use IVDoor.GroupID for vehicle doors, haven't found a way to see the rest of the bones, or anything for other entity types other than guessing.

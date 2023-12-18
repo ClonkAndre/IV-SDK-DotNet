@@ -143,11 +143,11 @@ namespace CLR
 						// Set static instance
 						ManagerScript::s_Instance = ms;
 
-						// Register events
-						ms->WindowFocusChanged += gcnew IVSDKDotNet::RAGE::GameWindowFocusChangedDelegate(&CLR::CLRBridge::OnWindowFocusChanged);
-
 						// Apply Settings
 						ms->ApplySettings(Settings);
+
+						// Register Events
+						ms->WindowFocusChanged += gcnew IVSDKDotNet::RAGE::GameWindowFocusChangedDelegate(&CLR::CLRBridge::OnWindowFocusChanged);
 
 						// Create and set dummy script for manager
 						ms->SetDummyScript(gcnew Script(Guid("00000000-0000-0000-0000-000000000001")));
@@ -256,7 +256,17 @@ ERR:
 			return;
 
 		if (ManagerScript::s_Instance)
+		{
+			// ManagerScript things
+			if (ManagerScript::s_Instance->SwitchImGuiForceCursorProperty)
+			{
+				ImGuiIV::ForceCursor = !ImGuiIV::ForceCursor;
+				ManagerScript::s_Instance->SwitchImGuiForceCursorProperty = false;
+			}
+
+			// Raise event for all subscribers
 			ManagerScript::s_Instance->RaiseProcessPad(UIntPtr(padPtr));
+		}
 	}
 	void CLRBridge::InvokeIngameStartupEvent()
 	{
@@ -271,7 +281,7 @@ ERR:
 	{
 		Logger::Log("Starting to clean up...");
 
-		// Unregister events
+		// Unregister Events
 		if (ManagerScript::s_Instance)
 			ManagerScript::s_Instance->WindowFocusChanged -= gcnew IVSDKDotNet::RAGE::GameWindowFocusChangedDelegate(&CLR::CLRBridge::OnWindowFocusChanged);
 
@@ -296,9 +306,10 @@ ERR:
 		Logger::LogDebug("Cleanup finished!");
 	}
 
+	// Internal Events
 	void CLRBridge::OnWindowFocusChanged(bool focused)
 	{
-		Logger::Log("[INTERNAL] focused changed! Focused: " + focused.ToString());
+		RAGE::RaiseOnWindowFocusChanged(focused);
 	}
 
 }

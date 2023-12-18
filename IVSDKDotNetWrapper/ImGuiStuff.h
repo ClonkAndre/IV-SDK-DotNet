@@ -343,6 +343,28 @@ namespace IVSDKDotNet
 				wrapWidth,
 				nullptr);
 		}
+		void AddText(Vector2 pos, Color color, float fontSize, String^ textBegin)
+		{
+			if (!canvasDrawList)
+				return;
+			if (String::IsNullOrWhiteSpace(textBegin))
+				return;
+
+			msclr::interop::marshal_context ctx;
+
+			const char* _textBegin = ctx.marshal_as<const char*>(textBegin);
+			const char* _textEnd = (const char*)0;
+
+			canvasDrawList->AddText(
+				nullptr,
+				fontSize,
+				Vector2ToImVec2(pos),
+				ColorToImU32(color),
+				_textBegin,
+				_textEnd,
+				0.0F,
+				nullptr);
+		}
 		void AddText(Vector2 pos, Color color, String^ textBegin, String^ textEnd)
 		{
 			if (!canvasDrawList)

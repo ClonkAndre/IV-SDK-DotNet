@@ -97,6 +97,8 @@ namespace Manager.UI
 
             Main main = Main.Instance;
 
+            Vector2 mousePos = ImGuiIV.GetMousePos();
+
             ImGuiIV.Begin("IV-SDK .NET Manager", ref IsConfigUIOpened, eImGuiWindowFlags.None);
             ImGuiIV.SetWindowSize(new Vector2(450f, 500f), eImGuiCond.Once);
 
@@ -150,13 +152,22 @@ namespace Manager.UI
                     {
 
                         ImGuiIV.HelpMarker(string.Format("Sets if the IVSDKDotNet.log file should be created in the main directory of GTA IV or not.{0}" +
-                            "If set to false: Log files will be created in the 'logs' folder within the 'IVSDKDotNet' directory.", Environment.NewLine));
+                            "If set to false, the Log files will be created in the 'logs' folder within the 'IVSDKDotNet' directory.", Environment.NewLine));
                         ImGuiIV.SameLine();
                         ImGuiIV.CheckBox("Create Log Files In Main Directory", ref Config.CreateLogFilesInMainDirectory);
 
                         ImGuiIV.HelpMarker("Determines how many logs files can be stored inside the 'logs' folder within the 'IVSDKDotNet' directory.");
                         ImGuiIV.SameLine();
                         ImGuiIV.DragInt("Max Logs Files", ref Config.MaxLogsFiles);
+
+                        ImGuiIV.HelpMarker(string.Format("Defines the key that is used to switch the cursor visiblity which is used for script windows, the IV-SDK .NET console and manager window.{0}" +
+                            "If the cursor is visible, the mouse input of GTA IV will be disabled.", Environment.NewLine));
+                        ImGuiIV.SameLine();
+                        ImGuiIV.InputText("Switch Cursor Key", ref Config.SwitchCursorKey);
+
+                        ImGuiIV.HelpMarker(string.Format("Defines the key that is used to open/close the IV-SDK .NET manager window.", Environment.NewLine));
+                        ImGuiIV.SameLine();
+                        ImGuiIV.InputText("Open Manager Window Key", ref Config.OpenManagerWindowKey);
 
                         ImGuiIV.TreePop();
                     }
@@ -167,7 +178,8 @@ namespace Manager.UI
                         ImGuiIV.SameLine();
                         ImGuiIV.CheckBox("Pause Execution When Not In Focus", ref Config.PauseScriptExecutionWhenNotInFocus);
 
-                        ImGuiIV.HelpMarker("This prevents scripts from loading if the IVSDKDotNetWrapper version the script was made with is older then the current one.");
+                        ImGuiIV.HelpMarker(string.Format("This prevents scripts from loading if the IVSDKDotNetWrapper version the script was made with is older then the current one.{0}" +
+                            "Setting this to false will load every script even if the IVSDKDotNetWrapper version the script was made with is older then the current one.", Environment.NewLine));
                         ImGuiIV.SameLine();
                         ImGuiIV.CheckBox("Do Not Load Legacy Scripts", ref Config.DoNotLoadLegacyScripts);
 
@@ -304,6 +316,7 @@ namespace Manager.UI
 
                                 ImGuiIV.Text("ID: {0}", script.ID);
                                 ImGuiIV.Text("Full Path: {0}", script.FullPath);
+                                ImGuiIV.SetItemTooltip(script.FullPath);
                                 ImGuiIV.Text("Is Script Ready: {0}", script.IsScriptReady());
 
                                 ImGuiIV.BeginDisabled();
@@ -317,23 +330,61 @@ namespace Manager.UI
 
                                 // Console Commands
                                 ImGuiIV.SeparatorText("Console Commands");
-                                if (script.ConsoleCommands.Count != 0)
+                                if (script.ConsoleCommands.Count == 0)
                                 {
-                                    ImGuiIV.BeginListBox("##ScriptConsoleCommands", new Vector2(ImGuiIV.FloatMin, 40f));
-
-                                    for (int c = 0; c < script.ConsoleCommands.Count; c++)
-                                        ImGuiIV.Text(script.ConsoleCommands[c]);
-
-                                    ImGuiIV.EndListBox();
+                                    ImGuiIV.Text("This script has no console commands registered.");
                                 }
                                 else
                                 {
-                                    ImGuiIV.Text("This script has no console commands registered.");
+                                    if (ImGuiIV.TreeNode(string.Format("Registered Console Commands: {0}", script.ConsoleCommands.Count)))
+                                    {
+
+                                        ImGuiIV.BeginListBox("##ScriptConsoleCommands", new Vector2(ImGuiIV.FloatMin, 40f));
+
+                                        for (int c = 0; c < script.ConsoleCommands.Count; c++)
+                                            ImGuiIV.Text(script.ConsoleCommands[c]);
+
+                                        ImGuiIV.EndListBox();
+
+                                        ImGuiIV.TreePop();
+                                    }
                                 }
 
                                 // Direct3D9
                                 ImGuiIV.SeparatorText("Direct3D9");
-                                ImGuiIV.Text("Registered Textures: {0}", script.Textures.Count);
+
+                                if (script.Textures.Count == 0)
+                                {
+                                    ImGuiIV.Text("This script has no registered textures.");
+                                }
+                                else
+                                {
+                                    if (ImGuiIV.TreeNode(string.Format("Registered Textures: {0}", script.Textures.Count)))
+                                    {
+                                        Vector2 button_sz = new Vector2(64f);
+                                        float window_visible_x2 = ImGuiIV.GetWindowPos().Y + ImGuiIV.GetWindowContentRegionMax().X * 2f;
+
+                                        for (int i = 0; i < script.Textures.Count; i++)
+                                        {
+                                            IntPtr txtPtr = script.Textures[i];
+
+                                            ImGuiIV.PushID(i);
+
+                                            Vector2 pos = ImGuiIV.GetCursorScreenPos();
+                                            ImGuiIV.Image(txtPtr, button_sz);
+                                            ImGuiIV.ImagePreviewToolTip(txtPtr, button_sz, pos, 32f, 5f);
+
+                                            float last_button_x2 = ImGuiIV.GetItemRectMax().X;
+                                            float next_button_x2 = last_button_x2 + 10f + button_sz.X; // Expected position if next button was on same line
+                                            if (i + 1 < script.Textures.Count && next_button_x2 < window_visible_x2)
+                                                ImGuiIV.SameLine();
+
+                                            ImGuiIV.PopID();
+                                        }
+
+                                        ImGuiIV.TreePop();
+                                    }
+                                }
 
                                 // Execution Times
                                 ImGuiIV.HelpMarker("Shows you how long it took to execute each event in the script in seconds.");

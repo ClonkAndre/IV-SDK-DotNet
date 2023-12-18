@@ -65,14 +65,19 @@ namespace IVSDKDotNet
 		/// Requests a model with the given hash. This is easier to use until 'RequestModel' is fully documented.
 		/// </summary>
 		/// <param name="nHash">The model hash to request.</param>
-		/// <param name="pRunningThread"></param>
+		/// <param name="pRunningThread">Undocumented.</param>
 		static void ScriptRequestModel(int32_t nHash, UIntPtr pRunningThread);
+		/// <summary>
+		/// Requests a model with the given hash. This is easier to use until 'RequestModel' is fully documented.
+		/// </summary>
+		/// <param name="nHash">The model hash to request.</param>
+		static void ScriptRequestModel(int32_t nHash);
 		static void RequestModel(int32_t modelIndex, int32_t unk1, int32_t nFlags);
 		static void LoadAllRequestedModels(bool priorityOnly);
 		static void AddImageList(String^ fileName);
 
 		/// <summary>
-		/// Use with: IVFiPackfile.FromPointer(...);
+		/// Use with: IVFiPackfile.FromUIntPtr(...);
 		/// </summary>
 		static UIntPtr GetPlayerPackfile();
 		static void ClosePlayerPackfile();

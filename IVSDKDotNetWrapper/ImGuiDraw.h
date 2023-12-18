@@ -184,6 +184,23 @@ namespace IVSDKDotNet
 	public:
 
 		/// <summary>
+		/// Gets if the cursor is currently forced to be drawn on screen.
+		/// </summary>
+		static property bool ForceCursor
+		{
+		public:
+			bool get()
+			{
+				return m_bForceCursor;
+			}
+		internal:
+			void set(bool value)
+			{
+				m_bForceCursor = value;
+			}
+		}
+
+		/// <summary>
 		/// Gets the total amount of active ImGui windows.
 		/// </summary>
 		static property int ActiveWindows
@@ -286,8 +303,8 @@ namespace IVSDKDotNet
 			PDIRECT3DTEXTURE9 texture;
 
 			// Try create texture
-			HRESULT hr = D3DXCreateTextureFromFileA(rage::g_pDirect3DDevice, ctx.marshal_as<const char*>(fileName), &texture);
-
+			HRESULT hr = D3DXCreateTextureFromFileExA(rage::g_pDirect3DDevice, ctx.marshal_as<const char*>(fileName), D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &texture);
+			
 			if (hr != S_OK)
 			{
 				Logger::LogError(String::Format("[ImGuiIV] Failed to create texture from file. HResult: {0}", hr));
@@ -351,7 +368,8 @@ namespace IVSDKDotNet
 			PDIRECT3DTEXTURE9 texture;
 			
 			// Try create texture
-			HRESULT hr = D3DXCreateTextureFromFileInMemory(rage::g_pDirect3DDevice, dataPtr, data->Length, &texture);
+			//HRESULT hr = D3DXCreateTextureFromFileInMemory(rage::g_pDirect3DDevice, dataPtr, data->Length, &texture);
+			HRESULT hr = D3DXCreateTextureFromFileInMemoryEx(rage::g_pDirect3DDevice, dataPtr, data->Length, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &texture);
 
 			if (hr != S_OK)
 			{
@@ -549,6 +567,41 @@ namespace IVSDKDotNet
 					return;
 				}
 			}
+		}
+
+		// General
+		static void PushID(String^ id)
+		{
+			if (String::IsNullOrWhiteSpace(id))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImGui::PushID(ctx.marshal_as<const char*>(id));
+		}
+		static void PushID(String^ id_begin, String^ id_end)
+		{
+			if (String::IsNullOrWhiteSpace(id_begin))
+				return;
+			if (String::IsNullOrWhiteSpace(id_end))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImGui::PushID(ctx.marshal_as<const char*>(id_begin), ctx.marshal_as<const char*>(id_end));
+		}
+		static void PushID(IntPtr ptr_id)
+		{
+			if (ptr_id == IntPtr::Zero)
+				return;
+
+			ImGui::PushID(ptr_id.ToPointer());
+		}
+		static void PushID(int int_id)
+		{
+			ImGui::PushID(int_id);
+		}
+		static void PopID()
+		{
+			ImGui::PopID();
 		}
 
 		// Primitive Drawing
@@ -1250,6 +1303,19 @@ namespace IVSDKDotNet
 			return ImVec2ToVector2(ImGui::GetWindowContentRegionMax());
 		}
 
+		static Vector2 GetItemRectMin()
+		{
+			return ImVec2ToVector2(ImGui::GetItemRectMin());
+		}
+		static Vector2 GetItemRectMax()
+		{
+			return ImVec2ToVector2(ImGui::GetItemRectMax());
+		}
+		static Vector2 GetItemRectSize()
+		{
+			return ImVec2ToVector2(ImGui::GetItemRectSize());
+		}
+
 		static void BeginGroup()
 		{
 			ImGui::BeginGroup();
@@ -1346,6 +1412,43 @@ namespace IVSDKDotNet
 
 			msclr::interop::marshal_context ctx;
 			ImGui::SetItemTooltip(ctx.marshal_as<const char*>(String::Format(text, args)));
+		}
+
+		static bool ImagePreviewToolTip(IntPtr txtPtr, Vector2 imageSize, Vector2 cursorScreenPos, float regionSize, float zoom, Color tintColor, Color borderColor)
+		{
+			if (txtPtr == IntPtr::Zero)
+				return false;
+
+			if (BeginItemTooltip())
+			{
+				ImVec2 mousePos = ImGui::GetIO().MousePos;
+
+				float region_x = mousePos.x - cursorScreenPos.X - regionSize * 0.5f;
+				float region_y = mousePos.y - cursorScreenPos.Y - regionSize * 0.5f;
+
+				if (region_x < 0.0f)
+					region_x = 0.0f;
+				else if (region_x > imageSize.X - regionSize)
+					region_x = imageSize.X - regionSize;
+
+				if (region_y < 0.0f)
+					region_y = 0.0f;
+				else if (region_y > imageSize.Y - regionSize)
+					region_y = imageSize.Y - regionSize;
+
+				Vector2 uv0 = Vector2((region_x) / imageSize.X, (region_y) / imageSize.Y);
+				Vector2 uv1 = Vector2((region_x + regionSize) / imageSize.X, (region_y + regionSize) / imageSize.Y);
+				ImGuiIV::Image(txtPtr, Vector2(regionSize * zoom, regionSize * zoom), uv0, uv1, tintColor, borderColor);
+
+				EndTooltip();
+				return true;
+			}
+
+			return false;
+		}
+		static bool ImagePreviewToolTip(IntPtr txtPtr, Vector2 imageSize, Vector2 cursorScreenPos, float regionSize, float zoom)
+		{
+			return ImagePreviewToolTip(txtPtr, imageSize, cursorScreenPos, regionSize, zoom, Color::White, Color::Transparent);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -1788,6 +1891,17 @@ namespace IVSDKDotNet
 				ColorToImVec4(tintColor, true),
 				ColorToImVec4(borderColor, true));
 		}
+		static void Image(IntPtr textureId, Vector2 size)
+		{
+			Image(
+				textureId,
+				size,
+				Vector2(0.0F, 0.0F),
+				Vector2(1.0F, 1.0F),
+				Color::White,
+				Color::FromArgb(0, 0, 0, 0));
+		}
+
 		static bool ImageButtonEx(ImGuiID id, IntPtr textureId, Vector2 size, Vector2 uv0, Vector2 uv1, Color bgColor, Color tintColor, eImGuiButtonFlags flags)
 		{
 			if (textureId == IntPtr::Zero)
@@ -1844,6 +1958,35 @@ namespace IVSDKDotNet
 			return ImGui::RadioButton(ctx.marshal_as<const char*>(text), active);
 		}
 
+		static void IndeterminateProgressBar(Vector2 size)
+		{
+			ImGuiContext& g = *GImGui;
+			ImGuiWindow* window = ImGui::GetCurrentWindow();
+			if (window->SkipItems)
+				return;
+
+			ImGuiStyle& style = g.Style;
+			ImVec2 size2 = ImGui::CalcItemSize(Vector2ToImVec2(size), CalcItemWidth(), g.FontSize + style.FramePadding.y * 2.0f);
+			ImVec2 pos = window->DC.CursorPos;
+			ImRect bb(pos.x, pos.y, pos.x + size2.x, pos.y + size2.y);
+			ImGui::ItemSize(size2);
+			if (!ImGui::ItemAdd(bb, 0))
+				return;
+
+			const float speed = g.FontSize * 0.05f;
+			const float phase = ImFmod((float)g.Time * speed, 1.0f);
+			const float width_normalized = 0.2f;
+			float t0 = phase * (1.0f + width_normalized) - width_normalized;
+			float t1 = t0 + width_normalized;
+
+			ImGui::RenderFrame(bb.Min, bb.Max, ImGui::GetColorU32(ImGuiCol_FrameBg), true, style.FrameRounding);
+			bb.Expand(ImVec2(-style.FrameBorderSize, -style.FrameBorderSize));
+			ImGui::RenderRectFilledRangeH(window->DrawList, bb, ImGui::GetColorU32(ImGuiCol_PlotHistogram), t0, t1, style.FrameRounding);
+		}
+		static void IndeterminateProgressBar()
+		{
+			IndeterminateProgressBar(Vector2(-FLT_MIN, 0.0F));
+		}
 		static void ProgressBar(float fraction, Vector2 size, String^ overlay)
 		{
 			msclr::interop::marshal_context ctx;
@@ -1982,6 +2125,21 @@ namespace IVSDKDotNet
 		{
 			return DragFloat2(label, v, 0.1F, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
 		}
+		static bool DragFloat2(String^ label, Vector2% v, float speed, float min, float max, String^ format, eImGuiSliderFlags flags)
+		{
+			array<float>^ arr = gcnew array<float>(2) { v.X, v.Y };
+			bool result = DragFloat2(label, arr, speed, min, max, format, flags);
+			v = Vector2(arr[0], arr[1]);
+			return result;
+		}
+		static bool DragFloat2(String^ label, Vector2% v, float min, float max)
+		{
+			return DragFloat2(label, v, 0.1F, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
+		static bool DragFloat2(String^ label, Vector2% v)
+		{
+			return DragFloat2(label, v, 0.1F, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
+		}
 
 		static bool DragFloat3(String^ label, array<float>^% v, float speed, float min, float max, String^ format, eImGuiSliderFlags flags)
 		{
@@ -2003,6 +2161,21 @@ namespace IVSDKDotNet
 			return DragFloat3(label, v, 0.1F, min, max, "%.3f", eImGuiSliderFlags::None);
 		}
 		static bool DragFloat3(String^ label, array<float>^% v)
+		{
+			return DragFloat3(label, v, 0.1F, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
+		}
+		static bool DragFloat3(String^ label, Vector3% v, float speed, float min, float max, String^ format, eImGuiSliderFlags flags)
+		{
+			array<float>^ arr = gcnew array<float>(3) { v.X, v.Y, v.Z };
+			bool result = DragFloat3(label, arr, speed, min, max, format, flags);
+			v = Vector3(arr[0], arr[1], arr[2]);
+			return result;
+		}
+		static bool DragFloat3(String^ label, Vector3% v, float min, float max)
+		{
+			return DragFloat3(label, v, 0.1F, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
+		static bool DragFloat3(String^ label, Vector3% v)
 		{
 			return DragFloat3(label, v, 0.1F, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
 		}
@@ -2030,7 +2203,21 @@ namespace IVSDKDotNet
 		{
 			return DragFloat4(label, v, 0.1F, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
 		}
-
+		static bool DragFloat4(String^ label, Vector4% v, float speed, float min, float max, String^ format, eImGuiSliderFlags flags)
+		{
+			array<float>^ arr = gcnew array<float>(4) { v.X, v.Y, v.Z, v.W };
+			bool result = DragFloat4(label, arr, speed, min, max, format, flags);
+			v = Vector4(arr[0], arr[1], arr[2], arr[3]);
+			return result;
+		}
+		static bool DragFloat4(String^ label, Vector4% v, float min, float max)
+		{
+			return DragFloat4(label, v, 0.1F, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
+		static bool DragFloat4(String^ label, Vector4% v)
+		{
+			return DragFloat4(label, v, 0.1F, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
+		}
 
 		static bool DragInt(String^ label, int% v, float speed, int min, int max, String^ format, eImGuiSliderFlags flags)
 		{
@@ -2474,6 +2661,39 @@ namespace IVSDKDotNet
 			ImGui::TreePushOverrideID(id);
 		}
 
+		static bool CollapsingHeader(String^ label, bool% visible, eImGuiTreeNodeFlags flags)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return false;
+
+			msclr::interop::marshal_context ctx;
+
+			bool pVisible = visible;
+
+			bool result = ImGui::CollapsingHeader(ctx.marshal_as<const char*>(label), &pVisible, (ImGuiTreeNodeFlags)flags);
+
+			visible = pVisible;
+
+			return result;
+		}
+		static bool CollapsingHeader(String^ label, bool% visible)
+		{
+			return CollapsingHeader(label, visible, eImGuiTreeNodeFlags::None);
+		}
+
+		static bool CollapsingHeader(String^ label, eImGuiTreeNodeFlags flags)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return false;
+
+			msclr::interop::marshal_context ctx;
+			return ImGui::CollapsingHeader(ctx.marshal_as<const char*>(label), (ImGuiTreeNodeFlags)flags);
+		}
+		static bool CollapsingHeader(String^ label)
+		{
+			return CollapsingHeader(label, eImGuiTreeNodeFlags::None);
+		}
+
 		//-------------------------------------------------------------------------
 		// [SECTION] Widgets: Selectable
 		//-------------------------------------------------------------------------
@@ -2693,7 +2913,64 @@ namespace IVSDKDotNet
 			return ImGui::TabItemButton(ctx.marshal_as<const char*>(label), (ImGuiTabItemFlags)flags);
 		}
 
+		//-----------------------------------------------------------------------------
+		// [SECTION] Tables: BeginTable, EndTable.
+		//-----------------------------------------------------------------------------
+		static bool BeginTable(String^ label, int columns_count, eImGuiTableFlags flags, Vector2 outer_size, float inner_width)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return false;
+
+			msclr::interop::marshal_context ctx;
+			return ImGui::BeginTable(ctx.marshal_as<const char*>(label), columns_count, (ImGuiTableFlags) flags, Vector2ToImVec2(outer_size), inner_width);
+		}
+		static bool BeginTable(String^ label, int columns_count, eImGuiTableFlags flags)
+		{
+			return BeginTable(label, columns_count, flags, Vector2(0.0F), 0.0F);
+		}
+		static bool BeginTable(String^ label, int columns_count)
+		{
+			return BeginTable(label, columns_count, eImGuiTableFlags::None, Vector2(0.0F), 0.0F);
+		}
+		static void EndTable()
+		{
+			ImGui::EndTable();
+		}
+
+		//-------------------------------------------------------------------------
+		// [SECTION] Tables: Row changes
+		//-------------------------------------------------------------------------
+		static int TableGetRowIndex()
+		{
+			return ImGui::TableGetRowIndex();
+		}
+		static void TableNextRow(eImGuiTableRowFlags row_flags, float row_min_height)
+		{
+			ImGui::TableNextRow((ImGuiTableRowFlags) row_flags, row_min_height);
+		}
+		static void TableNextRow()
+		{
+			TableNextRow(eImGuiTableRowFlags::None, 0.0F);
+		}
+
+		//-------------------------------------------------------------------------
+		// [SECTION] Tables: Columns changes
+		//-------------------------------------------------------------------------
+		static int TableGetColumnIndex()
+		{
+			return ImGui::TableGetColumnIndex();
+		}
+		static bool TableSetColumnIndex(int column_n)
+		{
+			return ImGui::TableSetColumnIndex(column_n);
+		}
+		static bool TableNextColumn()
+		{
+			return ImGui::TableNextColumn();
+		}
+
 	private:
+		static bool m_bForceCursor;
 		static int m_iActiveWindows;
 	};
 }
@@ -2767,20 +3044,27 @@ public:
 #if _DEBUG
 		ImGui::Begin("IV-SDK .NET Wrapper Debug", (bool*)0, ImGuiWindowFlags_AlwaysAutoResize);
 
-		ImGui::SeparatorText("ImGui");
+		ImGui::SeparatorText("ImGuiIV States");
 
 		// Active Script Windows
 		ImGui::Text("Active Script Windows: %s", std::to_string(ImGuiIV::ActiveWindows).c_str());
 		ImGui::Text("Window Draw Calls List: %s", std::to_string(windowDrawCallsQueueCount).c_str());
 
-		// ImGui Input
+		ImGui::BeginDisabled();
+		ImGui::Checkbox("Wants Mouse Disabled", &ImGuiStates::s_bImGuiWantsMouseDisabled);
+		ImGui::Checkbox("Wants Keyboard Disabled", &ImGuiStates::s_bImGuiWantsKeyboardDisabled);
+		ImGui::Checkbox("Reactivate Keyboard Inputs", &ImGuiStates::s_bReactivateKeyboardInputs);
+		ImGui::EndDisabled();
+
+		// Dear ImGui Input
+		ImGui::SeparatorText("Dear ImGui");
 		ImGui::BeginDisabled();
 		ImGui::Checkbox("Wants Mouse Input", &io.WantCaptureMouse);
 		ImGui::Checkbox("Wants Keyboard Input", &io.WantCaptureKeyboard);
 		ImGui::Checkbox("Wants Text Input", &io.WantTextInput);
 		ImGui::EndDisabled();
 
-		ImGui::SetWindowPos(ImVec2(10.0F, vp->Size.y - (ImGui::GetWindowSize().y + 160.0F)), ImGuiCond_FirstUseEver);
+		ImGui::SetWindowPos(ImVec2(10.0F, vp->Size.y - (ImGui::GetWindowSize().y + 250.0F)), ImGuiCond_FirstUseEver);
 		ImGui::End();
 #endif // _DEBUG
 
@@ -2789,8 +3073,8 @@ public:
 
 		// TODO: Fix cursor jump to center of screen when keyboard gets reacquired.
 
-		// Disable mouse input if there are any opened ImGui windows.
-		if (ImGuiIV::ActiveWindows > 0)
+		// Disable mouse input if there are any opened ImGui windows or if the cursor should be forced.
+		if (ImGuiIV::ActiveWindows > 0 || ImGuiIV::ForceCursor)
 		{
 			// Draw a mouse cursor on screen
 			io.MouseDrawCursor = true;

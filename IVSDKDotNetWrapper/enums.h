@@ -6337,5 +6337,229 @@ namespace IVSDKDotNet
 			EscapeClearsAll = 1 << 20,
 		};
 
+		public enum class eImGuiTreeNodeFlags
+		{
+			None = 0,
+			/// <summary>
+			/// Draw as selected.
+			/// </summary>
+			Selected = 1 << 0,
+			/// <summary>
+			/// Draw frame with background (e.g. for CollapsingHeader).
+			/// </summary>
+			Framed = 1 << 1,
+			/// <summary>
+			/// Hit testing to allow subsequent widgets to overlap this one.
+			/// </summary>
+			AllowOverlap = 1 << 2,
+			/// <summary>
+			/// Don't do a TreePush() when open (e.g. for CollapsingHeader) = no extra indent nor pushing on ID stack.
+			/// </summary>
+			NoTreePushOnOpen = 1 << 3,
+			/// <summary>
+			/// Don't automatically and temporarily open node when Logging is active (by default logging will automatically open tree nodes).
+			/// </summary>
+			NoAutoOpenOnLog = 1 << 4,
+			/// <summary>
+			/// Default node to be open.
+			/// </summary>
+			DefaultOpen = 1 << 5,
+			/// <summary>
+			/// Need double-click to open node.
+			/// </summary>
+			OpenOnDoubleClick = 1 << 6,
+			/// <summary>
+			/// Only open when clicking on the arrow part. If ImGuiTreeNodeFlags_OpenOnDoubleClick is also set, single-click arrow or double-click all box to open.
+			/// </summary>
+			OpenOnArrow = 1 << 7,
+			/// <summary>
+			/// No collapsing, no arrow (use as a convenience for leaf nodes).
+			/// </summary>
+			Leaf = 1 << 8,
+			/// <summary>
+			/// Display a bullet instead of arrow.
+			/// </summary>
+			Bullet = 1 << 9,
+			/// <summary>
+			/// Use FramePadding (even for an unframed text node) to vertically align text baseline to regular widget height. Equivalent to calling AlignTextToFramePadding().
+			/// </summary>
+			FramePadding = 1 << 10,
+			/// <summary>
+			/// Extend hit box to the right-most edge, even if not framed. This is not the default in order to allow adding other items on the same line. In the future we may refactor the hit system to be front-to-back, allowing natural overlaps and then this can become the default.
+			/// </summary>
+			SpanAvailWidth = 1 << 11,
+			/// <summary>
+			/// Extend hit box to the left-most and right-most edges (bypass the indented area).
+			/// </summary>
+			SpanFullWidth = 1 << 12,
+			/// <summary>
+			/// (WIP) Nav: left direction may move to this TreeNode() from any of its child (items submitted between TreeNode and TreePop).
+			/// </summary>
+			NavLeftJumpsBackHere = 1 << 13,
+			CollapsingHeader = Framed | NoTreePushOnOpen | NoAutoOpenOnLog,
+
+#ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+			AllowItemOverlap = AllowOverlap,
+#endif
+		};
+
+		public enum class eImGuiTableFlags
+		{
+			// Features
+			None = 0,
+			/// <summary>
+			/// Enable resizing columns.
+			/// </summary>
+			Resizable = 1 << 0,
+			/// <summary>
+			/// Enable reordering columns in header row (need calling TableSetupColumn() + TableHeadersRow() to display headers).
+			/// </summary>
+			Reorderable = 1 << 1,
+			/// <summary>
+			/// Enable hiding/disabling columns in context menu.
+			/// </summary>
+			Hideable = 1 << 2,
+			/// <summary>
+			/// Enable sorting. Call TableGetSortSpecs() to obtain sort specs. Also see ImGuiTableFlags_SortMulti and ImGuiTableFlags_SortTristate.
+			/// </summary>
+			Sortable = 1 << 3,
+			/// <summary>
+			/// Disable persisting columns order, width and sort settings in the .ini file.
+			/// </summary>
+			NoSavedSettings = 1 << 4,
+			/// <summary>
+			/// Right-click on columns body/contents will display table context menu. By default it is available in TableHeadersRow().
+			/// </summary>
+			ContextMenuInBody = 1 << 5,
+			// Decorations
+			/// <summary>
+			/// Set each RowBg color with ImGuiCol_TableRowBg or ImGuiCol_TableRowBgAlt (equivalent of calling TableSetBgColor with ImGuiTableBgFlags_RowBg0 on each row manually).
+			/// </summary>
+			RowBg = 1 << 6,
+			/// <summary>
+			/// Draw horizontal borders between rows.
+			/// </summary>
+			BordersInnerH = 1 << 7,
+			/// <summary>
+			/// Draw horizontal borders at the top and bottom.
+			/// </summary>
+			BordersOuterH = 1 << 8,
+			/// <summary>
+			/// Draw vertical borders between columns.
+			/// </summary>
+			BordersInnerV = 1 << 9,
+			/// <summary>
+			/// Draw vertical borders on the left and right sides.
+			/// </summary>
+			BordersOuterV = 1 << 10,
+			/// <summary>
+			/// Draw horizontal borders.
+			/// </summary>
+			BordersH = BordersInnerH | BordersOuterH,
+			/// <summary>
+			/// Draw vertical borders.
+			/// </summary>
+			BordersV = BordersInnerV | BordersOuterV,
+			/// <summary>
+			/// Draw inner borders.
+			/// </summary>
+			BordersInner = BordersInnerV | BordersInnerH,
+			/// <summary>
+			/// Draw outer borders.
+			/// </summary>
+			BordersOuter = BordersOuterV | BordersOuterH,
+			/// <summary>
+			/// Draw all borders.
+			/// </summary>
+			Borders = BordersInner | BordersOuter,
+			/// <summary>
+			/// [ALPHA] Disable vertical borders in columns Body (borders will always appear in Headers). -> May move to style.
+			/// </summary>
+			NoBordersInBody = 1 << 11,
+			/// <summary>
+			/// [ALPHA] Disable vertical borders in columns Body until hovered for resize (borders will always appear in Headers). -> May move to style.
+			/// </summary>
+			NoBordersInBodyUntilResize = 1 << 12,
+			// Sizing Policy (read above for defaults)
+			/// <summary>
+			/// Columns default to _WidthFixed or _WidthAuto (if resizable or not resizable), matching contents width.
+			/// </summary>
+			SizingFixedFit = 1 << 13,
+			/// <summary>
+			/// Columns default to _WidthFixed or _WidthAuto (if resizable or not resizable), matching the maximum contents width of all columns. Implicitly enable ImGuiTableFlags_NoKeepColumnsVisible.
+			/// </summary>
+			SizingFixedSame = 2 << 13,
+			/// <summary>
+			/// Columns default to _WidthStretch with default weights proportional to each columns contents widths.
+			/// </summary>
+			SizingStretchProp = 3 << 13,
+			/// <summary>
+			/// Columns default to _WidthStretch with default weights all equal, unless overridden by TableSetupColumn().
+			/// </summary>
+			SizingStretchSame = 4 << 13,
+			// Sizing Extra Options
+			/// <summary>
+			/// Make outer width auto-fit to columns, overriding outer_size.x value. Only available when ScrollX/ScrollY are disabled and Stretch columns are not used.
+			/// </summary>
+			NoHostExtendX = 1 << 16,
+			/// <summary>
+			/// Make outer height stop exactly at outer_size.y (prevent auto-extending table past the limit). Only available when ScrollX/ScrollY are disabled. Data below the limit will be clipped and not visible.
+			/// </summary>
+			NoHostExtendY = 1 << 17,
+			/// <summary>
+			/// Disable keeping column always minimally visible when ScrollX is off and table gets too small. Not recommended if columns are resizable.
+			/// </summary>
+			NoKeepColumnsVisible = 1 << 18,
+			/// <summary>
+			/// Disable distributing remainder width to stretched columns (width allocation on a 100-wide table with 3 columns: Without this flag: 33,33,34. With this flag: 33,33,33). With larger number of columns, resizing will appear to be less smooth.
+			/// </summary>
+			PreciseWidths = 1 << 19,
+			// Clipping
+			/// <summary>
+			/// Disable clipping rectangle for every individual columns (reduce draw command count, items will be able to overflow into other columns). Generally incompatible with TableSetupScrollFreeze().
+			/// </summary>
+			NoClip = 1 << 20,
+			// Padding
+			/// <summary>
+			/// Default if BordersOuterV is on. Enable outermost padding. Generally desirable if you have headers.
+			/// </summary>
+			PadOuterX = 1 << 21,
+			/// <summary>
+			/// Default if BordersOuterV is off. Disable outermost padding.
+			/// </summary>
+			NoPadOuterX = 1 << 22,
+			/// <summary>
+			/// Disable inner padding between columns (double inner padding if BordersOuterV is on, single inner padding if BordersOuterV is off).
+			/// </summary>
+			NoPadInnerX = 1 << 23,
+			// Scrolling
+			/// <summary>
+			/// Enable horizontal scrolling. Require 'outer_size' parameter of BeginTable() to specify the container size. Changes default sizing policy. Because this creates a child window, ScrollY is currently generally recommended when using ScrollX.
+			/// </summary>
+			ScrollX = 1 << 24,
+			/// <summary>
+			/// Enable vertical scrolling. Require 'outer_size' parameter of BeginTable() to specify the container size.
+			/// </summary>
+			ScrollY = 1 << 25,
+			// Sorting
+			/// <summary>
+			/// Hold shift when clicking headers to sort on multiple column. TableGetSortSpecs() may return specs where (SpecsCount > 1).
+			/// </summary>
+			SortMulti = 1 << 26,
+			/// <summary>
+			/// Allow no sorting, disable default sorting. TableGetSortSpecs() may return specs where (SpecsCount == 0).
+			/// </summary>
+			SortTristate = 1 << 27,
+		};
+
+		public enum class eImGuiTableRowFlags
+		{
+			None = 0,
+			/// <summary>
+			/// Identify header row (set default background color + width of its contents accounted differently for auto column width).
+			/// </summary>
+			Headers = 1 << 0
+		};
+
 	}
 }

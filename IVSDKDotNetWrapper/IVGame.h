@@ -157,7 +157,7 @@ namespace IVSDKDotNet
 		/// <summary>
 		/// Gets the resolution of the GTA IV window.
 		/// </summary>
-		static property System::Drawing::Size Resolution
+		static property Size Resolution
 		{
 		public:
 			System::Drawing::Size get()
@@ -203,6 +203,19 @@ namespace IVSDKDotNet
 		/// </summary>
 		/// <param name="str">The text to be shown.</param>
 		static void ShowSubtitleMessage(String^ str);
+
+		/// <summary>
+		/// Gets the rectangle of the radar with the specific scaling.
+		/// </summary>
+		/// <param name="scaling">The scaling to apply.</param>
+		/// <returns>The rectangle of the radar.</returns>
+		static RectangleF GetRadarRectangle(eFontScaling scaling);
+
+		/// <summary>
+		/// Gets the rectangle of the radar in pixel.
+		/// </summary>
+		/// <returns>The rectangle of the radar.</returns>
+		static RectangleF GetRadarRectangle();
 
 	};
 }

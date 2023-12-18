@@ -201,7 +201,6 @@
     <ClInclude Include="IVRmcDrawable.h" />
     <ClInclude Include="IVSafehouse.h" />
     <ClInclude Include="IVSaveGarage.h" />
-    <ClInclude Include="IVSDKForwardDeclarations.h" />
     <ClInclude Include="IVShaderLib.h" />
     <ClInclude Include="IVShadows.h" />
     <ClInclude Include="IVSkyDome.h" />

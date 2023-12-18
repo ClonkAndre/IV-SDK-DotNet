@@ -15,6 +15,9 @@ namespace Manager.Classes
         public static bool CreateLogFilesInMainDirectory;
         public static int MaxLogsFiles;
 
+        public static string SwitchCursorKey;
+        public static string OpenManagerWindowKey;
+
         // Scripts
         public static bool PauseScriptExecutionWhenNotInFocus;
         public static bool DoNotLoadLegacyScripts;
@@ -42,6 +45,9 @@ namespace Manager.Classes
             CreateLogFilesInMainDirectory = settings.GetBoolean("Main", "CreateLogFilesInMainDirectory", true);
             MaxLogsFiles = settings.GetInteger("Main", "MaxLogsFiles", 5);
 
+            SwitchCursorKey = settings.GetValue("Main", "SwitchCursorKey", "Control+F8");
+            OpenManagerWindowKey = settings.GetValue("Main", "OpenManagerWindowKey", "Control+F10");
+
             // Section: Scripts
             PauseScriptExecutionWhenNotInFocus = settings.GetBoolean("Scripts", "PauseExecutionWhenNotInFocus", true);
             DoNotLoadLegacyScripts = settings.GetBoolean("Scripts", "DoNotLoadLegacyScripts", true);
@@ -68,6 +74,9 @@ namespace Manager.Classes
             theSettingsFile.SetBoolean("Main", "CreateLogFilesInMainDirectory", CreateLogFilesInMainDirectory);
             theSettingsFile.SetInteger("Main", "MaxLogsFiles", MaxLogsFiles);
 
+            theSettingsFile.SetValue("Main", "SwitchCursorKey", SwitchCursorKey);
+            theSettingsFile.SetValue("Main", "OpenManagerWindowKey", OpenManagerWindowKey);
+
             // Section: Scripts
             theSettingsFile.SetBoolean("Scripts", "PauseExecutionWhenNotInFocus", PauseScriptExecutionWhenNotInFocus);
             theSettingsFile.SetBoolean("Scripts", "DoNotLoadLegacyScripts", DoNotLoadLegacyScripts);
@@ -93,6 +102,9 @@ namespace Manager.Classes
             // Section: Main
             CreateLogFilesInMainDirectory = true;
             MaxLogsFiles = 5;
+
+            SwitchCursorKey = "Control+F8";
+            OpenManagerWindowKey = "Control+F10";
 
             // Section: Scripts
             PauseScriptExecutionWhenNotInFocus = true;

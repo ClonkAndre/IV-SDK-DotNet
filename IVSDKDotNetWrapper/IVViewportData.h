@@ -5,17 +5,19 @@ namespace IVSDKDotNet
 	public value struct IVViewportData
 	{
 	public:
-		property IVMatrix ProjectionMatrix
+		property IVMatrix^ ProjectionMatrix
 		{
 		public:
-			IVMatrix get()
+			IVMatrix^ get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeData, IVMatrix::Empty());
-				return IVMatrix(NativeData->m_mProjectionMatrix);
+				return gcnew IVMatrix(&NativeData->m_mProjectionMatrix);
 			}
-			void set(IVMatrix value)
+			void set(IVMatrix^ value)
 			{
-				NativeData->m_mProjectionMatrix = value.ToCMatrix();
+				NULLPTR_CHECK(value);
+				NULLPTR_CHECK(value->NativeMatrix);
+				NativeData->m_mProjectionMatrix = *value->NativeMatrix;
 			}
 		}
 		property RectangleF Rect

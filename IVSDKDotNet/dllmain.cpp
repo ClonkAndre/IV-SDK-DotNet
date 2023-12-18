@@ -60,7 +60,7 @@ DWORD WINAPI ManagedEntryPoint(HMODULE hModule)
 	{
 		Sleep(1000);
 	}
-
+	
 	FreeLibraryAndExitThread(hModule, 0);
 	return 0;
 }

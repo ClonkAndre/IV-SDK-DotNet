@@ -24,12 +24,14 @@ namespace IVSDKDotNet
 	IVPed^ IVPedFactoryNY::CreatePed(IVSpawnData pSpawnData, int32_t model, IVMatrix^ mat, bool bNetwork, bool bUnk1)
 	{
 		NULLPTR_CHECK_WITH_RETURN(NativePedFactoryNY, nullptr);
+		NULLPTR_CHECK_WITH_RETURN(mat, nullptr);
+		NULLPTR_CHECK_WITH_RETURN(mat->NativeMatrix, nullptr);
 
 		tSpawnData* data = new tSpawnData();
 		data->m_nFlag1 = pSpawnData.Flag1;
 		data->m_nFlag2 = pSpawnData.Flag2;
 
-		CPed* ptr = NativePedFactoryNY->CreatePed(data, model, &mat->ToCMatrix(), bNetwork, bUnk1);
+		CPed* ptr = NativePedFactoryNY->CreatePed(data, model, mat->NativeMatrix, bNetwork, bUnk1);
 
 		delete data;
 

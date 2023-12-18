@@ -12,6 +12,17 @@ namespace IVSDKDotNet
     }
 
     // - - - Methods / Functions - - -
+    IVPhConstrainedCollider^ IVPhConstrainedCollider::FromUIntPtr(UIntPtr ptr)
+    {
+        UINTPTR_ZERO_CHECK_WITH_RETURN(ptr, nullptr);
+        return gcnew IVPhConstrainedCollider((rage::phConstrainedCollider*)ptr.ToPointer());
+    }
+    UIntPtr IVPhConstrainedCollider::GetUIntPtr()
+    {
+        NULLPTR_CHECK_WITH_RETURN(NativeConstrainedCollider, UIntPtr::Zero);
+        return UIntPtr(NativeConstrainedCollider);
+    }
+
     void IVPhConstrainedCollider::SetVelocity(Vector3 v)
     {
         NULLPTR_CHECK(NativeConstrainedCollider);

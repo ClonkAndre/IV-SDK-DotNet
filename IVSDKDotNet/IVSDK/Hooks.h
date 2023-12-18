@@ -1,3 +1,5 @@
+#pragma unmanaged
+
 namespace plugin
 {
 	namespace processScriptsEvent
@@ -288,3 +290,5 @@ namespace plugin
 		}
 	}
 };
+
+#pragma managed

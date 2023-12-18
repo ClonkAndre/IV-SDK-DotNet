@@ -11,12 +11,14 @@ namespace IVSDKDotNet
 			IVMatrix^ get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeColliderParams2, IVMatrix::Empty());
-				return gcnew IVMatrix(NativeColliderParams2->m_mMatrix);
+				return gcnew IVMatrix(&NativeColliderParams2->m_mMatrix);
 			}
 			void set(IVMatrix^ value)
 			{
 				NULLPTR_CHECK(NativeColliderParams2);
-				NativeColliderParams2->m_mMatrix = value->ToCMatrix();
+				NULLPTR_CHECK(value);
+				NULLPTR_CHECK(value->NativeMatrix);
+				NativeColliderParams2->m_mMatrix = *value->NativeMatrix;
 			}
 		}
 		property Vector3 Unk

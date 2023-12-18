@@ -2,7 +2,7 @@
 
 namespace IVSDKDotNet
 {
-	public ref class IVControlRemapInfo
+	public value struct IVControlRemapInfo
 	{
 	public:
 		property uint8_t ControlId

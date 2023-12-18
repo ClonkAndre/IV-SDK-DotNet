@@ -12,6 +12,10 @@ namespace IVSDKDotNet
     {
         CStreaming::ScriptRequestModel(nHash, pRunningThread == UIntPtr::Zero ? nullptr : (uint32_t*)pRunningThread.ToPointer());
     }
+    void IVStreaming::ScriptRequestModel(int32_t nHash)
+    {
+        ScriptRequestModel(nHash, UIntPtr::Zero);
+    }
     void IVStreaming::RequestModel(int32_t modelIndex, int32_t unk1, int32_t nFlags)
     {
         CStreaming::RequestModel(modelIndex, unk1, nFlags);

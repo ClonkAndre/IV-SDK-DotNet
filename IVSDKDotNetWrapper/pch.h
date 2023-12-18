@@ -88,8 +88,6 @@ using namespace System::Text;
 
 // - - - IV-SDK STUFF - - -
 
-#include "IVSDKForwardDeclarations.h"
-
 // Math
 #include "IVMatrix.h"
 

@@ -15,7 +15,7 @@ namespace Manager.Classes
         public Guid ID;
         public string Name;
         public string FullPath;
-        public bool RaiseOnFirstD3D9FrameEvent = true;
+        public bool HasOnFirstD3D9FrameEventBeenRaised;
 
         public Type EntryPoint;
         public FieldInfo[] PublicFields;
@@ -145,13 +145,13 @@ namespace Manager.Classes
             if (!IsScriptReady())
                 return;
 
-            if (RaiseOnFirstD3D9FrameEvent)
+            if (!HasOnFirstD3D9FrameEventBeenRaised)
             {
-                RaiseOnFirstD3D9FrameEvent = false;
-
                 DateTime time = DateTime.UtcNow;
                 TheScript.RaiseOnFirstD3D9Frame();
                 TheScript.OnFirstD3D9FrameEventExecutionTime = DateTime.UtcNow - time;
+
+                HasOnFirstD3D9FrameEventBeenRaised = true;
             }
         }
 
@@ -218,7 +218,7 @@ namespace Manager.Classes
                         Logger.Log(string.Format("Script {0} was successfully aborted by user.", Name));
                         break;
                     case AbortReason.Script:
-                        Logger.Log(string.Format("Script {0} was successfully aborted by another script.", Name));
+                        Logger.Log(string.Format("Script {0} was successfully aborted by another script (Or by {0} itself).", Name));
                         break;
                     case AbortReason.Manager:
                         Logger.Log(string.Format("Manager successfully aborted script {0}.", Name));
@@ -309,14 +309,14 @@ namespace Manager.Classes
             string scriptName = string.IsNullOrEmpty(Name) ? "UNKNOWN" : Name;
             int texturesCount = Textures.Count;
 
-            if (texturesCount == 0)
+            if (Textures.Count == 0)
             {
-                Logger.LogDebug(string.Format("There are no Direct3D9 Textures to destroy for script {0}", scriptName));
+                Logger.LogDebug(string.Format("There are no Direct3D9 Textures to destroy for script {0}.", scriptName));
                 return;
             }
 
             // Get rid of each Texture this Script created
-            for (int i = 0; i < texturesCount; i++)
+            for (int i = 0; i < Textures.Count; i++)
             {
                 IntPtr txtPtr = Textures[i];
 

@@ -137,7 +137,7 @@ namespace Manager
                 {
                     if (!OnWindowFocusChangedEventCalled)
                     {
-                        this.RaiseWindowFocusChanged(true);
+                        RaiseWindowFocusChanged(true);
                         OnWindowFocusChangedEventCalled = true;
                     }
                 }
@@ -145,7 +145,7 @@ namespace Manager
                 {
                     if (OnWindowFocusChangedEventCalled)
                     {
-                        this.RaiseWindowFocusChanged(false);
+                        RaiseWindowFocusChanged(false);
                         OnWindowFocusChangedEventCalled = false;
                     }
                 }
@@ -365,7 +365,6 @@ namespace Manager
             // Draw internal stuff
             Console.DoUI();
             Notification.DoUI();
-            ScriptInspectorUI.DoUI();
             ManagerUI.DoUI();
         }
         public override void RaiseIngameStartup()
@@ -382,6 +381,10 @@ namespace Manager
             // Raise local things
             if (Console != null)
                 Console.KeyDown(e);
+
+            // Check stuff
+            Checker.CheckSwitchCursorKeyPressed(e);
+            Checker.CheckOpenManagerWindowKeyPressed(e);
 
             // Raise all script KeyDown events
             ActiveScripts.ForEach(fs =>
@@ -529,6 +532,9 @@ namespace Manager
             isIVSDKDotNetScript = fileName.Contains(".ivsdk");
             isScriptHookDotNetScript = fileName.Contains(".net");
 
+            // Remove extensions
+            fileName = fileName.Replace(".ivsdk", "").Replace(".net", "");
+
             // Check result
             if (!isIVSDKDotNetScript && !isScriptHookDotNetScript)
             {
@@ -580,9 +586,14 @@ namespace Manager
 
                         if (referencedWrapperAssembly.Version < CurrentWrapperVersion)
                         {
-                            // TODO: Show warning at the top right saying that the script couldn't get loaded
+
                             Logger.LogWarning(string.Format("Script {0} did not get loaded because it was created with an older version of the IVSDKDotNetWrapper.dll ({1}) and the setting 'DoNotLoadLegacyScripts' is set to true." +
                                 " The current version of the IVSDKDotNetWrapper.dll is: {2}", fileName, referencedWrapperAssembly.Version, CurrentWrapperVersion));
+
+                            Notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(6d),
+                                string.Format("Script {0} did not get loaded.", fileName),
+                                "Check console for details.",
+                                "COULD_NOT_LOAD_SCRIPT");
 
                             return false;
                         }
@@ -625,9 +636,11 @@ namespace Manager
                     }
                     catch (Exception ex)
                     {
-                        Notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} Initialized.", foundScript.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", foundScript.Name));
-                        Logger.LogError(string.Format("An error occured while processing initialized event for script {0}. Aborting script. Details: {1}", foundScript.Name, ex.ToString()));
-                        AbortScript(foundScript.ID);
+                        HandleScriptException(foundScript, 8d, "Initialized", ex);
+
+                        //Notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} Initialized.", foundScript.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", foundScript.Name));
+                        //Logger.LogError(string.Format("An error occured while processing initialized event for script {0}. Aborting script. Details: {1}", foundScript.Name, ex.ToString()));
+                        //AbortScript(foundScript.ID);
                     }
 
                     return true;

@@ -162,15 +162,6 @@ namespace CLR
 			}
 		}
 
-		static property ReadOnlyCollection<uint32_t>^ UniqueObjects
-		{
-		public:
-			ReadOnlyCollection<uint32_t>^ get()
-			{
-				return InternalUniqueObjects->AsReadOnly();
-			}
-		}
-
 	public:
 		static void Initialize(int version, uint32_t baseAddress);
 
@@ -186,8 +177,9 @@ namespace CLR
 
 	internal:
 		static void Cleanup();
-		
-		static List<uint32_t>^ InternalUniqueObjects;
+
+	private:
+		static void OnWindowFocusChanged(bool focused);
 
 	private:
 		static bool m_bIsBridgeDisabled = false;
@@ -201,6 +193,5 @@ namespace CLR
 		static String^ m_sIVSDKDotNetScriptsPath;
 
 		static SettingsFile^ m_cSettings;
-		static void OnWindowFocusChanged(bool focused);
 };
 }

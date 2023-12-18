@@ -15,7 +15,7 @@ public:
 		return ((CCam*(__thiscall*)(CCamera*, int, CCam*, CCam*))(AddressSetter::Get(0x51F510, 0x5DF770)))(this, type, unk, unk2);
 	}
 };
-CCamera& TheCamera = AddressSetter::GetRef<CCamera>(0xB21A6C, 0xB488E8);
+static CCamera& TheCamera = AddressSetter::GetRef<CCamera>(0xB21A6C, 0xB488E8);
 
 VALIDATE_OFFSET(CCamera, m_pFinalCam, 0x4);
 VALIDATE_OFFSET(CCamera, m_pGameCam, 0xC);

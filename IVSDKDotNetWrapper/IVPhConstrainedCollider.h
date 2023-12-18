@@ -192,6 +192,9 @@ namespace IVSDKDotNet
 		}
 
 	public:
+		static IVPhConstrainedCollider^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 		void SetVelocity(Vector3 v);
 
 	internal:

@@ -102,9 +102,11 @@ namespace Manager.UI
         }
         public bool ExecuteCommand(string name)
         {
+#if !DEBUG
             try
             {
-                if (string.IsNullOrWhiteSpace(name))
+#endif
+            if (string.IsNullOrWhiteSpace(name))
                     return false;
 
                 string[] args = Regex.Split(name, @"\s+");
@@ -116,14 +118,18 @@ namespace Manager.UI
                 Commands[args[0].ToLower()]?.Invoke(args);
 
                 return true;
+
+#if !DEBUG
+
             }
             catch (Exception ex)
             {
                 Logger.LogError(string.Format("[IV-SDK .NET] An error occured while executing console command '{0}'. Details: {1}", name, ex.ToString()));
             }
             return false;
+#endif
         }
-        #endregion
+#endregion
 
         #region Commands
         private void HelpCommand()

@@ -5,18 +5,20 @@ namespace IVSDKDotNet
 	public ref class IVCam
 	{
 	public:
-		property IVMatrix Matrix
+		property IVMatrix^ Matrix
 		{
 		public:
-			IVMatrix get()
+			IVMatrix^ get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeCam, IVMatrix::Empty());
-				return IVMatrix(NativeCam->m_mMatrix);
+				return gcnew IVMatrix(&NativeCam->m_mMatrix);
 			}
-			void set(IVMatrix value)
+			void set(IVMatrix^ value)
 			{
 				NULLPTR_CHECK(NativeCam);
-				NativeCam->m_mMatrix = value.ToCMatrix();
+				NULLPTR_CHECK(value);
+				NULLPTR_CHECK(value->NativeMatrix);
+				NativeCam->m_mMatrix = *value->NativeMatrix;
 			}
 		}
 		property float FOV

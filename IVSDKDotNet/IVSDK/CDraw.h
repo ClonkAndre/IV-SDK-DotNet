@@ -117,4 +117,4 @@ public:
 VALIDATE_OFFSET(CDraw, m_pRenderPhases, 0x38);
 VALIDATE_OFFSET(CDraw, m_bForceHudWidescreen, 0x453);
 
-CDraw& Scene = AddressSetter::GetRef<CDraw>(0xCF47E0, 0xDF8280); // scene? renderer? rw to rage wrapper? some core rage rendering class? just called it CDraw, Scene & GlobalScene for now
+static CDraw& Scene = AddressSetter::GetRef<CDraw>(0xCF47E0, 0xDF8280); // scene? renderer? rw to rage wrapper? some core rage rendering class? just called it CDraw, Scene & GlobalScene for now

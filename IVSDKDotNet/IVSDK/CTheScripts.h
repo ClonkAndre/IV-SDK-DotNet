@@ -1,3 +1,5 @@
+#pragma unmanaged
+
 struct building_swap_struct
 {
 	CBuilding* pBuilding;
@@ -59,3 +61,5 @@ public:
 		return ((void(__cdecl*)())(AddressSetter::Get(0x409AF0, 0x4B40F0)))();
 	}
 };
+
+#pragma managed

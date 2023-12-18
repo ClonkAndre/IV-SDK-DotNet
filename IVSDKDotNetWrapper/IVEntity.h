@@ -66,18 +66,20 @@ namespace IVSDKDotNet
 				NativeEntity->m_placement = v;
 			}
 		}
-		property IVMatrix Matrix
+		property IVMatrix^ Matrix
 		{
 		public:
-			IVMatrix get()
+			IVMatrix^ get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeEntity, IVMatrix::Empty());
-				return IVMatrix(NativeEntity->m_pMatrix);
+				return gcnew IVMatrix(NativeEntity->m_pMatrix);
 			}
-			void set(IVMatrix value)
+			void set(IVMatrix^ value)
 			{
 				NULLPTR_CHECK(NativeEntity);
-				NativeEntity->m_pMatrix = &value.ToCMatrix();
+				NULLPTR_CHECK(value);
+				NULLPTR_CHECK(value->NativeMatrix);
+				NativeEntity->m_pMatrix = value->NativeMatrix;
 			}
 		}
 		property uint32_t EntityFlags2
@@ -123,7 +125,7 @@ namespace IVSDKDotNet
 			}
 		}
 		/// <summary>
-		/// Use with: IVPhInstGta.FromPointer(...);
+		/// Use with: IVPhInstGta.FromUIntPtr(...);
 		/// </summary>
 		property UIntPtr InstGta
 		{
@@ -202,7 +204,7 @@ namespace IVSDKDotNet
 		static IVEntity^ FromUIntPtr(UIntPtr ptr);
 		UIntPtr GetUIntPtr();
 
-		void Teleport(IVMatrix mat, bool bDontUpdatePhysicsMatrix, bool bImmediately);
+		void Teleport(IVMatrix^ mat, bool bDontUpdatePhysicsMatrix, bool bImmediately);
 		void Teleport(Vector3 v, bool bDontUpdatePhysicsMatrix, bool bImmediately);
 
 		void PreRender(int nUnk, int nUnk2, char alpha, int nUnkNeg1);

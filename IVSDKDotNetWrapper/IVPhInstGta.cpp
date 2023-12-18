@@ -12,6 +12,17 @@ namespace IVSDKDotNet
     }
 
     // - - - Methods / Functions - - -
+    IVPhInstGta^ IVPhInstGta::FromUIntPtr(UIntPtr ptr)
+    {
+        UINTPTR_ZERO_CHECK_WITH_RETURN(ptr, nullptr);
+        return gcnew IVPhInstGta((phInstGta*)ptr.ToPointer());
+    }
+    UIntPtr IVPhInstGta::GetUIntPtr()
+    {
+        NULLPTR_CHECK_WITH_RETURN(NativePhInstGta, UIntPtr::Zero);
+        return UIntPtr(NativePhInstGta);
+    }
+
     IVPhInstGta^ IVPhInstGta::DetachFragmentGroup(uint32_t groupId)
     {
         NULLPTR_CHECK_WITH_RETURN(NativePhInstGta, nullptr);
