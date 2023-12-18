@@ -1,7 +1,5 @@
 #pragma once
 
-#include "pch.h"
-
 using namespace IVSDKDotNet::Native;
 
 class IVNativeCallContext
@@ -11,8 +9,8 @@ public:
 	unsigned int m_nArgCount;					// 04-08
 	void* m_pArgs;								// 08-0C
 	unsigned int m_nDataCount;					// 0C-10
-	Native_CVector* m_pOriginalData[4];			// 10-20
-	Native_CQuaternion m_TemporaryData[4];		// 20-60
+	CVector* m_pOriginalData[4];			    // 10-20
+	CQuaternion m_TemporaryData[4];		        // 20-60
 };
 VALIDATE_OFFSET(IVNativeCallContext, m_pOriginalData, 0x10);
 VALIDATE_OFFSET(IVNativeCallContext, m_TemporaryData, 0x20);
@@ -45,13 +43,15 @@ public:
 	inline void Push(T value)
 	{
 		// Have we reached our argument count?
-		if (m_nArgCount == MaxNativeParams) {
+		if (m_nArgCount == MaxNativeParams)
+		{
 			// We can only store 16 arguments
 			return;
 		}
 
 		// Is the argument too big?
-		if (sizeof(T) > ArgSize) {
+		if (sizeof(T) > ArgSize)
+		{
 			// We only accept 4 byte or less arguments
 			return;
 		}
@@ -72,10 +72,11 @@ public:
 	inline T GetResult()
 	{
 		// Copy back any vector results
-		while (m_nDataCount > 0) {
+		while (m_nDataCount > 0)
+		{
 			m_nDataCount--;
-			Native_CVector* pVec3 = m_pOriginalData[m_nDataCount];
-			Native_CQuaternion* pVec4 = &m_TemporaryData[m_nDataCount];
+			CVector* pVec3 = m_pOriginalData[m_nDataCount];
+			CQuaternion* pVec4 = &m_TemporaryData[m_nDataCount];
 			pVec3->x = pVec4->x;
 			pVec3->y = pVec4->y;
 			pVec3->z = pVec4->z;
@@ -89,9 +90,12 @@ public:
 	{
 		uintptr_t* arguments = (uintptr_t*)m_pArgs;
 
-		if (arguments) {
-			if (&arguments[idx]) {
-				if (arguments[idx]) {
+		if (arguments)
+		{
+			if (&arguments[idx])
+			{
+				if (arguments[idx])
+				{
 					return *(T*)&arguments[idx];
 				}
 			}
@@ -116,8 +120,9 @@ private:
 
 	static bool Invoke(uint32_t uiHash, IVNativeCallContext* pNativeContext)
 	{
-		auto NativeFunc = (NativeCall)Native_CTheScripts::FindNativeAddress(uiHash);
-		if (NativeFunc != NULL) {
+		auto NativeFunc = (NativeCall)CTheScripts::FindNativeAddress(uiHash);
+		if (NativeFunc != NULL)
+		{
 			NativeFunc(pNativeContext);
 			return true;
 		}
@@ -426,6 +431,5 @@ public:
 		Invoke((uint32_t)hash, &cxt);
 		return cxt.GetResult<R>();
 	}
-
 
 };

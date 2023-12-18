@@ -2,15 +2,21 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Numerics;
 
-namespace Manager {
-    internal class Helper {
+using IVSDKDotNet;
+
+namespace Manager
+{
+    internal static class Helper
+    {
 
         #region Classes
         /// <summary>
         /// Some helper functions in use with <see cref="Process"/>.
         /// </summary>
-        public class ProcessHelper {
+        public class ProcessHelper
+        {
 
             #region DllImports
             [DllImport("user32.dll")]
@@ -26,7 +32,8 @@ namespace Manager {
             #endregion
 
             #region Structs
-            private struct WINDOWPLACEMENT {
+            private struct WINDOWPLACEMENT
+            {
                 public int length;
                 public int flags;
                 public int showCmd;
@@ -48,7 +55,8 @@ namespace Manager {
             /// </returns>
             public static int GetProcessWindowState(Process p)
             {
-                if (p.MainWindowHandle != IntPtr.Zero) {
+                if (p.MainWindowHandle != IntPtr.Zero)
+                {
                     WINDOWPLACEMENT placement = new WINDOWPLACEMENT();
                     GetWindowPlacement(p.MainWindowHandle, ref placement);
                     return placement.showCmd;
@@ -64,9 +72,9 @@ namespace Manager {
             public static bool IsProcessInFocus(Process p)
             {
                 var activatedHandle = GetForegroundWindow();
-                if (activatedHandle == IntPtr.Zero) {
+
+                if (activatedHandle == IntPtr.Zero)
                     return false; // No window is currently activated
-                }
 
                 int procId = p.Id;
                 int activeProcId;
@@ -78,13 +86,35 @@ namespace Manager {
         }
         #endregion
 
+        #region ImGUI
+        public static void AskToOpenWebPageButton(string buttonText, Vector2 size, Uri uri)
+        {
+            string id = "Open " + uri.ToString();
+
+            if (ImGuiIV.Button(buttonText, size))
+                ImGuiIV.OpenPopup(id);
+
+            Helper.AskToOpenWebPage(id, uri);
+        }
+        public static void AskToOpenWebPage(string name, Uri uri)
+        {
+            if (uri == null)
+                return;
+
+            ImGuiIV.CreateSimplePopupDialog(name, string.Format("This link takes you to {1} ({2}).{0}Do you want to go there?", Environment.NewLine, uri.Host, uri), true, true, true, "Yes", "No", () => Process.Start(uri.ToString()), null);
+        }
+        #endregion
+
+        #region Functions
         public static byte[] GetByteArray(Stream input)
         {
-            using (MemoryStream ms = new MemoryStream()) {
+            using (MemoryStream ms = new MemoryStream())
+            {
                 input.CopyTo(ms);
                 return ms.ToArray();
             }
         }
+        #endregion
 
     }
 }

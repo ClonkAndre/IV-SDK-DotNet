@@ -13,6 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,6 +35,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ClonksCodingLib.GTAIV, Version=1.3.8531.6087, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ClonksCodingLib.GTAIV\ClonksCodingLib.GTAIV\ClonksCodingLib.GTAIV\bin\x86\Release\ClonksCodingLib.GTAIV.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -64,13 +70,16 @@
     <Resource Include="Resources\discordTestLogo.bin" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\arrowUp.bin" />
+    <Resource Include="Resources\Bck.bin" />
+    <Resource Include="Resources\Pin.bin" />
+    <Resource Include="Resources\rpm_needle.bin" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\IVSDKDotNetWrapper\IVSDKDotNetWrapper.vcxproj">
       <Project>{b674035b-d958-4876-b593-1e44e5385e95}</Project>
       <Name>IVSDKDotNetWrapper</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\arrowUp.bin" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

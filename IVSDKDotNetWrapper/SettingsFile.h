@@ -1,32 +1,67 @@
-// INI Reader / Writer by ItsClonkAndre
+// Basic INI Reader / Writer by ItsClonkAndre
 
 #pragma once
 
-namespace IVSDKDotNet {
+namespace IVSDKDotNet
+{
 
-	private ref class SectionValues
+	private ref class IniSectionValue
 	{
 	public:
-		SectionValues(String^ firstkey, String^ firstValue);
+		IniSectionValue(String^ key, String^ value);
 
 		Dictionary<String^, String^>^ Values;
 	};
+	private ref class IniInsertValue
+	{
+	public:
+		IniInsertValue(int line, String^ str);
 
+		int AtLine;
+		String^ StringToInsert;
+	};
+
+	/// <summary>
+	/// Can be used to save and load settings.
+	/// If your script has a settings file, it will be automatically loaded.
+	/// Inline comments are not supported!
+	/// </summary>
 	public ref class SettingsFile
 	{
+	public:
+		/// <summary>
+		/// The path to the ini file.
+		/// </summary>
+		property String^ FilePath
+		{
+		public:		String^ get() { return m_sFilePath; }
+		internal:	void set(String^ value) { m_sFilePath = value; }
+		}
+
 	public:
 		/// <summary>
 		/// Creates a new instance of the SettingsFile class.
 		/// </summary>
 		/// <param name="filePath">The path to the ini file.</param>
 		SettingsFile(String^ filePath);
-
 		~SettingsFile()
 		{
 			m_sFilePath = String::Empty;
-			if (m_dSections) {
+
+			if (m_dSections)
+			{
 				m_dSections->Clear();
 				m_dSections = nullptr;
+			}
+			if (m_dComments)
+			{
+				m_dComments->Clear();
+				m_dComments = nullptr;
+			}
+			if (m_dLateInserts)
+			{
+				m_dLateInserts->Clear();
+				m_dLateInserts = nullptr;
 			}
 		}
 
@@ -57,6 +92,27 @@ namespace IVSDKDotNet {
 		/// <param name="keyName">The name of the new key.</param>
 		/// <returns>True if the key got created in the section. Otherwise false if the section does not exists, the key already exists in the ini or if the name is null.</returns>
 		bool AddKeyToSection(String^ section, String^ keyName);
+
+		/// <summary>
+		/// Allows you to insert a string at the given line number.
+		/// An ideal usecase of this method would be to add comments to the settings file.
+		/// </summary>
+		/// <param name="line">At which line you would like to add the new string.</param>
+		/// <param name="str">The string to add at the given line.</param>
+		void InsertAt(int line, String^ str);
+
+		/// <summary>
+		/// Checks if a section exists.
+		/// </summary>
+		/// <param name="section">The name of the section.</param>
+		/// <returns>True if the section exists. False if the given name is null or whitespace, or if the section does not exists.</returns>
+		bool DoesSectionExists(String^ section);
+
+		/// <summary>
+		/// Gets the total number of lines there are currently in the settings file.
+		/// </summary>
+		/// <returns>The current number of lines there will be file.</returns>
+		int GetTotalLineCount();
 
 		/// <summary>
 		/// Gets the value from the given section and key strings from the loaded ini file.
@@ -256,20 +312,21 @@ namespace IVSDKDotNet {
 		bool	SetVector4(String^ section, String^ key, Vector4 value);
 #pragma endregion
 
-		/// <summary>
-		/// The path to the ini file.
-		/// </summary>
-		property String^ FilePath {
-			public:		String^ get()			{ return m_sFilePath; }
-			internal:	void set(String^ value) { m_sFilePath = value; }
-		}
+		virtual String^ ToString() override;
 
 	private:
+		String^ BuildAndReturnSettingsFileContent();
+
+	private:
+		static System::Globalization::CultureInfo^ s_cInvariantCulture = System::Globalization::CultureInfo::InvariantCulture;
 		static array<String^>^ s_aSeparator =		gcnew array<String^>(1)	{ "=" };
 		static array<String^>^ s_aVectorSeparator = gcnew array<String^>(1)	{ ":" };
 
 		String^ m_sFilePath;
-		Dictionary<String^, SectionValues^>^ m_dSections;
+		Dictionary<String^, IniSectionValue^>^ m_dSections;
+		List<IniInsertValue^>^ m_dComments;
+		List<IniInsertValue^>^ m_dLateInserts;
+		
 	};
 
 }

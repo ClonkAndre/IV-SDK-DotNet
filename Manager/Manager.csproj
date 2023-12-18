@@ -14,6 +14,7 @@
     <Deterministic>false</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -24,6 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,22 +34,11 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EasyHook, Version=2.7.7097.0, Culture=neutral, PublicKeyToken=4b580fca19d0b0c5, processorArchitecture=MSIL">
-      <HintPath>..\packages\EasyHook.2.7.7097\lib\net40\EasyHook.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.4.2.0\lib\net45\SharpDX.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct3D9, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.Direct3D9.4.2.0\lib\net45\SharpDX.Direct3D9.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Mathematics, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.Mathematics.4.2.0\lib\net45\SharpDX.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -58,30 +49,61 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Console.cs" />
-    <Compile Include="Direct3D9\Drawing.cs" />
-    <Compile Include="Direct3D9\DXHook.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Classes\AdvancedTask.cs" />
+    <Compile Include="Classes\Checker.cs" />
+    <Compile Include="Classes\Config.cs" />
+    <Compile Include="Classes\DelayedAction.cs" />
+    <Compile Include="Classes\FoundScript.cs" />
+    <Compile Include="Classes\Json\IVPresenceInfo.cs" />
+    <Compile Include="Classes\Json\IVSessionInfo.cs" />
+    <Compile Include="Classes\Json\ManagerApiPreferences.cs" />
+    <Compile Include="Classes\Json\NativeCallContext.cs" />
+    <Compile Include="Classes\Json\NativeCallResult.cs" />
+    <Compile Include="Classes\Json\RunningScriptInfo.cs" />
+    <Compile Include="UI\ManagerUI.cs" />
+    <Compile Include="UI\ConsoleUI.cs" />
+    <Compile Include="Enums.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="Mouse.cs" />
-    <Compile Include="Notification.cs" />
+    <Compile Include="UI\NotificationUI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="UpdateChecker.cs" />
+    <Compile Include="Managers\RemoteConnectionManager.cs" />
+    <Compile Include="Riptide\Client.cs" />
+    <Compile Include="Riptide\Connection.cs" />
+    <Compile Include="Riptide\EventArgs.cs" />
+    <Compile Include="Riptide\Exceptions.cs" />
+    <Compile Include="Riptide\IMessageSerializable.cs" />
+    <Compile Include="Riptide\Message.cs" />
+    <Compile Include="Riptide\MessageHandlerAttribute.cs" />
+    <Compile Include="Riptide\MessageRelayFilter.cs" />
+    <Compile Include="Riptide\Peer.cs" />
+    <Compile Include="Riptide\PendingMessage.cs" />
+    <Compile Include="Riptide\Server.cs" />
+    <Compile Include="Riptide\Transports\EventArgs.cs" />
+    <Compile Include="Riptide\Transports\IClient.cs" />
+    <Compile Include="Riptide\Transports\IPeer.cs" />
+    <Compile Include="Riptide\Transports\IServer.cs" />
+    <Compile Include="Riptide\Transports\Tcp\TcpClient.cs" />
+    <Compile Include="Riptide\Transports\Tcp\TcpConnection.cs" />
+    <Compile Include="Riptide\Transports\Tcp\TcpPeer.cs" />
+    <Compile Include="Riptide\Transports\Tcp\TcpServer.cs" />
+    <Compile Include="Riptide\Transports\Udp\UdpClient.cs" />
+    <Compile Include="Riptide\Transports\Udp\UdpConnection.cs" />
+    <Compile Include="Riptide\Transports\Udp\UdpPeer.cs" />
+    <Compile Include="Riptide\Transports\Udp\UdpServer.cs" />
+    <Compile Include="Riptide\Utils\Converter.cs" />
+    <Compile Include="Riptide\Utils\DelayedEvents.cs" />
+    <Compile Include="Riptide\Utils\Extensions.cs" />
+    <Compile Include="Riptide\Utils\Helper.cs" />
+    <Compile Include="Riptide\Utils\PriorityQueue.cs" />
+    <Compile Include="Riptide\Utils\RiptideLogger.cs" />
+    <Compile Include="Classes\UpdateChecker.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="EasyHook32.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Riptide\version.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Resource Include="Resources\cursor.bin" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IVSDKDotNetWrapper\IVSDKDotNetWrapper.vcxproj">
@@ -89,11 +111,6 @@
       <Name>IVSDKDotNetWrapper</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

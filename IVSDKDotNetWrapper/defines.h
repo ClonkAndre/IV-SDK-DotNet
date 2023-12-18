@@ -15,20 +15,32 @@ using namespace System::Windows::Forms;
 #define DISABLE_ALL_MESSAGES	true
 #endif
 
-#define SHOW_MESSAGE(text)			if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK DotNet");
-#define SHOW_INFO_MESSAGE(text)		if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK DotNet Info",	MessageBoxButtons::OK, MessageBoxIcon::Information);
-#define SHOW_WARN_MESSAGE(text)		if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK DotNet Warning",	MessageBoxButtons::OK, MessageBoxIcon::Warning);
-#define SHOW_ERROR_MESSAGE(text)	if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK DotNet Error",	MessageBoxButtons::OK, MessageBoxIcon::Error);
+#define SHOW_MESSAGE(text)			if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK .NET");
+#define SHOW_INFO_MESSAGE(text)		if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK .NET Info",	MessageBoxButtons::OK, MessageBoxIcon::Information);
+#define SHOW_WARN_MESSAGE(text)		if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK .NET Warning",	MessageBoxButtons::OK, MessageBoxIcon::Warning);
+#define SHOW_ERROR_MESSAGE(text)	if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK .NET Error",	MessageBoxButtons::OK, MessageBoxIcon::Error);
 
 // =======================================================================
 // ============================ DEFINES ==================================
 // =======================================================================
 #define WIN32_LEAN_AND_MEAN
 
-#define NULL 0
-
 #define VALIDATE_SIZE(struc, size)				static_assert(sizeof(struc) == size, "Invalid structure size of " #struc)
 #define VALIDATE_OFFSET(struc, member, offset)	static_assert(offsetof(struc, member) == offset, "The offset of " #member " in " #struc " is not " #offset "...")
+
+#define NULLPTR_CHECK(ptr)							if (!ptr) return;
+#define NULLPTR_CHECK_WITH_RETURN(ptr, ret)			if (!ptr) return ret;
+
+#define INTPTR_ZERO_CHECK(ptr)						if (ptr == IntPtr::Zero) return;
+#define INTPTR_ZERO_CHECK_WITH_RETURN(ptr, ret)	    if (ptr == IntPtr::Zero) return ret;
+#define UINTPTR_ZERO_CHECK(ptr)						if (ptr == UIntPtr::Zero) return;
+#define UINTPTR_ZERO_CHECK_WITH_RETURN(ptr, ret)	if (ptr == UIntPtr::Zero) return ret;
+
+// Does the array given has a length of atleast x? If not, return.
+#define CHECK_ARRAY_MINIMUM_LENGTH(arrLength, minimumLength)	if (arrLength < minimumLength) return;
+
+#define CHECK_NULL_OR_WHITESPACE_STRING(str)					if (String::IsNullOrWhiteSpace(str)) return;
+#define CHECK_NULL_OR_WHITESPACE_STRING_WITH_RETURN(str, ret)	if (String::IsNullOrWhiteSpace(str)) return ret;
 
 // =======================================================================
 // ============================= TYPES ===================================
@@ -76,11 +88,3 @@ typedef int Layout;
 typedef int Iterator;
 typedef int IterationSet;
 typedef int GUIWindow;
-
-//typedef union vector3
-//{
-//	struct { float x, y, z; };
-//	float v[3];
-//} vector3;
-//
-//typedef vector3 Vector3;

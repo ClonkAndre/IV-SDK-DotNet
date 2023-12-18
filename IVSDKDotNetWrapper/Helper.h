@@ -1,6 +1,86 @@
 #pragma once
 
-namespace IVSDKDotNet {
+static ImVec2 Vector2ToImVec2(Vector2 vec)
+{
+	return ImVec2(vec.X, vec.Y);
+}
+static ImVec4 Vector4ToImVec4(Vector4 vec)
+{
+	return ImVec4(vec.X, vec.Y, vec.Z, vec.W);
+}
+
+static ImU32 ColorToImU32(Color color)
+{
+	return IM_COL32(color.R, color.G, color.B, color.A);
+}
+static ImVec4 ColorToImVec4(Color color, bool convertToFloatRGBA)
+{
+	if (convertToFloatRGBA)
+		return ImVec4(color.R / 255.0F, color.G / 255.0F, color.B / 255.0F, color.A / 255.0F);
+	else
+		return ImVec4(color.R, color.G, color.B, color.A);
+}
+
+static ImVec2 Add(ImVec2 first, ImVec2 second)
+{
+	return ImVec2(first.x + second.x, first.y + second.y);
+}
+
+static Vector2 ImVec2ToVector2(ImVec2 vec)
+{
+	return Vector2(vec.x, vec.y);
+}
+
+static ImRect RectangleFToImRect(RectangleF rect)
+{
+	return ImRect(ImVec2(rect.X, rect.Y), ImVec2(rect.Right, rect.Bottom));
+}
+static ImRect Vector4ToImRect(Vector4 vec)
+{
+	return ImRect(ImVec2(vec.X, vec.Y), ImVec2(vec.Z, vec.W));
+}
+
+static RectangleF ImRectToRectangleF(ImRect rect)
+{
+	return RectangleF(rect.Min.x, rect.Min.y, rect.Max.x, rect.Max.y);
+}
+
+static Vector3 CVectorPadToVector(CVector_pad v)
+{
+	return Vector3(v.x, v.y, v.z);
+}
+static Vector3 CVectorToVector(CVector v)
+{
+	return Vector3(v.x, v.y, v.z);
+}
+static CVector_pad VectorToCVectorPad(Vector3 v)
+{
+	CVector_pad pad;
+	pad.flags = 0;
+	pad.x = v.X;
+	pad.y = v.Y;
+	pad.z = v.Z;
+	return pad;
+}
+static CVector VectorToCVector(Vector3 v)
+{
+	CVector pad;
+	pad.x = v.X;
+	pad.y = v.Y;
+	pad.z = v.Z;
+	return pad;
+}
+
+static CVector2D Vector2ToCVector2D(Vector2 v)
+{
+	CVector2D vec;
+	vec.x = v.X;
+	vec.y = v.Y;
+	return vec;
+}
+
+namespace IVSDKDotNet
+{
 
 	public ref class Helper
 	{
@@ -38,13 +118,6 @@ namespace IVSDKDotNet {
 			static Vector3						Helper::Drawing::ConvertToPixel(Vector3 pos,		float resolutionWidth, float resolutionHeight, IVSDKDotNet::Enums::eFontScaling sourceScaling);
 		};
 
-		ref class JSON
-		{
-		public:
-			static String^ ConvertObjectToJsonString(System::Object^ obj);
-			static System::Object^ ConvertJsonStringToObject(String^ str);
-		};
-
 		/// <summary> Checks if the specified key is pressed. </summary>
 		/// <param name="key">: The key to check if it's pressed.</param>
 		/// <returns>True if the key is pressed, otherwise false.</returns>
@@ -60,6 +133,7 @@ namespace IVSDKDotNet {
 		static float RadianToDegree(float radians);
 		static float RadianToDegree(double radians);
 		static float DegreeToRadian(float degrees);
+		static float DirectionToHeading(Vector3 dir);
 
 		/// <summary>
 		/// Gets the position in front of the given position based on the direction.

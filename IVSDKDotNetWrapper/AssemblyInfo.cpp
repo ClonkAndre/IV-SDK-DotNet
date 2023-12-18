@@ -9,12 +9,12 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyTitleAttribute(L"IVSDKDotNetWrapper")];
 [assembly:AssemblyDescriptionAttribute(L"")];
 [assembly:AssemblyConfigurationAttribute(L"")];
-[assembly:AssemblyCompanyAttribute(L"")];
+[assembly:AssemblyCompanyAttribute(L"ItsClonkAndre")];
 [assembly:AssemblyProductAttribute(L"IVSDKDotNetWrapper")];
 [assembly:AssemblyCopyrightAttribute(L"Copyright (c) ItsClonkAndre 2022 - 2023")];
 [assembly:AssemblyTrademarkAttribute(L"")];
 [assembly:AssemblyCultureAttribute(L"")];
 
-[assembly:AssemblyVersionAttribute(L"0.8.0.*")];
+[assembly:AssemblyVersionAttribute(L"1.0.0.0")];
 
 [assembly:ComVisible(false)];
