@@ -34,6 +34,7 @@ namespace Manager.UI
         private static double firstD3D9FrameTS;
         private static double keyDownTS;
         private static double keyUpTS;
+        private static double ingameStartupTS;
         #endregion
 
         #region Methods
@@ -54,6 +55,7 @@ namespace Manager.UI
                 firstD3D9FrameTS = script.OnFirstD3D9FrameEventExecutionTime.TotalSeconds;
                 keyDownTS = script.KeyDownEventExecutionTime.TotalSeconds;
                 keyUpTS = script.KeyUpEventExecutionTime.TotalSeconds;
+                ingameStartupTS = script.IngameStartupEventExecutionTime.TotalSeconds;
 
                 // Set next refresh time
                 nextRefresh = DateTime.UtcNow.AddSeconds(1d);
@@ -71,6 +73,7 @@ namespace Manager.UI
             ImGuiIV.Text("OnFirstD3D9Frame: {0}s", firstD3D9FrameTS);
             ImGuiIV.Text("KeyDown: {0}s", keyDownTS);
             ImGuiIV.Text("KeyUp: {0}s", keyUpTS);
+            ImGuiIV.Text("IngameStartup: {0}s", ingameStartupTS);
         }
         #endregion
 
@@ -189,6 +192,15 @@ namespace Manager.UI
 
                         ImGuiIV.TreePop();
                     }
+                    if (ImGuiIV.TreeNode("Notification"))
+                    {
+
+                        ImGuiIV.HelpMarker("If set to false, no notifications will be shown on screen (Not recommended).");
+                        ImGuiIV.SameLine();
+                        ImGuiIV.CheckBox("Show Notifications", ref Config.ShowNotifications);
+
+                        ImGuiIV.TreePop();
+                    }
                     if (ImGuiIV.TreeNode("Console"))
                     {
 
@@ -222,7 +234,11 @@ namespace Manager.UI
                         ImGuiIV.HelpMarker(string.Format("Sets if API Connections are allowed.{0}" +
                             "If set to true, applications can connect to the IV-SDK .NET Manager via the API and see, for example, which scripts are running, or can even reload them.", Environment.NewLine));
                         ImGuiIV.SameLine();
-                        ImGuiIV.CheckBox("Allow Connections", ref Config.AllowRemoteConnections);
+                        if (ImGuiIV.CheckBox("Allow Connections", ref Config.AllowRemoteConnections))
+                        {
+                            if (Config.AllowRemoteConnections)
+                                Main.Instance.ConnectionManager.Start(false);
+                        }
 
                         ImGuiIV.HelpMarker("Shows a notification when some application connected with the IV-SDK .NET Manager via the API.");
                         ImGuiIV.SameLine();

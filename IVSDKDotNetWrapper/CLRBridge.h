@@ -13,8 +13,10 @@ namespace CLR
 	{
 	public:
 
-		// If set to true, communication between IVSDKDotNet.asi and IVSDKDotNetWrapper.dll is disabled.
-		// This is usually only set to true if an error occured while trying to load the IV-SDK .NET Manager.
+		/// <summary>
+		/// If set to true, communication between IVSDKDotNet.asi and IVSDKDotNetWrapper.dll is disabled.
+		/// This is usually only set to true if an error occured while trying to load the IV-SDK .NET Manager.
+		/// </summary>
 		static property bool IsBridgeDisabled
 		{
 		public:
@@ -26,6 +28,23 @@ namespace CLR
 			void set(bool value)
 			{
 				m_bIsBridgeDisabled = value;
+			}
+		}
+
+		/// <summary>
+		/// Tells the IVSDKDotNet.asi that it can free its library and exit the thread. 
+		/// </summary>
+		static property bool CanTerminate
+		{
+		public:
+			bool get()
+			{
+				return m_bCanTerminate;
+			}
+		internal:
+			void set(bool value)
+			{
+				m_bCanTerminate = value;
 			}
 		}
 
@@ -162,8 +181,11 @@ namespace CLR
 			}
 		}
 
+    public:
+		static System::Diagnostics::Process^ TheGTAProcess;
+
 	public:
-		static void Initialize(int version, uint32_t baseAddress);
+		static void Initialize(uint32_t version, uint32_t baseAddress);
 
 		static void InvokeTickEvents();
 		static void InvokeGameLoadEvents();
@@ -183,8 +205,9 @@ namespace CLR
 
 	private:
 		static bool m_bIsBridgeDisabled = false;
+		static bool m_bCanTerminate = false;
 
-		static String^ m_sVersion = "1.0";
+		static String^ m_sVersion = "1.1";
 		static String^ m_sLogFileName;
 		static String^ m_sIVSDKDotNetPath;
 		static String^ m_sIVSDKDotNetBinaryPath;

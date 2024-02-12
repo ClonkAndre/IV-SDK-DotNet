@@ -33,7 +33,7 @@ LRESULT __stdcall WndProcHook(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 namespace CLR
 {
 
-	void CLRBridge::Initialize(int version, uint32_t baseAddress)
+	void CLRBridge::Initialize(uint32_t version, uint32_t baseAddress)
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
@@ -57,12 +57,17 @@ namespace CLR
 		// Initialize logger
 		Logger::Initialize();
 
+		// Force english culture of current thread
+		System::Globalization::CultureInfo^ cultureInfo = gcnew System::Globalization::CultureInfo("en-US");
+		System::Threading::Thread::CurrentThread->CurrentCulture = cultureInfo;
+		System::Threading::Thread::CurrentThread->CurrentUICulture = cultureInfo;
+
 		// Print about text to console
 #if _DEBUG
 		Logger::Log(String::Format("IV-SDK .NET DEBUG version {0} by ItsClonkAndre", Version));
 
 		// Launch debugger
-		Debugger::Launch();
+		//Debugger::Launch();
 #else
 		Logger::Log(String::Format("IV-SDK .NET Release version {0} by ItsClonkAndre", Version));
 #endif
@@ -86,14 +91,13 @@ namespace CLR
 		}
 
 		// Initialize Memory Access stuff
-		//AddressSetter::Initialise(version, baseAddress);
 		MemoryAccess::Initialise(version, baseAddress);
 
 		// Get the GTA IV Process
-		Process^ gtaProcess = Process::GetCurrentProcess();
+		TheGTAProcess = Process::GetCurrentProcess();
 
 		// Wait till process has a MainWindowHandle and for g_pDirect3DDevice to return a valid pointer
-		while (gtaProcess->MainWindowHandle == IntPtr::Zero)
+		while (TheGTAProcess->MainWindowHandle == IntPtr::Zero)
 			Sleep(100);
 		while (rage::g_pDirect3DDevice == nullptr)
 			Sleep(100);
@@ -304,6 +308,8 @@ ERR:
 		ImGuiDraw::UninitializeImGui();
 
 		Logger::LogDebug("Cleanup finished!");
+
+		CanTerminate = true;
 	}
 
 	// Internal Events

@@ -31,6 +31,7 @@ namespace Manager.Classes
         public bool InitEventCalled;
         private Task cleanUpTask;
         public Exception AbortError;
+        private DateTime nextTick;
         #endregion
 
         #region Constructor
@@ -73,9 +74,25 @@ namespace Manager.Classes
             if (!IsScriptReady())
                 return;
 
+            // Raise default tick
             DateTime time = DateTime.UtcNow;
             TheScript.RaiseTick();
             TheScript.TickEventExecutionTime = DateTime.UtcNow - time;
+
+            // Raise WaitTick if can tick
+            DateTime utcNow = DateTime.UtcNow;
+
+            if (nextTick == DateTime.MinValue)
+                nextTick = utcNow.AddMilliseconds(TheScript.WaitTickInterval);
+
+            if (!(utcNow > nextTick))
+                // Tick is not allowed yet
+                return;
+            else
+                // Set next tick
+                nextTick = DateTime.UtcNow.AddMilliseconds(TheScript.WaitTickInterval);
+
+            TheScript.RaiseWaitTick();
         }
         public void RaiseGameLoad()
         {
@@ -153,6 +170,15 @@ namespace Manager.Classes
 
                 HasOnFirstD3D9FrameEventBeenRaised = true;
             }
+        }
+        public void RaiseIngameStartup()
+        {
+            if (!IsScriptReady())
+                return;
+
+            DateTime time = DateTime.UtcNow;
+            TheScript.RaiseIngameStartup();
+            TheScript.IngameStartupEventExecutionTime = DateTime.UtcNow - time;
         }
 
         public void RaiseKeyDown(KeyEventArgs e)

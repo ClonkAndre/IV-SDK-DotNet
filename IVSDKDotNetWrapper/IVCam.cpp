@@ -12,6 +12,17 @@ namespace IVSDKDotNet
 	}
 
 	// - - - Methods / Functions - - -
+	IVCam^ IVCam::FromUIntPtr(UIntPtr ptr)
+	{
+		UINTPTR_ZERO_CHECK_WITH_RETURN(ptr, nullptr);
+		return gcnew IVCam((CCam*)ptr.ToPointer());
+	}
+	UIntPtr IVCam::GetUIntPtr()
+	{
+		NULLPTR_CHECK_WITH_RETURN(NativeCam, UIntPtr::Zero);
+		return UIntPtr(NativeCam);
+	}
+
 	IVCam^ IVCam::GetCamOfType(int type, int unk)
 	{
 		NULLPTR_CHECK_WITH_RETURN(NativeCam, nullptr);

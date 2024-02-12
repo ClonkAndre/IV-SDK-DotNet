@@ -10,6 +10,10 @@
 
 #include "IVSDK.cpp"
 
+#pragma region Variables
+static HANDLE managedThreadHandle;
+#pragma endregion
+
 #pragma region Events
 void ScriptLoop()
 {
@@ -53,14 +57,14 @@ void IngameStartupEvent()
 DWORD WINAPI ManagedEntryPoint(HMODULE hModule)
 {
 	// Initialize IV-SDK .NET
-	CLR::CLRBridge::Initialize((int)plugin::gameVer, AddressSetter::gBaseAddress);
+	CLR::CLRBridge::Initialize((uint32_t)plugin::gameVer, AddressSetter::gBaseAddress);
 
 	// Keep the plugin alive. I guess.
-	while (true)
+	while (!CLR::CLRBridge::CanTerminate)
 	{
 		Sleep(1000);
 	}
-	
+
 	FreeLibraryAndExitThread(hModule, 0);
 	return 0;
 }
@@ -68,8 +72,13 @@ DWORD WINAPI ManagedEntryPoint(HMODULE hModule)
 // IV-SDK Stuff
 void plugin::gameStartupEvent()
 {
+	// Force english culture of current thread
+	System::Globalization::CultureInfo^ cultureInfo = gcnew System::Globalization::CultureInfo("en-US");
+	System::Threading::Thread::CurrentThread->CurrentCulture = cultureInfo;
+	System::Threading::Thread::CurrentThread->CurrentUICulture = cultureInfo;
+
 	// Launch a thread to get a managed entry point and to keep the plugin alive
-	HANDLE managedThreadHandle = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ManagedEntryPoint, GetCurrentModule(), 0, nullptr);
+	managedThreadHandle = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ManagedEntryPoint, GetCurrentModule(), 0, nullptr);
 
 	// Subscribe to IV-SDK Events
 	plugin::processScriptsEvent::Add(ScriptLoop);

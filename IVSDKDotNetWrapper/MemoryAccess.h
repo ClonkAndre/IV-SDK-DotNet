@@ -10,7 +10,7 @@ namespace IVSDKDotNet
 	{
 	public:
 
-		static void Initialise(int version, uint32_t baseAddress);
+		static void Initialise(uint32_t version, uint32_t baseAddress);
 
 		generic <typename T>
 		static T GetRef(uint32_t addr1070, uint32_t addr1080);

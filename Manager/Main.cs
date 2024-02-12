@@ -151,10 +151,6 @@ namespace Manager
                 }
 
             });
-
-            // Start the server
-            if (Config.AllowRemoteConnections)
-                ConnectionManager.Start();
         }
         #endregion
 
@@ -240,9 +236,6 @@ namespace Manager
                 SaveLogFile();
             }
 
-            // Update the remote server
-            ConnectionManager.Update();
-
             if (Config.PauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
@@ -320,6 +313,9 @@ namespace Manager
         }
         public override void RaiseProcessPad(UIntPtr padPtr)
         {
+            // Update the remote server
+            ConnectionManager.Update();
+
             if (Config.PauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
@@ -370,7 +366,23 @@ namespace Manager
         public override void RaiseIngameStartup()
         {
             if (Config.ReloadScriptsOnReload)
+            {
                 LoadScripts();
+                return;
+            }
+
+            // Raise all script IngameStartup events
+            ActiveScripts.ForEach(fs =>
+            {
+                try
+                {
+                    fs.RaiseIngameStartup();
+                }
+                catch (Exception ex)
+                {
+                    HandleScriptException(fs, 8d, "IngameStartup", ex);
+                }
+            });
         }
 
         private void KeyWatchDog_KeyDown(object sender, KeyEventArgs e)
@@ -967,7 +979,12 @@ namespace Manager
         }
         public override void ApplySettings(SettingsFile settings)
         {
+            // Apply settings
             Config.ApplySettings(settings);
+
+            // Start the server if allowed
+            if (Config.AllowRemoteConnections)
+                ConnectionManager.Start(false);
         }
         public override void SetDummyScript(Script script)
         {

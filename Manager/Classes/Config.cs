@@ -23,6 +23,9 @@ namespace Manager.Classes
         public static bool DoNotLoadLegacyScripts;
         public static bool ReloadScriptsOnReload;
 
+        // Notification
+        public static bool ShowNotifications;
+
         // Console
         public static Keys ConsoleOpenCloseKey;
 
@@ -53,6 +56,9 @@ namespace Manager.Classes
             DoNotLoadLegacyScripts = settings.GetBoolean("Scripts", "DoNotLoadLegacyScripts", true);
             ReloadScriptsOnReload = settings.GetBoolean("Scripts", "ReloadScriptsOnReload", false);
 
+            // Section: Notification
+            ShowNotifications = settings.GetBoolean("Notification", "ShowNotifications", true);
+
             // Section: Console
             ConsoleOpenCloseKey = settings.GetKey("Console", "OpenCloseKey", Keys.F4);
 
@@ -82,6 +88,9 @@ namespace Manager.Classes
             theSettingsFile.SetBoolean("Scripts", "DoNotLoadLegacyScripts", DoNotLoadLegacyScripts);
             theSettingsFile.SetBoolean("Scripts", "ReloadScriptsOnReload", ReloadScriptsOnReload);
 
+            // Section: Notification
+            theSettingsFile.SetBoolean("Notification", "ShowNotifications", ShowNotifications);
+
             // Section: Console
             theSettingsFile.SetKey("Console", "OpenCloseKey", ConsoleOpenCloseKey);
 
@@ -110,6 +119,9 @@ namespace Manager.Classes
             PauseScriptExecutionWhenNotInFocus = true;
             DoNotLoadLegacyScripts = true;
             ReloadScriptsOnReload = false;
+
+            // Section: Notification
+            ShowNotifications = true;
 
             // Section: Console
             ConsoleOpenCloseKey = Keys.F4;

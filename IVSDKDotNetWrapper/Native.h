@@ -4753,8 +4753,8 @@ namespace IVSDKDotNet
 				msclr::interop::marshal_context ctx;
 				return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_DOES_WEB_PAGE_EXIST, ctx.marshal_as<const char*>(webaddress));
 			}
-			static Vehicle GET_CLOSEST_CAR(Vector3 pos, float radius, uint32_t unknown0_0, uint32_t unknown1_70) { return NativeInvoke::Invoke<Vehicle>(eNativeHash::NATIVE_GET_CLOSEST_CAR, pos.X, pos.Y, pos.Z, radius, unknown0_0, unknown1_70); }
-			static Vehicle GET_CLOSEST_CAR(float x, float y, float z, float radius, uint32_t unknown0_0, uint32_t unknown1_70) { return NativeInvoke::Invoke<Vehicle>(eNativeHash::NATIVE_GET_CLOSEST_CAR, x, y, z, radius, unknown0_0, unknown1_70); }
+			static Vehicle GET_CLOSEST_CAR(Vector3 pos, float radius, uint32_t vehicleModelHashKey, uint32_t searchFlags_70) { return NativeInvoke::Invoke<Vehicle>(eNativeHash::NATIVE_GET_CLOSEST_CAR, pos.X, pos.Y, pos.Z, radius, vehicleModelHashKey, searchFlags_70); }
+			static Vehicle GET_CLOSEST_CAR(float x, float y, float z, float radius, uint32_t vehicleModelHashKey, uint32_t searchFlags_70) { return NativeInvoke::Invoke<Vehicle>(eNativeHash::NATIVE_GET_CLOSEST_CAR, x, y, z, radius, vehicleModelHashKey, searchFlags_70); }
 			static b8 GET_CLOSEST_CAR_NODE(Vector3 pos, [OutAttribute] Vector3% pResult)
 			{
 				float x, y, z;

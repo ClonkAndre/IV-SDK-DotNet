@@ -93,6 +93,10 @@ namespace IVSDKDotNet
 		}
 
 	public:
+		static IVCam^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
+	public:
 		IVCam^ GetCamOfType(int type, int unk);
 		IVCam^ Activate();
 		bool Process();

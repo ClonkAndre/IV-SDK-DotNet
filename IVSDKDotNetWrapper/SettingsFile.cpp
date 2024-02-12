@@ -164,6 +164,37 @@ namespace IVSDKDotNet
 
 		return m_dSections->ContainsKey(section);
 	}
+	bool SettingsFile::DoesKeyExists(String^ section, String^ key)
+	{
+		if (String::IsNullOrWhiteSpace(section))
+			return false;
+		if (String::IsNullOrWhiteSpace(key))
+			return false;
+		if (!m_dSections->ContainsKey(section))
+			return false;
+		if (!m_dSections[section])
+			return false;
+
+		return m_dSections[section]->Values->ContainsKey(key);
+	}
+	bool SettingsFile::ClearSection(String^ section)
+	{
+		if (String::IsNullOrWhiteSpace(section))
+			return false;
+		if (!m_dSections->ContainsKey(section))
+			return false;
+
+		IniSectionValue^ c = m_dSections[section];
+
+		if (c)
+		{
+			c->Values->Clear();
+			m_dSections[section] = nullptr;
+			return true;
+		}
+
+		return false;
+	}
 	int SettingsFile::GetTotalLineCount()
 	{
 		int totalSections = m_dSections->Count;
