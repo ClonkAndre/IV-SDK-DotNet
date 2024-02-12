@@ -23,6 +23,10 @@ namespace IVSDKDotNet
 			}
 		}
 
+	public:
+		static IVObject^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 	internal:
 		IVObject(CObject* nativePtr);
 

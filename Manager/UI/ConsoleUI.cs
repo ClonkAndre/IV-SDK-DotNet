@@ -62,7 +62,7 @@ namespace Manager.UI
             RegisterCommand(Guid.Empty, "ReloadScripts", (string[] args) => { Main.Instance.LoadScripts(); });
             RegisterCommand(Guid.Empty, "GetRunningScripts", (string[] args) => { Logger.Log(string.Format("There are currently {0} scripts running.", Main.Instance.ActiveScripts.Count.ToString()), true); });
             RegisterCommand(Guid.Empty, "LoadScript", (string[] args) => { LoadScriptCommand(args); });
-            RegisterCommand(Guid.Empty, "StartAPI", (string[] args) => { Main.Instance.ConnectionManager.Start(); });
+            RegisterCommand(Guid.Empty, "StartAPI", (string[] args) => { Main.Instance.ConnectionManager.Start(true); });
             RegisterCommand(Guid.Empty, "StopAPI", (string[] args) => { Main.Instance.ConnectionManager.Stop(); });
             RegisterCommand(Guid.Empty, "Manager", (string[] args) => { ManagerUI.IsConfigUIOpened = !ManagerUI.IsConfigUIOpened; });
             RegisterCommand(Guid.Empty, "Quit", (string[] args) => { QuitCommand(); });

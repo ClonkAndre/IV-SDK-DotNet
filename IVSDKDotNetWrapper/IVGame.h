@@ -168,6 +168,23 @@ namespace IVSDKDotNet
 			}
 		}
 
+		/// <summary>
+		/// Gets the bounds of the GTA IV window.
+		/// </summary>
+		static property System::Drawing::Rectangle Bounds
+		{
+		public:
+			System::Drawing::Rectangle get()
+			{
+				RECT rect;
+
+				if (GetWindowRect((HWND)CLR::CLRBridge::TheGTAProcess->MainWindowHandle.ToInt32(), &rect))
+					return System::Drawing::Rectangle(rect.left, rect.top, rect.right, rect.bottom);
+
+				return System::Drawing::Rectangle::Empty;
+			}
+		}
+
 	public:
 		/// <summary>
 		/// Undocumented.

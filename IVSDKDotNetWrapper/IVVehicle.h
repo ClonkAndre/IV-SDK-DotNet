@@ -2,7 +2,7 @@
 
 namespace IVSDKDotNet
 {
-	public value struct IVVehicleHandlingFlags
+	public ref class IVVehicleHandlingFlags
 	{
 	public:
 		property bool SmoothCompresn
@@ -461,7 +461,7 @@ namespace IVSDKDotNet
 		CVehicle* NativeVehicle;
 	};
 
-	public value struct IVVehicleFlags
+	public ref class IVVehicleFlags
 	{
 	public:
 		property bool _f0
@@ -919,7 +919,7 @@ namespace IVSDKDotNet
 	internal:
 		CVehicle* NativeVehicle;
 	};
-	public value struct IVVehicleFlags2
+	public ref class IVVehicleFlags2
 	{
 	public:
 		property bool _f0
@@ -992,7 +992,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags2._f4 = value;
 			}
 		}
-		property bool bAlwaysCreateSkids
+		property bool AlwaysCreateSkids
 		{
 		public:
 			bool get()
@@ -1006,7 +1006,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags2.bAlwaysCreateSkids = value;
 			}
 		}
-		property bool bCanBeTargetted
+		property bool CanBeTargetted
 		{
 		public:
 			bool get()
@@ -1034,7 +1034,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags2._f7 = value;
 			}
 		}
-		property bool bCanBeTargetedByHSmmissile
+		property bool CanBeTargetedByHSmmissile
 		{
 		public:
 			bool get()
@@ -1048,7 +1048,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags2.bCanBeTargetedByHSmmissile = value;
 			}
 		}
-		property bool bLongLight
+		property bool LongLight
 		{
 		public:
 			bool get()
@@ -1090,7 +1090,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags2._fb = value;
 			}
 		}
-		property bool bSirenSwitchedOn
+		property bool SirenSwitchedOn
 		{
 		public:
 			bool get()
@@ -1104,7 +1104,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags2.bSirenSwitchedOn = value;
 			}
 		}
-		property bool bSirenRelated
+		property bool SirenRelated
 		{
 		public:
 			bool get()
@@ -1188,7 +1188,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags2._f12 = value;
 			}
 		}
-		property bool bBikeRiderWillPutDownFootWhenStopped
+		property bool BikeRiderWillPutDownFootWhenStopped
 		{
 		public:
 			bool get()
@@ -1202,7 +1202,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags2.bBikeRiderWillPutDownFootWhenStopped = value;
 			}
 		}
-		property bool bProvideCover
+		property bool ProvideCover
 		{
 		public:
 			bool get()
@@ -1244,7 +1244,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags2._f16 = value;
 			}
 		}
-		property bool bVehicleIsConsideredByPlayer
+		property bool VehicleIsConsideredByPlayer
 		{
 		public:
 			bool get()
@@ -1258,7 +1258,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags2.bVehicleIsConsideredByPlayer = value;
 			}
 		}
-		property bool bPetrolTankWeakpoint
+		property bool PetrolTankWeakpoint
 		{
 		public:
 			bool get()
@@ -1286,7 +1286,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags2._f19 = value;
 			}
 		}
-		property bool bCarBeenResprayed
+		property bool CarBeenResprayed
 		{
 		public:
 			bool get()
@@ -1356,7 +1356,17 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags2._f1e = value;
 			}
 		}
-		property bool _f1f
+
+	internal:
+		IVVehicleFlags2(CVehicle* nativePtr);
+
+	internal:
+		CVehicle* NativeVehicle;
+	};
+	public ref class IVVehicleFlags3
+	{
+	public:
+		property bool LeftIndicator
 		{
 		public:
 			bool get()
@@ -1370,16 +1380,6 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags2._f1f = value;
 			}
 		}
-
-	internal:
-		IVVehicleFlags2(CVehicle* nativePtr);
-
-	internal:
-		CVehicle* NativeVehicle;
-	};
-	public value struct IVVehicleFlags3
-	{
-	public:
 		property bool RightIndicator
 		{
 		public:
@@ -1835,7 +1835,7 @@ namespace IVSDKDotNet
 	internal:
 		CVehicle* NativeVehicle;
 	};
-	public value struct IVVehicleFlags4
+	public ref class IVVehicleFlags4
 	{
 	public:
 		property bool _f0
@@ -1866,7 +1866,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags4._f1 = value;
 			}
 		}
-		property bool bCanBeVisiblyDamaged
+		property bool CanBeVisiblyDamaged
 		{
 		public:
 			bool get()
@@ -1880,7 +1880,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags4.bCanBeVisiblyDamaged = value;
 			}
 		}
-		property bool bHasStrongAxles
+		property bool HasStrongAxles
 		{
 		public:
 			bool get()
@@ -1978,7 +1978,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags4._f9 = value;
 			}
 		}
-		property bool bNitro
+		property bool Nitro
 		{
 		public:
 			bool get()
@@ -1992,7 +1992,7 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleFlags4.bNitro = value;
 			}
 		}
-		property bool bOldCarExhaustFX
+		property bool OldCarExhaustFX
 		{
 		public:
 			bool get()
@@ -2294,7 +2294,7 @@ namespace IVSDKDotNet
 		CVehicle* NativeVehicle;
 	};
 
-	public value struct IVVehicleAbsFlags
+	public ref class IVVehicleAbsFlags
 	{
 	public:
 		property bool _f0
@@ -2752,7 +2752,7 @@ namespace IVSDKDotNet
 	internal:
 		CVehicle* NativeVehicle;
 	};
-	public value struct IVVehicleAutomobileFlags
+	public ref class IVVehicleAutomobileFlags
 	{
 	public:
 		/// <summary>
@@ -2855,7 +2855,7 @@ namespace IVSDKDotNet
 		}
 
 		/// <summary>
-		/// Use with: IVPhInstGta.FromPointer(...);
+		/// Use with: IVPhInstGta.FromUIntPtr(...);
 		/// </summary>
 		property UIntPtr VehicleFragInst
 		{
@@ -2889,49 +2889,49 @@ namespace IVSDKDotNet
 			}
 		}
 
-		property IVVehicleHandlingFlags HandlingFlags
+		property IVVehicleHandlingFlags^ HandlingFlags
 		{
 		public:
-			IVVehicleHandlingFlags get()
+			IVVehicleHandlingFlags^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, IVVehicleHandlingFlags());
-				return IVVehicleHandlingFlags(NativeVehicle);
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, nullptr);
+				return gcnew IVVehicleHandlingFlags(NativeVehicle);
 			}
 		}
-		property IVVehicleFlags VehicleFlags
+		property IVVehicleFlags^ VehicleFlags
 		{
 		public:
-			IVVehicleFlags get()
+			IVVehicleFlags^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, IVVehicleFlags());
-				return IVVehicleFlags(NativeVehicle);
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, nullptr);
+				return gcnew IVVehicleFlags(NativeVehicle);
 			}
 		}
-		property IVVehicleFlags2 VehicleFlags2
+		property IVVehicleFlags2^ VehicleFlags2
 		{
 		public:
-			IVVehicleFlags2 get()
+			IVVehicleFlags2^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, IVVehicleFlags2());
-				return IVVehicleFlags2(NativeVehicle);
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, nullptr);
+				return gcnew IVVehicleFlags2(NativeVehicle);
 			}
 		}
-		property IVVehicleFlags3 VehicleFlags3
+		property IVVehicleFlags3^ VehicleFlags3
 		{
 		public:
-			IVVehicleFlags3 get()
+			IVVehicleFlags3^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, IVVehicleFlags3());
-				return IVVehicleFlags3(NativeVehicle);
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, nullptr);
+				return gcnew IVVehicleFlags3(NativeVehicle);
 			}
 		}
-		property IVVehicleFlags4 VehicleFlags4
+		property IVVehicleFlags4^ VehicleFlags4
 		{
 		public:
-			IVVehicleFlags4 get()
+			IVVehicleFlags4^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, IVVehicleFlags4());
-				return IVVehicleFlags4(NativeVehicle);
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, nullptr);
+				return gcnew IVVehicleFlags4(NativeVehicle);
 			}
 		}
 
@@ -3053,13 +3053,13 @@ namespace IVSDKDotNet
 			}
 		}
 
-		property IVVehicleAbsFlags AbsFlags
+		property IVVehicleAbsFlags^ AbsFlags
 		{
 		public:
-			IVVehicleAbsFlags get()
+			IVVehicleAbsFlags^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, IVVehicleAbsFlags());
-				return IVVehicleAbsFlags(NativeVehicle);
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, nullptr);
+				return gcnew IVVehicleAbsFlags(NativeVehicle);
 			}
 		}
 
@@ -3529,13 +3529,13 @@ namespace IVSDKDotNet
 				NativeVehicle->m_nVehicleType = value;
 			}
 		}
-		property IVVehicleAutomobileFlags AutomobileFlags
+		property IVVehicleAutomobileFlags^ AutomobileFlags
 		{
 		public:
-			IVVehicleAutomobileFlags get()
+			IVVehicleAutomobileFlags^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, IVVehicleAutomobileFlags());
-				return IVVehicleAutomobileFlags(NativeVehicle);
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, nullptr);
+				return gcnew IVVehicleAutomobileFlags(NativeVehicle);
 			}
 		}
 		property float PlaneTurn

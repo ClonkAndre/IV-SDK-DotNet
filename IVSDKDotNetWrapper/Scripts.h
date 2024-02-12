@@ -43,6 +43,12 @@ namespace IVSDKDotNet
 		event EventHandler^ Tick;
 
 		/// <summary>
+		/// Gets raised every X milliseconds depending on what you set the WaitTickInterval property to (Default is 100ms).
+		/// This event will internally be called from the Tick event which means it uses the CTheScripts.SetDummyThread/RestorePreviousThread method.
+		/// </summary>
+		event EventHandler^ WaitTick;
+
+		/// <summary>
 		/// Gets raised when game is loading or when switching from one episode to another.
 		/// Can be used for addon files that don't interfere with game files.
 		/// </summary>
@@ -107,9 +113,15 @@ namespace IVSDKDotNet
 		/// </summary>
 		event EventHandler^ OnFirstD3D9Frame;
 
+		/// <summary>
+		/// Gets raised right before loading a save, starting a new game, switching episodes, etc.
+		/// </summary>
+		event EventHandler^ IngameStartup;
+
 		void RaiseInitialized()													{ Initialized(this, EventArgs::Empty); }
 		void RaiseUninitialize()												{ Uninitialize(this, EventArgs::Empty); }
 		void RaiseTick()														{ Tick(this, EventArgs::Empty); }
+		void RaiseWaitTick()													{ WaitTick(this, EventArgs::Empty); }
 		void RaiseGameLoad()													{ GameLoad(this, EventArgs::Empty); }
 		void RaiseGameLoadPriority()											{ GameLoadPriority(this, EventArgs::Empty); }
 		void RaiseMountDevice()													{ MountDevice(this, EventArgs::Empty); }
@@ -120,6 +132,7 @@ namespace IVSDKDotNet
 		void RaiseKeyUp(KeyEventArgs^ args)										{ KeyUp(this, args); }
 		void RaiseKeyDown(KeyEventArgs^ args)									{ KeyDown(this, args); }
 		void RaiseOnFirstD3D9Frame()											{ OnFirstD3D9Frame(this, EventArgs::Empty); }
+		void RaiseIngameStartup()                                               { IngameStartup(this, EventArgs::Empty); }
 		Object^ RaiseScriptCommandReceived(Script^ fromScript, String^ command)	{ return ScriptCommandReceived(fromScript, command); }
 
 		String^ RaiseAssemblyResolve(String^ assemblyFileName)					{ return AssemblyResolve(assemblyFileName); }
@@ -359,8 +372,25 @@ namespace IVSDKDotNet
 		/// </summary>
 		property bool OnlyRaiseKeyEventsWhenInGame
 		{
-			bool get()				{ return m_bOnlyInvokeKeyEventsWhenInGame; }
-			void set(bool value)	{ m_bOnlyInvokeKeyEventsWhenInGame = value; }
+			public:
+				bool get()				{ return m_bOnlyInvokeKeyEventsWhenInGame; }
+				void set(bool value)	{ m_bOnlyInvokeKeyEventsWhenInGame = value; }
+		}
+
+		/// <summary>
+		/// Gets or sets the interval with which the WaitTick event should get raised. The default is 100ms and it cannot go below 1.
+		/// </summary>
+		property int WaitTickInterval
+		{
+			public:
+				int get() { return m_iWaitTickInterval; }
+				void set(int value)
+				{
+					if (value < 1)
+						return;
+
+					m_iWaitTickInterval = value;
+				}
 		}
 
 #pragma region Measurement Properties
@@ -472,6 +502,21 @@ namespace IVSDKDotNet
 			TimeSpan	get() { return m_sKeyUpEventExecutionTime; }
 			void		set(TimeSpan value) { m_sKeyUpEventExecutionTime = value; }
 		}
+		/// <summary>
+		/// Gets how much time the IngameStartup event took to execute.
+		/// </summary>
+		property TimeSpan IngameStartupEventExecutionTime
+		{
+		public:
+			TimeSpan	get()
+			{
+				return m_sIngameStartupEventExecutionTime;
+			}
+			void		set(TimeSpan value)
+			{
+				m_sIngameStartupEventExecutionTime = value;
+			}
+		}
 #pragma endregion
 
 	private:
@@ -483,6 +528,7 @@ namespace IVSDKDotNet
 		String^ m_ScriptResourceFolder;
 		SettingsFile^ m_SettingsFile;
 		bool m_bOnlyInvokeKeyEventsWhenInGame;
+		int m_iWaitTickInterval = 100;
 
 		// Measurements
 		TimeSpan m_sInitializedEventExecutionTime;
@@ -497,6 +543,7 @@ namespace IVSDKDotNet
 		TimeSpan m_sOnFirstD3D9FrameEventExecutionTime;
 		TimeSpan m_sKeyDownEventExecutionTime;
 		TimeSpan m_sKeyUpEventExecutionTime;
+		TimeSpan m_sIngameStartupEventExecutionTime;
 	};
 
 	/// <summary> Internal-only IV-SDK .NET Manager stuff. </summary>

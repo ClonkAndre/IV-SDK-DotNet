@@ -50,6 +50,9 @@ namespace Manager.UI
         #region Functions
         public bool ShowNotification(NotificationType type, DateTime showTime, string title, string description, string tag)
         {
+            if (!Config.ShowNotifications)
+                return false;
+
             if (!string.IsNullOrEmpty(tag))
             {
                 if (DoesNotificationExistsWithTag(tag))
@@ -75,7 +78,8 @@ namespace Manager.UI
             Items.Add(item);
 
             // Start delayed action to remove the notification item
-            Main.Instance.StartDelayedAction(Guid.NewGuid(), "Removing notification", showTime, (DelayedAction dA, object obj) => {
+            Main.Instance.StartDelayedAction(Guid.NewGuid(), "Removing notification", showTime, (DelayedAction dA, object obj) =>
+            {
                 ((NotificationItem)obj).FadeOut = true;
             }, item);
 
@@ -114,37 +118,34 @@ namespace Manager.UI
         {
             bool open = true;
 
-            if (Items.Count != 0)
+            for (int i = 0; i < Items.Count; i++)
             {
-                for (int i = 0; i < Items.Count; i++)
+                NotificationItem item = Items[i];
+
+                if (item.FadeOut)
                 {
-                    NotificationItem item = Items[i];
+                    if (!(item.BackgroundAlpha <= 0.0f))
+                        item.BackgroundAlpha -= 0.01f;
+                    if (!(item.TextAlpha <= 0.0f))
+                        item.TextAlpha -= 0.01f;
 
-                    if (item.FadeOut)
+                    if (item.BackgroundAlpha <= 0.0f && item.TextAlpha <= 0.0f)
                     {
-                        if (!(item.BackgroundAlpha <= 0.0f))
-                            item.BackgroundAlpha -= 0.01f;
-                        if (!(item.TextAlpha <= 0.0f))
-                            item.TextAlpha -= 0.01f;
-
-                        if (item.BackgroundAlpha <= 0.0f && item.TextAlpha <= 0.0f)
-                        {
-                            item.FadeOut = false;
-                            Items.RemoveAt(i);
-                        }
+                        item.FadeOut = false;
+                        Items.RemoveAt(i);
                     }
-
-                    ImGuiIV.SetNextWindowBgAlpha(item.BackgroundAlpha);
-                    ImGuiIV.SetNextWindowPos(new Vector2(40f, 32f + i * 55f));
-
-                    ImGuiIV.PushStyleColor(eImGuiCol.ImGuiCol_Text, new Vector4(1f, 1f, 1f, item.TextAlpha));
-                    ImGuiIV.PushStyleColor(eImGuiCol.ImGuiCol_Border, new Vector4(0.7f, 0.7f, 0.7f, item.BackgroundAlpha));
-                    ImGuiIV.Begin(string.Format("Notification {0}", i), ref open, eImGuiWindowFlags.NoDecoration | eImGuiWindowFlags.NoInputs | eImGuiWindowFlags.NoNavFocus | eImGuiWindowFlags.NoFocusOnAppearing, true);
-                    ImGuiIV.Text(item.Title);
-                    ImGuiIV.Text(item.Description);
-                    ImGuiIV.End();
-                    ImGuiIV.PopStyleColor(2);
                 }
+
+                ImGuiIV.SetNextWindowBgAlpha(item.BackgroundAlpha);
+                ImGuiIV.SetNextWindowPos(new Vector2(40f, 32f + i * 55f));
+
+                ImGuiIV.PushStyleColor(eImGuiCol.ImGuiCol_Text, new Vector4(1f, 1f, 1f, item.TextAlpha));
+                ImGuiIV.PushStyleColor(eImGuiCol.ImGuiCol_Border, new Vector4(0.7f, 0.7f, 0.7f, item.BackgroundAlpha));
+                ImGuiIV.Begin(string.Format("Notification {0}", i), ref open, eImGuiWindowFlags.NoDecoration | eImGuiWindowFlags.NoInputs | eImGuiWindowFlags.NoNavFocus | eImGuiWindowFlags.NoFocusOnAppearing, true);
+                ImGuiIV.Text(item.Title);
+                ImGuiIV.Text(item.Description);
+                ImGuiIV.End();
+                ImGuiIV.PopStyleColor(2);
             }
         }
 

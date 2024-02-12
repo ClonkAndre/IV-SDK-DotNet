@@ -125,23 +125,22 @@ namespace Manager.Managers
                                 Main.Instance.LoadScripts();
 
                                 // Send response
-                                server.Send(Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_ReloadScriptsResponse).AddBool(true), e.FromConnection);
+                                server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_ReloadScriptsResponse).AddBool(true), e.FromConnection);
                             }
                             else
                             {
                                 // Send response
-                                server.Send(Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_ReloadScriptsResponse).AddBool(false), e.FromConnection);
+                                server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_ReloadScriptsResponse).AddBool(false), e.FromConnection);
                             }
                         }
                         break;
 
                     case RemoteMessageID.Manager_LoadScriptRequest:
                         {
-
                             // Can load scripts remotely?
                             if (!Config.AllowRemoteLoadScripts)
                             {
-                                Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_LoadScriptResponse);
+                                Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_LoadScriptResponse);
                                 msg.AddBool(false); // Request failed
                                 msg.AddByte(0); // Error ID
                                 server.Send(msg, e.FromConnection);
@@ -167,7 +166,7 @@ namespace Manager.Managers
                                     // Load assembly
                                     if (Main.Instance.LoadAssembly(scriptPath))
                                     {
-                                        server.Send(Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_LoadScriptResponse).AddBool(true), e.FromConnection);
+                                        server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_LoadScriptResponse).AddBool(true), e.FromConnection);
                                         // TODO: Log which API Client has loaded this script.
                                         Logger.Log(string.Format("An API Client has loaded script {0}!", scriptFileName));
                                     }
@@ -176,7 +175,7 @@ namespace Manager.Managers
                                 else
                                     // Loaded
                                 {
-                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_LoadScriptResponse);
+                                    Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_LoadScriptResponse);
                                     msg.AddBool(false); // Request failed
                                     msg.AddByte(1); // Error ID
                                     server.Send(msg, e.FromConnection);
@@ -184,7 +183,7 @@ namespace Manager.Managers
                             }
                             catch (Exception ex)
                             {
-                                Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_LoadScriptResponse);
+                                Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_LoadScriptResponse);
                                 msg.AddBool(false); // Request failed
                                 msg.AddByte(2); // Error ID
                                 msg.AddString(JsonConvert.SerializeObject(ex)); // Error Object
@@ -196,11 +195,10 @@ namespace Manager.Managers
 
                     case RemoteMessageID.Manager_AbortScriptRequest:
                         {
-
                             // Can abort scripts remotely?
                             if (!Config.AllowRemoteAbortScripts)
                             {
-                                Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_AbortScriptResponse);
+                                Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_AbortScriptResponse);
                                 msg.AddBool(false); // Request failed
                                 msg.AddByte(0); // Error ID
                                 server.Send(msg, e.FromConnection);
@@ -222,12 +220,12 @@ namespace Manager.Managers
                                 if (fs.AbortError == null)
                                     // Success
                                 {
-                                    server.Send(Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_AbortScriptResponse).AddBool(true), e.FromConnection);
+                                    server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_AbortScriptResponse).AddBool(true), e.FromConnection);
                                 }
                                 else
                                     // Failed
                                 {
-                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_AbortScriptResponse);
+                                    Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_AbortScriptResponse);
                                     msg.AddBool(false); // Request failed
                                     msg.AddByte(1); // Error ID
                                     msg.AddString(JsonConvert.SerializeObject(fs.AbortError)); // Error Object
@@ -241,7 +239,7 @@ namespace Manager.Managers
                             else
                                 // Script was not found
                             {
-                                Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_AbortScriptResponse);
+                                Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_AbortScriptResponse);
                                 msg.AddBool(false); // Request failed
                                 msg.AddByte(2); // Error ID
                                 server.Send(msg, e.FromConnection);
@@ -266,16 +264,16 @@ namespace Manager.Managers
                             }
 
                             // Send response
-                            server.Send(Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_GetActiveScriptsInfoResponse).AddString(JsonConvert.SerializeObject(runningScriptInfo)), e.FromConnection);
+                            server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_GetActiveScriptsInfoResponse).AddString(JsonConvert.SerializeObject(runningScriptInfo)), e.FromConnection);
                         }
                         break;
 
                     case RemoteMessageID.Manager_GetActiveScriptsCountRequest:
-                        server.Send(Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_GetActiveScriptsCountResponse).AddInt(Main.Instance.GetActiveScriptsCount()), e.FromConnection);
+                        server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_GetActiveScriptsCountResponse).AddInt(Main.Instance.GetActiveScriptsCount()), e.FromConnection);
                         break;
 
                     case RemoteMessageID.Manager_IsScriptRunningRequest:
-                        server.Send(Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_IsScriptRunningResponse).AddBool(Main.Instance.IsScriptRunning(e.Message.GetString())), e.FromConnection);
+                        server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_IsScriptRunningResponse).AddBool(Main.Instance.IsScriptRunning(e.Message.GetString())), e.FromConnection);
                         break;
 
                     case RemoteMessageID.Manager_SendScriptCommandRequest:
@@ -290,7 +288,7 @@ namespace Manager.Managers
                                 if (s == null)
                                 {
                                     // Send response
-                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_SendScriptCommandResponse);
+                                    Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_SendScriptCommandResponse);
                                     msg.AddBool(false); // Request failed
                                     msg.AddByte(1); // Error ID
                                     server.Send(msg, e.FromConnection);
@@ -300,7 +298,7 @@ namespace Manager.Managers
                                 if (s.SendScriptCommand(s, command, out object result))
                                 {
                                     // Send response
-                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_SendScriptCommandResponse);
+                                    Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_SendScriptCommandResponse);
                                     msg.AddBool(true); // Request successful
                                     msg.AddString(JsonConvert.SerializeObject(result));
                                     server.Send(msg, e.FromConnection);
@@ -308,7 +306,7 @@ namespace Manager.Managers
                                 else
                                 {
                                     // Send response
-                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_SendScriptCommandResponse);
+                                    Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_SendScriptCommandResponse);
                                     msg.AddBool(false); // Request failed
                                     msg.AddByte(2); // Error ID
                                     server.Send(msg, e.FromConnection);
@@ -321,7 +319,7 @@ namespace Manager.Managers
                                 if (s == null)
                                 {
                                     // Send response
-                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_SendScriptCommandResponse);
+                                    Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_SendScriptCommandResponse);
                                     msg.AddBool(false); // Request failed
                                     msg.AddByte(1); // Error ID
                                     server.Send(msg, e.FromConnection);
@@ -331,7 +329,7 @@ namespace Manager.Managers
                                 if (s.SendScriptCommand(s, command, out object result))
                                 {
                                     // Send response
-                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_SendScriptCommandResponse);
+                                    Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_SendScriptCommandResponse);
                                     msg.AddBool(true); // Request successful
                                     msg.AddString(JsonConvert.SerializeObject(result));
                                     server.Send(msg, e.FromConnection);
@@ -339,7 +337,7 @@ namespace Manager.Managers
                                 else
                                 {
                                     // Send response
-                                    Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_SendScriptCommandResponse);
+                                    Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_SendScriptCommandResponse);
                                     msg.AddBool(false); // Request failed
                                     msg.AddByte(2); // Error ID
                                     server.Send(msg, e.FromConnection);
@@ -349,7 +347,7 @@ namespace Manager.Managers
                         break;
 
                     case RemoteMessageID.Manager_GetPreferencesRequest:
-                        server.Send(Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Manager_GetPreferencesResponse).AddString(JsonConvert.SerializeObject(preferences)), e.FromConnection);
+                        server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_GetPreferencesResponse).AddString(JsonConvert.SerializeObject(preferences)), e.FromConnection);
                         break;
 
                     // Game Requests
@@ -385,7 +383,7 @@ namespace Manager.Managers
                             }
 
                             // Send response
-                            server.Send(Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Game_GetSessionInfoResponse).AddString(JsonConvert.SerializeObject(info)), e.FromConnection);
+                            server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Game_GetSessionInfoResponse).AddString(JsonConvert.SerializeObject(info)), e.FromConnection);
                         }
                         break;
 
@@ -411,19 +409,9 @@ namespace Manager.Managers
                                         // Only try to convert is there is a missmatch
                                         if (currentType != targetType)
                                         {
-                                            // Convert Int64 to Int32
-                                            if (currentType == typeof(Int64) && targetType == typeof(Int32))
-                                            {
-                                                Logger.LogDebug("Converting Int64 value to Int32");
-                                                context.Arguments[i] = Convert.ToInt32(context.Arguments[i]);
-                                            }
-
-                                            // Convert Int64 to UInt32
-                                            if (currentType == typeof(Int64) && targetType == typeof(UInt32))
-                                            {
-                                                Logger.LogDebug("Converting Int64 value to UInt32");
-                                                context.Arguments[i] = Convert.ToUInt32(context.Arguments[i]);
-                                            }
+                                            // Try convert value type to target value type
+                                            if (!ConvertValueTypeToTargetValueType(i, context, currentType, targetType))
+                                                Logger.LogDebug(string.Format("Could not convert {0} to {1}!", currentType, targetType));
                                         }
                                     }
                                 }
@@ -432,7 +420,7 @@ namespace Manager.Managers
                                 object result = Function.Call<object>(context.Name, context.Arguments);
 
                                 // Return result
-                                Message msg = Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Game_CallNativeResponse);
+                                Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Game_CallNativeResponse);
                                 msg.AddBool(true);
                                 msg.AddString(JsonConvert.SerializeObject(new NativeCallResult(result, context.Arguments)));
                                 server.Send(msg, e.FromConnection);
@@ -440,7 +428,7 @@ namespace Manager.Managers
                             else
                             {
                                 // Send response
-                                server.Send(Message.Create(MessageSendMode.Unreliable, RemoteMessageID.Game_CallNativeResponse).AddBool(false), e.FromConnection);
+                                server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Game_CallNativeResponse).AddBool(false), e.FromConnection);
                             }
                         }
                         break;
@@ -499,7 +487,7 @@ namespace Manager.Managers
             disposed = true;
         }
 
-        public void Start()
+        public void Start(bool logAlreadyRunningMsg)
         {
             if (disposed)
                 return;
@@ -507,7 +495,8 @@ namespace Manager.Managers
             // Already running
             if (server.IsRunning)
             {
-                Logger.Log("[RemoteConnectionManager] Already running.");
+                if (logAlreadyRunningMsg)
+                    Logger.Log("[RemoteConnectionManager] Already running.");
                 return;
             }
 
@@ -545,6 +534,29 @@ namespace Manager.Managers
                 return;
 
             server.Update();
+        }
+        #endregion
+
+        #region Functions
+        private bool ConvertValueTypeToTargetValueType(int index, NativeCallContext context, Type currentType, Type targetType)
+        {
+            // Convert Int64 to Int32
+            if (currentType == typeof(Int64) && targetType == typeof(Int32))
+            {
+                Logger.LogDebug("Converting Int64 value to Int32");
+                context.Arguments[index] = Convert.ToInt32(context.Arguments[index]);
+                return true;
+            }
+
+            // Convert Int64 to UInt32
+            if (currentType == typeof(Int64) && targetType == typeof(UInt32))
+            {
+                Logger.LogDebug("Converting Int64 value to UInt32");
+                context.Arguments[index] = Convert.ToUInt32(context.Arguments[index]);
+                return true;
+            }
+
+            return false;
         }
         #endregion
 

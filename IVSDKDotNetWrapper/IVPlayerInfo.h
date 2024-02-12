@@ -336,6 +336,10 @@ namespace IVSDKDotNet
 		void KillPlayerOutsideWorld();
 
 	public:
+		static IVPlayerInfo^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
+	public:
 		static bool IsPlayerActive(int id);
 		static IVPlayerInfo^ GetPlayerInfo(uint32_t nPlayerId);
 

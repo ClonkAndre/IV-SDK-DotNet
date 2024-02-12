@@ -51,6 +51,10 @@ namespace IVSDKDotNet
 			}
 		}
 
+	public:
+		static IVPedComponentModels^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 	internal:
 		IVPedComponentModels(tPedComponentModels* nativePtr);
 

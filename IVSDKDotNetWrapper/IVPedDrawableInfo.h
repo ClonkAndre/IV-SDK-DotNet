@@ -78,6 +78,10 @@ namespace IVSDKDotNet
 			}
 		}
 
+	public:
+		static IVPedDrawableInfo^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 	internal:
 		IVPedDrawableInfo(tPedDrawableInfo* nativePtr);
 

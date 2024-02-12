@@ -109,6 +109,21 @@ namespace IVSDKDotNet
 		bool DoesSectionExists(String^ section);
 
 		/// <summary>
+		/// Checks if the key exists in the given section.
+		/// </summary>
+		/// <param name="section">The section to check if the key exists in it.</param>
+		/// <param name="key">The key to check for if it exists in the given section.</param>
+		/// <returns>True if the key exists in the given secrion. False if any of the names is null or whitespace, or if the section or key does not exists.</returns>
+		bool DoesKeyExists(String^ section, String^ key);
+
+		/// <summary>
+		/// Clears all keys that are within the given section.
+		/// </summary>
+		/// <param name="section">The section to clear all keys from.</param>
+		/// <returns>True if the keys should be removed from this section. False if the given name is null or whitespace, or if the section does not exists.</returns>
+		bool ClearSection(String^ section);
+
+		/// <summary>
 		/// Gets the total number of lines there are currently in the settings file.
 		/// </summary>
 		/// <returns>The current number of lines there will be file.</returns>

@@ -5,6 +5,8 @@ namespace IVSDKDotNet
 	public ref class IVShadows
 	{
 	public:
+		static void StoreStaticShadowOriginal(uint32_t a1, uint32_t a2, uint32_t nFlags, Vector3 pVec1, Vector3 pVec2, Vector3 vPos, Color vColor, float fIntensity, uint32_t texHash, uint32_t txdSlot, float fRange, float a12, float a13, uint32_t a14, uint32_t a15, uint32_t nID);
+
 		/// <summary>
 		/// StoreStaticShadows method with extended parameters.
 		/// </summary>

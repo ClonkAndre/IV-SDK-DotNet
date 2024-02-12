@@ -17,6 +17,18 @@ namespace IVSDKDotNet
 		NULLPTR_CHECK(NativePlayerInfo);
 		NativePlayerInfo->KillPlayerOutsideWorld();
 	}
+
+	IVPlayerInfo^ IVPlayerInfo::FromUIntPtr(UIntPtr ptr)
+	{
+		UINTPTR_ZERO_CHECK_WITH_RETURN(ptr, nullptr);
+		return gcnew IVPlayerInfo((CPlayerInfo*)ptr.ToPointer());
+	}
+	UIntPtr IVPlayerInfo::GetUIntPtr()
+	{
+		NULLPTR_CHECK_WITH_RETURN(NativePlayerInfo, UIntPtr::Zero);
+		return UIntPtr(NativePlayerInfo);
+	}
+
 	bool IVPlayerInfo::IsPlayerActive(int id)
 	{
 		return CPlayerInfo::IsPlayerActive(id);

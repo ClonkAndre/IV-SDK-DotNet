@@ -3042,30 +3042,38 @@ public:
 #pragma endregion
 
 #if _DEBUG
-		ImGui::Begin("IV-SDK .NET Wrapper Debug", (bool*)0, ImGuiWindowFlags_AlwaysAutoResize);
+		static bool debugWindowOpened = false;
 
-		ImGui::SeparatorText("ImGuiIV States");
+		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_F9, false))
+			debugWindowOpened = !debugWindowOpened;
 
-		// Active Script Windows
-		ImGui::Text("Active Script Windows: %s", std::to_string(ImGuiIV::ActiveWindows).c_str());
-		ImGui::Text("Window Draw Calls List: %s", std::to_string(windowDrawCallsQueueCount).c_str());
+		if (debugWindowOpened)
+		{
+			ImGui::Begin("IV-SDK .NET Wrapper Debug", &debugWindowOpened, ImGuiWindowFlags_AlwaysAutoResize);
 
-		ImGui::BeginDisabled();
-		ImGui::Checkbox("Wants Mouse Disabled", &ImGuiStates::s_bImGuiWantsMouseDisabled);
-		ImGui::Checkbox("Wants Keyboard Disabled", &ImGuiStates::s_bImGuiWantsKeyboardDisabled);
-		ImGui::Checkbox("Reactivate Keyboard Inputs", &ImGuiStates::s_bReactivateKeyboardInputs);
-		ImGui::EndDisabled();
+			ImGui::SeparatorText("ImGuiIV States");
 
-		// Dear ImGui Input
-		ImGui::SeparatorText("Dear ImGui");
-		ImGui::BeginDisabled();
-		ImGui::Checkbox("Wants Mouse Input", &io.WantCaptureMouse);
-		ImGui::Checkbox("Wants Keyboard Input", &io.WantCaptureKeyboard);
-		ImGui::Checkbox("Wants Text Input", &io.WantTextInput);
-		ImGui::EndDisabled();
+			// Active Script Windows
+			ImGui::Text("Active Script Windows: %s", std::to_string(ImGuiIV::ActiveWindows).c_str());
+			ImGui::Text("Window Draw Calls List: %s", std::to_string(windowDrawCallsQueueCount).c_str());
 
-		ImGui::SetWindowPos(ImVec2(10.0F, vp->Size.y - (ImGui::GetWindowSize().y + 250.0F)), ImGuiCond_FirstUseEver);
-		ImGui::End();
+			ImGui::BeginDisabled();
+			ImGui::Checkbox("Wants Mouse Disabled", &ImGuiStates::s_bImGuiWantsMouseDisabled);
+			ImGui::Checkbox("Wants Keyboard Disabled", &ImGuiStates::s_bImGuiWantsKeyboardDisabled);
+			ImGui::Checkbox("Reactivate Keyboard Inputs", &ImGuiStates::s_bReactivateKeyboardInputs);
+			ImGui::EndDisabled();
+
+			// Dear ImGui Input
+			ImGui::SeparatorText("Dear ImGui");
+			ImGui::BeginDisabled();
+			ImGui::Checkbox("Wants Mouse Input", &io.WantCaptureMouse);
+			ImGui::Checkbox("Wants Keyboard Input", &io.WantCaptureKeyboard);
+			ImGui::Checkbox("Wants Text Input", &io.WantTextInput);
+			ImGui::EndDisabled();
+
+			ImGui::SetWindowPos(ImVec2(10.0F, vp->Size.y - (ImGui::GetWindowSize().y + 250.0F)), ImGuiCond_FirstUseEver);
+			ImGui::End();
+		}
 #endif // _DEBUG
 
 		// Do ImGui stuff in here

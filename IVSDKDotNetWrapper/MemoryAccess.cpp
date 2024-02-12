@@ -8,7 +8,7 @@ namespace IVSDKDotNet
 {
 
 	// - - - Methods / Functions - - -
-	void MemoryAccess::Initialise(int version, uint32_t baseAddress)
+	void MemoryAccess::Initialise(uint32_t version, uint32_t baseAddress)
 	{
 		if (!m_bGotInitialised)
 		{
