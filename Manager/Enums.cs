@@ -110,4 +110,11 @@
         Error
     }
 
+    public enum ScriptType
+    {
+        All,
+        IVSDKDotNet,
+        ScriptHookDotNet
+    }
+
 }

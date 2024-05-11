@@ -264,27 +264,27 @@ namespace IVSDKDotNet
 		}
 
 		// Ellipse
-		//void AddEllipse(Vector2 center, Vector2 radius, Color color, float rotation, int numSegments, float thickness)
-		//{
-		//	canvasDrawList->AddEllipse(
-		//		Vector2ToImVec2(center),
-		//		radius.X,
-		//		radius.Y,
-		//		ColorToImU32(color),
-		//		rotation,
-		//		numSegments,
-		//		thickness);
-		//}
-		//void AddEllipseFilled(Vector2 center, Vector2 radius, Color color, float rotation, int numSegments)
-		//{
-		//	canvasDrawList->AddEllipseFilled(
-		//		Vector2ToImVec2(center),
-		//		radius.X,
-		//		radius.Y,
-		//		ColorToImU32(color),
-		//		rotation,
-		//		numSegments);
-		//}
+		void AddEllipse(Vector2 center, Vector2 radius, Color color, float rotation, int numSegments, float thickness)
+		{
+			canvasDrawList->AddEllipse(
+				Vector2ToImVec2(center),
+				radius.X,
+				radius.Y,
+				ColorToImU32(color),
+				rotation,
+				numSegments,
+				thickness);
+		}
+		void AddEllipseFilled(Vector2 center, Vector2 radius, Color color, float rotation, int numSegments)
+		{
+			canvasDrawList->AddEllipseFilled(
+				Vector2ToImVec2(center),
+				radius.X,
+				radius.Y,
+				ColorToImU32(color),
+				rotation,
+				numSegments);
+		}
 
 		// Bezier
 		void AddBezierCubic(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, Color color, float thickness, int numSegments)
@@ -333,8 +333,13 @@ namespace IVSDKDotNet
 			if (!String::IsNullOrWhiteSpace(textEnd))
 				_textEnd = ctx.marshal_as<const char*>(textEnd);
 
+			ImFont* imFont = fontPtr == IntPtr::Zero ? nullptr : (ImFont*)fontPtr.ToPointer();
+
+			if (imFont)
+				ImGui::PushFont(imFont);
+
 			canvasDrawList->AddText(
-				fontPtr == IntPtr::Zero ? nullptr : (ImFont*)fontPtr.ToPointer(),
+				imFont,
 				fontSize,
 				Vector2ToImVec2(pos),
 				ColorToImU32(color),
@@ -342,6 +347,44 @@ namespace IVSDKDotNet
 				_textEnd,
 				wrapWidth,
 				nullptr);
+
+			if (imFont)
+				ImGui::PopFont();
+		}
+		void AddText(float fontSize, Vector2 pos, Color color, String^ textBegin, String^ textEnd, float wrapWidth)
+		{
+			AddText(IntPtr::Zero, fontSize, pos, color, textBegin, textEnd, wrapWidth);
+		}
+
+		void AddText(IntPtr fontPtr, Vector2 pos, Color color, float fontSize, String^ textBegin)
+		{
+			if (!canvasDrawList)
+				return;
+			if (String::IsNullOrWhiteSpace(textBegin))
+				return;
+
+			msclr::interop::marshal_context ctx;
+
+			const char* _textBegin = ctx.marshal_as<const char*>(textBegin);
+			const char* _textEnd = (const char*)0;
+
+			ImFont* imFont = fontPtr == IntPtr::Zero ? nullptr : (ImFont*)fontPtr.ToPointer();
+
+			if (imFont)
+				ImGui::PushFont(imFont);
+
+			canvasDrawList->AddText(
+				imFont,
+				fontSize,
+				Vector2ToImVec2(pos),
+				ColorToImU32(color),
+				_textBegin,
+				_textEnd,
+				0.0F,
+				nullptr);
+
+			if (imFont)
+				ImGui::PopFont();
 		}
 		void AddText(Vector2 pos, Color color, float fontSize, String^ textBegin)
 		{
@@ -365,7 +408,8 @@ namespace IVSDKDotNet
 				0.0F,
 				nullptr);
 		}
-		void AddText(Vector2 pos, Color color, String^ textBegin, String^ textEnd)
+		
+		void AddText(IntPtr fontPtr, Vector2 pos, Color color, String^ textBegin, String^ textEnd)
 		{
 			if (!canvasDrawList)
 				return;
@@ -380,11 +424,51 @@ namespace IVSDKDotNet
 			if (!String::IsNullOrWhiteSpace(textEnd))
 				_textEnd = ctx.marshal_as<const char*>(textEnd);
 
+			ImFont* imFont = fontPtr == IntPtr::Zero ? nullptr : (ImFont*)fontPtr.ToPointer();
+
+			if (imFont)
+				ImGui::PushFont(imFont);
+
 			canvasDrawList->AddText(
+				imFont,
+				0.0F,
 				Vector2ToImVec2(pos),
 				ColorToImU32(color),
 				_textBegin,
-				_textEnd);
+				_textEnd,
+				0.0F,
+				nullptr);
+
+			if (imFont)
+				ImGui::PopFont();
+		}
+		void AddText(Vector2 pos, Color color, String^ textBegin, String^ textEnd)
+		{
+			AddText(IntPtr::Zero, pos, color, textBegin, textEnd);
+
+			//if (!canvasDrawList)
+			//	return;
+			//if (String::IsNullOrWhiteSpace(textBegin))
+			//	return;
+
+			//msclr::interop::marshal_context ctx;
+
+			//const char* _textBegin = ctx.marshal_as<const char*>(textBegin);
+			//const char* _textEnd = (const char*)0;
+
+			//if (!String::IsNullOrWhiteSpace(textEnd))
+			//	_textEnd = ctx.marshal_as<const char*>(textEnd);
+
+			//canvasDrawList->AddText(
+			//	Vector2ToImVec2(pos),
+			//	ColorToImU32(color),
+			//	_textBegin,
+			//	_textEnd);
+		}
+
+		void AddText(IntPtr fontPtr, Vector2 pos, Color color, String^ textBegin)
+		{
+			AddText(fontPtr, pos, color, textBegin, nullptr);
 		}
 		void AddText(Vector2 pos, Color color, String^ textBegin)
 		{

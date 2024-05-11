@@ -109,6 +109,13 @@ namespace IVSDKDotNet
 		return true;
 	}
 
+	void SettingsFile::Clear()
+	{
+		m_dSections->Clear();
+		m_dComments->Clear();
+		m_dLateInserts->Clear();
+	}
+
 	// - - - Add - - -
 	bool SettingsFile::AddSection(String^ sectionName)
 	{
@@ -223,6 +230,10 @@ namespace IVSDKDotNet
 			return defaultValue;
 		if (!m_dSections->ContainsKey(section))
 			return defaultValue;
+		if (!m_dSections[section])
+			return defaultValue;
+		if (!m_dSections[section]->Values)
+			return defaultValue;
 		if (!m_dSections[section]->Values->ContainsKey(key))
 			return defaultValue;
 
@@ -235,6 +246,10 @@ namespace IVSDKDotNet
 		if (String::IsNullOrWhiteSpace(key))
 			return false;
 		if (!m_dSections->ContainsKey(section))
+			return false;
+		if (!m_dSections[section])
+			return false;
+		if (!m_dSections[section]->Values)
 			return false;
 		if (!m_dSections[section]->Values->ContainsKey(key))
 			return false;

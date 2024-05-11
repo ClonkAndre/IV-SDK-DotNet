@@ -16,13 +16,13 @@ namespace IVSDKDotNet
 		/// <summary>
 		/// GTA IV Native Functions.
 		/// Natives with an underscore at the beginning will likely crash the game.
-		/// If they crash the game, they might work if you do CTheScripts.SetDummyThread(), then call the native, and then CTheScripts.RestorePreviousThread().
+		/// If they crash the game, they might work if you do IVTheScripts.SetDummyThread(), then call the native, and then IVTheScripts.RestorePreviousThread().
 		/// </summary>
 		public ref class Natives
 		{
 		public:
 
-			static void ADD_ARMOUR_TO_CHAR(Ped ped, unsigned int amount) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_ADD_ARMOUR_TO_CHAR, ped, amount); }
+			static void ADD_ARMOUR_TO_CHAR(Ped ped, int amount) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_ADD_ARMOUR_TO_CHAR, ped, amount); }
 			static void ATTACH_ANIMS_TO_MODEL(unsigned int model, String^ anims)
 			{
 				msclr::interop::marshal_context ctx;
@@ -78,15 +78,48 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CREATE_CHAR_INSIDE_CAR, vehicle, charType, model, &p);
 				pPed = p;
 			}
+			static void CREATE_RANDOM_CHAR(Vector3 pos, [OutAttribute] Ped% pPed)
+			{
+				Ped p;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_CHAR, pos.X, pos.Y, pos.Z, &p);
+				pPed = p;
+			}
 			static void CREATE_RANDOM_CHAR(float x, float y, float z, [OutAttribute] Ped% pPed)
 			{
 				Ped p;
 				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_CHAR, x, y, z, &p);
 				pPed = p;
 			}
-			static void CREATE_RANDOM_CHAR_AS_PASSENGER(Vehicle vehicle, unsigned int seat, Ped% pPed) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_CHAR_AS_PASSENGER, vehicle, seat, pPed); }
-			static void CREATE_RANDOM_FEMALE_CHAR(float x, float y, float z, Ped% pPed) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_FEMALE_CHAR, x, y, z, pPed); }
-			static void CREATE_RANDOM_MALE_CHAR(float x, float y, float z, Ped% pPed) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_MALE_CHAR, x, y, z, pPed); }
+			static void CREATE_RANDOM_CHAR_AS_PASSENGER(Vehicle vehicle, unsigned int seat, [OutAttribute] Ped% pPed)
+			{
+				Ped ped;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_CHAR_AS_PASSENGER, vehicle, seat, &ped);
+				pPed = ped;
+			}
+			static void CREATE_RANDOM_FEMALE_CHAR(Vector3 pos, [OutAttribute] Ped% pPed)
+			{
+				Ped ped;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_FEMALE_CHAR, pos.X, pos.Y, pos.Z, &ped);
+				pPed = ped;
+			}
+			static void CREATE_RANDOM_FEMALE_CHAR(float x, float y, float z, [OutAttribute] Ped% pPed)
+			{
+				Ped ped;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_FEMALE_CHAR, x, y, z, &ped);
+				pPed = ped;
+			}
+			static void CREATE_RANDOM_MALE_CHAR(Vector3 pos, [OutAttribute] Ped% pPed)
+			{
+				Ped ped;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_MALE_CHAR, pos.X, pos.Y, pos.Z, &ped);
+				pPed = ped;
+			}
+			static void CREATE_RANDOM_MALE_CHAR(float x, float y, float z, [OutAttribute] Ped% pPed)
+			{
+				Ped ped;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_MALE_CHAR, x, y, z, &ped);
+				pPed = ped;
+			}
 			static void DAMAGE_CHAR(Ped ped, unsigned int hitPoints, b8 unknown) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DAMAGE_CHAR, ped, hitPoints, unknown); }
 			static void DELETE_CHAR(Ped% pPed)
 			{
@@ -168,6 +201,13 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_CHAR_HEIGHT_ABOVE_GROUND, ped, &p);
 				pValue = p;
 			}
+			static b8 GET_CHAR_LAST_DAMAGE_BONE(Ped ped, [OutAttribute] int% boneIndex)
+			{
+				int i;
+				bool result = NativeInvoke::Invoke<b8>(eNativeHash::NATIVE_GET_CHAR_LAST_DAMAGE_BONE, ped, &i);
+				boneIndex = i;
+				return result;
+			}
 			static void GET_CHAR_HIGHEST_PRIORITY_EVENT(Ped ped, [OutAttribute] int% pEvent)
 			{
 				int p;
@@ -192,6 +232,7 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_CHAR_MODEL, ped, &p);
 				pModel = p;
 			}
+			static uint32_t GET_CHAR_MONEY(Ped ped) { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_CHAR_MONEY, ped); }
 			static void GET_CHAR_MOVE_ANIM_SPEED_MULTIPLIER(Ped ped, [OutAttribute] float% pMultiplier)
 			{
 				float p;
@@ -257,8 +298,8 @@ namespace IVSDKDotNet
 				Ped ped = pPed;
 				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_MARK_CHAR_AS_NO_LONGER_NEEDED, &ped);
 			}
-			static void MODIFY_CHAR_MOVE_BLEND_RATIO(Ped ped, ScriptAny Unk6) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_MODIFY_CHAR_MOVE_BLEND_RATIO, ped, Unk6); }
-			static void MODIFY_CHAR_MOVE_STATE(Ped ped, unsigned int state) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_MODIFY_CHAR_MOVE_STATE, ped, state); }
+			static void MODIFY_CHAR_MOVE_BLEND_RATIO(Ped ped, float Unk6) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_MODIFY_CHAR_MOVE_BLEND_RATIO, ped, Unk6); }
+			static void MODIFY_CHAR_MOVE_STATE(Ped ped, float state) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_MODIFY_CHAR_MOVE_STATE, ped, state); }
 			static void REMOVE_CHAR_DEFENSIVE_AREA(Ped ped) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REMOVE_CHAR_DEFENSIVE_AREA, ped); }
 			static void REMOVE_CHAR_ELEGANTLY(Ped ped) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REMOVE_CHAR_ELEGANTLY, ped); }
 			static void REMOVE_CHAR_FROM_CAR_MAINTAIN_POSITION(Ped ped, Vehicle car) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REMOVE_CHAR_FROM_CAR_MAINTAIN_POSITION, ped, car); }
@@ -384,6 +425,12 @@ namespace IVSDKDotNet
 			static void CHANGE_PLAYER_PHONE_MODEL_OFFSETS(int player, float x0, float y0, float z0, float x1, float y1, float z1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CHANGE_PLAYER_PHONE_MODEL_OFFSETS, player, x0, y0, z0, x1, y1, z1); }
 			static void CLEAR_PLAYER_HAS_DAMAGED_AT_LEAST_ONE_PED(Player playerIndex) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CLEAR_PLAYER_HAS_DAMAGED_AT_LEAST_ONE_PED, playerIndex); }
 			static void CLEAR_PLAYER_HAS_DAMAGED_AT_LEAST_ONE_VEHICLE(int player) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CLEAR_PLAYER_HAS_DAMAGED_AT_LEAST_ONE_VEHICLE, player); }
+			static void CREATE_PLAYER(unsigned int playerId, Vector3 pos, [OutAttribute] Player% pPlayerIndex)
+			{
+				Player p;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CREATE_PLAYER, playerId, pos.X, pos.Y, pos.Z, &p);
+				pPlayerIndex = p;
+			}
 			static void CREATE_PLAYER(unsigned int playerId, float x, float y, float z, [OutAttribute] Player% pPlayerIndex)
 			{
 				Player p;
@@ -538,6 +585,7 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_DRIVER_OF_CAR, vehicle, &p);
 				pPed = p;
 			}
+			static float GET_ENGINE_HEALTH(Vehicle vehicle) { return NativeInvoke::Invoke<float>(eNativeHash::NATIVE_GET_ENGINE_HEALTH, vehicle); }
 			static void GET_GROUP_FORMATION(int group, [OutAttribute] int% formation)
 			{
 				int p;
@@ -756,7 +804,8 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_CHAR_AS_DRIVER, vehicle, &p);
 				pPed = p;
 			}
-			static void DAMAGE_CAR(Vehicle car, float x, float y, float z, float unkforce0, float unkforce1, b8 flag) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DAMAGE_CAR, car, x, y, z, unkforce0, unkforce1, flag); }
+			static void DAMAGE_CAR(Vehicle car, Vector3 offset, float maybeDamage, float maybeRadius, b8 maybeFocusOnModel) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DAMAGE_CAR, car, offset.X, offset.Y, offset.Z, maybeDamage, maybeRadius, maybeFocusOnModel); }
+			static void DAMAGE_CAR(Vehicle car, float offsetX, float offsetY, float offsetZ, float maybeDamage, float maybeRadius, b8 maybeFocusOnModel) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DAMAGE_CAR, car, offsetX, offsetY, offsetZ, maybeDamage, maybeRadius, maybeFocusOnModel); }
 			static void DELETE_ALL_TRAINS() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DELETE_ALL_TRAINS); }
 			static void DELETE_CAR(Vehicle% pVehicle)
 			{
@@ -833,11 +882,17 @@ namespace IVSDKDotNet
 				pY = y;
 				pZ = z;
 			}
+			static void GET_CAR_DEFORMATION_AT_POS(Vehicle vehicle, Vector3 pos, [OutAttribute] Vector3% pDeformation)
+			{
+				float pX, pY, pZ;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_GET_CAR_DEFORMATION_AT_POS, vehicle, pos.X, pos.Y, pos.Z, &pX, &pY, &pZ);
+				pDeformation = Vector3(pX, pY, pZ);
+			}
 			static void GET_CAR_DEFORMATION_AT_POS(Vehicle vehicle, float x, float y, float z, [OutAttribute] Vector3% pDeformation)
 			{
-				Vector3 v;
-				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_GET_CAR_DEFORMATION_AT_POS, vehicle, x, y, z, &v);
-				pDeformation = v;
+				float pX, pY, pZ;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_GET_CAR_DEFORMATION_AT_POS, vehicle, x, y, z, &pX, &pY, &pZ);
+				pDeformation = Vector3(pX, pY, pZ);
 			}
 			static void GET_CAR_DOOR_LOCK_STATUS(Vehicle vehicle, [OutAttribute] unsigned int% pValue)
 			{
@@ -1027,6 +1082,7 @@ namespace IVSDKDotNet
 				pOffY = y;
 				pOffZ = z;
 			}
+			static float GET_PETROL_TANK_HEALTH(Vehicle veh) { return NativeInvoke::Invoke<float>(eNativeHash::NATIVE_HAND_VEHICLE_CONTROL_BACK_TO_PLAYER, veh); }
 			static void GET_PLANE_UNDERCARRIAGE_POSITION(Vehicle plane, [OutAttribute] float% pos)
 			{
 				float p;
@@ -1195,6 +1251,7 @@ namespace IVSDKDotNet
 			static void SET_IGNORE_NO_GPS_FLAG(b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_IGNORE_NO_GPS_FLAG, set); }
 			static void SET_INTERP_IN_OUT_VEHICLE_ENABLED_THIS_FRAME(b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_INTERP_IN_OUT_VEHICLE_ENABLED_THIS_FRAME, set); }
 			static void SET_LOAD_COLLISION_FOR_CAR_FLAG(Vehicle car, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_LOAD_COLLISION_FOR_CAR_FLAG, car, set); }
+			static void SET_MISSION_TRAIN_COORDINATES(Vehicle train, Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_MISSION_TRAIN_COORDINATES, train, pos.X, pos.Y, pos.Z); }
 			static void SET_MISSION_TRAIN_COORDINATES(Vehicle train, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_MISSION_TRAIN_COORDINATES, train, x, y, z); }
 			static void SET_NEEDS_TO_BE_HOTWIRED(Vehicle veh, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_NEEDS_TO_BE_HOTWIRED, veh, set); }
 			static void SET_NO_RESPRAYS(b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_NO_RESPRAYS, set); }
@@ -1258,12 +1315,14 @@ namespace IVSDKDotNet
 			static void SWITCH_CAR_SIREN(Vehicle car, b8 siren) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SWITCH_CAR_SIREN, car, siren); }
 			static void TRAIN_LEAVE_STATION(Vehicle train) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TRAIN_LEAVE_STATION, train); }
 			static void TRIGGER_VEH_ALARM(Vehicle car) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TRIGGER_VEH_ALARM, car); }
+			static void TURN_CAR_TO_FACE_COORD(Vehicle car, Vector2 pos) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TURN_CAR_TO_FACE_COORD, car, pos.X, pos.Y); }
 			static void TURN_CAR_TO_FACE_COORD(Vehicle car, float x, float y) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TURN_CAR_TO_FACE_COORD, car, x, y); }
 			static void TURN_OFF_VEHICLE_EXTRA(Vehicle veh, int extra, b8 turnoff) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TURN_OFF_VEHICLE_EXTRA, veh, extra, turnoff); }
 			static void UNPAUSE_PLAYBACK_RECORDED_CAR(Vehicle car) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_UNPAUSE_PLAYBACK_RECORDED_CAR, car); }
 			static void VEHICLE_CAN_BE_TARGETTED_BY_HS_MISSILE(Vehicle car, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_VEHICLE_CAN_BE_TARGETTED_BY_HS_MISSILE, car, set); }
 			static void VEHICLE_DOES_PROVIDE_COVER(Vehicle veh, b8 cover) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_VEHICLE_DOES_PROVIDE_COVER, veh, cover); }
 			static void WARP_CHAR_FROM_CAR_TO_CAR(Ped ped, Vehicle vehicle, unsigned int seatIndex) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_WARP_CHAR_FROM_CAR_TO_CAR, ped, vehicle, seatIndex); }
+			static void WARP_CHAR_FROM_CAR_TO_COORD(Ped ped, Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_WARP_CHAR_FROM_CAR_TO_COORD, ped, pos.X, pos.Y, pos.Z); }
 			static void WARP_CHAR_FROM_CAR_TO_COORD(Ped ped, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_WARP_CHAR_FROM_CAR_TO_COORD, ped, x, y, z); }
 			static void WARP_CHAR_INTO_CAR(Ped ped, Vehicle vehicle) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_WARP_CHAR_INTO_CAR, ped, vehicle); }
 			static void WARP_CHAR_INTO_CAR_AS_PASSENGER(Ped ped, Vehicle vehicle, unsigned int seatIndex) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_WARP_CHAR_INTO_CAR_AS_PASSENGER, ped, vehicle, seatIndex); }
@@ -1276,11 +1335,16 @@ namespace IVSDKDotNet
 			}
 			static void ADD_STUNT_JUMP(float x, float y, float z, float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, int reward) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_STUNT_JUMP, x, y, z, x0, y0, z0, x1, y1, z1, x2, y2, z2, x3, y3, z3, reward); }
 			static void ANCHOR_OBJECT(Entity obj, b8 anchor, unsigned int flags) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ANCHOR_OBJECT, obj, anchor, flags); }
+			static void APPLY_FORCE_TO_OBJECT(Entity obj, unsigned int uk0_3, Vector3 pos, Vector3 spin, unsigned int uk4_0, unsigned int uk5_1, unsigned int uk6_1, unsigned int uk7_1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_APPLY_FORCE_TO_OBJECT, obj, uk0_3, pos.X, pos.Y, pos.Z, spin.X, spin.Y, spin.Z, uk4_0, uk5_1, uk6_1, uk7_1); }
 			static void APPLY_FORCE_TO_OBJECT(Entity obj, unsigned int uk0_3, float pX, float pY, float pZ, float spinX, float spinY, float spinZ, unsigned int uk4_0, unsigned int uk5_1, unsigned int uk6_1, unsigned int uk7_1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_APPLY_FORCE_TO_OBJECT, obj, uk0_3, pX, pY, pZ, spinX, spinY, spinZ, uk4_0, uk5_1, uk6_1, uk7_1); }
+			static void ATTACH_OBJECT_TO_CAR(Entity obj, Vehicle v, unsigned int unknown0_0, Vector3 pos, Vector3 rot) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_CAR, obj, v, unknown0_0, pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z); }
 			static void ATTACH_OBJECT_TO_CAR(Entity obj, Vehicle v, unsigned int unknown0_0, float pX, float pY, float pZ, float rX, float rY, float rZ) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_CAR, obj, v, unknown0_0, pX, pY, pZ, rX, rY, rZ); }
 			static void ATTACH_OBJECT_TO_CAR_PHYSICALLY(Entity obj, Vehicle car, ScriptAny Unk79, ScriptAny Unk80, ScriptAny Unk81, ScriptAny Unk82, ScriptAny Unk83, ScriptAny Unk84, ScriptAny Unk85, ScriptAny Unk86, ScriptAny Unk87, ScriptAny Unk88, ScriptAny Unk89, ScriptAny Unk90, b8 flag) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_CAR_PHYSICALLY, obj, car, Unk79, Unk80, Unk81, Unk82, Unk83, Unk84, Unk85, Unk86, Unk87, Unk88, Unk89, Unk90, flag); }
+			static void ATTACH_OBJECT_TO_OBJECT(Entity obj0, Entity obj1_attach_to, int Unk91, Vector3 pos, Vector3 rot) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_OBJECT, obj0, obj1_attach_to, Unk91, pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z); }
 			static void ATTACH_OBJECT_TO_OBJECT(Entity obj0, Entity obj1_attach_to, int Unk91, float x0, float y0, float z0, float x1, float y1, float z1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_OBJECT, obj0, obj1_attach_to, Unk91, x0, y0, z0, x1, y1, z1); }
+			static void ATTACH_OBJECT_TO_PED(Entity obj, Ped c, unsigned int bone, Vector3 pos, Vector3 rot, unsigned int unknown1_0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_PED, obj, c, bone, pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z, unknown1_0); }
 			static void ATTACH_OBJECT_TO_PED(Entity obj, Ped c, unsigned int bone, float pX, float pY, float pZ, float rX, float rY, float rZ, unsigned int unknown1_0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_PED, obj, c, bone, pX, pY, pZ, rX, rY, rZ, unknown1_0); }
+			static void ATTACH_OBJECT_TO_PED_PHYSICALLY(Entity obj, Ped c, b8 unknown, unsigned int bone, Vector3 pos, Vector3 rot, unsigned int unknown1_0, unsigned int unknown2_0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_PED_PHYSICALLY, obj, c, unknown, bone, pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z, unknown1_0, unknown2_0); }
 			static void ATTACH_OBJECT_TO_PED_PHYSICALLY(Entity obj, Ped c, b8 unknown, unsigned int bone, float pX, float pY, float pZ, float rX, float rY, float rZ, unsigned int unknown1_0, unsigned int unknown2_0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_PED_PHYSICALLY, obj, c, unknown, bone, pX, pY, pZ, rX, rY, rZ, unknown1_0, unknown2_0); }
 			static void CHANGE_GARAGE_TYPE(int garage, int type) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CHANGE_GARAGE_TYPE, garage, type); }
 			static void CLEAR_OBJECT_LAST_DAMAGE_ENTITY(Entity obj) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CLEAR_OBJECT_LAST_DAMAGE_ENTITY, obj); }
@@ -1520,6 +1584,7 @@ namespace IVSDKDotNet
 			static void SET_OBJECT_ONLY_DAMAGED_BY_PLAYER(Entity obj, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_OBJECT_ONLY_DAMAGED_BY_PLAYER, obj, set); }
 			static void SET_OBJECT_PHYSICS_PARAMS(Entity obj, float Unk96, float Unk97, float v0x, float v0y, float v0z, float v1x, float v1y, float v1z, unsigned int flag0, unsigned int flag1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_OBJECT_PHYSICS_PARAMS, obj, Unk96, Unk97, v0x, v0y, v0z, v1x, v1y, v1z, flag0, flag1); }
 			static void SET_OBJECT_PROOFS(Entity obj, b8 unknown0, b8 fallingDamage, b8 unknown1, b8 unknown2, b8 unknown3) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_OBJECT_PROOFS, obj, unknown0, fallingDamage, unknown1, unknown2, unknown3); }
+			static void SET_OBJECT_QUATERNION(Entity obj, Quaternion quat) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_OBJECT_QUATERNION, obj, quat.X, quat.Y, quat.Z, quat.W); }
 			static void SET_OBJECT_QUATERNION(Entity obj, float qx, float qy, float qz, float qw) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_OBJECT_QUATERNION, obj, qx, qy, qz, qw); }
 			static void SET_OBJECT_RECORDS_COLLISIONS(Entity obj, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_OBJECT_RECORDS_COLLISIONS, obj, set); }
 			static void SET_OBJECT_RENDER_SCORCHED(Entity obj, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_OBJECT_RENDER_SCORCHED, obj, set); }
@@ -1543,7 +1608,8 @@ namespace IVSDKDotNet
 			}
 			static void ADD_FOLLOW_NAVMESH_TO_PHONE_TASK(Ped ped, ScriptAny Unk127, ScriptAny Unk128, ScriptAny Unk129) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_FOLLOW_NAVMESH_TO_PHONE_TASK, ped, Unk127, Unk128, Unk129); }
 			static void ADD_NEEDED_AT_POSN(float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_NEEDED_AT_POSN, x, y, z); }
-			//static void ADD_POINT_TO_GPS_RACE_TRACK(Vector3* point) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_POINT_TO_GPS_RACE_TRACK, point); }
+			static void ADD_POINT_TO_GPS_RACE_TRACK(Vector3 point) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_POINT_TO_GPS_RACE_TRACK, point.X, point.Y, point.Z); }
+			static void ADD_POINT_TO_GPS_RACE_TRACK(float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_POINT_TO_GPS_RACE_TRACK, x, y, z); }
 			static void ADD_SCENARIO_BLOCKING_AREA(float x0, float y0, float z0, float x1, float y1, float z1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_SCENARIO_BLOCKING_AREA, x0, y0, z0, x1, y1, z1); }
 			static void BLOCK_COWERING_IN_COVER(Ped ped, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_BLOCK_COWERING_IN_COVER, ped, set); }
 			static void BLOCK_PEEKING_IN_COVER(Ped ped, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_BLOCK_PEEKING_IN_COVER, ped, set); }
@@ -1557,6 +1623,7 @@ namespace IVSDKDotNet
 			static void CLEAR_SEQUENCE_TASK(TaskSequence taskSequence) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CLEAR_SEQUENCE_TASK, taskSequence); }
 			static void CLOSE_SEQUENCE_TASK(TaskSequence taskSequence) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CLOSE_SEQUENCE_TASK, taskSequence); }
 			
+			static void FIRE_PED_WEAPON(Ped ped, Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_FIRE_PED_WEAPON, ped, pos.X, pos.Y, pos.Z); }
 			static void FIRE_PED_WEAPON(Ped ped, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_FIRE_PED_WEAPON, ped, x, y, z); }
 			static void HIGH_FALL_SCREAM(Ped ped) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_HIGH_FALL_SCREAM, ped); }
 			static void ON_FIRE_SCREAM(Ped ped) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ON_FIRE_SCREAM, ped); }
@@ -1571,13 +1638,13 @@ namespace IVSDKDotNet
 			static void _TASK_CAR_DRIVE_TO_COORD(Ped ped, Vehicle veh, float Unk133, float Unk134, float Unk135, float Unk136, int Unk137, int Unk138, int Unk139, float Unk140, int Unk141) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CAR_DRIVE_TO_COORD, ped, veh, Unk133, Unk134, Unk135, Unk136, Unk137, Unk138, Unk139, Unk140, Unk141); }
 			static void _TASK_CAR_DRIVE_TO_COORD_NOT_AGAINST_TRAFFIC(Ped ped, ScriptAny Unk142, ScriptAny Unk143, ScriptAny Unk144, ScriptAny Unk145, ScriptAny Unk146, ScriptAny Unk147, ScriptAny Unk148, ScriptAny Unk149, ScriptAny Unk150, ScriptAny Unk151) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CAR_DRIVE_TO_COORD_NOT_AGAINST_TRAFFIC, ped, Unk142, Unk143, Unk144, Unk145, Unk146, Unk147, Unk148, Unk149, Unk150, Unk151); }
 			static void _TASK_CAR_DRIVE_WANDER(Ped ped, Vehicle vehicle, float speed, unsigned int drivingStyle) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CAR_DRIVE_WANDER, ped, vehicle, speed, drivingStyle); }
-			static void _TASK_CAR_MISSION(Ped ped, Vehicle vehicle, unsigned int targetEntity, unsigned int missionType, float speed, unsigned int drivingStyle, unsigned int unknown6_10, unsigned int unknown7_5) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CAR_MISSION, ped, vehicle, targetEntity, missionType, speed, drivingStyle, unknown6_10, unknown7_5); }
+			static void _TASK_CAR_MISSION(Ped ped, Vehicle vehicle, Vehicle targetVehicle, int missionType, float cruiseSpeed, int drivingStyle, unsigned int unknown6_10, unsigned int unknown7_5) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CAR_MISSION, ped, vehicle, targetVehicle, missionType, cruiseSpeed, drivingStyle, unknown6_10, unknown7_5); }
 			static void _TASK_CAR_MISSION_COORS_TARGET(Ped ped, Vehicle vehicle, float x, float y, float z, unsigned int unknown0_4, float speed, unsigned int unknown2_1, unsigned int unknown3_5, unsigned int unknown4_10) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CAR_MISSION_COORS_TARGET, ped, vehicle, x, y, z, unknown0_4, speed, unknown2_1, unknown3_5, unknown4_10); }
 			static void _TASK_CAR_MISSION_COORS_TARGET_NOT_AGAINST_TRAFFIC(Ped ped, Vehicle vehicle, float x, float y, float z, unsigned int unknown0_4, float speed, unsigned int unknown2_1, unsigned int unknown3_5, unsigned int unknown4_10) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CAR_MISSION_COORS_TARGET_NOT_AGAINST_TRAFFIC, ped, vehicle, x, y, z, unknown0_4, speed, unknown2_1, unknown3_5, unknown4_10); }
 			static void _TASK_CAR_MISSION_NOT_AGAINST_TRAFFIC(Ped ped, Vehicle vehicle, unsigned int targetEntity, unsigned int missionType, float speed, unsigned int drivingStyle, unsigned int unknown6_10, unsigned int unknown7_5) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CAR_MISSION_NOT_AGAINST_TRAFFIC, ped, vehicle, targetEntity, missionType, speed, drivingStyle, unknown6_10, unknown7_5); }
 			static void _TASK_CAR_MISSION_PED_TARGET(Ped ped, Vehicle vehicle, Ped target, unsigned int unknown0_4, float speed, unsigned int unknown2_1, unsigned int unknown3_5, unsigned int unknown4_10) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CAR_MISSION_PED_TARGET, ped, vehicle, target, unknown0_4, speed, unknown2_1, unknown3_5, unknown4_10); }
 			static void _TASK_CAR_MISSION_PED_TARGET_NOT_AGAINST_TRAFFIC(Ped ped, ScriptAny Unk152, ScriptAny Unk153, ScriptAny Unk154, ScriptAny Unk155, ScriptAny Unk156, ScriptAny Unk157, ScriptAny Unk158) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CAR_MISSION_PED_TARGET_NOT_AGAINST_TRAFFIC, ped, Unk152, Unk153, Unk154, Unk155, Unk156, Unk157, Unk158); }
-			static void _TASK_CAR_TEMP_ACTION(Ped ped, Vehicle vehicle, unsigned int action, unsigned int duration) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CAR_TEMP_ACTION, ped, vehicle, action, duration); }
+			static void _TASK_CAR_TEMP_ACTION(Ped ped, Vehicle vehicle, int action, int duration) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CAR_TEMP_ACTION, ped, vehicle, action, duration); }
 			static void _TASK_CHAR_ARREST_CHAR(Ped ped0, Ped ped1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CHAR_ARREST_CHAR, ped0, ped1); }
 			static void _TASK_CHAR_SLIDE_TO_COORD(Ped ped, ScriptAny Unk159, ScriptAny Unk160, ScriptAny Unk161, ScriptAny Unk162, ScriptAny Unk163) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CHAR_SLIDE_TO_COORD, ped, Unk159, Unk160, Unk161, Unk162, Unk163); }
 			static void _TASK_CHAR_SLIDE_TO_COORD_AND_PLAY_ANIM(Ped ped, ScriptAny Unk164, ScriptAny Unk165, ScriptAny Unk166, ScriptAny Unk167, ScriptAny Unk168, ScriptAny Unk169, ScriptAny Unk170, ScriptAny Unk171, ScriptAny Unk172, ScriptAny Unk173, ScriptAny Unk174, ScriptAny Unk175, ScriptAny Unk176) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_CHAR_SLIDE_TO_COORD_AND_PLAY_ANIM, ped, Unk164, Unk165, Unk166, Unk167, Unk168, Unk169, Unk170, Unk171, Unk172, Unk173, Unk174, Unk175, Unk176); }
@@ -1615,7 +1682,7 @@ namespace IVSDKDotNet
 			static void _TASK_GET_OFF_BOAT(Ped ped, int timeout) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_GET_OFF_BOAT, ped, timeout); }
 			static void _TASK_GOTO_CAR(Ped ped, ScriptAny Unk221, ScriptAny Unk222, ScriptAny Unk223) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_GOTO_CAR, ped, Unk221, Unk222, Unk223); }
 			static void _TASK_GOTO_CHAR_AIMING(Ped ped, ScriptAny Unk224, ScriptAny Unk225, ScriptAny Unk226) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_GOTO_CHAR_AIMING, ped, Unk224, Unk225, Unk226); }
-			static void _TASK_GOTO_CHAR_OFFSET(Ped ped, Ped target, unsigned int duration, float offsetRight, float offsetFront) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_GOTO_CHAR_OFFSET, ped, target, duration, offsetRight, offsetFront); }
+			static void _TASK_GOTO_CHAR_OFFSET(Ped ped, Ped target, int duration, float offsetRight, float offsetFront) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_GOTO_CHAR_OFFSET, ped, target, duration, offsetRight, offsetFront); }
 			static void _TASK_GO_STRAIGHT_TO_COORD(Ped ped, float x, float y, float z, unsigned int unknown2, unsigned int unknown45000) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_GO_STRAIGHT_TO_COORD, ped, x, y, z, unknown2, unknown45000); }
 			static void _TASK_GO_STRAIGHT_TO_COORD_RELATIVE_TO_CAR(Ped ped, ScriptAny Unk227, ScriptAny Unk228, ScriptAny Unk229, ScriptAny Unk230, ScriptAny Unk231, ScriptAny Unk232) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_GO_STRAIGHT_TO_COORD_RELATIVE_TO_CAR, ped, Unk227, Unk228, Unk229, Unk230, Unk231, Unk232); }
 			static void _TASK_GO_TO_CHAR(Ped ped, ScriptAny Unk233, ScriptAny Unk234, ScriptAny Unk235) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_GO_TO_CHAR, ped, Unk233, Unk234, Unk235); }
@@ -1644,57 +1711,65 @@ namespace IVSDKDotNet
 			static void _TASK_MOBILE_CONVERSATION(Ped ped, ScriptAny Unk296) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_MOBILE_CONVERSATION, ped, Unk296); }
 			static void _TASK_OPEN_DRIVER_DOOR(Ped ped, Vehicle vehicle, unsigned int unknown0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_OPEN_DRIVER_DOOR, ped, vehicle, unknown0); }
 			static void _TASK_OPEN_PASSENGER_DOOR(Ped ped, Vehicle vehicle, unsigned int seatIndex, unsigned int unknown0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_OPEN_PASSENGER_DOOR, ped, vehicle, seatIndex, unknown0); }
-			static void _TASK_PAUSE(Ped ped, unsigned int duration) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PAUSE, ped, duration); }
+			static void _TASK_PAUSE(Ped ped, int duration) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PAUSE, ped, duration); }
 			static void _TASK_PERFORM_SEQUENCE(Ped ped, TaskSequence taskSequence) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PERFORM_SEQUENCE, ped, taskSequence); }
 			static void _TASK_PERFORM_SEQUENCE_FROM_PROGRESS(Ped ped, ScriptAny Unk297, ScriptAny Unk298, ScriptAny Unk299) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PERFORM_SEQUENCE_FROM_PROGRESS, ped, Unk297, Unk298, Unk299); }
 			static void _TASK_PERFORM_SEQUENCE_LOCALLY(Ped ped, ScriptAny Unk300) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PERFORM_SEQUENCE_LOCALLY, ped, Unk300); }
 			static void _TASK_PICKUP_AND_CARRY_OBJECT(Ped ped, ScriptAny Unk301, ScriptAny Unk302, ScriptAny Unk303, ScriptAny Unk304, ScriptAny Unk305){ NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PICKUP_AND_CARRY_OBJECT, ped, Unk301, Unk302, Unk303, Unk304, Unk305); }
-			static void _TASK_PLAY_ANIM(Ped ped, String^ Unk306, String^ Unk307, float Unk308, ScriptAny Unk309, ScriptAny Unk310, ScriptAny Unk311, ScriptAny Unk312, ScriptAny Unk313)
+			static void _TASK_PLAY_ANIM(Ped ped, String^ animName, String^ animSet, float Unk308, ScriptAny Unk309, ScriptAny Unk310, ScriptAny Unk311, ScriptAny Unk312, ScriptAny Unk313)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM, ped, ctx.marshal_as<const char*>(Unk306), ctx.marshal_as<const char*>(Unk307), Unk308, Unk309, Unk310, Unk311, Unk312, Unk313);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM, ped, ctx.marshal_as<const char*>(animName), ctx.marshal_as<const char*>(animSet), Unk308, Unk309, Unk310, Unk311, Unk312, Unk313);
 			}
-			static void _TASK_PLAY_ANIM_FACIAL(Ped ped, String^ Unk314, String^ Unk315, float Unk316, int Unk317, int Unk318, int Unk319)
+			static void _TASK_PLAY_ANIM_FACIAL(Ped ped, String^ animName, String^ animSet, float Unk316, int Unk317, int Unk318, int Unk319)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_FACIAL, ped, ctx.marshal_as<const char*>(Unk314), ctx.marshal_as<const char*>(Unk315), Unk316, Unk317, Unk318, Unk319);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_FACIAL, ped, ctx.marshal_as<const char*>(animName), ctx.marshal_as<const char*>(animSet), Unk316, Unk317, Unk318, Unk319);
 			}
-			static void _TASK_PLAY_ANIM_NON_INTERRUPTABLE(Ped ped, String^ animname0, String^ animname1, float Unk320, int Unk321, int Unk322, int Unk323, int Unk324, int Unk325)
+			static void _TASK_PLAY_ANIM_NON_INTERRUPTABLE(Ped ped, String^ animName, String^ animSet, float Unk320, int Unk321, int Unk322, int Unk323, int Unk324, int Unk325)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_NON_INTERRUPTABLE, ped, ctx.marshal_as<const char*>(animname0), ctx.marshal_as<const char*>(animname1), Unk320, Unk321, Unk322, Unk323, Unk324, Unk325);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_NON_INTERRUPTABLE, ped, ctx.marshal_as<const char*>(animName), ctx.marshal_as<const char*>(animSet), Unk320, Unk321, Unk322, Unk323, Unk324, Unk325);
 			}
-			static void _TASK_PLAY_ANIM_ON_CLONE(Ped ped, ScriptAny Unk326, ScriptAny Unk327, ScriptAny Unk328, ScriptAny Unk329, ScriptAny Unk330, ScriptAny Unk331, ScriptAny Unk332, ScriptAny Unk333) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_ON_CLONE, ped, Unk326, Unk327, Unk328, Unk329, Unk330, Unk331, Unk332, Unk333); }
-			static void _TASK_PLAY_ANIM_READY_TO_BE_EXECUTED(Ped ped, ScriptAny Unk334, ScriptAny Unk335, ScriptAny Unk336) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_READY_TO_BE_EXECUTED, ped, Unk334, Unk335, Unk336); }
-			static void _TASK_PLAY_ANIM_SECONDARY(Ped ped, String^ Unk337, String^ Unk338, float Unk339, ScriptAny Unk340, ScriptAny Unk341, ScriptAny Unk342, ScriptAny Unk343, ScriptAny Unk344)
+			static void _TASK_PLAY_ANIM_ON_CLONE(Ped ped, String^ animName, String^ animSet, ScriptAny Unk328, ScriptAny Unk329, ScriptAny Unk330, ScriptAny Unk331, ScriptAny Unk332, ScriptAny Unk333)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_SECONDARY, ped, ctx.marshal_as<const char*>(Unk337), ctx.marshal_as<const char*>(Unk338), Unk339, Unk340, Unk341, Unk342, Unk343, Unk344);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_ON_CLONE, ped, ctx.marshal_as<const char*>(animName), ctx.marshal_as<const char*>(animSet), Unk328, Unk329, Unk330, Unk331, Unk332, Unk333);
 			}
-			static void _TASK_PLAY_ANIM_SECONDARY_IN_CAR(Ped ped, String^ Unk345, String^ Unk346, float Unk347, ScriptAny Unk348, ScriptAny Unk349, ScriptAny Unk350, ScriptAny Unk351, ScriptAny Unk352)
+			static void _TASK_PLAY_ANIM_READY_TO_BE_EXECUTED(Ped ped, String^ animName, String^ animSet, ScriptAny Unk336)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_SECONDARY_IN_CAR, ped, ctx.marshal_as<const char*>(Unk345), ctx.marshal_as<const char*>(Unk346), Unk347, Unk348, Unk349, Unk350, Unk351, Unk352);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_READY_TO_BE_EXECUTED, ped, ctx.marshal_as<const char*>(animName), ctx.marshal_as<const char*>(animSet), Unk336);
 			}
-			static void _TASK_PLAY_ANIM_SECONDARY_NO_INTERRUPT(Ped ped, String^ Unk353, String^ Unk354, float Unk355, ScriptAny Unk356, ScriptAny Unk357, ScriptAny Unk358, ScriptAny Unk359, ScriptAny Unk360)
+			static void _TASK_PLAY_ANIM_SECONDARY(Ped ped, String^ animName, String^ animSet, float Unk339, ScriptAny Unk340, ScriptAny Unk341, ScriptAny Unk342, ScriptAny Unk343, ScriptAny Unk344)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_SECONDARY_NO_INTERRUPT, ped, ctx.marshal_as<const char*>(Unk353), ctx.marshal_as<const char*>(Unk354), Unk355, Unk356, Unk357, Unk358, Unk359, Unk360);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_SECONDARY, ped, ctx.marshal_as<const char*>(animName), ctx.marshal_as<const char*>(animSet), Unk339, Unk340, Unk341, Unk342, Unk343, Unk344);
 			}
-			static void _TASK_PLAY_ANIM_SECONDARY_UPPER_BODY(Ped ped, String^ Unk361, String^ Unk362, float Unk363, ScriptAny Unk364, ScriptAny Unk365, ScriptAny Unk366, ScriptAny Unk367, ScriptAny Unk368)
+			static void _TASK_PLAY_ANIM_SECONDARY_IN_CAR(Ped ped, String^ animName, String^ animSet, float Unk347, ScriptAny Unk348, ScriptAny Unk349, ScriptAny Unk350, ScriptAny Unk351, ScriptAny Unk352)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_SECONDARY_UPPER_BODY, ped, ctx.marshal_as<const char*>(Unk361), ctx.marshal_as<const char*>(Unk362), Unk363, Unk364, Unk365, Unk366, Unk367, Unk368);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_SECONDARY_IN_CAR, ped, ctx.marshal_as<const char*>(animName), ctx.marshal_as<const char*>(animSet), Unk347, Unk348, Unk349, Unk350, Unk351, Unk352);
 			}
-			static void _TASK_PLAY_ANIM_UPPER_BODY(Ped ped, String^ Unk369, String^ Unk370, float Unk371, ScriptAny Unk372, ScriptAny Unk373, ScriptAny Unk374, ScriptAny Unk375, ScriptAny Unk376)
+			static void _TASK_PLAY_ANIM_SECONDARY_NO_INTERRUPT(Ped ped, String^ animName, String^ animSet, float Unk355, ScriptAny Unk356, ScriptAny Unk357, ScriptAny Unk358, ScriptAny Unk359, ScriptAny Unk360)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_UPPER_BODY, ped, ctx.marshal_as<const char*>(Unk369), ctx.marshal_as<const char*>(Unk370), Unk371, Unk372, Unk373, Unk374, Unk375, Unk376);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_SECONDARY_NO_INTERRUPT, ped, ctx.marshal_as<const char*>(animName), ctx.marshal_as<const char*>(animSet), Unk355, Unk356, Unk357, Unk358, Unk359, Unk360);
 			}
-			static void _TASK_PLAY_ANIM_WITH_ADVANCED_FLAGS(Ped ped, String^ Unk377, String^ Unk378, float Unk379, ScriptAny Unk380, ScriptAny Unk381, ScriptAny Unk382, ScriptAny Unk383, ScriptAny Unk384, ScriptAny Unk385, ScriptAny Unk386, ScriptAny Unk387)
+			static void _TASK_PLAY_ANIM_SECONDARY_UPPER_BODY(Ped ped, String^ animName, String^ animSet, float Unk363, ScriptAny Unk364, ScriptAny Unk365, ScriptAny Unk366, ScriptAny Unk367, ScriptAny Unk368)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_WITH_ADVANCED_FLAGS, ped, ctx.marshal_as<const char*>(Unk377), ctx.marshal_as<const char*>(Unk378), Unk379, Unk380, Unk381, Unk382, Unk383, Unk384, Unk385, Unk386, Unk387);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_SECONDARY_UPPER_BODY, ped, ctx.marshal_as<const char*>(animName), ctx.marshal_as<const char*>(animSet), Unk363, Unk364, Unk365, Unk366, Unk367, Unk368);
+			}
+			static void _TASK_PLAY_ANIM_UPPER_BODY(Ped ped, String^ animName, String^ animSet, float Unk371, ScriptAny Unk372, ScriptAny Unk373, ScriptAny Unk374, ScriptAny Unk375, ScriptAny Unk376)
+			{
+				msclr::interop::marshal_context ctx;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_UPPER_BODY, ped, ctx.marshal_as<const char*>(animName), ctx.marshal_as<const char*>(animSet), Unk371, Unk372, Unk373, Unk374, Unk375, Unk376);
+			}
+			static void _TASK_PLAY_ANIM_WITH_ADVANCED_FLAGS(Ped ped, String^ animName, String^ animSet, float Unk379, ScriptAny Unk380, ScriptAny Unk381, ScriptAny Unk382, ScriptAny Unk383, ScriptAny Unk384, ScriptAny Unk385, ScriptAny Unk386, ScriptAny Unk387)
+			{
+				msclr::interop::marshal_context ctx;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_PLAY_ANIM_WITH_ADVANCED_FLAGS, ped, ctx.marshal_as<const char*>(animName), ctx.marshal_as<const char*>(animSet), Unk379, Unk380, Unk381, Unk382, Unk383, Unk384, Unk385, Unk386, Unk387);
 			}
 			static void _TASK_PLAY_ANIM_WITH_FLAGS(Ped ped, String^ animName, String^ animSet, float unknown0_8, int unknown1_0, int flags)
 			{
@@ -1733,7 +1808,7 @@ namespace IVSDKDotNet
 			{
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_START_SCENARIO_IN_PLACE, ped, Unk469, Unk470);
 			}
-			static void _TASK_SWAP_WEAPON(Ped ped, unsigned int weapon) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_SWAP_WEAPON, ped, weapon); }
+			static void _TASK_SWAP_WEAPON(Ped ped, int weapon) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_SWAP_WEAPON, ped, weapon); }
 			static void _TASK_SWIM_TO_COORD(Ped ped, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_SWIM_TO_COORD, ped, x, y, z); }
 			static void _TASK_TIRED(Ped ped, int Unk471) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_TIRED, ped, Unk471); }
 			static void _TASK_TOGGLE_DUCK(Ped ped, int Unk472) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TASK_TOGGLE_DUCK, ped, Unk472); }
@@ -2069,6 +2144,12 @@ namespace IVSDKDotNet
 				msclr::interop::marshal_context ctx;
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_FREEZE_RADIO_STATION, ctx.marshal_as<const char*>(stationName));
 			}
+			static void GET_SOUND_LEVEL_AT_COORDS(Ped ped, Vector3 pos, [OutAttribute] int% level)
+			{
+				int p;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_SOUND_LEVEL_AT_COORDS, ped, pos.X, pos.Y, pos.Z, &p);
+				level = p;
+			}
 			static void GET_SOUND_LEVEL_AT_COORDS(Ped ped, float x, float y, float z, [OutAttribute] int% level)
 			{
 				int p;
@@ -2107,32 +2188,38 @@ namespace IVSDKDotNet
 				msclr::interop::marshal_context ctx;
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_AUDIO_EVENT_FROM_VEHICLE, ctx.marshal_as<const char*>(name), veh);
 			}
-			static void PLAY_FIRE_SOUND_FROM_POSITION(int sound_id, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_FIRE_SOUND_FROM_POSITION, sound_id, x, y, z); }
+			static void PLAY_FIRE_SOUND_FROM_POSITION(int soundId, Vector3 pos) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_FIRE_SOUND_FROM_POSITION, soundId, pos.X, pos.Y, pos.Z); }
+			static void PLAY_FIRE_SOUND_FROM_POSITION(int soundId, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_FIRE_SOUND_FROM_POSITION, soundId, x, y, z); }
 			static void PLAY_SCRIPTED_CONVERSATION_FRONTEND(b8 play) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_SCRIPTED_CONVERSATION_FRONTEND, play); }
-			static void PLAY_SOUND(int SoundId, String^ SoundName)
+			static void PLAY_SOUND(int soundId, String^ SoundName)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_SOUND, SoundId, (char*)ctx.marshal_as<const char*>(SoundName));
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_SOUND, soundId, (char*)ctx.marshal_as<const char*>(SoundName));
 			}
-			static void PLAY_SOUND_FROM_OBJECT(int sound_id, String^ name, Entity obj)
+			static void PLAY_SOUND_FROM_OBJECT(int soundId, String^ name, Entity obj)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_SOUND_FROM_OBJECT, sound_id, (char*)ctx.marshal_as<const char*>(name), obj);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_SOUND_FROM_OBJECT, soundId, (char*)ctx.marshal_as<const char*>(name), obj);
 			}
-			static void PLAY_SOUND_FROM_PED(int SoundId, String^ SoundName, Ped ped)
+			static void PLAY_SOUND_FROM_PED(int soundId, String^ SoundName, Ped ped)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_SOUND_FROM_PED, SoundId, (char*)ctx.marshal_as<const char*>(SoundName), ped);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_SOUND_FROM_PED, soundId, (char*)ctx.marshal_as<const char*>(SoundName), ped);
 			}
-			static void PLAY_SOUND_FROM_POSITION(int sound_id, String^ name, float x, float y, float z)
+			static void PLAY_SOUND_FROM_POSITION(int soundId, String^ name, Vector3 pos)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_SOUND_FROM_POSITION, sound_id, (char*)ctx.marshal_as<const char*>(name), x, y, z);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_SOUND_FROM_POSITION, soundId, (char*)ctx.marshal_as<const char*>(name), pos.X, pos.Y, pos.Z);
 			}
-			static void PLAY_SOUND_FROM_VEHICLE(int SoundId, String^ SoundName, Vehicle veh)
+			static void PLAY_SOUND_FROM_POSITION(int soundId, String^ name, float x, float y, float z)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_SOUND_FROM_VEHICLE, SoundId, (char*)ctx.marshal_as<const char*>(SoundName), veh);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_SOUND_FROM_POSITION, soundId, (char*)ctx.marshal_as<const char*>(name), x, y, z);
+			}
+			static void PLAY_SOUND_FROM_VEHICLE(int soundId, String^ SoundName, Vehicle veh)
+			{
+				msclr::interop::marshal_context ctx;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_SOUND_FROM_VEHICLE, soundId, (char*)ctx.marshal_as<const char*>(SoundName), veh);
 			}
 			static void PLAY_SOUND_FRONTEND(int soundId, String^ soundName)
 			{
@@ -2144,7 +2231,7 @@ namespace IVSDKDotNet
 			static void PLAY_STREAM_FRONTEND() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAY_STREAM_FRONTEND); }
 			static void REGISTER_SCRIPT_WITH_AUDIO(b8 reg) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REGISTER_SCRIPT_WITH_AUDIO, reg); }
 			static void RELEASE_SCRIPT_CONTROLLED_MICROPHONE() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_RELEASE_SCRIPT_CONTROLLED_MICROPHONE); }
-			static void RELEASE_SOUND_ID(unsigned int sound) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_RELEASE_SOUND_ID, sound); }
+			static void RELEASE_SOUND_ID(int soundId) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_RELEASE_SOUND_ID, soundId); }
 			static void RESTART_SCRIPTED_CONVERSATION() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_RESTART_SCRIPTED_CONVERSATION); }
 			static void RETUNE_RADIO_DOWN() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_RETUNE_RADIO_DOWN); }
 			static void RETUNE_RADIO_TO_STATION_INDEX(unsigned int radioStation) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_RETUNE_RADIO_TO_STATION_INDEX, radioStation); }
@@ -2169,15 +2256,18 @@ namespace IVSDKDotNet
 				msclr::interop::marshal_context ctx;
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_AMBIENT_VOICE_NAME, ped, ctx.marshal_as<const char*>(name));
 			}
+			
+			static void SET_AMMO_IN_CLIP(Ped ped, int weapon, int ammo) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_SET_AMMO_IN_CLIP, ped, weapon, ammo); }
+			
 			static void SET_GPS_VOICE_FOR_VEHICLE(Vehicle veh, int VoiceId) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_GPS_VOICE_FOR_VEHICLE, veh, VoiceId); }
 			static void SET_LOUD_VEHICLE_RADIO(Vehicle veh, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_LOUD_VEHICLE_RADIO, veh, set); }
 			static void SET_MOVIE_VOLUME(float volume) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_MOVIE_VOLUME, volume); }
 			static void SET_SCRIPT_MIC_LOOK_AT(float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_SCRIPT_MIC_LOOK_AT, x, y, z); }
 			static void SET_SCRIPT_MIC_POSITION(float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_SCRIPT_MIC_POSITION, x, y, z); }
-			static void SET_VARIABLE_ON_SOUND(unsigned int sound, String^ varname, float value)
+			static void SET_VARIABLE_ON_SOUND(int soundId, String^ varname, float value)
 			{
 				msclr::interop::marshal_context ctx;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_VARIABLE_ON_SOUND, sound, ctx.marshal_as<const char*>(varname), value);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_VARIABLE_ON_SOUND, soundId, ctx.marshal_as<const char*>(varname), value);
 			}
 			static void SET_VOICE_ID_FROM_HEAD_COMPONENT(Ped ped, int VoiceId, b8 IsMale) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_VOICE_ID_FROM_HEAD_COMPONENT, ped, VoiceId, IsMale); }
 			static void SKIP_RADIO_FORWARD() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SKIP_RADIO_FORWARD); }
@@ -2185,7 +2275,7 @@ namespace IVSDKDotNet
 			static void START_END_CREDITS_MUSIC() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_START_END_CREDITS_MUSIC); }
 			static void START_SCRIPT_CONVERSATION(b8 flag0, b8 flag1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_START_SCRIPT_CONVERSATION, flag0, flag1); }
 			static void STOP_END_CREDITS_MUSIC() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_STOP_END_CREDITS_MUSIC); }
-			static void STOP_SOUND(unsigned int sound) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_STOP_SOUND, sound); }
+			static void STOP_SOUND(int sound) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_STOP_SOUND, sound); }
 			static void TRIGGER_LOADING_MUSIC_ON_NEXT_FADE() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TRIGGER_LOADING_MUSIC_ON_NEXT_FADE); }
 			static void TRIGGER_MISSION_COMPLETE_AUDIO(int id) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TRIGGER_MISSION_COMPLETE_AUDIO, id); }
 			static void UNFREEZE_RADIO_STATION(String^ radiostation)
@@ -2584,28 +2674,28 @@ namespace IVSDKDotNet
 			static void UNATTACH_CAM(int cam) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_UNATTACH_CAM, cam); }
 			static void UNINHERIT_CAM_ROLL(int cam) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_UNINHERIT_CAM_ROLL, cam); }
 			static void UNPOINT_CAM(int cam) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_UNPOINT_CAM, cam); }
-			static void ADD_AMMO_TO_CHAR(Ped ped, unsigned int weapon, unsigned int amount) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_AMMO_TO_CHAR, ped, weapon, amount); }
+			static void ADD_AMMO_TO_CHAR(Ped ped, int weapon, int amount) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_AMMO_TO_CHAR, ped, weapon, amount); }
 			static void BLOCK_PED_WEAPON_SWITCHING(Ped ped, b8 value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_BLOCK_PED_WEAPON_SWITCHING, ped, value); }
 			static void ENABLE_MAX_AMMO_CAP(b8 enable) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ENABLE_MAX_AMMO_CAP, enable); }
 			static void FIRE_SINGLE_BULLET(float x, float y, float z, float targetX, float targetY, float targetZ, unsigned int unknown) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_FIRE_SINGLE_BULLET, x, y, z, targetX, targetY, targetZ, unknown); }
 			static void FORCE_CHAR_TO_DROP_WEAPON(Ped ped) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_FORCE_CHAR_TO_DROP_WEAPON, ped); }
-			static void GET_AMMO_IN_CHAR_WEAPON(Ped ped, unsigned int weapon, [OutAttribute] unsigned int% pAmmo)
+			static void GET_AMMO_IN_CHAR_WEAPON(Ped ped, int weapon, [OutAttribute] int% pAmmo)
 			{
-				unsigned int p;
+				int p;
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_AMMO_IN_CHAR_WEAPON, ped, weapon, &p);
 				pAmmo = p;
 			}
-			static void GET_CHAR_WEAPON_IN_SLOT(Ped ped, unsigned int slot, [OutAttribute] unsigned int% pWeapon, [OutAttribute] unsigned int% pAmmo0, [OutAttribute] unsigned int% pAmmo1)
+			static void GET_CHAR_WEAPON_IN_SLOT(Ped ped, int slot, [OutAttribute] int% pWeapon, [OutAttribute] int% pAmmo0, [OutAttribute] int% pAmmo1)
 			{
-				unsigned int p1, p2, p3;
+				int p1, p2, p3;
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_CHAR_WEAPON_IN_SLOT, ped, slot, &p1, &p2, &p3);
 				pWeapon = p1;
 				pAmmo0 = p2;
 				pAmmo1 = p3;
 			}
-			static void GET_MAX_AMMO_IN_CLIP(Ped ped, unsigned int weapon, [OutAttribute] unsigned int% pMaxAmmo)
+			static void GET_MAX_AMMO_IN_CLIP(Ped ped, int weapon, [OutAttribute] int% pMaxAmmo)
 			{
-				unsigned int p;
+				int p;
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_MAX_AMMO_IN_CLIP, ped, weapon, &p);
 				pMaxAmmo = p;
 			}
@@ -2622,15 +2712,15 @@ namespace IVSDKDotNet
 				slot = p;
 			}
 			static void GIVE_DELAYED_WEAPON_TO_CHAR(Ped ped, int weapon, int delaytime, b8 flag) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GIVE_DELAYED_WEAPON_TO_CHAR, ped, weapon, delaytime, flag); }
-			static void GIVE_WEAPON_TO_CHAR(Ped ped, unsigned int weapon, unsigned int ammo, b8 unknown0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GIVE_WEAPON_TO_CHAR, ped, weapon, ammo, unknown0); }
+			static void GIVE_WEAPON_TO_CHAR(Ped ped, int weapon, int ammo, b8 unknown0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GIVE_WEAPON_TO_CHAR, ped, weapon, ammo, unknown0); }
 			static void HIDE_CHAR_WEAPON_FOR_SCRIPTED_CUTSCENE(Ped ped, b8 hide) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_HIDE_CHAR_WEAPON_FOR_SCRIPTED_CUTSCENE, ped, hide); }
 			static void REMOVE_ALL_CHAR_WEAPONS(Ped ped) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REMOVE_ALL_CHAR_WEAPONS, ped); }
-			static void REMOVE_WEAPON_FROM_CHAR(Ped ped, unsigned int weapon) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REMOVE_WEAPON_FROM_CHAR, ped, weapon); }
+			static void REMOVE_WEAPON_FROM_CHAR(Ped ped, int weapon) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REMOVE_WEAPON_FROM_CHAR, ped, weapon); }
 			static void SET_CAN_TARGET_CHAR_WITHOUT_LOS(Ped ped, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CAN_TARGET_CHAR_WITHOUT_LOS, ped, set); }
-			static void SET_CHAR_AMMO(Ped ped, unsigned int weapon, unsigned int ammo) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_AMMO, ped, weapon, ammo); }
+			static void SET_CHAR_AMMO(Ped ped, int weapon, int ammo) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_AMMO, ped, weapon, ammo); }
 			static void SET_CHAR_CURRENT_WEAPON_VISIBLE(Ped ped, b8 visble) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_CURRENT_WEAPON_VISIBLE, ped, visble); }
 			static void SET_CHAR_WEAPON_SKILL(Ped ped, int skill) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_WEAPON_SKILL, ped, skill); }
-			static void SET_CURRENT_CHAR_WEAPON(Ped ped, unsigned int w, b8 unknownTrue) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CURRENT_CHAR_WEAPON, ped, w, unknownTrue); }
+			static void SET_CURRENT_CHAR_WEAPON(Ped ped, int weapon, b8 unknownTrue) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CURRENT_CHAR_WEAPON, ped, weapon, unknownTrue); }
 			static void SET_ENABLE_NEAR_CLIP_SCAN(b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_ENABLE_NEAR_CLIP_SCAN, set); }
 			static void SET_ENABLE_RC_DETONATE(b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_ENABLE_RC_DETONATE, set); }
 			static void SET_ENABLE_RC_DETONATE_ON_CONTACT(b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_ENABLE_RC_DETONATE_ON_CONTACT, set); }
@@ -2695,13 +2785,14 @@ namespace IVSDKDotNet
 				msclr::interop::marshal_context ctx;
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REQUEST_IPL, ctx.marshal_as<const char*>(iplName));
 			}
-			[System::ObsoleteAttribute("This native is obsolete. Use CWorld.RequestModel instead.")] static void _REQUEST_MODEL(unsigned int model) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REQUEST_MODEL, model); }
+			static void REQUEST_MODEL(int model) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_REQUEST_MODEL, model); }
 			static void REQUEST_STREAMED_TXD(String^ txdName, b8 unknown)
 			{
 				msclr::interop::marshal_context ctx;
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REQUEST_STREAMED_TXD, ctx.marshal_as<const char*>(txdName), unknown);
 			}
-			static void SET_STATE_OF_CLOSEST_DOOR_OF_TYPE(unsigned int model, float x, float y, float z, int state, float Unk601) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_STATE_OF_CLOSEST_DOOR_OF_TYPE, model, x, y, z, state, Unk601); }
+			static void SET_STATE_OF_CLOSEST_DOOR_OF_TYPE(unsigned int model, Vector3 pos, bool locked, float heading) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_STATE_OF_CLOSEST_DOOR_OF_TYPE, model, pos.X, pos.Y, pos.Z, locked, heading); }
+			static void SET_STATE_OF_CLOSEST_DOOR_OF_TYPE(unsigned int model, float x, float y, float z, bool locked, float heading) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_STATE_OF_CLOSEST_DOOR_OF_TYPE, model, x, y, z, locked, heading); }
 			static void SET_STREAMING_REQUEST_LIST_TIME(int time) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_STREAMING_REQUEST_LIST_TIME, time); }
 			//static void SET_STREAM_PARAMS(float rolloff, int UnkTime) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_STREAM_PARAMS, rolloff, UnkTime); }
 			static void SIMULATE_UPDATE_LOAD_SCENE() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SIMULATE_UPDATE_LOAD_SCENE); }
@@ -2726,9 +2817,9 @@ namespace IVSDKDotNet
 			static void DESTROY_THREAD(int ScriptHandle) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DESTROY_THREAD, ScriptHandle); }
 			static uint32_t GET_MAP_AREA_FROM_COORDS(Vector3 pos) { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_MAP_AREA_FROM_COORDS, pos.X, pos.Y, pos.Z); }
 			static uint32_t GET_MAP_AREA_FROM_COORDS(float x, float y, float z) { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_MAP_AREA_FROM_COORDS, x, y, z); }
-			static void GET_SCRIPT_RENDERTARGET_RENDER_ID([OutAttribute] unsigned int% pRenderId)
+			static void GET_SCRIPT_RENDERTARGET_RENDER_ID([OutAttribute] int% pRenderId)
 			{
-				unsigned int p;
+				int p;
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_SCRIPT_RENDERTARGET_RENDER_ID, &p);
 				pRenderId = p;
 			}
@@ -3016,6 +3107,10 @@ namespace IVSDKDotNet
 			static Ped GET_BLIP_INFO_ID_PED_INDEX(Blip blip) { return NativeInvoke::Invoke<Ped>(eNativeHash::NATIVE_GET_BLIP_INFO_ID_PED_INDEX, blip); }
 			static Entity GET_BLIP_INFO_ID_OBJECT_INDEX(Blip blip) { return NativeInvoke::Invoke<Entity>(eNativeHash::NATIVE_GET_BLIP_INFO_ID_OBJECT_INDEX, blip); }
 			static Pickup GET_BLIP_INFO_ID_PICKUP_INDEX(Blip blip) { return NativeInvoke::Invoke<Pickup>(eNativeHash::NATIVE_GET_BLIP_INFO_ID_PICKUP_INDEX, blip); }
+			//static String^ GET_BLIP_NAME(Blip blip)
+			//{
+			//	return gcnew String(NativeInvoke::Invoke<char*>(eNativeHash::get_blip_name, blip)); // TODO
+			//}
 			static uint32_t GET_BLIP_SPRITE(Blip blip) { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_BLIP_SPRITE, blip); }
 
 			static void HIDE_HELP_TEXT_THIS_FRAME() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_HIDE_HELP_TEXT_THIS_FRAME); }
@@ -3680,6 +3775,7 @@ namespace IVSDKDotNet
 			static FireId START_CAR_FIRE(Vehicle veh) { return NativeInvoke::Invoke<FireId>(eNativeHash::NATIVE_START_CAR_FIRE, veh); }
 			static FireId START_CHAR_FIRE(Ped ped) { return NativeInvoke::Invoke<FireId>(eNativeHash::NATIVE_START_CHAR_FIRE, ped); }
 			static FireId START_SCRIPT_FIRE(Vector3 pos, uint32_t numGenerationsAllowed, uint32_t strength) { return NativeInvoke::Invoke<FireId>(eNativeHash::NATIVE_START_SCRIPT_FIRE, pos.X, pos.Y, pos.Z, numGenerationsAllowed, strength); }
+			static FireId START_OBJECT_FIRE(Entity obj) { return NativeInvoke::Invoke<FireId>(eNativeHash::NATIVE_START_OBJECT_FIRE, obj); }
 			static void SET_MAX_FIRE_GENERATIONS(int max) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_MAX_FIRE_GENERATIONS, max); }
 			static void ADD_CHAR_DECISION_MAKER_EVENT_RESPONSE(DecisionMaker dm, unsigned int eventid, unsigned int responseid, float param1, float param2, float param3, float param4, unsigned int unknown0_1, unsigned int unknown1_1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_CHAR_DECISION_MAKER_EVENT_RESPONSE, dm, eventid, responseid, param1, param2, param3, param4, unknown0_1, unknown1_1); }
 			//static void ADD_COMBAT_DECISION_MAKER_EVENT_RESPONSE(DecisionMaker dm, unsigned int eventid, unsigned int responseid, float param1, float param2, float param3, float param4, unsigned int unknown0_1, unsigned int unknown1_1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_COMBAT_DECISION_MAKER_EVENT_RESPONSE, dm, eventid, responseid, param1, param2, param3, param4, unknown0_1, unknown1_1); }
@@ -3852,7 +3948,11 @@ namespace IVSDKDotNet
 			static void NETWORK_SET_TALKER_PROXIMITY(ScriptAny Unk933) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_NETWORK_SET_TALKER_PROXIMITY, Unk933); }
 			static void NETWORK_SET_TEAM_ONLY_CHAT(b8 Unk934) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_NETWORK_SET_TEAM_ONLY_CHAT, Unk934); }
 			static void NETWORK_SET_TEXT_CHAT_RECIPIENTS(ScriptAny Unk935) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_NETWORK_SET_TEXT_CHAT_RECIPIENTS, Unk935); }
-			static void NETWORK_SHOW_FRIEND_PROFILE_UI(ScriptAny Unk936) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_NETWORK_SHOW_FRIEND_PROFILE_UI, Unk936); }
+			static void NETWORK_SHOW_FRIEND_PROFILE_UI(String^ friendName)
+			{
+				msclr::interop::marshal_context ctx;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_NETWORK_SHOW_FRIEND_PROFILE_UI, ctx.marshal_as<const char*>(friendName));
+			}
 			static void NETWORK_SHOW_MET_PLAYER_FEEDBACK_UI(Player metPlayerIndex) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_NETWORK_SHOW_MET_PLAYER_FEEDBACK_UI, metPlayerIndex); }
 			static void NETWORK_SHOW_PLAYER_FEEDBACK_UI(Player payerIndex) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_NETWORK_SHOW_PLAYER_FEEDBACK_UI, payerIndex); }
 			static void NETWORK_SHOW_MET_PLAYER_PROFILE_UI(ScriptAny Unk937) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_NETWORK_SHOW_MET_PLAYER_PROFILE_UI, Unk937); }
@@ -3865,11 +3965,13 @@ namespace IVSDKDotNet
 			static void OBFUSCATE_INT_ARRAY(ScriptAny Unk943, ScriptAny Unk944) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_OBFUSCATE_INT_ARRAY, Unk943, Unk944); }
 			static void REGISTER_CLIENT_BROADCAST_VARIABLES(IntPtr data, int sizeOfData, int brodcastID)
 			{
-				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_REGISTER_CLIENT_BROADCAST_VARIABLES, data.ToPointer(), sizeOfData, brodcastID);
+				void* d = data.ToPointer();
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_REGISTER_CLIENT_BROADCAST_VARIABLES, &d, sizeOfData, brodcastID);
 			}
 			static void REGISTER_HOST_BROADCAST_VARIABLES(IntPtr data, int sizeOfData, int brodcastID)
 			{
-				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_REGISTER_HOST_BROADCAST_VARIABLES, data.ToPointer(), sizeOfData, brodcastID);
+				void* d = data.ToPointer();
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_REGISTER_HOST_BROADCAST_VARIABLES, &d, sizeOfData, brodcastID);
 			}
 			static void REGISTER_KILL_IN_MULTIPLAYER_GAME(Player playerIndex, int id, unsigned int ukn) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REGISTER_KILL_IN_MULTIPLAYER_GAME, playerIndex, id, ukn); }
 			static void REGISTER_MULTIPLAYER_GAME_WIN(Player playerIndex, b8 Unk949) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REGISTER_MULTIPLAYER_GAME_WIN, playerIndex, Unk949); }
@@ -3983,9 +4085,9 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GENERATE_RANDOM_INT, &p);
 				return p;
 			}
-			static uint32_t GENERATE_RANDOM_INT_IN_RANGE(unsigned int min, unsigned int max)
+			static int GENERATE_RANDOM_INT_IN_RANGE(int min, int max)
 			{
-				uint32_t p;
+				int p;
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GENERATE_RANDOM_INT_IN_RANGE, min, max, &p);
 				return p;
 			}
@@ -4000,7 +4102,7 @@ namespace IVSDKDotNet
 			static void SETTIMERA(unsigned int value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SETTIMERA, value); }
 			static void SETTIMERB(unsigned int value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SETTIMERB, value); }
 			static void SETTIMERC(int Unk1088) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SETTIMERC, Unk1088); }
-			//static void WAIT(int timeMS) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_WAIT, timeMS); }
+			static void WAIT(int timeMS) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_WAIT, timeMS); }
 			static void ADD_PICKUP_TO_INTERIOR_ROOM_BY_KEY(Entity pickup, unsigned int room_hash) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_PICKUP_TO_INTERIOR_ROOM_BY_KEY, pickup, room_hash); }
 			static void ADD_PICKUP_TO_INTERIOR_ROOM_BY_NAME(Pickup pickup, String^ roomName)
 			{
@@ -4105,7 +4207,6 @@ namespace IVSDKDotNet
 			static void ADD_WIDGET_SLIDER(ScriptAny Unk1101, ScriptAny Unk1102, ScriptAny Unk1103, ScriptAny Unk1104, ScriptAny Unk1105) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_WIDGET_SLIDER, Unk1101, Unk1102, Unk1103, Unk1104, Unk1105); }
 			static void ADD_WIDGET_STRING(ScriptAny Unk1106) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_WIDGET_STRING, Unk1106); }
 			static void ADD_WIDGET_TOGGLE(ScriptAny Unk1107, ScriptAny Unk1108) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_WIDGET_TOGGLE, Unk1107, Unk1108); }
-			/// <summary>Hey, isn't that Zolika1351?</summary>
 			static void CREATE_WIDGET_GROUP(ScriptAny Unk1109) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CREATE_WIDGET_GROUP, Unk1109); }
 			static void DELETE_WIDGET(ScriptAny Unk1110) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DELETE_WIDGET, Unk1110); }
 			static void DELETE_WIDGET_GROUP(ScriptAny Unk1111) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DELETE_WIDGET_GROUP, Unk1111); }
@@ -4134,6 +4235,7 @@ namespace IVSDKDotNet
 			static void SET_PED_STOP_CLONING(Ped ped, b8 stop) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_PED_STOP_CLONING, ped, stop); }
 			static b8 ARE_ANY_CHARS_NEAR_CHAR(Ped ped, float radius) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_ARE_ANY_CHARS_NEAR_CHAR, ped, radius); }
 			static b8 CAN_CHAR_SEE_DEAD_CHAR(Ped ped, Ped pednext) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_CAN_CHAR_SEE_DEAD_CHAR, ped, pednext); }
+			static b8 WAS_PED_KILLED_BY_HEADSHOT(Ped ped) { return NativeInvoke::Invoke<b8>(eNativeHash::NATIVE_WAS_PED_KILLED_BY_HEADSHOT, ped); }
 			static b8 CELL_CAM_IS_CHAR_VISIBLE(Ped ped) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_CELL_CAM_IS_CHAR_VISIBLE, ped); }
 			static b8 CELL_CAM_IS_CHAR_VISIBLE_NO_FACE_CHECK(Ped ped) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_CELL_CAM_IS_CHAR_VISIBLE_NO_FACE_CHECK, ped); }
 			static b8 DOES_CHAR_EXIST(Ped ped) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_DOES_CHAR_EXIST, ped); }
@@ -4174,7 +4276,7 @@ namespace IVSDKDotNet
 				return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CHAR_ANIM_FINISHED, ped, ctx.marshal_as<const char*>(AnimName0), ctx.marshal_as<const char*>(AnimName1));
 			}
 			static b8 HAS_CHAR_BEEN_ARRESTED(Ped ped) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CHAR_BEEN_ARRESTED, ped); }
-			static b8 HAS_CHAR_BEEN_DAMAGED_BY_CHAR(Ped ped, Ped otherChar, b8 unknownFalse) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CHAR_BEEN_DAMAGED_BY_CHAR, ped, otherChar, unknownFalse); }
+			static b8 HAS_CHAR_BEEN_DAMAGED_BY_CHAR(Ped ped, Ped otherChar, b8 resetDamageFlag) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CHAR_BEEN_DAMAGED_BY_CHAR, ped, otherChar, resetDamageFlag); }
 			static b8 HAS_CHAR_BEEN_PHOTOGRAPHED(Ped ped) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CHAR_BEEN_PHOTOGRAPHED, ped); }
 			static b8 HAS_CHAR_SPOTTED_CHAR(Ped ped, Ped otherChar) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CHAR_SPOTTED_CHAR, ped, otherChar); }
 			static b8 HAS_CHAR_SPOTTED_CHAR_IN_FRONT(Ped ped, Ped otherChar) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CHAR_SPOTTED_CHAR_IN_FRONT, ped, otherChar); }
@@ -4299,7 +4401,19 @@ namespace IVSDKDotNet
 			static b8 PLAYER_IS_INTERACTING_WITH_GARAGE() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_PLAYER_IS_INTERACTING_WITH_GARAGE); }
 			static b8 PLAYER_IS_NEAR_FIRST_PIGEON(float x, float y, float z) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_PLAYER_IS_NEAR_FIRST_PIGEON, x, y, z); }
 			static b8 PLAYER_IS_PISSED_OFF(int player) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_PLAYER_IS_PISSED_OFF, player); }
-			static b8 ARE_ENEMY_PEDS_IN_AREA(Ped ped, float x, float y, float z, float radius) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_ARE_ENEMY_PEDS_IN_AREA, ped, x, y, z, radius); }
+			static b8 ARE_ENEMY_PEDS_IN_AREA(Ped ped, float x, float y, float z, float radius)
+			{
+				Native_Vector3* vec1 = new Native_Vector3();
+				vec1->x = x;
+				vec1->y = y;
+				vec1->z = z;
+
+				bool result = NativeInvoke::Invoke<b8>(eNativeHash::NATIVE_ARE_ENEMY_PEDS_IN_AREA, ped, vec1, radius);
+
+				delete vec1;
+
+				return result;
+			}
 			static b8 CAN_PED_SHIMMY_IN_DIRECTION(Ped ped, int direction) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_CAN_PED_SHIMMY_IN_DIRECTION, ped, direction); }
 			static b8 CHECK_NM_FEEDBACK(Ped ped, int id, b8 Unk13) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_CHECK_NM_FEEDBACK, ped, id, Unk13); }
 			static b8 DOES_GROUP_EXIST(Group group) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_DOES_GROUP_EXIST, group); }
@@ -4364,7 +4478,7 @@ namespace IVSDKDotNet
 			static b8 DOES_CAR_HAVE_STUCK_CAR_CHECK(Vehicle vehicle) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_DOES_CAR_HAVE_STUCK_CAR_CHECK, vehicle); }
 			static b8 DOES_VEHICLE_EXIST(Vehicle vehicle) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_DOES_VEHICLE_EXIST, vehicle); }
 			static b8 HAS_CAR_BEEN_DAMAGED_BY_CAR(Vehicle vehicle, Vehicle otherCar) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CAR_BEEN_DAMAGED_BY_CAR, vehicle, otherCar); }
-			static b8 HAS_CAR_BEEN_DAMAGED_BY_WEAPON(Vehicle vehicle, unsigned int weapon) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CAR_BEEN_DAMAGED_BY_WEAPON, vehicle, weapon); }
+			static b8 HAS_CAR_BEEN_DAMAGED_BY_WEAPON(Vehicle vehicle, int weapon) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CAR_BEEN_DAMAGED_BY_WEAPON, vehicle, weapon); }
 			static b8 HAS_CAR_BEEN_DROPPED_OFF(Vehicle car) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CAR_BEEN_DROPPED_OFF, car); }
 			static b8 HAS_CAR_BEEN_RESPRAYED(Vehicle vehicle) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CAR_BEEN_RESPRAYED, vehicle); }
 			static b8 HAS_CAR_RECORDING_BEEN_LOADED(int CarRec) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CAR_RECORDING_BEEN_LOADED, CarRec); }
@@ -4447,7 +4561,7 @@ namespace IVSDKDotNet
 			static b8 HAS_FRAGMENT_ROOT_OF_CLOSEST_OBJECT_OF_TYPE_BEEN_DAMAGED(float x, float y, float z, float radius, unsigned int Unk70) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_FRAGMENT_ROOT_OF_CLOSEST_OBJECT_OF_TYPE_BEEN_DAMAGED, x, y, z, radius, Unk70); }
 			static b8 HAS_OBJECT_BEEN_DAMAGED(Entity obj) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_OBJECT_BEEN_DAMAGED, obj); }
 			static b8 HAS_OBJECT_BEEN_DAMAGED_BY_CHAR(Entity obj, Ped ped) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_OBJECT_BEEN_DAMAGED_BY_CHAR, obj, ped); }
-			static b8 HAS_OBJECT_BEEN_DAMAGED_BY_WEAPON(Entity obj, int Unk71) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_OBJECT_BEEN_DAMAGED_BY_WEAPON, obj, Unk71); }
+			static b8 HAS_OBJECT_BEEN_DAMAGED_BY_WEAPON(Entity obj, int weapon) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_OBJECT_BEEN_DAMAGED_BY_WEAPON, obj, weapon); }
 			static b8 HAS_OBJECT_BEEN_PHOTOGRAPHED(Entity obj) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_OBJECT_BEEN_PHOTOGRAPHED, obj); }
 			static b8 HAS_OBJECT_BEEN_UPROOTED(Entity obj) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_OBJECT_BEEN_UPROOTED, obj); }
 			static b8 HAS_OBJECT_COLLIDED_WITH_ANYTHING(Entity obj) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_OBJECT_COLLIDED_WITH_ANYTHING, obj); }
@@ -4490,6 +4604,7 @@ namespace IVSDKDotNet
 				msclr::interop::marshal_context ctx;
 				return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_PLAY_OBJECT_ANIM, obj, ctx.marshal_as<const char*>(animname0), ctx.marshal_as<const char*>(animname1), Unk74, flag0, flag1);
 			}
+			static b8 ROTATE_OBJECT(Entity obj, Vector2 vec, b8 flag) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_ROTATE_OBJECT, obj, vec.X, vec.Y, flag); }
 			static b8 ROTATE_OBJECT(Entity obj, float x, float y, b8 flag) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_ROTATE_OBJECT, obj, x, y, flag); }
 			static b8 SLIDE_OBJECT(Entity obj, float x, float y, float z, float xs, float ys, float zs, b8 flag) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_SLIDE_OBJECT, obj, x, y, z, xs, ys, zs, flag); }
 			static b8 SMASH_GLASS_ON_OBJECT(float x, float y, float z, float Unk75, unsigned int model, float Unk76) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_SMASH_GLASS_ON_OBJECT, x, y, z, Unk75, model, Unk76); }
@@ -4576,7 +4691,7 @@ namespace IVSDKDotNet
 				intval = v;
 				return r;
 			}
-			static b8 HAS_SOUND_FINISHED(unsigned int sound) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_SOUND_FINISHED, sound); }
+			static b8 HAS_SOUND_FINISHED(int sound) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_SOUND_FINISHED, sound); }
 			static b8 IS_AMBIENT_SPEECH_DISABLED(Ped ped) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_AMBIENT_SPEECH_DISABLED, ped); }
 			static b8 IS_AMBIENT_SPEECH_PLAYING(Ped ped) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_AMBIENT_SPEECH_PLAYING, ped); }
 			static b8 IS_ANY_SPEECH_PLAYING(Ped ped) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_ANY_SPEECH_PLAYING, ped); }
@@ -4624,23 +4739,23 @@ namespace IVSDKDotNet
 			static b8 IS_FOLLOW_VEHICLE_CAM_OFFSET_ACTIVE() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_FOLLOW_VEHICLE_CAM_OFFSET_ACTIVE); }
 			static b8 IS_SPECIFIC_CAM_INTERPOLATING(int cam) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_SPECIFIC_CAM_INTERPOLATING, cam); }
 			static b8 IS_VIEWPORT_ACTIVE(int viewportid) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_VIEWPORT_ACTIVE, viewportid); }
-			static b8 GET_AMMO_IN_CLIP(Ped ped, unsigned int weapon, [OutAttribute] unsigned int% pAmmo)
+			static b8 GET_AMMO_IN_CLIP(Ped ped, int weapon, [OutAttribute] int% pAmmo)
 			{
-				unsigned int p;
+				int p;
 				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_AMMO_IN_CLIP, ped, weapon, &p);
 				pAmmo = p;
 				return r;
 			}
-			static b8 GET_CURRENT_CHAR_WEAPON(Ped ped, [OutAttribute] unsigned int% pWeapon)
+			static b8 GET_CURRENT_CHAR_WEAPON(Ped ped, [OutAttribute] int% pWeapon)
 			{
-				unsigned int p;
+				int p;
 				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_CURRENT_CHAR_WEAPON, ped, &p);
 				pWeapon = p;
 				return r;
 			}
-			static b8 GET_MAX_AMMO(Ped ped, unsigned int weapon, [OutAttribute] unsigned int% pMaxAmmo)
+			static b8 GET_MAX_AMMO(Ped ped, int weapon, [OutAttribute] int% pMaxAmmo)
 			{
-				unsigned int p;
+				int p;
 				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_MAX_AMMO, ped, weapon, &p);
 				pMaxAmmo = p;
 				return r;
@@ -4651,8 +4766,8 @@ namespace IVSDKDotNet
 				msclr::interop::marshal_context ctx;
 				return NativeInvoke::Invoke< Texture>(eNativeHash::NATIVE_GET_TEXTURE_FROM_STREAMED_TXD, ctx.marshal_as<const char*>(txdName), ctx.marshal_as<const char*>(textureName));
 			}
-			static b8 HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(Ped ped, unsigned int weapon) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CHAR_BEEN_DAMAGED_BY_WEAPON, ped, weapon); }
-			static b8 HAS_CHAR_GOT_WEAPON(Ped ped, unsigned int weapon) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CHAR_GOT_WEAPON, ped, weapon); }
+			static b8 HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(Ped ped, int weapon) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CHAR_BEEN_DAMAGED_BY_WEAPON, ped, weapon); }
+			static b8 HAS_CHAR_GOT_WEAPON(Ped ped, int weapon) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_CHAR_GOT_WEAPON, ped, weapon); }
 			static b8 HAS_COLLISION_FOR_MODEL_LOADED(unsigned int model) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_COLLISION_FOR_MODEL_LOADED, model); }
 			static b8 HAS_MODEL_LOADED(int model) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_MODEL_LOADED, model); }
 			static b8 HAS_STREAMED_TXD_LOADED(String^ txdName)
@@ -4731,6 +4846,7 @@ namespace IVSDKDotNet
 				return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_THIS_HELP_MESSAGE_WITH_STRING_BEING_DISPLAYED, ctx.marshal_as<const char*>(gxtentry), ctx.marshal_as<const char*>(str));
 			}
 			static b8 ARE_WIDESCREEN_BORDERS_ACTIVE() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_ARE_WIDESCREEN_BORDERS_ACTIVE); }
+			static b8 AWARD_ACHIEVEMENT(int id) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_AWARD_ACHIEVEMENT, id); }
 			static b8 GET_IS_HIDEF() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_IS_HIDEF); }
 			static b8 GET_IS_WIDESCREEN() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_IS_WIDESCREEN); }
 			static b8 CAN_THE_STAT_HAVE_STRING(int stat) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_CAN_THE_STAT_HAVE_STRING, stat); }
@@ -5054,6 +5170,7 @@ namespace IVSDKDotNet
 			static b8 IS_MOUSE_BUTTON_JUST_PRESSED(int Unk828) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_MOUSE_BUTTON_JUST_PRESSED, Unk828); }
 			static b8 IS_MOUSE_BUTTON_PRESSED(int Unk829) { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_MOUSE_BUTTON_PRESSED, Unk829); }
 			static b8 IS_MOUSE_USING_VERTICAL_INVERSION() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_MOUSE_USING_VERTICAL_INVERSION); }
+			static int GET_CONTROL_VALUE(int padIndex, int controlIndex) { return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_GET_CONTROL_VALUE, padIndex, controlIndex); }
 			static b8 IS_NUMLOCK_ENABLED() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_NUMLOCK_ENABLED); }
 			static b8 IS_PC_USING_JOYPAD() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_PC_USING_JOYPAD); }
 			static b8 IS_USING_CONTROLLER() { return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_IS_USING_CONTROLLER); }
@@ -5393,10 +5510,19 @@ namespace IVSDKDotNet
 			static uint32_t GET_ROUTE_SIZE() { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_ROUTE_SIZE); }
 			static uint32_t GET_SCREEN_FADE_ALPHA() { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_SCREEN_FADE_ALPHA); }
 			static uint32_t GET_SIMPLE_BLIP_ID() { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_SIMPLE_BLIP_ID); }
-			static uint32_t GET_SOUND_ID() { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_SOUND_ID); }
+			static int32_t GET_SOUND_ID() { return NativeInvoke::Invoke<int32_t>(eNativeHash::NATIVE_GET_SOUND_ID); }
 			static uint32_t GET_STREAM_PLAYTIME() { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_STREAM_PLAYTIME); }
-			static uint32_t GET_TIME_SINCE_LAST_ARREST() { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_TIME_SINCE_LAST_ARREST); }
-			static uint32_t GET_TIME_SINCE_LAST_DEATH() { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_TIME_SINCE_LAST_DEATH); }
+			
+			static int32_t GET_TIME_SINCE_PLAYER_DROVE_AGAINST_TRAFFIC(Player playerIndex) { return NativeInvoke::Invoke<int32_t>(eNativeHash::NATIVE_GET_TIME_SINCE_PLAYER_DROVE_AGAINST_TRAFFIC, playerIndex); }
+			static int32_t GET_TIME_SINCE_PLAYER_DROVE_ON_PAVEMENT(Player playerIndex) { return NativeInvoke::Invoke<int32_t>(eNativeHash::NATIVE_GET_TIME_SINCE_PLAYER_DROVE_ON_PAVEMENT, playerIndex); }
+			static int32_t GET_TIME_SINCE_PLAYER_HIT_BUILDING(Player playerIndex) { return NativeInvoke::Invoke<int32_t>(eNativeHash::NATIVE_GET_TIME_SINCE_PLAYER_HIT_BUILDING, playerIndex); }
+			static int32_t GET_TIME_SINCE_PLAYER_HIT_CAR(Player playerIndex) { return NativeInvoke::Invoke<int32_t>(eNativeHash::NATIVE_GET_TIME_SINCE_PLAYER_HIT_CAR, playerIndex); }
+			static int32_t GET_TIME_SINCE_PLAYER_HIT_OBJECT(Player playerIndex) { return NativeInvoke::Invoke<int32_t>(eNativeHash::NATIVE_GET_TIME_SINCE_PLAYER_HIT_OBJECT, playerIndex); }
+			static int32_t GET_TIME_SINCE_PLAYER_HIT_PED(Player playerIndex) { return NativeInvoke::Invoke<int32_t>(eNativeHash::NATIVE_GET_TIME_SINCE_PLAYER_HIT_PED, playerIndex); }
+			static int32_t GET_TIME_SINCE_PLAYER_RAN_LIGHT(Player playerIndex) { return NativeInvoke::Invoke<int32_t>(eNativeHash::NATIVE_GET_TIME_SINCE_PLAYER_RAN_LIGHT, playerIndex); }
+			static int32_t GET_TIME_SINCE_LAST_ARREST() { return NativeInvoke::Invoke<int32_t>(eNativeHash::NATIVE_GET_TIME_SINCE_LAST_ARREST); }
+			static int32_t GET_TIME_SINCE_LAST_DEATH() { return NativeInvoke::Invoke<int32_t>(eNativeHash::NATIVE_GET_TIME_SINCE_LAST_DEATH); }
+			
 			static uint32_t GET_TOTAL_NUMBER_OF_STATS() { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_TOTAL_NUMBER_OF_STATS); }
 			static uint32_t NETWORK_GET_FRIEND_COUNT() { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_NETWORK_GET_FRIEND_COUNT); }
 			static uint32_t NETWORK_GET_GAME_MODE() { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_NETWORK_GET_GAME_MODE); }
@@ -5423,70 +5549,7 @@ namespace IVSDKDotNet
 				msclr::interop::marshal_context ctx;
 				return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_LENGTH_OF_LITERAL_STRING, (char*)ctx.marshal_as<const char*>(str));
 			}
-
-			// msclr::interop::marshal_context ctx;
-			// ctx.marshal_as<const char*>(
-
 		};
-
-		/// <summary>
-		/// This class gives you the possiblity to manually call native functions by their name.
-		/// </summary>
-		public ref class Function
-		{
-		public:
-
-			/// <summary>
-			/// Calls a native function by name and returns the result the native returned.
-			/// </summary>
-			/// <typeparam name="T">The return type of the native.</typeparam>
-			/// <param name="name">The name of the native function to call.</param>
-			/// <param name="args">The arguments of the native function.</param>
-			/// <returns>The result of the called native function.</returns>
-			generic <typename T>
-			static T Call(String^ name, ...array<Object^>^ args)
-			{
-				Type^ type = Natives::typeid;
-
-				// Get all methods
-				array<MethodInfo^>^ methodsArray = type->GetMethods(BindingFlags::Public | BindingFlags::Static);
-				
-				// Try to find method that match the name and argument count
-				MethodInfo^ foundMethod = nullptr;
-
-				for (int i = 0; i < methodsArray->Length; i++)
-				{
-					MethodInfo^ method = methodsArray[i];
-
-					if (!method)
-						continue;
-
-					if (method->Name == name && method->GetParameters()->Length == args->Length)
-					{
-						foundMethod = method;
-						break;
-					}
-				}
-
-				// Invoke found method
-				if (foundMethod)
-					return (T)foundMethod->Invoke(nullptr, args);
-
-				return T();
-			}
-
-			/// <summary>
-			/// Calls a native function by name.
-			/// </summary>
-			/// <param name="name">The name of the native function to call.</param>
-			/// <param name="args">The arguments of the native function.</param>
-			static void Call(String^ name, ...array<Object^>^ args)
-			{
-				Call<Object^>(name, args);
-			}
-
-		};
-
 	}
 }
 

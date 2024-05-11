@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Numerics;
+using System.Reflection;
 
 using IVSDKDotNet;
 
@@ -112,6 +114,27 @@ namespace Manager
             {
                 input.CopyTo(ms);
                 return ms.ToArray();
+            }
+        }
+        public static string GetContentOfEmbeddedResource(Assembly assembly, string resourceName)
+        {
+            string fullResourceName = assembly.GetManifestResourceNames().Where(str => str.EndsWith(resourceName)).FirstOrDefault();
+
+            if (string.IsNullOrEmpty(fullResourceName))
+                return string.Empty;
+
+            // Get the target resource stream
+            Stream stream = assembly.GetManifestResourceStream(fullResourceName);
+
+            if (stream == null)
+                return string.Empty;
+
+            // Read the target resource
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string result = reader.ReadToEnd();
+                stream.Dispose();
+                return result;
             }
         }
         #endregion

@@ -12,6 +12,12 @@ using IVSDKDotNet;
 using IVSDKDotNet.Native;
 using static IVSDKDotNet.Native.Natives;
 
+// ===============================================================
+// ===============================================================
+// ============= CURRENTLY NOT 100% FUNCTIONAL ===================
+// ===============================================================
+// ===============================================================
+
 namespace Manager.Managers
 {
     public class RemoteConnectionManager : IDisposable
@@ -260,7 +266,8 @@ namespace Manager.Managers
                                 if (fs == null)
                                     continue;
 
-                                runningScriptInfo.Add(new RunningScriptInfo(fs.Name, fs.FullPath, fs.ID, fs.TheScript.IVLauncherWorkshopID));
+                                // TODO
+                                //runningScriptInfo.Add(new RunningScriptInfo(fs.Name, fs.FullPath, fs.ID, fs.TheScript.IVLauncherWorkshopID));
                             }
 
                             // Send response
@@ -283,8 +290,10 @@ namespace Manager.Managers
 
                             if (Guid.TryParse(script, out Guid id))
                             {
-                                Script s = Main.Instance.GetScript(id);
-                                
+                                // TODO
+                                //Script s = Main.Instance.GetScript(id);
+                                Script s = null;
+
                                 if (s == null)
                                 {
                                     // Send response
@@ -295,7 +304,7 @@ namespace Manager.Managers
                                     return;
                                 }
 
-                                if (s.SendScriptCommand(s, command, out object result))
+                                if (s.SendScriptCommand(s, command, null, out object result))
                                 {
                                     // Send response
                                     Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_SendScriptCommandResponse);
@@ -314,7 +323,9 @@ namespace Manager.Managers
                             }
                             else
                             {
-                                Script s = Main.Instance.GetScript(script);
+                                // TODO
+                                //Script s = Main.Instance.GetScript(script);
+                                Script s = null;
 
                                 if (s == null)
                                 {
@@ -326,7 +337,7 @@ namespace Manager.Managers
                                     return;
                                 }
 
-                                if (s.SendScriptCommand(s, command, out object result))
+                                if (s.SendScriptCommand(s, command, null, out object result))
                                 {
                                     // Send response
                                     Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_SendScriptCommandResponse);

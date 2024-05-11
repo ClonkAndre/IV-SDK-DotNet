@@ -181,6 +181,11 @@ namespace IVSDKDotNet
 
 	public ref class ImGuiIV
 	{
+	internal:
+		static int SelectedStyle = 0;
+
+		static array<String^>^ FontNameSplitArray = gcnew array<String^>(1) { "," };
+
 	public:
 
 		/// <summary>
@@ -439,11 +444,39 @@ namespace IVSDKDotNet
 				return false;
 			}
 
-			msclr::interop::marshal_context ctx;
+			// Get the file name with extension of the font file to be added
+			String^ fileNameWithExtension = System::IO::Path::GetFileName(fileName)->ToLower();
 
 			// Get ImGui IO
 			ImGuiIO& io = ImGui::GetIO(); (void)io;
 			
+			// Check if this font is already added with the given size
+			for (int i = 0; i < io.Fonts->Fonts.Size; i++)
+			{
+				ImFont* font = io.Fonts->Fonts[i];
+				
+				if (!font->ConfigData)
+					continue;
+
+				String^ fontName = gcnew String(font->ConfigData->Name);
+
+				if (String::IsNullOrWhiteSpace(fontName))
+					continue;
+
+				// Split the string at the comma character which divides the font name from the font size stored in the same char array
+				fontName = fontName->Split(FontNameSplitArray, StringSplitOptions::None)[0]->ToLower();
+
+				// Compare the font name and the font size with the one the user is trying to add
+				if (fileNameWithExtension == fontName
+					&& sizeInPixel == font->ConfigData->SizePixels)
+				{
+					fontPtr = IntPtr::Zero;
+					return false;
+				}
+			}
+
+			msclr::interop::marshal_context ctx;
+
 			// Try add font from file
 			ImFont* font = io.Fonts->AddFontFromFileTTF(ctx.marshal_as<const char*>(fileName), sizeInPixel);
 
@@ -530,6 +563,7 @@ namespace IVSDKDotNet
 		// ImGui Drawing Stuff
 	public:
 
+		[ObsoleteAttribute("This will be removed in version 1.3 of IV-SDK .NET. You should instead use the OnImGuiRendering event the Script class provides you.")]
 		static bool AddDrawCommand(Script^ caller, Action^ drawingAction)
 		{
 			if (caller == nullptr)
@@ -551,6 +585,7 @@ namespace IVSDKDotNet
 
 			return true;
 		}
+		[ObsoleteAttribute("This will be removed in version 1.3 of IV-SDK .NET.")]
 		static void RemoveDrawCommand(Script^ caller)
 		{
 			if (caller == nullptr)
@@ -605,6 +640,7 @@ namespace IVSDKDotNet
 		}
 
 		// Primitive Drawing
+		[ObsoleteAttribute("This will be removed in version 1.3 of IV-SDK .NET. You should instead use the OnImGuiRendering event the Script class provides you.")]
 		static bool BeginCanvas(Script^ caller, RectangleF clippingRect, [OutAttribute] ImGuiIV_DrawingContext% ctx)
 		{
 			if (caller == nullptr)
@@ -656,10 +692,12 @@ namespace IVSDKDotNet
 
 			//return true;
 		}
+		[ObsoleteAttribute("This will be removed in version 1.3 of IV-SDK .NET. You should instead use the OnImGuiRendering event the Script class provides you.")]
 		static bool BeginCanvas(Script^ caller, [OutAttribute] ImGuiIV_DrawingContext% ctx)
 		{
 			return BeginCanvas(caller, RectangleF::Empty, ctx);
 		}
+		[ObsoleteAttribute("This will be removed in version 1.3 of IV-SDK .NET.")]
 		static bool EndCanvas()
 		{
 			// Get the draw list from this window
@@ -693,6 +731,10 @@ namespace IVSDKDotNet
 
 			bool pOpen = open;
 
+			ImGuiWindowClass wClass;
+			wClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplit;
+			ImGui::SetNextWindowClass(&wClass);
+
 			bool result = ImGui::Begin(ctx.marshal_as<const char*>(name), &pOpen, (ImGuiWindowFlags)flags);
 
 			open = pOpen;
@@ -718,6 +760,10 @@ namespace IVSDKDotNet
 
 			msclr::interop::marshal_context ctx;
 
+			ImGuiWindowClass wClass;
+			wClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplit;
+			ImGui::SetNextWindowClass(&wClass);
+
 			bool result = ImGui::Begin(ctx.marshal_as<const char*>(name), NULL, (ImGuiWindowFlags)flags);
 
 			// Increase active windows count if Begin function returned true
@@ -737,6 +783,10 @@ namespace IVSDKDotNet
 
 			msclr::interop::marshal_context ctx;
 
+			ImGuiWindowClass wClass;
+			wClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplit;
+			ImGui::SetNextWindowClass(&wClass);
+			
 			bool result = ImGui::Begin(ctx.marshal_as<const char*>(name));
 
 			// Increase active windows count if Begin function returned true
@@ -758,6 +808,10 @@ namespace IVSDKDotNet
 			if (String::IsNullOrWhiteSpace(id))
 				return false;
 
+			ImGuiWindowClass wClass;
+			wClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplit;
+			ImGui::SetNextWindowClass(&wClass);
+
 			msclr::interop::marshal_context ctx;
 			return ImGui::BeginChild(ctx.marshal_as<const char*>(id), Vector2ToImVec2(size), border, (ImGuiWindowFlags)flags);
 		}
@@ -765,6 +819,10 @@ namespace IVSDKDotNet
 		{
 			if (String::IsNullOrWhiteSpace(id))
 				return false;
+
+			ImGuiWindowClass wClass;
+			wClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplit;
+			ImGui::SetNextWindowClass(&wClass);
 
 			msclr::interop::marshal_context ctx;
 			return ImGui::BeginChild(ctx.marshal_as<const char*>(id), Vector2ToImVec2(size), border);
@@ -774,6 +832,10 @@ namespace IVSDKDotNet
 			if (String::IsNullOrWhiteSpace(id))
 				return false;
 
+			ImGuiWindowClass wClass;
+			wClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplit;
+			ImGui::SetNextWindowClass(&wClass);
+
 			msclr::interop::marshal_context ctx;
 			return ImGui::BeginChild(ctx.marshal_as<const char*>(id), Vector2ToImVec2(size));
 		}
@@ -781,6 +843,10 @@ namespace IVSDKDotNet
 		{
 			if (String::IsNullOrWhiteSpace(id))
 				return false;
+
+			ImGuiWindowClass wClass;
+			wClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplit;
+			ImGui::SetNextWindowClass(&wClass);
 
 			msclr::interop::marshal_context ctx;
 			return ImGui::BeginChild(ctx.marshal_as<const char*>(id));
@@ -1180,6 +1246,12 @@ namespace IVSDKDotNet
 		static void SetItemDefaultFocus()
 		{
 			ImGui::SetItemDefaultFocus();
+		}
+
+		static float GetKeyAnalogValue(eImGuiKey key)
+		{
+			ImGuiIO& io = ImGui::GetIO(); (void)io;
+			return io.KeysData[(int)key].AnalogValue;
 		}
 
 		// Font
@@ -1719,11 +1791,10 @@ namespace IVSDKDotNet
 			return IntPtr((void*)ImGui::GetDragDropPayload());
 		}
 
-		static void RenderDragDropTargetRect(RectangleF bb)
+		static void RenderDragDropTargetRect(RectangleF bb, RectangleF itemClipRect)
 		{
-			ImGui::RenderDragDropTargetRect(RectangleFToImRect(bb));
+			ImGui::RenderDragDropTargetRect(RectangleFToImRect(bb), RectangleFToImRect(itemClipRect));
 		}
-
 		static void EndDragDropTarget()
 		{
 			ImGui::EndDragDropTarget();
@@ -1870,7 +1941,7 @@ namespace IVSDKDotNet
 		}
 		static bool CollapseButton(ImGuiID id, Vector2 pos)
 		{
-			return ImGui::CollapseButton(id, Vector2ToImVec2(pos));
+			return ImGui::CollapseButton(id, Vector2ToImVec2(pos), ImGui::GetWindowDockNode());
 		}
 
 		static void Scrollbar(eImGuiAxis axis)
@@ -1947,6 +2018,19 @@ namespace IVSDKDotNet
 			bool result = ImGui::Checkbox(ctx.marshal_as<const char*>(text), &v);
 
 			value = v;
+			return result;
+		}
+		static bool RadioButton(String^ text, int% selectedButton, int buttonIndex)
+		{
+			if (String::IsNullOrWhiteSpace(text))
+				return false;
+
+			msclr::interop::marshal_context ctx;
+
+			int sb = selectedButton;
+			bool result = ImGui::RadioButton(ctx.marshal_as<const char*>(text), &sb, buttonIndex);
+			selectedButton = sb;
+
 			return result;
 		}
 		static bool RadioButton(String^ text, bool active)
@@ -2056,15 +2140,35 @@ namespace IVSDKDotNet
 		//-------------------------------------------------------------------------
 		// [SECTION] Widgets: ComboBox
 		//-------------------------------------------------------------------------
+		static bool Combo(String^ label, int% selectedIndex, array<String^>^ items)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return false;
+
+			msclr::interop::marshal_context ctx;
+
+			int index = selectedIndex;
+
+			// Copy managed stuff over to unmanaged stuff
+			std::vector<const char*> arr;
+			arr.resize(items->Length);
+
+			for (int i = 0; i < items->Length; i++)
+				arr[i] = ctx.marshal_as<const char*>(items[i]);
+			
+			bool result = ImGui::Combo(ctx.marshal_as<const char*>(label), &index, arr.data(), items->Length);
+
+			selectedIndex = index;
+			return result;
+		}
+
 		static bool BeginCombo(String^ text, String^ previewValue, eImGuiComboFlags flags)
 		{
 			if (String::IsNullOrWhiteSpace(text))
 				return false;
-			if (String::IsNullOrWhiteSpace(previewValue))
-				return false;
 
 			msclr::interop::marshal_context ctx;
-			return ImGui::BeginCombo(ctx.marshal_as<const char*>(text), ctx.marshal_as<const char*>(previewValue), (ImGuiComboFlags)flags);
+			return ImGui::BeginCombo(ctx.marshal_as<const char*>(text), String::IsNullOrWhiteSpace(previewValue) ? "" : ctx.marshal_as<const char*>(previewValue), (ImGuiComboFlags)flags);
 		}
 		static bool BeginCombo(String^ text, String^ previewValue)
 		{
@@ -2093,9 +2197,17 @@ namespace IVSDKDotNet
 			v = value;
 			return result;
 		}
+		static bool DragFloat(String^ label, float% v, float speed, float min, float max)
+		{
+			return DragFloat(label, v, speed, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
 		static bool DragFloat(String^ label, float% v, float min, float max)
 		{
 			return DragFloat(label, v, 0.1F, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
+		static bool DragFloat(String^ label, float% v, float speed)
+		{
+			return DragFloat(label, v, speed, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
 		}
 		static bool DragFloat(String^ label, float% v)
 		{
@@ -2117,14 +2229,23 @@ namespace IVSDKDotNet
 			v = gcnew array<float>(2) { value[0], value[1] };
 			return result;
 		}
+		static bool DragFloat2(String^ label, array<float>^% v, float speed, float min, float max)
+		{
+			return DragFloat2(label, v, speed, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
 		static bool DragFloat2(String^ label, array<float>^% v, float min, float max)
 		{
 			return DragFloat2(label, v, 0.1F, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
+		static bool DragFloat2(String^ label, array<float>^% v, float speed)
+		{
+			return DragFloat2(label, v, speed, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
 		}
 		static bool DragFloat2(String^ label, array<float>^% v)
 		{
 			return DragFloat2(label, v, 0.1F, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
 		}
+
 		static bool DragFloat2(String^ label, Vector2% v, float speed, float min, float max, String^ format, eImGuiSliderFlags flags)
 		{
 			array<float>^ arr = gcnew array<float>(2) { v.X, v.Y };
@@ -2132,9 +2253,17 @@ namespace IVSDKDotNet
 			v = Vector2(arr[0], arr[1]);
 			return result;
 		}
+		static bool DragFloat2(String^ label, Vector2% v, float speed, float min, float max)
+		{
+			return DragFloat2(label, v, speed, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
 		static bool DragFloat2(String^ label, Vector2% v, float min, float max)
 		{
 			return DragFloat2(label, v, 0.1F, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
+		static bool DragFloat2(String^ label, Vector2% v, float speed)
+		{
+			return DragFloat2(label, v, speed, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
 		}
 		static bool DragFloat2(String^ label, Vector2% v)
 		{
@@ -2156,14 +2285,23 @@ namespace IVSDKDotNet
 			v = gcnew array<float>(3) { value[0], value[1], value[2] };
 			return result;
 		}
+		static bool DragFloat3(String^ label, array<float>^% v, float speed, float min, float max)
+		{
+			return DragFloat3(label, v, speed, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
 		static bool DragFloat3(String^ label, array<float>^% v, float min, float max)
 		{
 			return DragFloat3(label, v, 0.1F, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
+		static bool DragFloat3(String^ label, array<float>^% v, float speed)
+		{
+			return DragFloat3(label, v, speed, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
 		}
 		static bool DragFloat3(String^ label, array<float>^% v)
 		{
 			return DragFloat3(label, v, 0.1F, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
 		}
+
 		static bool DragFloat3(String^ label, Vector3% v, float speed, float min, float max, String^ format, eImGuiSliderFlags flags)
 		{
 			array<float>^ arr = gcnew array<float>(3) { v.X, v.Y, v.Z };
@@ -2171,9 +2309,17 @@ namespace IVSDKDotNet
 			v = Vector3(arr[0], arr[1], arr[2]);
 			return result;
 		}
+		static bool DragFloat3(String^ label, Vector3% v, float speed, float min, float max)
+		{
+			return DragFloat3(label, v, speed, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
 		static bool DragFloat3(String^ label, Vector3% v, float min, float max)
 		{
 			return DragFloat3(label, v, 0.1F, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
+		static bool DragFloat3(String^ label, Vector3% v, float speed)
+		{
+			return DragFloat3(label, v, speed, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
 		}
 		static bool DragFloat3(String^ label, Vector3% v)
 		{
@@ -2195,14 +2341,23 @@ namespace IVSDKDotNet
 			v = gcnew array<float>(4) { value[0], value[1], value[2], value[3] };
 			return result;
 		}
+		static bool DragFloat4(String^ label, array<float>^% v, float speed, float min, float max)
+		{
+			return DragFloat4(label, v, speed, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
 		static bool DragFloat4(String^ label, array<float>^% v, float min, float max)
 		{
 			return DragFloat4(label, v, 0.1F, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
+		static bool DragFloat4(String^ label, array<float>^% v, float speed)
+		{
+			return DragFloat4(label, v, speed, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
 		}
 		static bool DragFloat4(String^ label, array<float>^% v)
 		{
 			return DragFloat4(label, v, 0.1F, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
 		}
+
 		static bool DragFloat4(String^ label, Vector4% v, float speed, float min, float max, String^ format, eImGuiSliderFlags flags)
 		{
 			array<float>^ arr = gcnew array<float>(4) { v.X, v.Y, v.Z, v.W };
@@ -2210,9 +2365,17 @@ namespace IVSDKDotNet
 			v = Vector4(arr[0], arr[1], arr[2], arr[3]);
 			return result;
 		}
+		static bool DragFloat4(String^ label, Vector4% v, float speed, float min, float max)
+		{
+			return DragFloat4(label, v, speed, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
 		static bool DragFloat4(String^ label, Vector4% v, float min, float max)
 		{
 			return DragFloat4(label, v, 0.1F, min, max, "%.3f", eImGuiSliderFlags::None);
+		}
+		static bool DragFloat4(String^ label, Vector4% v, float speed)
+		{
+			return DragFloat4(label, v, speed, 0.0F, 0.0F, "%.3f", eImGuiSliderFlags::None);
 		}
 		static bool DragFloat4(String^ label, Vector4% v)
 		{
@@ -2234,9 +2397,17 @@ namespace IVSDKDotNet
 			v = value;
 			return result;
 		}
+		static bool DragInt(String^ label, int% v, float speed, int min, int max)
+		{
+			return DragInt(label, v, speed, min, max, "%d", eImGuiSliderFlags::None);
+		}
 		static bool DragInt(String^ label, int% v, int min, int max)
 		{
 			return DragInt(label, v, 1.0F, min, max, "%d", eImGuiSliderFlags::None);
+		}
+		static bool DragInt(String^ label, int% v, float speed)
+		{
+			return DragInt(label, v, speed, 0, 0, "%d", eImGuiSliderFlags::None);
 		}
 		static bool DragInt(String^ label, int% v)
 		{
@@ -2258,9 +2429,17 @@ namespace IVSDKDotNet
 			v = gcnew array<int>(2) { value[0], value[1] };
 			return result;
 		}
+		static bool DragInt2(String^ label, array<int>^% v, float speed, int min, int max)
+		{
+			return DragInt2(label, v, speed, min, max, "%d", eImGuiSliderFlags::None);
+		}
 		static bool DragInt2(String^ label, array<int>^% v, int min, int max)
 		{
 			return DragInt2(label, v, 1.0F, min, max, "%d", eImGuiSliderFlags::None);
+		}
+		static bool DragInt2(String^ label, array<int>^% v, float speed)
+		{
+			return DragInt2(label, v, speed, 0, 0, "%d", eImGuiSliderFlags::None);
 		}
 		static bool DragInt2(String^ label, array<int>^% v)
 		{
@@ -2282,9 +2461,17 @@ namespace IVSDKDotNet
 			v = gcnew array<int>(3) { value[0], value[1], value[2] };
 			return result;
 		}
+		static bool DragInt3(String^ label, array<int>^% v, float speed, int min, int max)
+		{
+			return DragInt3(label, v, speed, min, max, "%d", eImGuiSliderFlags::None);
+		}
 		static bool DragInt3(String^ label, array<int>^% v, int min, int max)
 		{
 			return DragInt3(label, v, 1.0F, min, max, "%d", eImGuiSliderFlags::None);
+		}
+		static bool DragInt3(String^ label, array<int>^% v, float speed)
+		{
+			return DragInt3(label, v, speed, 0, 0, "%d", eImGuiSliderFlags::None);
 		}
 		static bool DragInt3(String^ label, array<int>^% v)
 		{
@@ -2306,9 +2493,17 @@ namespace IVSDKDotNet
 			v = gcnew array<int>(4) { value[0], value[1], value[2], value[3] };
 			return result;
 		}
+		static bool DragInt4(String^ label, array<int>^% v, float speed, int min, int max)
+		{
+			return DragInt4(label, v, speed, min, max, "%d", eImGuiSliderFlags::None);
+		}
 		static bool DragInt4(String^ label, array<int>^% v, int min, int max)
 		{
 			return DragInt4(label, v, 1.0F, min, max, "%d", eImGuiSliderFlags::None);
+		}
+		static bool DragInt4(String^ label, array<int>^% v, float speed)
+		{
+			return DragInt4(label, v, speed, 0, 0, "%d", eImGuiSliderFlags::None);
 		}
 		static bool DragInt4(String^ label, array<int>^% v)
 		{
@@ -2493,6 +2688,18 @@ namespace IVSDKDotNet
 				return false;
 
 			msclr::interop::marshal_context ctx;
+
+			if (String::IsNullOrEmpty(input))
+			{
+				std::string* str = new std::string("");
+
+				bool result = ImGui::InputText(ctx.marshal_as<const char*>(label), str, (ImGuiInputFlags)flags);
+
+				input = gcnew String(str->c_str());
+				delete str;
+
+				return result;
+			}
 
 			std::string* str = new std::string(ctx.marshal_as<const char*>(input));
 
@@ -2969,6 +3176,70 @@ namespace IVSDKDotNet
 			return ImGui::TableNextColumn();
 		}
 
+		//-------------------------------------------------------------------------
+		// [SECTION] Extensions: Timeline
+		//-------------------------------------------------------------------------
+		static bool BeginTimeline(String^ label, Vector2 size, eImGuiChildFlags childFlags, eImGuiWindowFlags windowFlags)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return false;
+
+			msclr::interop::marshal_context ctx;
+			return ImGui::BeginTimeline(ctx.marshal_as<const char*>(label), Vector2ToImVec2(size), (ImGuiChildFlags)childFlags, (ImGuiWindowFlags)windowFlags);
+		}
+		static bool BeginTimeline(String^ label, Vector2 size, eImGuiChildFlags childFlags)
+		{
+			return BeginTimeline(label, size, childFlags, eImGuiWindowFlags::None);
+		}
+		static bool BeginTimeline(String^ label, Vector2 size)
+		{
+			return BeginTimeline(label, size, eImGuiChildFlags::None, eImGuiWindowFlags::None);
+		}
+		static bool BeginTimeline(String^ label)
+		{
+			return BeginTimeline(label, Vector2::Zero, eImGuiChildFlags::None, eImGuiWindowFlags::None);
+		}
+
+		static bool Timeline(String^ label, array<float>^% values, int maxFrames)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return false;
+			if (!values)
+				return false;
+			if (values->Length > 2)
+				return false;
+
+			msclr::interop::marshal_context ctx;
+
+			float v[2] = { values[0], values[1] };
+			bool result = ImGui::Timeline(ctx.marshal_as<const char*>(label), (float*)&v, maxFrames);
+
+			values[0] = v[0];
+			values[1] = v[1];
+
+			return result;
+		}
+		static bool Timeline(String^ label, Vector2% values, int maxFrames)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return false;
+
+			array<float>^ arr = gcnew array<float>(2)
+			{
+				values.X, values.Y
+			};
+
+			bool result = Timeline(label, arr, maxFrames);
+
+			values = Vector2(arr[0], arr[1]);
+
+			return result;
+		}
+		static void EndTimeline(bool drawCurrentFrame, int currentFrame, int maxFrames, bool drawLines, int lineCount, bool drawValues)
+		{
+			ImGui::EndTimeline(drawCurrentFrame, currentFrame, maxFrames, drawLines, lineCount, drawValues);
+		}
+
 	private:
 		static bool m_bForceCursor;
 		static int m_iActiveWindows;
@@ -2998,25 +3269,78 @@ public:
 		if (!ImGuiStates::s_bIsImGuiInitialized)
 			return;
 
+		IntPtr d3d9DevicePointer = IntPtr(d3d9Device);
+
+		// Set the style
+		switch (ImGuiIV::SelectedStyle)
+		{
+			case 0: // dark
+				ImGui::StyleColorsDark();
+				break;
+			case 1: // classic
+				ImGui::StyleColorsClassic();
+				break;
+			case 2: // light
+				ImGui::StyleColorsLight();
+				break;
+		}
+
 		// Get ImGuiIO
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
 		// Get the main Viewport of ImGui
 		ImGuiViewport* vp = ImGui::GetMainViewport();
 
+		// Invoke on before ImGui new frame event
+		if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
+			IVSDKDotNet::Manager::ManagerScript::s_Instance->RaiseOnBeforeNewImGuiFrame(d3d9DevicePointer);
+
+		// Rebuild the font atlas if not built yet
+		if (!io.Fonts->IsBuilt())
+		{
+			//if (io.Fonts->Build())
+				ImGui_ImplDX9_CreateFontsTexture();
+		}
+
 		// Create new ImGui Frame
 		ImGui_ImplDX9_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
+		//ImGui::Begin("Test");
+
+		//if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right, false))
+		//{
+		//	ImRect rect = ImGui::GetCurrentWindow()->TitleBarRect();
+
+		//	if (ImGui::IsMouseHoveringRect(rect.Min, rect.Max, false))
+		//	{
+		//		ImGui::OpenPopup("Testgset4365");
+		//	}
+		//}
+
+		//if (ImGui::BeginPopup("Testgset4365"))
+		//{
+		//	ImGui::Selectable("lol");
+		//	ImGui::Selectable("Exit");
+		//	ImGui::EndPopup();
+		//}
+
+		//ImGui::End();
+
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		// Do ImGui stuff in here
 
+		DoDockspace();
+
 		int windowDrawCallsQueueCount = ImGuiIV::DrawCommandsList->Count;
 
-		// Internal Drawing
+		// Script/Internal Drawing
 		if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
-			IVSDKDotNet::Manager::ManagerScript::s_Instance->RaiseUIRendering();
+		{
+			ImDrawList* drawList = ImGui::GetBackgroundDrawList();
+			IVSDKDotNet::Manager::ManagerScript::s_Instance->RaiseOnD3D9Frame(d3d9DevicePointer, ImGuiIV_DrawingContext(drawList));
+		}
 
 #pragma region Custom Drawing
 		System::Guid callerScriptGuid = System::Guid::Empty;
@@ -3042,6 +3366,7 @@ public:
 #pragma endregion
 
 #if _DEBUG
+		// TODO: Remove later
 		static bool debugWindowOpened = false;
 
 		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_F9, false))
@@ -3174,6 +3499,7 @@ private:
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.IniFilename = NULL;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
 
 		// Initialize the win32 backend
 		ImGui_ImplWin32_Init(creationParams.hFocusWindow);
@@ -3186,7 +3512,56 @@ private:
 		msclr::interop::marshal_context ctx;
 		io.Fonts->AddFontFromFileTTF(ctx.marshal_as<const char*>(fontFile), 14.5F);
 		io.FontGlobalScale = 1.05F;
-
+		
 		ImGuiStates::s_bIsImGuiInitialized = true;
+	}
+	static void DoDockspace()
+	{
+		static bool opt_fullscreen = true;
+		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode;
+
+		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+		// because it would be confusing to have two docking targets within each others.
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
+		if (opt_fullscreen)
+		{
+			const ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->WorkPos);
+			ImGui::SetNextWindowSize(viewport->WorkSize);
+			ImGui::SetNextWindowViewport(viewport->ID);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+		}
+		else
+		{
+			dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
+		}
+
+		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
+		// and handle the pass-thru hole, so we ask Begin() to not render a background.
+		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+			window_flags |= ImGuiWindowFlags_NoBackground;
+
+		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+		// all active windows docked into it will lose their parent and become undocked.
+		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+		ImGui::Begin("MainDockSpace", nullptr, window_flags);
+
+		if (opt_fullscreen)
+			ImGui::PopStyleVar(2);
+
+		// Submit the DockSpace
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+		{
+			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+		}
+
+		ImGui::End();
 	}
 };

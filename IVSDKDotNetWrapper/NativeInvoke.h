@@ -11,6 +11,33 @@ public:
 	unsigned int m_nDataCount;					// 0C-10
 	CVector* m_pOriginalData[4];			    // 10-20
 	CQuaternion m_TemporaryData[4];		        // 20-60
+
+public:
+	template<typename T>
+	inline T GetArgument(size_t idx)
+	{
+		uintptr_t* arguments = (uintptr_t*)m_pArgs;
+
+		if (arguments)
+		{
+			if (&arguments[idx])
+			{
+				if (arguments[idx])
+				{
+					return *(T*)&arguments[idx];
+				}
+			}
+		}
+		return 0;
+	}
+
+	template<typename T>
+	inline void SetResult(size_t idx, T value)
+	{
+		uintptr_t* returnValues = (uintptr_t*)m_pReturn;
+
+		*(T*)&returnValues[idx] = value;
+	}
 };
 VALIDATE_OFFSET(IVNativeCallContext, m_pOriginalData, 0x10);
 VALIDATE_OFFSET(IVNativeCallContext, m_TemporaryData, 0x20);
@@ -84,33 +111,6 @@ public:
 
 		return *(T*)m_TempStack;
 	}
-
-	template<typename T>
-	inline T GetArgument(size_t idx)
-	{
-		uintptr_t* arguments = (uintptr_t*)m_pArgs;
-
-		if (arguments)
-		{
-			if (&arguments[idx])
-			{
-				if (arguments[idx])
-				{
-					return *(T*)&arguments[idx];
-				}
-			}
-		}
-		return 0;
-	}
-
-	template<typename T>
-	inline void SetResult(size_t idx, T value)
-	{
-		uintptr_t* returnValues = (uintptr_t*)m_pReturn;
-
-		*(T*)&returnValues[idx] = value;
-	}
-
 };
 
 class NativeInvoke

@@ -4,6 +4,8 @@
 namespace IVSDKDotNet
 {
 
+    static uint8_t ms_aThreadDummy[256];
+
     // - - - Constructor - - -
     BuildingSwapStruct::BuildingSwapStruct(building_swap_struct* nativePtr)
     {
@@ -49,12 +51,101 @@ namespace IVSDKDotNet
     void IVTheScripts::SetDummyThread()
     {
         m_iPreviousThread = CTheScripts::m_pCurrentThread;
-        uint8_t threadDummy[256];
-        CTheScripts::m_pCurrentThread = (uint32_t)&threadDummy;
+        CTheScripts::m_pCurrentThread = (uint32_t)&ms_aThreadDummy;
     }
     void IVTheScripts::RestorePreviousThread()
     {
         CTheScripts::m_pCurrentThread = m_iPreviousThread;
+    }
+
+    uint32_t IVTheScripts::GetGlobalAddress(int index)
+    {
+        if (index < 0 || index > 65535)
+            throw gcnew System::ArgumentOutOfRangeException("index", index, "The index must be 0 or greater, and below or equal 65535!");
+
+        return *(uint32_t*)std::addressof(CTheScripts::m_aGlobalVariables[index]);
+    }
+    int IVTheScripts::GetGlobalInteger(int index)
+    {
+        try
+        {
+            uint32_t* addr = &CTheScripts::m_aGlobalVariables[index];
+            return *(int*)addr;
+        }
+        catch (...)
+        {
+            return 0;
+        }
+    }
+    float IVTheScripts::GetGlobalFloat(int index)
+    {
+        try
+        {
+            uint32_t* addr = &CTheScripts::m_aGlobalVariables[index];
+            return *(float*)addr;
+        }
+        catch (...)
+        {
+            return 0.0f;
+        }
+    }
+    String^ IVTheScripts::GetGlobalString(int index)
+    {
+        try
+        {
+            uint32_t* addr = &CTheScripts::m_aGlobalVariables[index];
+            return gcnew String((char*)addr);
+        }
+        catch (...)
+        {
+            return String::Empty;
+        }
+    }
+
+    void IVTheScripts::SetGlobal(int index, int value)
+    {
+        if (index < 0 || index > 65535)
+            throw gcnew System::ArgumentOutOfRangeException("index", index, "The index must be 0 or greater, and below or equal 65535!");
+        
+        try
+        {
+            uint32_t* addr = &CTheScripts::m_aGlobalVariables[index];
+            *(int*)addr = value;
+        }
+        catch (...) {}
+    }
+    void IVTheScripts::SetGlobal(int index, float value)
+    {
+        if (index < 0 || index > 65535)
+            throw gcnew System::ArgumentOutOfRangeException("index", index, "The index must be 0 or greater, and below or equal 65535!");
+
+        try
+        {
+            uint32_t* addr = &CTheScripts::m_aGlobalVariables[index];
+            *(float*)addr = value;
+        }
+        catch (...) {}
+    }
+    void IVTheScripts::SetGlobal(int index, String^ value)
+    {
+        if (index < 0 || index > 65535)
+            throw gcnew System::ArgumentOutOfRangeException("index", index, "The index must be 0 or greater, and below or equal 65535!");
+        if (value == nullptr)
+            throw gcnew System::ArgumentNullException("value");
+
+        try
+        {
+            msclr::interop::marshal_context ctx;
+
+            uint32_t* addr = &CTheScripts::m_aGlobalVariables[index];
+
+            char* str = (char*)addr;
+            char* newStr = (char*)ctx.marshal_as<const char*>(value);
+            memcpy(str, newStr, value->Length);
+
+            *(str + value->Length) = 0;
+        }
+        catch (...) {}
     }
 
 }

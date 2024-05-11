@@ -71,6 +71,7 @@ namespace IVSDKDotNet
 	{
 		return Helper::IsKeyPressedAsync(key);
 	}
+
 	void IVGame::ShowSubtitleMessage(String^ str, uint32_t time)
 	{
 		IVSDKDotNet::Native::Natives::PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", str, time, true);
@@ -78,6 +79,10 @@ namespace IVSDKDotNet
 	void IVGame::ShowSubtitleMessage(String^ str)
 	{
 		ShowSubtitleMessage(str, 2000);
+	}
+	void IVGame::ShowSubtitleMessageEx(String^ str, ...array<System::Object^>^ args)
+	{
+		ShowSubtitleMessage(String::Format(str, args), 3000);
 	}
 
 	RectangleF IVGame::GetRadarRectangle(eFontScaling scaling)

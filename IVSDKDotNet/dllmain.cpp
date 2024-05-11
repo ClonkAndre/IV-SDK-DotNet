@@ -10,10 +10,6 @@
 
 #include "IVSDK.cpp"
 
-#pragma region Variables
-static HANDLE managedThreadHandle;
-#pragma endregion
-
 #pragma region Events
 void ScriptLoop()
 {
@@ -52,22 +48,6 @@ void IngameStartupEvent()
 	CLR::CLRBridge::InvokeIngameStartupEvent();
 }
 #pragma endregion
-
-// Managed Entry Point Thread
-DWORD WINAPI ManagedEntryPoint(HMODULE hModule)
-{
-	// Initialize IV-SDK .NET
-	CLR::CLRBridge::Initialize((uint32_t)plugin::gameVer, AddressSetter::gBaseAddress);
-
-	// Keep the plugin alive. I guess.
-	while (!CLR::CLRBridge::CanTerminate)
-	{
-		Sleep(1000);
-	}
-
-	FreeLibraryAndExitThread(hModule, 0);
-	return 0;
-}
 
 // IV-SDK Stuff
 void plugin::gameStartupEvent()

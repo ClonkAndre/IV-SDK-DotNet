@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "Helper.h"
 
-namespace IVSDKDotNet {
+namespace IVSDKDotNet
+{
 
 	// =========================================================================
 	// ================================== Helper ===============================
@@ -51,7 +52,7 @@ namespace IVSDKDotNet {
 
 	float Helper::RadianToDegree(float radians)
 	{
-		return radians * float(180.0 / System::Math::PI);
+		return radians * float(180.0f / System::Math::PI);
 	}
 	float Helper::RadianToDegree(double radians)
 	{
@@ -113,6 +114,20 @@ namespace IVSDKDotNet {
 		}
 		return key;
 	}
+	String^ Helper::CleanPhoneNumber(String^ number)
+	{
+		// Code from the ScriptHookDotNet source. Credits goes to Hazard!
+		return number->ToUpper()
+			->Replace(" ", String::Empty)->Replace("-", String::Empty)->Replace("+", "0")
+			->Replace("A", "2")->Replace("B", "2")->Replace("C", "2")
+			->Replace("D", "3")->Replace("E", "3")->Replace("F", "3")
+			->Replace("G", "4")->Replace("H", "4")->Replace("I", "4")
+			->Replace("J", "5")->Replace("K", "5")->Replace("L", "5")
+			->Replace("M", "6")->Replace("N", "6")->Replace("O", "6")
+			->Replace("P", "7")->Replace("Q", "7")->Replace("R", "7")->Replace("S", "7")
+			->Replace("T", "8")->Replace("U", "8")->Replace("V", "8")
+			->Replace("W", "9")->Replace("X", "9")->Replace("Y", "9")->Replace("Z", "9");
+	}
 	String^ Helper::KeyCodeToUnicode(Keys key)
 	{
 		BYTE keyState[256] = {0};
@@ -139,6 +154,32 @@ namespace IVSDKDotNet {
 		}
 
 		return String::Empty;
+	}
+
+	Random^ Helper::GetRandom()
+	{
+		return m_rnd;
+	}
+
+	bool Helper::IsNumericType(Type^ o)
+	{
+		switch (Type::GetTypeCode(o))
+		{
+			case TypeCode::Byte:
+			case TypeCode::SByte:
+			case TypeCode::UInt16:
+			case TypeCode::UInt32:
+			case TypeCode::UInt64:
+			case TypeCode::Int16:
+			case TypeCode::Int32:
+			case TypeCode::Int64:
+			case TypeCode::Decimal:
+			case TypeCode::Double:
+			case TypeCode::Single:
+				return true;
+		}
+
+		return false;
 	}
 
 	// =========================================================================

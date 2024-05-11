@@ -53,7 +53,7 @@ namespace CLR
 		// Initialize and try loading the IVSDKDotNet settings file
 		Settings = gcnew SettingsFile(IVSDKDotNetPath + "\\config.ini");
 		bool settingsLoadResult = Settings->Load();
-
+		
 		// Initialize logger
 		Logger::Initialize();
 
@@ -67,7 +67,8 @@ namespace CLR
 		Logger::Log(String::Format("IV-SDK .NET DEBUG version {0} by ItsClonkAndre", Version));
 
 		// Launch debugger
-		//Debugger::Launch();
+		if (Settings->GetBoolean("DEBUG", "LaunchDebugger", false))
+			Debugger::Launch();
 #else
 		Logger::Log(String::Format("IV-SDK .NET Release version {0} by ItsClonkAndre", Version));
 #endif
@@ -90,6 +91,32 @@ namespace CLR
 			goto ERR;
 		}
 
+		if (File::Exists("ScriptHookDotNet.dll"))
+		{
+			switch (MessageBox::Show("We've detected that you have a ScriptHookDotNet.dll file within your main directory of GTA IV. " + 
+				"Since version 1.2 of IV-SDK .NET, a modified version of ScriptHookDotNet.dll is already included with IV-SDK .NET, and the one you have in your main directory might conflict with the one already included. " +
+				"Would you like to close the game now and remove the old ScriptHookDotNet?", "IV-SDK .NET", MessageBoxButtons::YesNo, MessageBoxIcon::Warning))
+			{
+				case DialogResult::Yes:
+					Environment::Exit(0);
+					break;
+			}
+		}
+		else
+		{
+			if (File::Exists("ScriptHookDotNet.asi"))
+			{
+				switch (MessageBox::Show("We've detected that you have a ScriptHookDotNet.asi file within your main directory of GTA IV. " +
+					"Since version 1.2 of IV-SDK .NET, it can now load ScriptHookDotNet mods too and it makes the old ScriptHookDotNet obsolete! " +
+					"Would you like to close the game now and remove the old ScriptHookDotNet?", "IV-SDK .NET", MessageBoxButtons::YesNo, MessageBoxIcon::Warning))
+				{
+					case DialogResult::Yes:
+						Environment::Exit(0);
+						break;
+				}
+			}
+		}
+
 		// Initialize Memory Access stuff
 		MemoryAccess::Initialise(version, baseAddress);
 
@@ -101,6 +128,18 @@ namespace CLR
 			Sleep(100);
 		while (rage::g_pDirect3DDevice == nullptr)
 			Sleep(100);
+
+		// Get the ImGui style
+		String^ style = Settings->GetValue("Style", "ImGuiStyle", "dark")->ToLower();
+
+		if (style == "dark")
+			ImGuiIV::SelectedStyle = 0;
+		else if (style == "classic")
+			ImGuiIV::SelectedStyle = 1;
+		else if (style == "light")
+			ImGuiIV::SelectedStyle = 2;
+		else
+			ImGuiIV::SelectedStyle = 0;
 
 		// Initialize stuff
 		MH_STATUS minHookStatus = MH_Initialize();
@@ -122,12 +161,12 @@ namespace CLR
 		if (minHookStatus != MH_STATUS::MH_OK)
 			Logger::LogError(String::Format("[MinHook] Failed to enable Hooks! Details: {0}", gcnew String(MH_StatusToString(minHookStatus))));
 
-		Sleep(300);
+		// 300 ms was too little out of the sudden :thinking:
+		Sleep(1100);
 
 		// Load manager script
 		try
 		{
-
 			Assembly^ assembly = Assembly::UnsafeLoadFrom(managerScriptPath);
 
 			// Get types from assembly
@@ -138,7 +177,6 @@ namespace CLR
 
 				if (containedType->IsSubclassOf(ManagerScript::typeid))
 				{
-
 					// Create new instance of type for assembly
 					ManagerScript^ ms = (ManagerScript^)assembly->CreateInstance(containedType->FullName);
 
@@ -150,14 +188,12 @@ namespace CLR
 						// Apply Settings
 						ms->ApplySettings(Settings);
 
-						// Register Events
-						ms->WindowFocusChanged += gcnew IVSDKDotNet::RAGE::GameWindowFocusChangedDelegate(&CLR::CLRBridge::OnWindowFocusChanged);
-
 						// Create and set dummy script for manager
 						ms->SetDummyScript(gcnew Script(Guid("00000000-0000-0000-0000-000000000001")));
 
 						// Load scripts
-						ms->LoadScripts();
+						if (!Settings->GetBoolean("DEBUG", "DisableScriptLoadOnStartup", false))
+							ms->LoadScripts();
 
 						return;
 					}
@@ -170,10 +206,6 @@ namespace CLR
 		}
 		catch (ReflectionTypeLoadException^ ex)
 		{
-#if _DEBUG
-			throw;
-#else
-
 			array<Exception^>^ exs = ex->LoaderExceptions;
 			for (int i = 0; i < exs->Length; i++)
 			{
@@ -181,14 +213,18 @@ namespace CLR
 				Logger::LogError(String::Format("A ReflectionTypeLoadException occured while trying to load the IV-SDK .NET Manager. Details: {0}", e->ToString()), false);
 			}
 
+#if _DEBUG
+			if (Debugger::IsAttached)
+				throw;
 #endif // _DEBUG
 		}
 		catch (Exception^ ex)
 		{
-#if _DEBUG
-			throw;
-#else
 			Logger::LogError(String::Format("An exception occured while trying to load the IV-SDK .NET Manager. Details: {0}", ex->ToString()));
+		
+#if _DEBUG
+			if (Debugger::IsAttached)
+				throw;
 #endif // _DEBUG
 		}
 
@@ -221,6 +257,11 @@ ERR:
 
 		if (ManagerScript::s_Instance)
 			ManagerScript::s_Instance->RaiseGameLoadPriority();
+
+		// Initialize native function hooks
+		Native::Hooks::Initialize();
+		if (Native::NativeHookFunctions::Initialize())
+			Logger::LogDebug("[NativeHook] Done!");
 	}
 	void CLRBridge::InvokeMountDeviceEvents()
 	{
@@ -285,10 +326,6 @@ ERR:
 	{
 		Logger::Log("Starting to clean up...");
 
-		// Unregister Events
-		if (ManagerScript::s_Instance)
-			ManagerScript::s_Instance->WindowFocusChanged -= gcnew IVSDKDotNet::RAGE::GameWindowFocusChangedDelegate(&CLR::CLRBridge::OnWindowFocusChanged);
-
 		// Start cleanup in manager script
 		if (ManagerScript::s_Instance)
 			ManagerScript::s_Instance->Cleanup();
@@ -310,12 +347,6 @@ ERR:
 		Logger::LogDebug("Cleanup finished!");
 
 		CanTerminate = true;
-	}
-
-	// Internal Events
-	void CLRBridge::OnWindowFocusChanged(bool focused)
-	{
-		RAGE::RaiseOnWindowFocusChanged(focused);
 	}
 
 }

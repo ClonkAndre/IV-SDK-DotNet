@@ -19,4 +19,15 @@ namespace IVSDKDotNet
 		return gcnew IVPad(ptr);
 	}
 
+	IVPad^ IVPad::FromUIntPtr(UIntPtr ptr)
+	{
+		UINTPTR_ZERO_CHECK_WITH_RETURN(ptr, nullptr);
+		return gcnew IVPad((CPad*)ptr.ToPointer());
+	}
+	UIntPtr IVPad::GetUIntPtr()
+	{
+		NULLPTR_CHECK_WITH_RETURN(NativePad, UIntPtr::Zero);
+		return UIntPtr(NativePad);
+	}
+
 }

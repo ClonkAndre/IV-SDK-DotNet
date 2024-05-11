@@ -22,6 +22,7 @@ namespace Manager.Classes
         public static bool PauseScriptExecutionWhenNotInFocus;
         public static bool DoNotLoadLegacyScripts;
         public static bool ReloadScriptsOnReload;
+        public static bool ReadSHDNModsFromDefaultLocation;
 
         // Notification
         public static bool ShowNotifications;
@@ -55,6 +56,7 @@ namespace Manager.Classes
             PauseScriptExecutionWhenNotInFocus = settings.GetBoolean("Scripts", "PauseExecutionWhenNotInFocus", true);
             DoNotLoadLegacyScripts = settings.GetBoolean("Scripts", "DoNotLoadLegacyScripts", true);
             ReloadScriptsOnReload = settings.GetBoolean("Scripts", "ReloadScriptsOnReload", false);
+            ReadSHDNModsFromDefaultLocation = settings.GetBoolean("Scripts", "ReadSHDNModsFromDefaultLocation", true);
 
             // Section: Notification
             ShowNotifications = settings.GetBoolean("Notification", "ShowNotifications", true);
@@ -119,6 +121,7 @@ namespace Manager.Classes
             PauseScriptExecutionWhenNotInFocus = true;
             DoNotLoadLegacyScripts = true;
             ReloadScriptsOnReload = false;
+            ReadSHDNModsFromDefaultLocation = true;
 
             // Section: Notification
             ShowNotifications = true;

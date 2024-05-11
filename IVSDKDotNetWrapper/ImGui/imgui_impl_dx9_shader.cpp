@@ -281,7 +281,7 @@ void ImGui_ImplDX9_Shutdown()
     IM_DELETE(bd);
 }
 
-static bool ImGui_ImplDX9_CreateFontsTexture()
+bool ImGui_ImplDX9_CreateFontsTexture()
 {
     // Build texture atlas
     ImGuiIO& io = ImGui::GetIO();

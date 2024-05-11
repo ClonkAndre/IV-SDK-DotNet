@@ -211,6 +211,14 @@ namespace IVSDKDotNet
 		/// Only works in-game.
 		/// </summary>
 		/// <param name="str">The text to be shown.</param>
+		/// <param name="args">An object array that contains zero or more objects to format.</param>
+		static void ShowSubtitleMessageEx(String^ str, ...array<System::Object^>^ args);
+
+		/// <summary>
+		/// Shows text at the bottom center of the screen where the subtitles are located.
+		/// Only works in-game.
+		/// </summary>
+		/// <param name="str">The text to be shown.</param>
 		/// <param name="time">How long the text should be shown in milliseconds.</param>
 		static void ShowSubtitleMessage(String^ str, uint32_t time);
 

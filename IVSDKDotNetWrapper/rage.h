@@ -19,6 +19,7 @@ namespace IVSDKDotNet
 
 		/// <summary>
 		/// Gets raised when the focus of the GTA IV window changes.
+		/// This event is NOT thread-safe!
 		/// </summary>
 		static event GameWindowFocusChangedDelegate^ OnWindowFocusChanged;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Windows.Forms;
@@ -9,6 +10,7 @@ using IVSDKDotNet.Attributes;
 using IVSDKDotNet.Enums;
 
 using Manager.Classes;
+using Manager.Classes.Json.Script;
 
 namespace Manager.UI
 {
@@ -107,23 +109,63 @@ namespace Manager.UI
 
             if (ImGuiIV.BeginTabBar("##MainTabBar"))
             {
-                ImGuiIV.SetWindowSize(new Vector2(300f, 400f), eImGuiCond.Once);
+                //ImGuiIV.SetWindowSize(new Vector2(300f, 400f), eImGuiCond.Once);
 
-                // Debug
 #if DEBUG
+                // Debug
                 if (ImGuiIV.BeginTabItem("Debug"))
                 {
-                    ImGuiIV.Text("Active Scripts: {0}", main.ActiveScripts.Count);
+                    // Scripts
+                    ImGuiIV.SeparatorText("Scripts");
+                    ImGuiIV.Text("IV-SDK .NET Scripts: {0}", main.ActiveScripts.Count(x => x.IsIVSDKDotNetScript));
+                    ImGuiIV.Text("ScriptHookDotNet Scripts: {0}", main.ActiveScripts.Count(x => x.IsScriptHookDotNetScript));
+
+                    // ScriptHookDotNet
+                    ImGuiIV.Spacing();
+                    ImGuiIV.SeparatorText("ScriptHookDotNet");
+                    ImGuiIV.CheckBox("Enable Verbose Logging", ref SHDNStuff.EnableVerboseLogging);
+                    ImGuiIV.BeginDisabled();
+                    ImGuiIV.CheckBox("WereScriptHookDotNetScriptsLoadedThisSession", ref SHDNStuff.WereScriptHookDotNetScriptsLoadedThisSession);
+                    ImGuiIV.EndDisabled();
+
+                    ImGuiIV.Text("CurrentConstructingScript: {0}", SHDNStuff.CurrentConstructingScript != null ? SHDNStuff.CurrentConstructingScript.GUID : Guid.Empty);
+                    ImGuiIV.Text("CurrentTickScript: {0}", SHDNStuff.CurrentTickScript != null ? SHDNStuff.CurrentTickScript.GUID : Guid.Empty);
+                    ImGuiIV.Text("CurrentMouseDownScript: {0}", SHDNStuff.CurrentMouseDownScript != null ? SHDNStuff.CurrentMouseDownScript.GUID : Guid.Empty);
+                    ImGuiIV.Text("CurrentMouseUpScript: {0}", SHDNStuff.CurrentMouseUpScript != null ? SHDNStuff.CurrentMouseUpScript.GUID : Guid.Empty);
+                    ImGuiIV.Text("CurrentScriptCommandScript: {0}", SHDNStuff.CurrentScriptCommandScript != null ? SHDNStuff.CurrentScriptCommandScript.GUID : Guid.Empty);
+                    ImGuiIV.Text("CurrentPerFrameDrawingScript: {0}", SHDNStuff.CurrentPerFrameDrawingScript != null ? SHDNStuff.CurrentPerFrameDrawingScript.GUID : Guid.Empty);
+
+                    // Lists
+                    ImGuiIV.Spacing();
+                    ImGuiIV.SeparatorText("Lists");
                     ImGuiIV.Text("Local Tasks: {0}", main.LocalTasks.Count);
                     ImGuiIV.Text("Delayed Actions: {0}", main.DelayedActions.Count);
                     ImGuiIV.Text("Registered Console Commands: {0}", main.Console.Commands.Count);
 
+                    // States
+                    ImGuiIV.Spacing();
                     ImGuiIV.SeparatorText("States");
                     ImGuiIV.BeginDisabled();
                     ImGuiIV.CheckBox("FirstFrame", ref main.FirstFrame);
                     ImGuiIV.CheckBox("IsGTAIVWindowInFocus", ref main.IsGTAIVWindowInFocus);
                     ImGuiIV.CheckBox("OnWindowFocusChangedEventCalled", ref main.OnWindowFocusChangedEventCalled);
+                    ImGuiIV.CheckBox("WasBoundPhoneNumbersProcessed", ref main.WasBoundPhoneNumbersProcessed);
                     ImGuiIV.EndDisabled();
+
+                    // Player
+                    ImGuiIV.Spacing();
+                    ImGuiIV.SeparatorText("Player");
+                    ImGuiIV.Text("Player Ped Pointer: {0}", IVPlayerInfo.FindThePlayerPed());
+
+                    // Phone
+                    IVPhoneInfo thePhoneInfo = IVPhoneInfo.ThePhoneInfo;
+                    if (thePhoneInfo != null && IVPlayerInfo.FindThePlayerPed() != UIntPtr.Zero)
+                    {
+                        ImGuiIV.Spacing();
+                        ImGuiIV.SeparatorText("Phone");
+                        ImGuiIV.Text("Current Phone Number: {0}", thePhoneInfo.CurrentNumberInput);
+                        ImGuiIV.Text("Phone State: {0}", (ePhoneState)thePhoneInfo.State);
+                    }
 
                     ImGuiIV.EndTabItem();
                 }
@@ -195,7 +237,7 @@ namespace Manager.UI
                     if (ImGuiIV.TreeNode("Notification"))
                     {
 
-                        ImGuiIV.HelpMarker("If set to false, no notifications will be shown on screen (Not recommended).");
+                        ImGuiIV.HelpMarker("If set to false, no notifications will be shown on screen. This is not recommended as you might miss important notifications.");
                         ImGuiIV.SameLine();
                         ImGuiIV.CheckBox("Show Notifications", ref Config.ShowNotifications);
 
@@ -272,12 +314,15 @@ namespace Manager.UI
                 {
                     ImGuiIV.SeparatorText("Control");
 
+                    ImGuiIV.Text("Last Script Reload Occured At: {0} ({1} Seconds ago)", main.TimeSinceLastScriptReload, (int)(DateTime.Now - main.TimeSinceLastScriptReload).TotalSeconds);
+
                     if (ImGuiIV.Button("Abort scripts"))
-                        main.AbortScripts(AbortReason.Manager, false);
+                        main.AbortScripts(ScriptType.All, AbortReason.Manager, false);
                     ImGuiIV.SameLine();
                     if (ImGuiIV.Button("Reload scripts"))
                         main.LoadScripts();
 
+                    ImGuiIV.Spacing();
                     ImGuiIV.SeparatorText("Scripts");
 
                     if (main.ActiveScripts.Count != 0)
@@ -306,23 +351,25 @@ namespace Manager.UI
                         }
 
                         // Get script from index
-                        FoundScript script = main.ActiveScripts[selectedScriptIndex];
+                        FoundScript foundScript = main.ActiveScripts[selectedScriptIndex];
+                        bool isIVSDKDotNetScript = foundScript.IsIVSDKDotNetScript;
 
-                        ImGuiIV.SeparatorText(script.Name);
+                        ImGuiIV.Spacing();
+                        ImGuiIV.SeparatorText(foundScript.Name);
 
                         if (ImGuiIV.Button("Abort"))
                         {
-                            main.AbortScriptInternal(AbortReason.Manager, script, false);
+                            main.AbortScriptInternal(AbortReason.Manager, foundScript, false);
                             ImGuiIV.EndTabItem();
                             ImGuiIV.EndTabBar();
                             ImGuiIV.End();
                             return;
                         }
                         ImGuiIV.SameLine();
-                        if (ImGuiIV.Button(script.Running ? "Pause script" : "Resume script"))
-                            script.Running = !script.Running;
+                        if (ImGuiIV.Button(foundScript.Running ? "Pause script" : "Resume script"))
+                            foundScript.Running = !foundScript.Running;
 
-                        ImGuiIV.Dummy(new Vector2(0f, 8f));
+                        ImGuiIV.Dummy(new Vector2(0f, 10f));
                         if (ImGuiIV.BeginTabBar("##ScriptTabBar"))
                         {
 
@@ -330,35 +377,111 @@ namespace Manager.UI
                             if (ImGuiIV.BeginTabItem("Details"))
                             {
 
-                                ImGuiIV.Text("ID: {0}", script.ID);
-                                ImGuiIV.Text("Full Path: {0}", script.FullPath);
-                                ImGuiIV.SetItemTooltip(script.FullPath);
-                                ImGuiIV.Text("Is Script Ready: {0}", script.IsScriptReady());
+                                if (isIVSDKDotNetScript)
+                                    ImGuiIV.Text("Type: IVSDKDotNet Script");
+                                else
+                                    ImGuiIV.Text("Type: ScriptHookDotNet Script");
+
+                                ImGuiIV.Text("ID: {0}", foundScript.ID);
+                                ImGuiIV.Text("Full Path: {0}", foundScript.FullPath);
+                                ImGuiIV.SetItemTooltip(foundScript.FullPath);
+                                ImGuiIV.Text("Is Script Ready: {0}", foundScript.IsScriptReady());
 
                                 ImGuiIV.BeginDisabled();
-                                ImGuiIV.CheckBox("Running", ref script.Running);
-                                ImGuiIV.CheckBox("Init Event Called", ref script.InitEventCalled);
+                                ImGuiIV.CheckBox("Running", ref foundScript.Running);
+                                if (isIVSDKDotNetScript)
+                                    ImGuiIV.CheckBox("Init Event Called", ref foundScript.InitEventCalled);
                                 ImGuiIV.EndDisabled();
+
+                                // Script Configuration
+                                if (isIVSDKDotNetScript)
+                                {
+                                    ImGuiIV.SeparatorText("Script Configuration");
+
+                                    if (foundScript.Config == null)
+                                    {
+                                        ImGuiIV.Text("This script has no configuration file.");
+                                    }
+                                    else
+                                    {
+                                        if (!foundScript.Config.HasDependencyInfo())
+                                        {
+                                            ImGuiIV.Text("This script has no dependency info.");
+                                        }
+                                        else
+                                        {
+                                            if (ImGuiIV.TreeNode("View Dependency Info"))
+                                            {
+
+                                                for (int i = 0; i < foundScript.Config.DependencyInfo.Count; i++)
+                                                {
+                                                    ScriptDependencyInfo dependencyInfo = foundScript.Config.DependencyInfo[i];
+
+                                                    ImGuiIV.SeparatorText(dependencyInfo.Name + " (.dll)");
+
+                                                    ImGuiIV.HelpMarker("Where this dependency can be downloaded.");
+                                                    ImGuiIV.SameLine();
+                                                    ImGuiIV.Text("DownloadURL: {0}", dependencyInfo.DownloadURL);
+                                                    ImGuiIV.SetItemTooltip(dependencyInfo.DownloadURL);
+
+                                                    ImGuiIV.HelpMarker("The ID of this dependency in the IV Launcher Workshop.");
+                                                    ImGuiIV.SameLine();
+                                                    ImGuiIV.Text("IVLauncherWorkshopID: {0}", dependencyInfo.IVLauncherWorkshopID.ToString());
+                                                    ImGuiIV.SetItemTooltip(dependencyInfo.IVLauncherWorkshopID.ToString());
+
+                                                    if (i != 0)
+                                                        ImGuiIV.Separator();
+                                                }
+
+                                                ImGuiIV.Spacing();
+                                                ImGuiIV.TreePop();
+                                            }
+                                        }
+
+                                        if (!foundScript.Config.HasIncompatibleMods())
+                                        {
+                                            ImGuiIV.Text("This script has no incompatible mods info.");
+                                        }
+                                        else
+                                        {
+                                            if (ImGuiIV.TreeNode("View Incompatible Mods"))
+                                            {
+
+                                                for (int i = 0; i < foundScript.Config.IncompatibleMods.Count; i++)
+                                                {
+                                                    ImGuiIV.Text(foundScript.Config.IncompatibleMods[i]);
+                                                }
+
+                                                ImGuiIV.Spacing();
+                                                ImGuiIV.TreePop();
+                                            }
+                                        }
+                                    }
+
+                                    ImGuiIV.Spacing();
+                                }
 
                                 // Script Tasks
                                 ImGuiIV.SeparatorText("Script Tasks");
-                                ImGuiIV.Text("Script Tasks: {0}", script.ScriptTasks.Count);
+                                ImGuiIV.Text("Active Script Tasks: {0}", foundScript.ScriptTasks.Count);
+                                ImGuiIV.Spacing();
 
                                 // Console Commands
                                 ImGuiIV.SeparatorText("Console Commands");
-                                if (script.ConsoleCommands.Count == 0)
+
+                                if (foundScript.ConsoleCommands.Count == 0)
                                 {
                                     ImGuiIV.Text("This script has no console commands registered.");
                                 }
                                 else
                                 {
-                                    if (ImGuiIV.TreeNode(string.Format("Registered Console Commands: {0}", script.ConsoleCommands.Count)))
+                                    if (ImGuiIV.TreeNode(string.Format("Registered Console Commands: {0}", foundScript.ConsoleCommands.Count)))
                                     {
 
                                         ImGuiIV.BeginListBox("##ScriptConsoleCommands", new Vector2(ImGuiIV.FloatMin, 40f));
 
-                                        for (int c = 0; c < script.ConsoleCommands.Count; c++)
-                                            ImGuiIV.Text(script.ConsoleCommands[c]);
+                                        for (int c = 0; c < foundScript.ConsoleCommands.Count; c++)
+                                            ImGuiIV.Text(foundScript.ConsoleCommands[c]);
 
                                         ImGuiIV.EndListBox();
 
@@ -366,23 +489,54 @@ namespace Manager.UI
                                     }
                                 }
 
+                                ImGuiIV.Spacing();
+
+                                // Bound Phone Numbers
+                                if (isIVSDKDotNetScript)
+                                {
+                                    ImGuiIV.SeparatorText("Bound Phone Numbers");
+
+                                    if (foundScript.BoundPhoneNumbers.Count == 0)
+                                    {
+                                        ImGuiIV.Text("This script has no registered phone numbers.");
+                                    }
+                                    else
+                                    {
+                                        if (ImGuiIV.TreeNode(string.Format("Registered Phone Numbers: {0}", foundScript.BoundPhoneNumbers.Count)))
+                                        {
+
+                                            ImGuiIV.BeginListBox("##ScriptRegisteredPhoneNumbers", new Vector2(ImGuiIV.FloatMin, 40f));
+
+                                            BoundPhoneNumber[] arr = foundScript.BoundPhoneNumbers.Values.ToArray();
+                                            for (int c = 0; c < arr.Length; c++)
+                                                ImGuiIV.Text(arr[c].Number);
+
+                                            ImGuiIV.EndListBox();
+
+                                            ImGuiIV.TreePop();
+                                        }
+                                    }
+
+                                    ImGuiIV.Spacing();
+                                }
+
                                 // Direct3D9
                                 ImGuiIV.SeparatorText("Direct3D9");
 
-                                if (script.Textures.Count == 0)
+                                if (foundScript.Textures.Count == 0)
                                 {
                                     ImGuiIV.Text("This script has no registered textures.");
                                 }
                                 else
                                 {
-                                    if (ImGuiIV.TreeNode(string.Format("Registered Textures: {0}", script.Textures.Count)))
+                                    if (ImGuiIV.TreeNode(string.Format("Registered Textures: {0}", foundScript.Textures.Count)))
                                     {
                                         Vector2 button_sz = new Vector2(64f);
                                         float window_visible_x2 = ImGuiIV.GetWindowPos().Y + ImGuiIV.GetWindowContentRegionMax().X * 2f;
 
-                                        for (int i = 0; i < script.Textures.Count; i++)
+                                        for (int i = 0; i < foundScript.Textures.Count; i++)
                                         {
-                                            IntPtr txtPtr = script.Textures[i];
+                                            IntPtr txtPtr = foundScript.Textures[i];
 
                                             ImGuiIV.PushID(i);
 
@@ -392,7 +546,7 @@ namespace Manager.UI
 
                                             float last_button_x2 = ImGuiIV.GetItemRectMax().X;
                                             float next_button_x2 = last_button_x2 + 10f + button_sz.X; // Expected position if next button was on same line
-                                            if (i + 1 < script.Textures.Count && next_button_x2 < window_visible_x2)
+                                            if (i + 1 < foundScript.Textures.Count && next_button_x2 < window_visible_x2)
                                                 ImGuiIV.SameLine();
 
                                             ImGuiIV.PopID();
@@ -402,12 +556,17 @@ namespace Manager.UI
                                     }
                                 }
 
-                                // Execution Times
-                                ImGuiIV.HelpMarker("Shows you how long it took to execute each event in the script in seconds.");
-                                ImGuiIV.SameLine();
-                                ImGuiIV.SeparatorText("Execution Times");
+                                ImGuiIV.Spacing();
 
-                                RefreshExecutionTimes(script.TheScript);
+                                // Execution Times
+                                if (isIVSDKDotNetScript)
+                                {
+                                    ImGuiIV.HelpMarker("Shows you how long it took to execute each event in the script in seconds.");
+                                    ImGuiIV.SameLine();
+                                    ImGuiIV.SeparatorText("Execution Times");
+
+                                    RefreshExecutionTimes(foundScript.GetScriptAs<Script>());
+                                }
 
                                 ImGuiIV.EndTabItem();
                             }
@@ -418,13 +577,13 @@ namespace Manager.UI
                                 // Set tab item tooltip
                                 ImGuiIV.SetItemTooltip("If the script has any fields that are public, they can be manipulated here.\nThink of this as the Unity Inspector.");
 
-                                if (script.PublicFields.Length != 0)
+                                if (foundScript.PublicFields.Length != 0)
                                 {
-                                    ImGuiIV.BeginChild("PublicFieldsChild", new Vector2(ImGuiIV.FloatMin, 200f));
+                                    ImGuiIV.BeginChild("PublicFieldsChild");
 
-                                    for (int f = 0; f < script.PublicFields.Length; f++)
+                                    for (int f = 0; f < foundScript.PublicFields.Length; f++)
                                     {
-                                        FieldInfo info = script.PublicFields[f];
+                                        FieldInfo info = foundScript.PublicFields[f];
 
                                         // Early handle custom attributes for members
                                         if (info.GetCustomAttribute<HideInInspectorAttribute>() != null)
@@ -453,7 +612,7 @@ namespace Manager.UI
                                         // byte
                                         if (info.FieldType == typeof(byte))
                                         {
-                                            int value = Convert.ToInt32(info.GetValue(script.TheScript));
+                                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
 
                                             ImGuiIV.Text(info.Name);
 
@@ -463,7 +622,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                                                info.SetValue(script.TheScript, Convert.ToByte(value));
+                                                info.SetValue(foundScript.TheScriptObject, Convert.ToByte(value));
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -471,7 +630,7 @@ namespace Manager.UI
                                         // sbyte
                                         if (info.FieldType == typeof(sbyte))
                                         {
-                                            int value = Convert.ToInt32(info.GetValue(script.TheScript));
+                                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
 
                                             ImGuiIV.Text(info.Name);
 
@@ -481,7 +640,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                                                info.SetValue(script.TheScript, Convert.ToSByte(value));
+                                                info.SetValue(foundScript.TheScriptObject, Convert.ToSByte(value));
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -489,7 +648,7 @@ namespace Manager.UI
                                         // short
                                         if (info.FieldType == typeof(short))
                                         {
-                                            int value = Convert.ToInt32(info.GetValue(script.TheScript));
+                                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
 
                                             ImGuiIV.Text(info.Name);
 
@@ -499,7 +658,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                                                info.SetValue(script.TheScript, Convert.ToInt16(value));
+                                                info.SetValue(foundScript.TheScriptObject, Convert.ToInt16(value));
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -507,7 +666,7 @@ namespace Manager.UI
                                         // ushort
                                         if (info.FieldType == typeof(ushort))
                                         {
-                                            int value = Convert.ToInt32(info.GetValue(script.TheScript));
+                                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
 
                                             ImGuiIV.Text(info.Name);
 
@@ -517,7 +676,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                                                info.SetValue(script.TheScript, Convert.ToUInt16(value));
+                                                info.SetValue(foundScript.TheScriptObject, Convert.ToUInt16(value));
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -525,7 +684,7 @@ namespace Manager.UI
                                         // int
                                         if (info.FieldType == typeof(int))
                                         {
-                                            int value = Convert.ToInt32(info.GetValue(script.TheScript));
+                                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
 
                                             ImGuiIV.Text(info.Name);
 
@@ -535,7 +694,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                                                info.SetValue(script.TheScript, value);
+                                                info.SetValue(foundScript.TheScriptObject, value);
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -543,7 +702,7 @@ namespace Manager.UI
                                         // uint
                                         if (info.FieldType == typeof(uint))
                                         {
-                                            int value = Convert.ToInt32(info.GetValue(script.TheScript));
+                                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
 
                                             ImGuiIV.Text(info.Name);
 
@@ -553,7 +712,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                                                info.SetValue(script.TheScript, Convert.ToUInt32(value));
+                                                info.SetValue(foundScript.TheScriptObject, Convert.ToUInt32(value));
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -561,7 +720,7 @@ namespace Manager.UI
                                         // long
                                         if (info.FieldType == typeof(long))
                                         {
-                                            int value = Convert.ToInt32(info.GetValue(script.TheScript));
+                                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
 
                                             ImGuiIV.Text(info.Name);
 
@@ -571,7 +730,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                                                info.SetValue(script.TheScript, Convert.ToInt64(value));
+                                                info.SetValue(foundScript.TheScriptObject, Convert.ToInt64(value));
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -579,7 +738,7 @@ namespace Manager.UI
                                         // ulong
                                         if (info.FieldType == typeof(ulong))
                                         {
-                                            int value = Convert.ToInt32(info.GetValue(script.TheScript));
+                                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
 
                                             ImGuiIV.Text(info.Name);
 
@@ -589,7 +748,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                                                info.SetValue(script.TheScript, Convert.ToUInt64(value));
+                                                info.SetValue(foundScript.TheScriptObject, Convert.ToUInt64(value));
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -597,7 +756,7 @@ namespace Manager.UI
                                         // float
                                         if (info.FieldType == typeof(float))
                                         {
-                                            float value = Convert.ToSingle(info.GetValue(script.TheScript));
+                                            float value = Convert.ToSingle(info.GetValue(foundScript.TheScriptObject));
 
                                             ImGuiIV.Text(info.Name);
 
@@ -607,7 +766,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value))
-                                                info.SetValue(script.TheScript, Convert.ToSingle(value));
+                                                info.SetValue(foundScript.TheScriptObject, Convert.ToSingle(value));
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0} (float).", info.FieldType.Name));
                                         }
@@ -615,7 +774,7 @@ namespace Manager.UI
                                         // double
                                         if (info.FieldType == typeof(double))
                                         {
-                                            float value = Convert.ToSingle(info.GetValue(script.TheScript));
+                                            float value = Convert.ToSingle(info.GetValue(foundScript.TheScriptObject));
 
                                             ImGuiIV.Text(info.Name);
 
@@ -625,7 +784,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value))
-                                                info.SetValue(script.TheScript, Convert.ToDouble(value));
+                                                info.SetValue(foundScript.TheScriptObject, Convert.ToDouble(value));
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -633,7 +792,7 @@ namespace Manager.UI
                                         // decimal
                                         if (info.FieldType == typeof(decimal))
                                         {
-                                            float value = Convert.ToSingle(info.GetValue(script.TheScript));
+                                            float value = Convert.ToSingle(info.GetValue(foundScript.TheScriptObject));
 
                                             ImGuiIV.Text(info.Name);
 
@@ -643,7 +802,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value))
-                                                info.SetValue(script.TheScript, Convert.ToDecimal(value));
+                                                info.SetValue(foundScript.TheScriptObject, Convert.ToDecimal(value));
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -651,7 +810,7 @@ namespace Manager.UI
                                         // bool
                                         if (info.FieldType == typeof(bool))
                                         {
-                                            bool value = Convert.ToBoolean(info.GetValue(script.TheScript));
+                                            bool value = Convert.ToBoolean(info.GetValue(foundScript.TheScriptObject));
 
                                             ImGuiIV.Text(info.Name);
 
@@ -661,7 +820,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.CheckBox(string.Format("##{0}", info.Name), ref value))
-                                                info.SetValue(script.TheScript, value);
+                                                info.SetValue(foundScript.TheScriptObject, value);
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -669,7 +828,7 @@ namespace Manager.UI
                                         // string
                                         if (info.FieldType == typeof(string))
                                         {
-                                            string value = Convert.ToString(info.GetValue(script.TheScript));
+                                            string value = Convert.ToString(info.GetValue(foundScript.TheScriptObject));
 
                                             ImGuiIV.Text(info.Name);
 
@@ -679,7 +838,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.InputText(string.Format("##{0}", info.Name), ref value))
-                                                info.SetValue(script.TheScript, value);
+                                                info.SetValue(foundScript.TheScriptObject, value);
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -687,7 +846,7 @@ namespace Manager.UI
                                         // Vector2
                                         if (info.FieldType == typeof(Vector2))
                                         {
-                                            Vector2 value = (Vector2)info.GetValue(script.TheScript);
+                                            Vector2 value = (Vector2)info.GetValue(foundScript.TheScriptObject);
                                             float[] arr = new float[2] { value.X, value.Y };
 
                                             ImGuiIV.Text(info.Name);
@@ -698,7 +857,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr))
-                                                info.SetValue(script.TheScript, new Vector2(arr[0], arr[1]));
+                                                info.SetValue(foundScript.TheScriptObject, new Vector2(arr[0], arr[1]));
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -706,7 +865,7 @@ namespace Manager.UI
                                         // Vector3
                                         if (info.FieldType == typeof(Vector3))
                                         {
-                                            Vector3 value = (Vector3)info.GetValue(script.TheScript);
+                                            Vector3 value = (Vector3)info.GetValue(foundScript.TheScriptObject);
                                             float[] arr = new float[3] { value.X, value.Y, value.Z };
 
                                             ImGuiIV.Text(info.Name);
@@ -717,7 +876,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragFloat3(string.Format("##{0}", info.Name), ref arr))
-                                                info.SetValue(script.TheScript, new Vector3(arr[0], arr[1], arr[2]));
+                                                info.SetValue(foundScript.TheScriptObject, new Vector3(arr[0], arr[1], arr[2]));
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -725,7 +884,7 @@ namespace Manager.UI
                                         // Quaternion
                                         if (info.FieldType == typeof(Quaternion))
                                         {
-                                            Quaternion value = (Quaternion)info.GetValue(script.TheScript);
+                                            Quaternion value = (Quaternion)info.GetValue(foundScript.TheScriptObject);
                                             float[] arr = new float[4] { value.X, value.Y, value.Z, value.W };
 
                                             ImGuiIV.Text(info.Name);
@@ -736,7 +895,7 @@ namespace Manager.UI
 
                                             ImGuiIV.SameLine(0f, 30f);
                                             if (ImGuiIV.DragFloat4(string.Format("##{0}", info.Name), ref arr))
-                                                info.SetValue(script.TheScript, new Quaternion(arr[0], arr[1], arr[2], arr[3]));
+                                                info.SetValue(foundScript.TheScriptObject, new Quaternion(arr[0], arr[1], arr[2], arr[3]));
                                             ImGuiIV.SameLine();
                                             ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
                                         }
@@ -840,17 +999,53 @@ namespace Manager.UI
 
                     if (ImGuiIV.TreeNode("Tier 3"))
                     {
-                        ImGuiIV.Text("-");
+                        if (Main.Instance.TierThreeSupporters.Count == 0)
+                        {
+                            ImGuiIV.Text("-");
+                        }
+                        else
+                        {
+                            for (int i = 0; i < Main.Instance.TierThreeSupporters.Count; i++)
+                            {
+                                string name = Main.Instance.TierThreeSupporters[i];
+                                ImGuiIV.Selectable(name);
+                            }
+                        }
+
                         ImGuiIV.TreePop();
                     }
                     if (ImGuiIV.TreeNode("Tier 2"))
                     {
-                        ImGuiIV.Text("-");
+                        if (Main.Instance.TierTwoSupporters.Count == 0)
+                        {
+                            ImGuiIV.Text("-");
+                        }
+                        else
+                        {
+                            for (int i = 0; i < Main.Instance.TierTwoSupporters.Count; i++)
+                            {
+                                string name = Main.Instance.TierTwoSupporters[i];
+                                ImGuiIV.Selectable(name);
+                            }
+                        }
+
                         ImGuiIV.TreePop();
                     }
                     if (ImGuiIV.TreeNode("Tier 1"))
                     {
-                        ImGuiIV.Text("-");
+                        if (Main.Instance.TierOneSupporters.Count == 0)
+                        {
+                            ImGuiIV.Text("-");
+                        }
+                        else
+                        {
+                            for (int i = 0; i < Main.Instance.TierOneSupporters.Count; i++)
+                            {
+                                string name = Main.Instance.TierOneSupporters[i];
+                                ImGuiIV.Selectable(name);
+                            }
+                        }
+
                         ImGuiIV.TreePop();
                     }
 

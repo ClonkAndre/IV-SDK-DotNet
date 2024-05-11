@@ -2,7 +2,7 @@
 
 namespace IVSDKDotNet
 {
-	public value struct IVViewportData
+	public ref class IVViewportData
 	{
 	public:
 		property IVMatrix^ ProjectionMatrix

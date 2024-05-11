@@ -13,10 +13,399 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\IVSDK">
+      <UniqueIdentifier>{55f0cdba-839b-4a66-8293-a1597a5a8bfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IVSDK">
+      <UniqueIdentifier>{d9f0b1b1-075c-4b40-8358-5ba75803a5e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IVSDK\injector">
+      <UniqueIdentifier>{4a19ffe6-5d82-41e7-bd31-10d7a9ccb506}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IVSDK\injector\gvm">
+      <UniqueIdentifier>{915a90e4-d30e-4c36-98fe-3477522a5629}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="IVSDK\IVSDK.cpp">
+      <Filter>Source Files\IVSDK</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IVSDK\Addresses.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\audEngine.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\audRadioAudioEntity.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\C_PcSave.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CAchievements.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CAERadioTrackManager.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CAnimManager.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CAudioZones.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CBaseDC.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CBuilding.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CCam.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CCamera.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CCheat.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CClock.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CCustomShaderEffectBase.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CCutsceneMgr.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CDraw.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CDrawCurvedWindowDC.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CDrawRadioHudTextDC.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CDrawRectDC.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CDrawSpriteDC.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CDrawSpriteUVDC.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CdStream.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CDynamicEntity.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CEntity.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CExplosion.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CFileLoader.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CFileMgr.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CFont.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CFrontEnd.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CGame.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CGameConfigReader.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CGameLogic.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CGangs.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CGarage.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CGenericGameStorage.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\cHandlingDataMgr.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CHudColours.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CInteriorInst.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CIplStore.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CMatrix.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CMenuManager.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CModelInfo.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CNetwork.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CObject.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CVehicle.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CVehicleFactoryNY.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CVisibilityPlugins.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CWanted.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CWeaponInfo.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CWeather.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CWorld.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\eHudColour.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\ePadControls.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\eRadarSprite.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\eVehiclePart.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\fiDevice.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\fiPackfile.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\grcTexture.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\grcTextureFactory.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\Hooks.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CPad.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CPed.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CPedFactoryNY.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CPedType.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CPhysical.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CPickups.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CPlayerInfo.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CPool.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CPools.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CPopulation.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CProjectileInfo.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CQuadTreeNode.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CQuaternion.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CRadar.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CRect.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CRenderPhase.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CReplay.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CRestart.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CRGBA.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CShaderLib.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CShadows.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CSimpleTransform.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CSprite2d.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CStats.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CStore.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CStreaming.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CStuntJumpManager.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTask.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTaskComplexClimbLadder.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTaskComplexDie.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTaskComplexInWater.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTaskComplexMobileMakeCall.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTaskComplexNewGetInVehicle.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTaskComplexNM.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTaskComplexPlayerOnFoot.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTaskComplexPlayerSettingsTask.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTaskComplexWander.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTaskSimpleNMHighFall.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTaskSimpleNMJumpRollFromRoadVehicle.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTaskSimpleSidewaysDive.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CText.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTheScripts.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTheZones.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTimeCycle.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTimer.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CTxdStore.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CVector.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\CVector2D.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\IVSDK.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\NewAddressSet.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\pgDictionary.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\phBound.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\phConstrainedCollider.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\phInstGta.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\rage.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\SkyDome.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\injector\calling.hpp">
+      <Filter>Header Files\IVSDK\injector</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\injector\hooking.hpp">
+      <Filter>Header Files\IVSDK\injector</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\injector\injector.hpp">
+      <Filter>Header Files\IVSDK\injector</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\injector\utility.hpp">
+      <Filter>Header Files\IVSDK\injector</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\injector\assembly.hpp">
+      <Filter>Header Files\IVSDK\injector</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\injector\gvm\gvm.hpp">
+      <Filter>Header Files\IVSDK\injector\gvm</Filter>
+    </ClInclude>
+    <ClInclude Include="IVSDK\injector\gvm\translator.hpp">
+      <Filter>Header Files\IVSDK\injector\gvm</Filter>
+    </ClInclude>
+    <ClInclude Include="AdvancedPatcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
