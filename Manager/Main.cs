@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
+using Newtonsoft.Json;
 
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
@@ -16,8 +19,6 @@ using Manager.Classes;
 using Manager.Managers;
 using Manager.UI;
 
-//using ScriptHookDotNet = GTA;
-
 namespace Manager
 {
     public class Main : ManagerScript
@@ -26,11 +27,15 @@ namespace Manager
         internal static Main Instance;
 
         // Lists
+        public Queue<Action> ActionQueue;
+
         public List<FoundScript> ActiveScripts;
         public List<AdvancedTask> LocalTasks;
         public List<DelayedAction> DelayedActions;
-
-        // public List<ScriptHookDotNet.Script> ScriptHookDotNetScripts = new List<ScriptHookDotNet.Script>();
+        
+        public List<string> TierOneSupporters;
+        public List<string> TierTwoSupporters;
+        public List<string> TierThreeSupporters; 
 
         // Managers
         public RemoteConnectionManager ConnectionManager;
@@ -45,13 +50,15 @@ namespace Manager
         // Other
         public Version CurrentWrapperVersion;
         public UpdateChecker UpdateChecker;
+        public WebClient downloadClient;
         public Process GTAIVProcess;
+        public DateTime TimeSinceLastScriptReload;
         private Guid processCheckerTimerID;
-        internal Script DummyScript;
 
         public bool FirstFrame = true;
         public bool IsGTAIVWindowInFocus;
         public bool OnWindowFocusChangedEventCalled;
+        public bool WasBoundPhoneNumbersProcessed;
         private int lastLogLineCount;
         #endregion
 
@@ -63,8 +70,16 @@ namespace Manager
             string assemblyName = args.Name.Split(',')[0];
             string assemblyPath = string.Format("{0}\\{1}.dll", CLR.CLRBridge.IVSDKDotNetBinaryPath, assemblyName);
 
+            if (assemblyName.EndsWith(".resources"))
+            {
+                Logger.LogDebug(string.Format("Was searching for a resources file with the name {0}. Skipping.", assemblyName));
+                return null;
+            }
+
             if (File.Exists(assemblyPath))
                 return Assembly.UnsafeLoadFrom(assemblyPath);
+            else
+                Logger.LogError(string.Format("Could not find required assembly {0} which should be in the IVSDKDotNet > bin folder! Game might crash!", assemblyName));
 
             return null;
         }
@@ -88,6 +103,60 @@ namespace Manager
             }
         }
 
+        // DownloadClient
+        private void DownloadClient_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                Logger.LogError(string.Format("An error occured while trying to gather some basic information!{0}" +
+                    "The thing that failed: {1}{0}" +
+                    "Details: {2}", Environment.NewLine, e.UserState == null ? "UNKNOWN" : e.UserState, e.Error));
+                return;
+            }
+
+            try
+            {
+                switch (e.UserState.ToString())
+                {
+                    case "GET_TIER_ONE_SUPPORTERS":
+                        {
+                            string data = e.Result;
+
+                            if (!string.IsNullOrWhiteSpace(data))
+                                TierOneSupporters = JsonConvert.DeserializeObject<List<string>>(data);
+
+                            downloadClient.DownloadStringAsync(new Uri("https://www.dropbox.com/scl/fi/lvt1vd1uvkn7noalsw483/TierTwoSupporter.json?rlkey=7kdoynmiep0nilnyqqbib4s1e&dl=1"), "GET_TIER_TWO_SUPPORTERS");
+                        }
+                        break;
+                    case "GET_TIER_TWO_SUPPORTERS":
+                        {
+                            string data = e.Result;
+
+                            if (!string.IsNullOrWhiteSpace(data))
+                                TierTwoSupporters = JsonConvert.DeserializeObject<List<string>>(data);
+
+                            downloadClient.DownloadStringAsync(new Uri("https://www.dropbox.com/scl/fi/6ey0rb7uib8bxd8t0suy3/TierThreeSupporter.json?rlkey=33svhsggspdvbwdnpcnx684j4&dl=1"), "GET_TIER_THREE_SUPPORTERS");
+                        }
+                        break;
+                    case "GET_TIER_THREE_SUPPORTERS":
+                        {
+                            string data = e.Result;
+
+                            if (!string.IsNullOrWhiteSpace(data))
+                                TierThreeSupporters = JsonConvert.DeserializeObject<List<string>>(data);
+
+                            Logger.LogDebug("Got all supporters!");
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(string.Format("An error occured while trying to process basic information!{0}" +
+                    "Details: {1}", Environment.NewLine, ex));
+            }
+        }
+
         #endregion
 
         #region Constructor
@@ -99,20 +168,27 @@ namespace Manager
             // Get current IVSDKDotNet Version
             CurrentWrapperVersion = typeof(IVSDKDotNet.IVAchievements).Assembly.GetName().Version;
 
+            // Subscribe to AppDomain events
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+
             // Lists
-            ActiveScripts =     new List<FoundScript>();
-            LocalTasks =        new List<AdvancedTask>();
-            DelayedActions =    new List<DelayedAction>();
+            ActionQueue =                   new Queue<Action>();
+
+            ActiveScripts =                 new List<FoundScript>();
+            LocalTasks =                    new List<AdvancedTask>();
+            DelayedActions =                new List<DelayedAction>();
+
+            TierOneSupporters =             new List<string>();
+            TierTwoSupporters =             new List<string>();
+            TierThreeSupporters =           new List<string>();
 
             // Managers
             ConnectionManager = new RemoteConnectionManager();
 
             // UI
             Console = new ConsoleUI();
+            Console.OnConsoleCommand += Console_OnConsoleCommand;
             Notification = new NotificationUI();
-
-            // Subscribe to AppDomain events
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
             // TODO: Might remove KeyWatchDog and replace with ImGui key events
             keyWatchDog =   new KeyWatchDog();
@@ -124,11 +200,28 @@ namespace Manager
             UpdateChecker.VersionCheckFailed +=     UpdateChecker_VersionCheckFailed;
             UpdateChecker.VersionCheckCompleted +=  UpdateChecker_VersionCheckCompleted;
 
+            downloadClient = new WebClient();
+            downloadClient.DownloadStringCompleted += DownloadClient_DownloadStringCompleted;
+
             GTAIVProcess = Process.GetCurrentProcess();
+
+            SHDNStuff.Init();
+
+            // Init Reflection
+            if (Reflection.Initialize())
+                Logger.LogDebug("Initialized Reflection class.");
+            else
+                Logger.LogDebug("Failed to initialize Reflection class!");
 
             // Start process in focus checker timer
             processCheckerTimerID = StartNewTimerInternal(1000, () =>
             {
+
+                if (!Reflection.IsRaiseOnWindowFocusChangedAvailable())
+                {
+                    AbortTaskOrTimer(processCheckerTimerID);
+                    return;
+                }
 
                 IsGTAIVWindowInFocus = Helper.ProcessHelper.IsProcessInFocus(GTAIVProcess);
 
@@ -137,7 +230,7 @@ namespace Manager
                 {
                     if (!OnWindowFocusChangedEventCalled)
                     {
-                        RaiseWindowFocusChanged(true);
+                        Reflection.RaiseOnWindowFocusChanged(true);
                         OnWindowFocusChangedEventCalled = true;
                     }
                 }
@@ -145,7 +238,7 @@ namespace Manager
                 {
                     if (OnWindowFocusChangedEventCalled)
                     {
-                        RaiseWindowFocusChanged(false);
+                        Reflection.RaiseOnWindowFocusChanged(false);
                         OnWindowFocusChangedEventCalled = false;
                     }
                 }
@@ -160,7 +253,18 @@ namespace Manager
             if (Config.PauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
-            // Raise all script Tick events
+            // Load ScriptHookDotNet scripts on first frame
+            if (!SHDNStuff.WereScriptHookDotNetScriptsLoadedThisSession)
+            {
+                LoadSHDNScripts();
+                SHDNStuff.WereScriptHookDotNetScriptsLoadedThisSession = true;
+            }
+
+            // Process stuff from queue
+            if (ActionQueue.Count != 0)
+                ActionQueue.Dequeue()?.Invoke();
+
+            // Raise all IV-SDK .NET script Tick events
             ActiveScripts.ForEach(fs =>
             {
                 try
@@ -172,12 +276,48 @@ namespace Manager
                     HandleScriptException(fs, 8d, "Tick", ex);
                 }
             });
+
+            // Process bound phone numbers of scripts
+            IVPhoneInfo phoneInfo = IVPhoneInfo.ThePhoneInfo;
+
+            if (phoneInfo != null)
+            {
+                switch ((ePhoneState)phoneInfo.State)
+                {
+                    case ePhoneState.Hidden:
+
+                        // Reset state
+                        WasBoundPhoneNumbersProcessed = false;
+
+                        break;
+
+                    case ePhoneState.CalledNumberBusy:
+
+                        if (!WasBoundPhoneNumbersProcessed)
+                        {
+
+                            // Process dialed number
+                            ActiveScripts.ForEach(fs =>
+                            {
+                                try
+                                {
+                                    fs.RaiseBoundPhoneNumberAction(phoneInfo.CurrentNumberInput);
+                                }
+                                catch (Exception ex)
+                                {
+                                    HandleScriptException(fs, 8d, "RaiseBoundPhoneNumberAction", ex, true);
+                                }
+                            });
+
+                            WasBoundPhoneNumbersProcessed = true;
+                        }
+
+                        break;
+                }
+            }
         }
         public override void RaiseGameLoad()
         {
-            if (Config.PauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
-                return;
-
             ActiveScripts.ForEach(fs =>
             {
                 try
@@ -192,9 +332,6 @@ namespace Manager
         }
         public override void RaiseGameLoadPriority()
         {
-            if (Config.PauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
-                return;
-
             ActiveScripts.ForEach(fs =>
             {
                 try
@@ -209,9 +346,6 @@ namespace Manager
         }
         public override void RaiseMountDevice()
         {
-            if (Config.PauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
-                return;
-
             ActiveScripts.ForEach(fs =>
             {
                 try
@@ -323,6 +457,7 @@ namespace Manager
             if (FirstFrame)
             {
                 UpdateChecker.CheckForUpdates(true);
+                GetSupporters();
                 FirstFrame = false;
             }
 
@@ -343,14 +478,14 @@ namespace Manager
                 }
             });
         }
-        public override void RaiseUIRendering()
+        public override void RaiseOnD3D9Frame(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
         {
             // Raise all script OnFirstD3D9Frame events
             ActiveScripts.ForEach(fs =>
             {
                 try
                 {
-                    fs.RaiseOnFirstD3D9Frame();
+                    fs.RaiseOnFirstD3D9Frame(devicePtr);
                 }
                 catch (Exception ex)
                 {
@@ -358,10 +493,32 @@ namespace Manager
                 }
             });
 
+            // Raise all script OnImGuiRendering events
+            ActiveScripts.ForEach(fs =>
+            {
+                try
+                {
+                    fs.RaiseOnImGuiRendering(devicePtr, ctx);
+                }
+                catch (Exception ex)
+                {
+                    HandleScriptException(fs, 8d, "OnImGuiRendering", ex);
+                }
+            });
+
             // Draw internal stuff
             Console.DoUI();
             Notification.DoUI();
             ManagerUI.DoUI();
+        }
+        public override void RaiseOnBeforeNewImGuiFrame(IntPtr devicePtr)
+        {
+            // Create fonts that wait to be created and added
+            if (SHDNStuff.FontsToBeCreated.Count != 0)
+            {
+                while (SHDNStuff.FontsToBeCreated.Count != 0)
+                    SHDNStuff.FontsToBeCreated.Dequeue().Reload();
+            }
         }
         public override void RaiseIngameStartup()
         {
@@ -403,14 +560,21 @@ namespace Manager
             {
                 try
                 {
-                    if (fs.TheScript.OnlyRaiseKeyEventsWhenInGame)
+                    if (fs.IsScriptHookDotNetScript)
                     {
-                        if (IVPlayerInfo.FindThePlayerPed() != UIntPtr.Zero)
-                            fs.RaiseKeyDown(e);
+                        fs.RaiseKeyDown(e);
                     }
                     else
                     {
-                        fs.RaiseKeyDown(e);
+                        if (fs.GetScriptAs<Script>().OnlyRaiseKeyEventsWhenInGame)
+                        {
+                            if (IVPlayerInfo.FindThePlayerPed() != UIntPtr.Zero)
+                                fs.RaiseKeyDown(e);
+                        }
+                        else
+                        {
+                            fs.RaiseKeyDown(e);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -429,20 +593,35 @@ namespace Manager
             {
                 try
                 {
-                    if (fs.TheScript.OnlyRaiseKeyEventsWhenInGame)
+                    if (fs.IsScriptHookDotNetScript)
                     {
-                        if (IVPlayerInfo.FindThePlayerPed() != UIntPtr.Zero)
-                            fs.RaiseKeyUp(e);
+                        fs.RaiseKeyUp(e);
                     }
                     else
                     {
-                        fs.RaiseKeyUp(e);
+                        if (fs.GetScriptAs<Script>().OnlyRaiseKeyEventsWhenInGame)
+                        {
+                            if (IVPlayerInfo.FindThePlayerPed() != UIntPtr.Zero)
+                                fs.RaiseKeyUp(e);
+                        }
+                        else
+                        {
+                            fs.RaiseKeyUp(e);
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     HandleScriptException(fs, 8d, "KeyUp", ex);
                 }
+            });
+        }
+
+        private void Console_OnConsoleCommand(string command, string[] args)
+        {
+            ActiveScripts.ForEach(fs =>
+            {
+                fs.RaiseOnConsoleCommand(command, args);
             });
         }
         #endregion
@@ -484,53 +663,14 @@ namespace Manager
                 Logger.LogWarning(string.Format("Script {0} is already loaded.", name));
             }
         }
-
-        private bool HandleShdnAssembly(string rawFileName, string fileName, Assembly assembly)
-        {
-#if !DEBUG
-            Logger.LogWarning(string.Format("The file {0} was recognized as a ScriptHookDotNet script, which are currently not supported by IV-SDK .NET.", rawFileName));
-            Notification.ShowNotification(NotificationType.Default, DateTime.UtcNow.AddSeconds(5d), "Unsupported Script", string.Format("The file {0} was recognized as a ScriptHookDotNet script, which are currently not supported by IV-SDK .NET.", rawFileName), "UNSUPPORTED_SCRIPT");
-            return false;
-#else
-            Type[] types = assembly.GetTypes();
-
-            for (int i = 0; i < types.Length; i++)
-            {
-                Type t = types[i];
-
-                if (t != null)
-                    Logger.LogDebug(string.Format("Types of {0}: FullName: {1}, Base: {2}", fileName, t.FullName, t.BaseType.FullName));
-            }
-
-            //Type scriptType = assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(ScriptHookDotNet.Script))).FirstOrDefault();
-            Type scriptType = null;
-
-            if (scriptType != null)
-            {
-                //ScriptHookDotNet.Script script = (ScriptHookDotNet.Script)assembly.CreateInstance(scriptType.FullName);
-                //ScriptHookDotNetScripts.Add(script);
-
-                Logger.LogDebug("Created new instance of shdn script!");
-            }
-            else
-            {
-                Logger.LogDebug("Could not find shdn script entry-point!");
-            }
-
-            return true;
-#endif
-        }
         public bool LoadAssembly(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return false;
 
             // Get file name with and without extension from given path
-            string rawFileName = Path.GetFileName(path);
-            string fileName = Path.GetFileNameWithoutExtension(path);
-
-            bool isIVSDKDotNetScript = false;
-            bool isScriptHookDotNetScript = false;
+            string rawFileName =    Path.GetFileName(path);
+            string fileName =       Path.GetFileNameWithoutExtension(path);
 
             // Check if fileName contains the .ivsdk AND .net part
             if (fileName.Contains(".ivsdk") && fileName.Contains(".net"))
@@ -541,11 +681,8 @@ namespace Manager
             }
 
             // Check for which SDK this script is supposed to be
-            isIVSDKDotNetScript = fileName.Contains(".ivsdk");
-            isScriptHookDotNetScript = fileName.Contains(".net");
-
-            // Remove extensions
-            fileName = fileName.Replace(".ivsdk", "").Replace(".net", "");
+            bool isIVSDKDotNetScript =      fileName.Contains(".ivsdk");
+            bool isScriptHookDotNetScript = fileName.Contains(".net");
 
             // Check result
             if (!isIVSDKDotNetScript && !isScriptHookDotNetScript)
@@ -553,6 +690,9 @@ namespace Manager
                 Logger.LogWarning(string.Format("The file {0} could not be recognized as a IV-SDK .NET Script because it's missing the '.ivsdk' extension.", rawFileName));
                 return false;
             }
+
+            // Remove extensions from file because we figured out for which SDK this script is
+            fileName = fileName.Replace(".ivsdk", "").Replace(".net", "");
 
             // Check if script is already loaded
             FoundScript foundScript = GetFoundScript(fileName);
@@ -568,18 +708,59 @@ namespace Manager
             {
                 using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
                 {
+                    Type scriptType = null;
+
                     // Get byte array from file stream
                     byte[] fileByteArray = Helper.GetByteArray(fs);
 
                     // Load the assembly into the domain
                     Assembly assembly = Assembly.Load(fileByteArray);
-                    
+
                     // If script is a ScriptHookDotNet script then handle it differently
                     if (isScriptHookDotNetScript)
-                        return HandleShdnAssembly(rawFileName, fileName, assembly);
+                    {
+                        Type[] shdnScriptTypes = assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(GTA.Script))).ToArray();
+
+                        if (shdnScriptTypes.Length == 0)
+                        {
+                            Logger.LogWarning(string.Format("Could not load ScriptHookDotNet script {0} because no entry-point could be found.", fileName));
+                            return false;
+                        }
+
+                        for (int i = 0; i < shdnScriptTypes.Length; i++)
+                        {
+                            scriptType = shdnScriptTypes[i];
+
+                            if (scriptType != null)
+                            {
+                                // Log
+                                Logger.Log(string.Format("Found ScriptHookDotNet script: {0}", scriptType.FullName));
+
+                                // Create script
+                                GTA.Script shdnScript = (GTA.Script)assembly.CreateInstance(scriptType.FullName);
+
+                                if (shdnScript == null)
+                                {
+                                    Logger.LogWarning(string.Format("Failed to create new instance of ScriptHookDotNet script {0}.", fileName));
+                                    return false;
+                                }
+
+                                // Reset current constructing shdn script
+                                SHDNStuff.SetCurrentScript(GTA.ScriptEvent.ctor, null);
+
+                                // Create new FoundScript object
+                                foundScript = new FoundScript(fileName, path, assembly, shdnScript, scriptType);
+
+                                // Add script to ActiveScripts list.
+                                ActiveScripts.Add(foundScript);
+                            }
+                        }
+
+                        return true;
+                    }
 
                     // Get the first class that inherites from the IVSDKDotNet.Script class
-                    Type scriptType = assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(Script))).FirstOrDefault();
+                    scriptType = assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(Script))).FirstOrDefault();
 
                     // Could not find any classes that inherit the IVSDKDotNet.Script class
                     if (scriptType == null)
@@ -591,7 +772,7 @@ namespace Manager
                     // Log
                     Logger.Log(string.Format("Found script: {0}", scriptType.FullName));
 
-                    // Check if script was made with an older IVSDKDotNetWrapper version
+                    // Check if script was made with an older IVSDKDotNetWrapper version and user wants to prevent older scripts from loading
                     if (Config.DoNotLoadLegacyScripts)
                     {
                         AssemblyName referencedWrapperAssembly = assembly.GetReferencedAssemblies().Where(x => x.Name == "IVSDKDotNetWrapper").FirstOrDefault();
@@ -613,9 +794,10 @@ namespace Manager
 
                     // Create new instance of type for assembly
                     Script script = (Script)assembly.CreateInstance(scriptType.FullName);
+
                     if (script == null)
                     {
-                        Logger.LogWarning(string.Format("An unknown error occured while trying to create new instance of the script {0}.", fileName));
+                        Logger.LogWarning(string.Format("An unknown error occured while trying to create new instance of IV-SDK .NET script {0}.", fileName));
                         return false;
                     }
 
@@ -636,7 +818,13 @@ namespace Manager
                         script.ScriptResourceFolder = resourceFolderPath;
 
                     // Create new FoundScript object
-                    foundScript = new FoundScript(fileName, path, script, scriptType);
+                    foundScript = new FoundScript(fileName, path, assembly, script, scriptType);
+
+                    // Get the script config of the script if it has one
+                    foundScript.GetScriptConfig();
+
+                    // TODO
+                    //foundScript.CheckForExistenceOfReferencedAssemblies();
 
                     // Add script to ActiveScripts list.
                     ActiveScripts.Add(foundScript);
@@ -649,10 +837,6 @@ namespace Manager
                     catch (Exception ex)
                     {
                         HandleScriptException(foundScript, 8d, "Initialized", ex);
-
-                        //Notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} Initialized.", foundScript.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", foundScript.Name));
-                        //Logger.LogError(string.Format("An error occured while processing initialized event for script {0}. Aborting script. Details: {1}", foundScript.Name, ex.ToString()));
-                        //AbortScript(foundScript.ID);
                     }
 
                     return true;
@@ -668,8 +852,9 @@ namespace Manager
                 }
 
 #if DEBUG
-                // Throw on exception when manager is a debug build
-                throw;
+                // Throw on exception when manager is a debug build and a debugger is attached
+                if (Debugger.IsAttached)
+                    throw;
 #endif
             }
             catch (Exception ex)
@@ -677,8 +862,9 @@ namespace Manager
                 Logger.LogError(string.Format("An exception occured while trying to load script '{0}'. Details: {1}", fileName, ex));
 
 #if DEBUG
-                // Throw on exception when manager is a debug build
-                throw;
+                // Throw on exception when manager is a debug build and a debugger is attached
+                if (Debugger.IsAttached)
+                    throw;
 #endif
             }
 
@@ -705,16 +891,20 @@ namespace Manager
                 // Find the script that is requesting the assembly
                 foundScript = GetFoundScript(requestingAssemblyName);
 
+                if (foundScript.IsScriptHookDotNetScript)
+                    return null;
+
                 if (foundScript != null)
                 {
+                    Script script = foundScript.GetScriptAs<Script>();
 
                     string assemblyName = args.Name.Split(',')[0];
                     string scriptsDir = Path.GetDirectoryName(foundScript.FullPath);
-                    string customDir = string.Format("{0}\\{1}", IVGame.GameStartupPath, foundScript.TheScript.CustomAssembliesPath);
+                    string customDir = string.Format("{0}\\{1}", IVGame.GameStartupPath, script.CustomAssembliesPath);
 
                     string fileFullPath = string.Empty;
 
-                    eAssembliesLocation scriptAssembliesLocation = foundScript.TheScript.AssembliesLocation;
+                    eAssembliesLocation scriptAssembliesLocation = script.AssembliesLocation;
 
                     // Debug
                     switch (scriptAssembliesLocation)
@@ -746,7 +936,7 @@ namespace Manager
 
                         case eAssembliesLocation.DecideManuallyForEachAssembly:
 
-                            fileFullPath = foundScript.TheScript.RaiseAssemblyResolve(assemblyName);
+                            fileFullPath = script.RaiseAssemblyResolve(assemblyName);
                             if (File.Exists(fileFullPath))
                                 return Assembly.UnsafeLoadFrom(fileFullPath);
 
@@ -759,7 +949,7 @@ namespace Manager
                             if (File.Exists(fileFullPath))
                                 return Assembly.UnsafeLoadFrom(fileFullPath);
 
-                            Logger.LogWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the custom directory ({2})! Aborting.", foundScript.Name, assemblyName, foundScript.TheScript.CustomAssembliesPath));
+                            Logger.LogWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the custom directory ({2})! Aborting.", foundScript.Name, assemblyName, script.CustomAssembliesPath));
                             break;
                     }
 
@@ -789,19 +979,64 @@ namespace Manager
         }
 
         // Abort script stuff
-        public void AbortScripts(AbortReason reason, bool showMessage)
+        public void AbortScripts(ScriptType scriptsToAbort, AbortReason reason, bool showMessage)
         {
-            if (ActiveScripts.Count != 0)
-            {
-                ActiveScripts.ForEach(x => x.Abort(reason, showMessage));
-                ActiveScripts.Clear();
-                GC.Collect();
-            }
-            else
+            if (ActiveScripts.Count == 0)
             {
                 if (showMessage)
                     Logger.Log("There are no scripts to abort.");
+
+                return;
             }
+
+            switch (scriptsToAbort)
+            {
+                case ScriptType.All:
+
+                    // IV-SDK .NET scripts
+                    ActiveScripts.ForEach(x =>
+                    {
+                        if (x.IsIVSDKDotNetScript)
+                            x.Abort(reason, showMessage);
+                    });
+                    ActiveScripts.RemoveAll(x => x.IsIVSDKDotNetScript);
+
+                    // ScriptHookDotNet scripts
+                    ActiveScripts.ForEach(x =>
+                    {
+                        if (x.IsScriptHookDotNetScript)
+                            x.Abort(reason, showMessage);
+                    });
+                    ActiveScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
+
+                    break;
+                case ScriptType.IVSDKDotNet:
+
+                    // IV-SDK .NET scripts
+                    ActiveScripts.ForEach(x =>
+                    {
+                        if (x.IsIVSDKDotNetScript)
+                            x.Abort(reason, showMessage);
+                    });
+                    ActiveScripts.RemoveAll(x => x.IsIVSDKDotNetScript);
+
+                    break;
+                case ScriptType.ScriptHookDotNet:
+
+                    // ScriptHookDotNet scripts
+                    ActiveScripts.ForEach(x =>
+                    {
+                        if (x.IsScriptHookDotNetScript)
+                            x.Abort(reason, showMessage);
+                    });
+                    ActiveScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
+
+                    break;
+            }
+
+            // Force garbage collection
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         // DelayedAction
@@ -811,20 +1046,34 @@ namespace Manager
         }
 
         // Other
-        private void HandleScriptException(FoundScript target, double notifySecondsVisible, string eventErrorOccuredIn, Exception ex)
+        public void HandleScriptException(FoundScript target, double notifySecondsVisible, string eventErrorOccuredIn, Exception ex, bool isInternalEvent = false)
         {
-            // Stop script
+            // Stop script so it doesn't raise any events anymore
             target.Stop();
 
             // Show and Log the error
-            Notification.ShowNotification(
-                NotificationType.Error,
-                DateTime.UtcNow.AddSeconds(notifySecondsVisible),
-                string.Format("An error occured in {0} {1}.", target.Name, eventErrorOccuredIn),
-                ex.Message,
-                string.Format("ERROR_IN_SCRIPT_{0}", target.Name));
+            if (target.IsScriptHookDotNetScript)
+            {
+                Notification.ShowNotification(
+                    NotificationType.Error,
+                    DateTime.UtcNow.AddSeconds(notifySecondsVisible),
+                    string.Format("[ScriptHookDotNet] An error occured in {0} {2} {1}.", target.Name, eventErrorOccuredIn, isInternalEvent ? "internal event" : ""),
+                    ex.Message,
+                    string.Format("ERROR_IN_SCRIPT_{0}", target.Name));
 
-            Logger.LogError(string.Format("An error occured while processing {0} event for script {1}. Aborting script. Details: {2}", eventErrorOccuredIn, target.Name, ex));
+                Logger.LogError(string.Format("An error occured while processing {0} event for ScriptHookDotNet script {1}. Aborting script. Details: {2}", eventErrorOccuredIn, target.Name, ex));
+            }
+            else
+            {
+                Notification.ShowNotification(
+                    NotificationType.Error,
+                    DateTime.UtcNow.AddSeconds(notifySecondsVisible),
+                    string.Format("An error occured in {0} {1}.", target.Name, eventErrorOccuredIn),
+                    ex.Message,
+                    string.Format("ERROR_IN_SCRIPT_{0}", target.Name));
+
+                Logger.LogError(string.Format("An error occured while processing {0} event for script {1}. Aborting script. Details: {2}", eventErrorOccuredIn, target.Name, ex));
+            }
 
             // Abort script
             AbortScriptInternal(AbortReason.Manager, target, true);
@@ -875,12 +1124,41 @@ namespace Manager
 #endif
             }
         }
+        private void GetSupporters()
+        {
+            try
+            {
+                downloadClient.DownloadStringAsync(new Uri("https://www.dropbox.com/scl/fi/ml4gx8sgzmznru5llcqpm/TierOneSupporter.json?rlkey=wldl4y6swfb2oy96h763grft3&dl=1"), "GET_TIER_ONE_SUPPORTERS");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(string.Format("An error occured while trying to get all current Patreon / Ko-fi supporters. Sorry about that :({0}" +
+                    "Details: {1}", Environment.NewLine, ex));
+            }
+        }
 
         #endregion
 
         #region Functions
 
         // Script stuff
+        public Script GetIVSDKDotNetScript(Guid id)
+        {
+            return GetIVSDKDotNetScripts().Where(x => x.ID == id).FirstOrDefault();
+        }
+        public Script[] GetIVSDKDotNetScripts()
+        {
+            return ActiveScripts.Where(x => x.IsIVSDKDotNetScript).Select(x => x.GetScriptAs<Script>()).ToArray();
+        }
+        public GTA.Script GetScriptHookDotNetScript(Guid id)
+        {
+            return GetScriptHookDotNetScripts().Where(x => x.GUID == id).FirstOrDefault();
+        }
+        public GTA.Script[] GetScriptHookDotNetScripts()
+        {
+            return ActiveScripts.Where(x => x.IsScriptHookDotNetScript).Select(x => x.GetScriptAs<GTA.Script>()).ToArray();
+        }
+
         public FoundScript GetFoundScript(Guid id)
         {
             return ActiveScripts.Where(x => x.ID == id).FirstOrDefault();
@@ -892,6 +1170,7 @@ namespace Manager
 
         public bool AbortScriptInternal(AbortReason reason, Guid id)
         {
+            // Try find and abort script
             FoundScript script = ActiveScripts.Where(x => x.ID == id).FirstOrDefault();
 
             if (script != null)
@@ -954,7 +1233,7 @@ namespace Manager
                 ConnectionManager.Dispose();
 
                 // Abort all currently running scripts
-                AbortScripts(AbortReason.Manager, false);
+                AbortScripts(ScriptType.All, AbortReason.Manager, false);
 
                 // Stop task
                 AbortTaskOrTimer(processCheckerTimerID);
@@ -986,10 +1265,6 @@ namespace Manager
             if (Config.AllowRemoteConnections)
                 ConnectionManager.Start(false);
         }
-        public override void SetDummyScript(Script script)
-        {
-            DummyScript = script;
-        }
         #endregion
 
         #region Script Stuff
@@ -1001,16 +1276,44 @@ namespace Manager
                 return;
             }
 
-            // Abort currently loaded scripts
-            AbortScripts(AbortReason.Manager, false);
+            // Abort currently loaded IV-SDK .NET scripts
+            AbortScripts(ScriptType.IVSDKDotNet, AbortReason.Manager, false);
 
+            // Load IV-SDK .NET scripts
             string[] scriptFiles = Directory.GetFiles(CLR.CLRBridge.IVSDKDotNetScriptsPath, "*.ivsdk.dll", SearchOption.TopDirectoryOnly);
+
             for (int i = 0; i < scriptFiles.Length; i++)
                 LoadAssembly(scriptFiles[i]);
 
             // Log
-            Logger.Log(string.Format("Loaded {0} of {1} scripts!", ActiveScripts.Count.ToString(), scriptFiles.Length.ToString()));
+            Logger.Log(string.Format("Finished loading {0} IV-SDK .NET scripts.", ActiveScripts.Count(x => x.IsIVSDKDotNetScript)));
+
+            // Load ScriptHookDotNet scripts
+            if (SHDNStuff.WereScriptHookDotNetScriptsLoadedThisSession)
+                LoadSHDNScripts();
+
+            TimeSinceLastScriptReload = DateTime.Now;
         }
+        public void LoadSHDNScripts()
+        {
+            string shdnScriptsPath = string.Format("{0}\\scripts", IVGame.GameStartupPath);
+
+            if (!Directory.Exists(shdnScriptsPath))
+                return;
+
+            // Abort currently loaded ScriptHookDotNet scripts
+            AbortScripts(ScriptType.ScriptHookDotNet, AbortReason.Manager, false);
+
+            // Load ScriptHookDotNet scripts
+            string[] scriptFiles = Directory.GetFiles(shdnScriptsPath, "*.net.dll", SearchOption.TopDirectoryOnly);
+
+            for (int i = 0; i < scriptFiles.Length; i++)
+                LoadAssembly(scriptFiles[i]);
+
+            // Log
+            Logger.Log(string.Format("Finished loading {0} ScriptHookDotNet scripts.", ActiveScripts.Count(x => x.IsScriptHookDotNetScript)));
+        }
+
         public override bool AbortScript(Guid id)
         {
             return AbortScriptInternal(AbortReason.Script, id);
@@ -1018,11 +1321,13 @@ namespace Manager
 
         public override Script GetScript(Guid id)
         {
-            return ActiveScripts.Where(x => x.ID == id).Select(s => s.TheScript).FirstOrDefault();
+            // This will only work for IV-SDK .NET Scripts for now
+            return ActiveScripts.Where(x => x.ID == id && x.IsIVSDKDotNetScript).Select(s => s.GetScriptAs<Script>()).FirstOrDefault();
         }
         public override Script GetScript(string name)
         {
-            return ActiveScripts.Where(x => x.Name == name).Select(s => s.TheScript).FirstOrDefault();
+            // This will only work for IV-SDK .NET Scripts for now
+            return ActiveScripts.Where(x => x.Name == name && x.IsIVSDKDotNetScript).Select(s => s.GetScriptAs<Script>()).FirstOrDefault();
         }
         public override bool IsScriptRunning(Guid id)
         {
@@ -1041,10 +1346,6 @@ namespace Manager
                 return foundScript.IsScriptReady();
 
             return false;
-        }
-        public override Script[] GetAllScripts()
-        {
-            return ActiveScripts.Select(x => x.TheScript).ToArray();
         }
         public override string GetScriptName(Guid id)
         {
@@ -1069,25 +1370,25 @@ namespace Manager
             return ActiveScripts.Count;
         }
 
-        public override bool SendScriptCommand(Script toScript, string command, out object result)
+        public override bool SendScriptCommand(Guid sender, Guid toScript, string command, object[] args, out object result)
         {
-            FoundScript foundScript = ActiveScripts.Where(x => x.ID == toScript.ID).FirstOrDefault();
+            // Find target script that should receive the script command
+            FoundScript foundScript = ActiveScripts.Where(x => x.ID == toScript).FirstOrDefault();
 
             if (foundScript != null)
             {
                 try
                 {
-                    if (foundScript.IsScriptReady())
+                    // Try send script command to target script
+                    if (foundScript.RaiseScriptCommandReceived(sender, command, args, out object res))
                     {
-                        result = foundScript.TheScript.RaiseScriptCommandReceived(toScript, command);
+                        result = res;
                         return true;
                     }
                 }
                 catch (Exception ex)
                 {
-                    Notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(8), string.Format("An error occured in {0} ScriptCommandReceived.", foundScript.Name), ex.Message, string.Format("ERROR_IN_SCRIPT_{0}", foundScript.Name));
-                    Logger.LogError(string.Format("An error occured while processing ScriptCommandReceived event for script {0}. Aborting script. Details: {1}", foundScript.Name, ex.ToString()));
-                    AbortScript(foundScript.ID);
+                    HandleScriptException(foundScript, 8d, "ScriptCommandReceived", ex);
                 }
             }
 
@@ -1217,6 +1518,35 @@ namespace Manager
         }
         #endregion
 
+        #region Phone
+        public override bool RegisterPhoneNumber(Guid forScript, string number, Action dialedAction)
+        {
+            if (string.IsNullOrWhiteSpace(number))
+                return false;
+            if (dialedAction == null)
+                return false;
+
+            FoundScript fs = GetFoundScript(forScript);
+
+            if (fs != null)
+                return fs.AddPhoneNumber(number, dialedAction);
+
+            return false;
+        }
+        public override bool UnregisterPhoneNumber(Guid fromScript, string number)
+        {
+            if (string.IsNullOrWhiteSpace(number))
+                return false;
+
+            FoundScript fs = GetFoundScript(fromScript);
+
+            if (fs != null)
+                return fs.RemovePhoneNumber(number);
+
+            return false;
+        }
+        #endregion
+
         #region Game
         public override bool IsGameInFocus()
         {
@@ -1316,6 +1646,34 @@ namespace Manager
                 if (at.ID == id)
                     at.SleepTime = interval;
             }
+        }
+        #endregion
+
+        #region ScriptHookDotNet
+        public override object SHDN_GetCurrentScript(int iEvent)
+        {
+            return SHDNStuff.GetCurrentScript((GTA.ScriptEvent)iEvent);
+        }
+        public override void SHDN_SetCurrentScript(int iEvent, object script)
+        {
+            SHDNStuff.SetCurrentScript((GTA.ScriptEvent)iEvent, script);
+        }
+
+        public override void SHDN_AddFont(object obj)
+        {
+            if (obj == null)
+            {
+                Logger.LogDebug(string.Format("Given font object was null! Will not add to queue."));
+                return;
+            }
+
+            SHDNStuff.FontsToBeCreated.Enqueue((GTA.Font)obj);
+            Logger.LogDebug("Successfully added new shdn font to queue!");
+        }
+
+        public override bool SHDN_VerboseLoggingEnabled()
+        {
+            return SHDNStuff.EnableVerboseLogging;
         }
         #endregion
 

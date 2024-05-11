@@ -2,7 +2,7 @@
 
 namespace IVSDKDotNet
 {
-	public value struct BuildingSwapStruct
+	public value class BuildingSwapStruct
 	{
 	public:
 		property IVBuilding^ Building
@@ -122,6 +122,15 @@ namespace IVSDKDotNet
 
 		static void SetDummyThread();
 		static void RestorePreviousThread();
+
+		static uint32_t GetGlobalAddress(int index);
+		static int GetGlobalInteger(int index);
+		static float GetGlobalFloat(int index);
+		static String^ GetGlobalString(int index);
+
+		static void SetGlobal(int index, int value);
+		static void SetGlobal(int index, float value);
+		static void SetGlobal(int index, String^ value);
 
 	private:
 		static uint32_t m_iPreviousThread;

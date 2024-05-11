@@ -2,7 +2,7 @@
 
 namespace IVSDKDotNet
 {
-	public value struct IVVehicleWheelFlags
+	public ref class IVVehicleWheelFlags
 	{
 	public:
 		/// <summary>
@@ -1377,13 +1377,13 @@ namespace IVSDKDotNet
 				NativeVehicleWheel->m_fTireHealth = value;
 			}
 		}
-		property IVVehicleWheelFlags Flags
+		property IVVehicleWheelFlags^ Flags
 		{
 		public:
-			IVVehicleWheelFlags get()
+			IVVehicleWheelFlags^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeVehicleWheel, IVVehicleWheelFlags());
-				return IVVehicleWheelFlags(NativeVehicleWheel);
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicleWheel, nullptr);
+				return gcnew IVVehicleWheelFlags(NativeVehicleWheel);
 			}
 		}
 

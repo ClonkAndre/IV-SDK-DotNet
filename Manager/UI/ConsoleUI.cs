@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+using System.Linq;
 
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
@@ -33,6 +34,14 @@ namespace Manager.UI
         private bool wasOpened;
         #endregion
 
+        #region Delegates and Events
+        // Delegates
+        public delegate void ConsoleCommandDelegate(string command, string[] args);
+
+        // Events
+        public event ConsoleCommandDelegate OnConsoleCommand;
+        #endregion
+
         #region Methods
         public void Open()
         {
@@ -57,7 +66,7 @@ namespace Manager.UI
             RegisterCommand(Guid.Empty, "Autosave", (string[] args) => { Natives.DO_AUTO_SAVE(); });
             RegisterCommand(Guid.Empty, "Save", (string[] args) => { Natives.ACTIVATE_SAVE_MENU(); });
             RegisterCommand(Guid.Empty, "SavePlayerPos", (string[] args) => { SavePlayerPosCommand(); });
-            RegisterCommand(Guid.Empty, "AbortScripts", (string[] args) => { Main.Instance.AbortScripts(AbortReason.Manual, true); });
+            RegisterCommand(Guid.Empty, "AbortScripts", (string[] args) => { Main.Instance.AbortScripts(ScriptType.All, AbortReason.Manual, true); });
             RegisterCommand(Guid.Empty, "AbortScript", (string[] args) => { AbortScriptCommand(args); });
             RegisterCommand(Guid.Empty, "ReloadScripts", (string[] args) => { Main.Instance.LoadScripts(); });
             RegisterCommand(Guid.Empty, "GetRunningScripts", (string[] args) => { Logger.Log(string.Format("There are currently {0} scripts running.", Main.Instance.ActiveScripts.Count.ToString()), true); });
@@ -106,30 +115,36 @@ namespace Manager.UI
             try
             {
 #endif
-            if (string.IsNullOrWhiteSpace(name))
+                if (string.IsNullOrWhiteSpace(name))
                     return false;
 
                 string[] args = Regex.Split(name, @"\s+");
+                string command = args[0].ToLower();
 
-                if (!Commands.ContainsKey(args[0].ToLower()))
+                // Skip first console command argument (which is the command name and we do not care about that we want the actual arguments)
+                args = args.Skip(1).ToArray();
+
+                // Raise event and let subscribers know
+                OnConsoleCommand?.Invoke(command, args);
+
+                if (!Commands.ContainsKey(command))
                     return false;
 
-                // Invoke command
-                Commands[args[0].ToLower()]?.Invoke(args);
+                // Execute command
+                Commands[command]?.Invoke(args);
 
                 return true;
-
 #if !DEBUG
-
             }
             catch (Exception ex)
             {
                 Logger.LogError(string.Format("[IV-SDK .NET] An error occured while executing console command '{0}'. Details: {1}", name, ex.ToString()));
             }
-            return false;
 #endif
+
+            return false;
         }
-#endregion
+        #endregion
 
         #region Commands
         private void HelpCommand()
@@ -195,9 +210,10 @@ namespace Manager.UI
             if (args.Length > 1)
             {
                 string scriptName = args[1];
-                Script s = Main.Instance.GetScript(scriptName);
-                if (s != null)
-                    Main.Instance.AbortScriptInternal(AbortReason.Manager, s.ID);
+                FoundScript fs = Main.Instance.GetFoundScript(scriptName);
+
+                if (fs != null)
+                    Main.Instance.AbortScriptInternal(AbortReason.Manager, fs, true);
                 else
                     Logger.LogWarning(string.Format("Could not find script {0}. Script might already be aborted.", scriptName));
             }
@@ -255,11 +271,11 @@ namespace Manager.UI
             if (vp.IsValid)
             {
                 ImGuiIV.SetWindowPos(new Vector2(5f, 5f), eImGuiCond.FirstUseEver);
-                ImGuiIV.SetWindowSize(new Vector2(vp.Size.X - 10, vp.Size.Y / 4), eImGuiCond.FirstUseEver);
+                ImGuiIV.SetWindowSize(new Vector2(vp.Size.X - 10f, vp.Size.Y / 2.5f), eImGuiCond.FirstUseEver);
             }
 
             // Log ListBox
-            if (ImGuiIV.BeginListBox("##LogLB", new Vector2(ImGuiIV.FloatMin, 2f * -ImGuiIV.GetTextLineHeightWithSpacing())))
+            if (ImGuiIV.BeginListBox("##IVSDKDotNetConsoleLogLB", new Vector2(ImGuiIV.FloatMin, 2f * -ImGuiIV.GetTextLineHeightWithSpacing())))
             {
                 // Get logged items
                 List<Logger.tLogItem> items = Logger.GetLogItems();
@@ -297,7 +313,7 @@ namespace Manager.UI
                 ImGuiIV.SetKeyboardFocusHere();
                 wasOpened = false;
             }
-            
+
             ImGuiIV.InputText("##inputTextBox", ref input);
 
             ImGuiIV.End();

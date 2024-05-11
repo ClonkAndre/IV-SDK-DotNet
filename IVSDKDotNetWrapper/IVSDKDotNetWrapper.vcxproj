@@ -87,6 +87,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ImGui\ImGuiIncludes.h" />
+    <ClInclude Include="ImGui\imgui_extensions.h" />
+    <ClInclude Include="IVPhoneInfo.h" />
     <ClInclude Include="MemoryAccess.h" />
     <ClInclude Include="Attributes.h" />
     <ClInclude Include="DirectInputHook.h" />
@@ -96,9 +99,8 @@
     <ClInclude Include="enums.h" />
     <ClInclude Include="EventArgs.h" />
     <ClInclude Include="Helper.h" />
-    <ClInclude Include="ImGuiDraw.h" />
+    <ClInclude Include="ImGuiIV.h" />
     <ClInclude Include="ImGuiStuff.h" />
-    <ClInclude Include="ImGui\EmbeddedFont.h" />
     <ClInclude Include="ImGui\imconfig.h" />
     <ClInclude Include="ImGui\imgui.h" />
     <ClInclude Include="ImGui\imgui_impl_dx9_shader.h" />
@@ -251,7 +253,9 @@
     <ClInclude Include="KeyWatchDog.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Native.h" />
+    <ClInclude Include="NativeFunction.h" />
     <ClInclude Include="NativeHashes.h" />
+    <ClInclude Include="NativeHooks.h" />
     <ClInclude Include="NativeInvoke.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="rage.h" />
@@ -260,6 +264,11 @@
     <ClInclude Include="SettingsFile.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ImGui\imgui_extensions.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="IVPhoneInfo.cpp" />
     <ClCompile Include="MemoryAccess.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="CLRBridge.cpp" />
@@ -439,6 +448,7 @@
     <ClCompile Include="IVZone.cpp" />
     <ClCompile Include="KeyWatchDog.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="NativeHooks.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

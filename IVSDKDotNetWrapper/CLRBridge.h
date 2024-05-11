@@ -201,13 +201,10 @@ namespace CLR
 		static void Cleanup();
 
 	private:
-		static void OnWindowFocusChanged(bool focused);
-
-	private:
 		static bool m_bIsBridgeDisabled = false;
 		static bool m_bCanTerminate = false;
 
-		static String^ m_sVersion = "1.1";
+		static String^ m_sVersion = "1.2";
 		static String^ m_sLogFileName;
 		static String^ m_sIVSDKDotNetPath;
 		static String^ m_sIVSDKDotNetBinaryPath;

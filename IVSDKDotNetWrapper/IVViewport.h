@@ -5,19 +5,19 @@ namespace IVSDKDotNet
 	public ref class IVViewport
 	{
 	public:
-		property IVViewportData Data
+		property IVViewportData^ Data
 		{
 		public:
-			IVViewportData get()
+			IVViewportData^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeViewport, IVViewportData());
-				return IVViewportData(&NativeViewport->m_pData);
+				NULLPTR_CHECK_WITH_RETURN(NativeViewport, nullptr);
+				return gcnew IVViewportData(&NativeViewport->m_pData);
 			}
-			void set(IVViewportData value)
+			void set(IVViewportData^ value)
 			{
 				NULLPTR_CHECK(NativeViewport);
-				NULLPTR_CHECK(value.NativeData);
-				NativeViewport->m_pData = *value.NativeData;
+				NULLPTR_CHECK(value->NativeData);
+				NativeViewport->m_pData = *value->NativeData;
 			}
 		}
 

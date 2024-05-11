@@ -37,11 +37,17 @@
     <Filter Include="Header Files\Hooks">
       <UniqueIdentifier>{326bde02-4002-4dcf-94a2-26cd3946b6dc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\ImGui">
-      <UniqueIdentifier>{b9842304-2350-43ba-b23a-80cb4b51ca2f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\ImGui">
       <UniqueIdentifier>{16e4e255-1ede-4752-b7d2-cc6a0e97ee60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Native">
+      <UniqueIdentifier>{40a06b91-8865-45ac-ba6b-c3cb47484d39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ImGuiIV">
+      <UniqueIdentifier>{b9842304-2350-43ba-b23a-80cb4b51ca2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ImGuiIV\ImGui">
+      <UniqueIdentifier>{8c53ac43-516b-4850-9364-5bf0356de364}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -99,41 +105,11 @@
     <ClInclude Include="DXHook.h">
       <Filter>Header Files\Hooks</Filter>
     </ClInclude>
-    <ClInclude Include="ImGui\imstb_rectpack.h">
-      <Filter>Header Files\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imstb_textedit.h">
-      <Filter>Header Files\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imstb_truetype.h">
-      <Filter>Header Files\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imconfig.h">
-      <Filter>Header Files\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imgui.h">
-      <Filter>Header Files\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imgui_impl_dx9_shader.h">
-      <Filter>Header Files\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imgui_impl_win32.h">
-      <Filter>Header Files\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imgui_internal.h">
-      <Filter>Header Files\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGuiDraw.h">
-      <Filter>Header Files\ImGui</Filter>
+    <ClInclude Include="ImGuiIV.h">
+      <Filter>Header Files\ImGuiIV</Filter>
     </ClInclude>
     <ClInclude Include="ImGuiStuff.h">
-      <Filter>Header Files\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imgui_stdlib.h">
-      <Filter>Header Files\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\EmbeddedFont.h">
-      <Filter>Header Files\ImGui</Filter>
+      <Filter>Header Files\ImGuiIV</Filter>
     </ClInclude>
     <ClInclude Include="Attributes.h">
       <Filter>Header Files</Filter>
@@ -557,6 +533,48 @@
     </ClInclude>
     <ClInclude Include="IVWeaponInfo.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeHooks.h">
+      <Filter>Header Files\Native</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeFunction.h">
+      <Filter>Header Files\Native</Filter>
+    </ClInclude>
+    <ClInclude Include="IVPhoneInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\ImGuiIncludes.h">
+      <Filter>Header Files\ImGuiIV</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imconfig.h">
+      <Filter>Header Files\ImGuiIV\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui.h">
+      <Filter>Header Files\ImGuiIV\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_extensions.h">
+      <Filter>Header Files\ImGuiIV\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_impl_dx9_shader.h">
+      <Filter>Header Files\ImGuiIV\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_impl_win32.h">
+      <Filter>Header Files\ImGuiIV\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_internal.h">
+      <Filter>Header Files\ImGuiIV\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_stdlib.h">
+      <Filter>Header Files\ImGuiIV\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_rectpack.h">
+      <Filter>Header Files\ImGuiIV\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_textedit.h">
+      <Filter>Header Files\ImGuiIV\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_truetype.h">
+      <Filter>Header Files\ImGuiIV\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1036,6 +1054,15 @@
     </ClCompile>
     <ClCompile Include="IVWeaponInfo.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeHooks.cpp">
+      <Filter>Source Files\Native</Filter>
+    </ClCompile>
+    <ClCompile Include="IVPhoneInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_extensions.cpp">
+      <Filter>Source Files\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

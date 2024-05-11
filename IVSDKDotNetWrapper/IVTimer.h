@@ -53,6 +53,18 @@ namespace IVSDKDotNet
 				CTimer::m_snTimeInMilliseconds = value;
 			}
 		}
+		static property uint32_t TimerLength
+		{
+		public:
+			uint32_t get()
+			{
+				return CTimer::m_sTimerLength;
+			}
+			void set(uint32_t value)
+			{
+				CTimer::m_sTimerLength = value;
+			}
+		}
 		static property float MinTimeStep
 		{
 		public:

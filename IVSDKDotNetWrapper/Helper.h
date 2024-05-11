@@ -88,6 +88,8 @@ namespace IVSDKDotNet
 
 		ref class Drawing
 		{
+			// Most code from here is from the ScriptHookDotNet source. Credits goes to Hazard!
+
 		public:
 			static float Helper::Drawing::ConvertUnitsToPixelX(float unitsX, float resolutionWidth);
 			static float Helper::Drawing::ConvertUnitsToPixelY(float unitsY, float resolutionHeight);
@@ -156,8 +158,15 @@ namespace IVSDKDotNet
 		static float Vector2Length(float X, float Y);
 
 		static Keys RemoveRedundantKeyModifiers(Keys key);
+		static String^ CleanPhoneNumber(String^ number);
 		static String^ KeyCodeToUnicode(Keys key);
 
+		static Random^ GetRandom();
+
+		static bool IsNumericType(Type^ o);
+
+	private:
+		static Random^ m_rnd = gcnew Random();
 	};
 
 }

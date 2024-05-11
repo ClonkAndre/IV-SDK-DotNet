@@ -79,6 +79,11 @@ namespace IVSDKDotNet
 		bool Load();
 
 		/// <summary>
+		/// Clears everything from the loaded ini file.
+		/// </summary>
+		void Clear();
+
+		/// <summary>
 		/// Adds a new section to the ini file.
 		/// </summary>
 		/// <param name="sectionName">The name of the new section.</param>

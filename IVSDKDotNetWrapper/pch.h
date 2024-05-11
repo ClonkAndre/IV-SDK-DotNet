@@ -30,18 +30,15 @@ typedef HRESULT(__stdcall DInput8DeviceAcquireT)(IDirectInputDevice8*);
 #include "MinHook.h"
 
 // ImGui
-#include "ImGui/imconfig.h"
-#include "ImGui/EmbeddedFont.h"
-#include "ImGui/imgui.h"
-#include "ImGui/imgui_stdlib.h"
-#include "ImGui/imgui_internal.h"
-#include "ImGui/imgui_impl_win32.h"
-#include "ImGui/imgui_impl_dx9_shader.h"
+#include "ImGui/ImGuiIncludes.h"
 
 #include <windows.h>
 #include <msclr/marshal.h>
 
+#include <vector>
+
 #include "..\IVSDKDotNet\IVSDK\IVSDK.h"
+#include "..\IVSDKDotNet\AdvancedPatcher.h"
 
 // Managed Namespaces
 using namespace System;
@@ -72,24 +69,20 @@ using namespace System::Text;
 #include "NativeHashes.h"
 #include "NativeInvoke.h"
 #include "Native.h"
+#include "NativeFunction.h"
+#include "NativeHooks.h"
+
+// Math
+#include "IVMatrix.h"
 
 #include "Scripts.h"
 
 // Important
 #include "CLRBridge.h"
 
-// ImGuiIV
-#include "ImGuiDraw.h"
-
-// Hooks
-#include "DXHook.h"
-#include "DirectInputHook.h"
 
 
 // - - - IV-SDK STUFF - - -
-
-// Math
-#include "IVMatrix.h"
 
 #include "IVPlayerInfo.h"
 #include "IVLineOfSightResults.h"
@@ -110,6 +103,7 @@ using namespace System::Text;
 #include "IVObject.h"
 #include "IVPool.h"
 #include "IVPools.h"
+#include "IVPhoneInfo.h"
 
 // Tasks
 #include "IVTask.h"
@@ -135,6 +129,17 @@ using namespace System::Text;
 #include "IVPedComponentModels.h"
 #include "IVPed.h"
 #include "IVPedFactoryNY.h"
+
+
+
+// ImGuiIV
+#include "ImGuiIV.h"
+
+// Hooks
+#include "DXHook.h"
+#include "DirectInputHook.h"
+
+
 
 #include "IVRadar.h"
 

@@ -2,7 +2,7 @@
 
 namespace IVSDKDotNet
 {
-	public value struct IVWeaponFlags
+	public ref class IVWeaponFlags
 	{
 	public:
 		property bool CanAim
@@ -527,13 +527,13 @@ namespace IVSDKDotNet
 				NativeWeaponInfo->m_nStatType = value;
 			}
 		}
-		property IVWeaponFlags WeaponFlags
+		property IVWeaponFlags^ WeaponFlags
 		{
 		public:
-			IVWeaponFlags get()
+			IVWeaponFlags^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeWeaponInfo, IVWeaponFlags());
-				return IVWeaponFlags(NativeWeaponInfo);
+				NULLPTR_CHECK_WITH_RETURN(NativeWeaponInfo, nullptr);
+				return gcnew IVWeaponFlags(NativeWeaponInfo);
 			}
 		}
 		property uint32_t ModelHash

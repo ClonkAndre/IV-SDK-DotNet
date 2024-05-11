@@ -2,7 +2,7 @@
 
 namespace IVSDKDotNet
 {
-	public value struct IVPedFlags
+	public ref class IVPedFlags
 	{
 	public:
 		property bool NoHeadshots
@@ -26,7 +26,7 @@ namespace IVSDKDotNet
 	internal:
 		CPed* NativePed;
 	};
-	public value struct IVPedFlags2
+	public ref class IVPedFlags2
 	{
 	public:
 		property bool InCar
@@ -64,6 +64,17 @@ namespace IVSDKDotNet
 	internal:
 		CPed* NativePed;
 	};
+
+	//public ref class IVPedIntelligence
+	//{
+	//public:
+
+	//};
+	//public ref class IVPedIntelligenceNY : IVPedIntelligence
+	//{
+	//public:
+
+	//};
 
 	public ref class IVPed : IVPhysical
 	{
@@ -231,22 +242,22 @@ namespace IVSDKDotNet
 			}
 		}
 
-		property IVPedFlags PedFlags
+		property IVPedFlags^ PedFlags
 		{
 		public:
-			IVPedFlags get()
+			IVPedFlags^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativePed, IVPedFlags());
-				return IVPedFlags(NativePed);
+				NULLPTR_CHECK_WITH_RETURN(NativePed, nullptr);
+				return gcnew IVPedFlags(NativePed);
 			}
 		}
-		property IVPedFlags2 PedFlags2
+		property IVPedFlags2^ PedFlags2
 		{
 		public:
-			IVPedFlags2 get()
+			IVPedFlags2^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativePed, IVPedFlags2());
-				return IVPedFlags2(NativePed);
+				NULLPTR_CHECK_WITH_RETURN(NativePed, nullptr);
+				return gcnew IVPedFlags2(NativePed);
 			}
 		}
 
@@ -375,6 +386,7 @@ namespace IVSDKDotNet
 				NativePed->m_nRagdollTime = value;
 			}
 		}
+
 		property uint8_t WeaponObjectVisible
 		{
 		public:
@@ -389,6 +401,7 @@ namespace IVSDKDotNet
 				NativePed->m_nWeaponObjectVisible = value;
 			}
 		}
+
 		property uint8_t CreatedBy
 		{
 		public:

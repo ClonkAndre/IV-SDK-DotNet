@@ -5,6 +5,7 @@ public:
 	static inline uint8_t& m_UserPause = AddressSetter::GetRef<uint8_t>(0xDDDF41, 0xCFCC39);
 	static inline uint32_t& m_FrameCounter = AddressSetter::GetRef<uint32_t>(0xDDDF38, 0xCFCC30);
 	static inline uint32_t& m_snTimeInMilliseconds = AddressSetter::GetRef<uint32_t>(0xDDDE74, 0xCFCB6C);
+	static inline uint32_t& m_sTimerLength = AddressSetter::GetRef<uint32_t>(0xDD5304, 0xD51698);
 	static inline float& ms_fMinTimeStep = AddressSetter::GetRef<float>(0xB1D9E4, 0xB2E09C);
 	static inline float& ms_fMaxTimeStep = AddressSetter::GetRef<float>(0xB1D9E8, 0xB2E0A0);
 	static inline float& ms_fTimeStep = AddressSetter::GetRef<float>(0xDDDE7C, 0xCFCB74);

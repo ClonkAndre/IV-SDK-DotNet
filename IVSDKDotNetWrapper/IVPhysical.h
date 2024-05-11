@@ -2,7 +2,7 @@
 
 namespace IVSDKDotNet
 {
-	public value struct IVPhysicalFlags
+	public ref class IVPhysicalFlags
 	{
 	public:
 		property bool BulletProof
@@ -128,13 +128,13 @@ namespace IVSDKDotNet
 	public ref class IVPhysical : IVDynamicEntity
 	{
 	public:
-		property IVPhysicalFlags PhysicalFlags
+		property IVPhysicalFlags^ PhysicalFlags
 		{
 		public:
-			IVPhysicalFlags get()
+			IVPhysicalFlags^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativePhysical, IVPhysicalFlags());
-				return IVPhysicalFlags(NativePhysical);
+				NULLPTR_CHECK_WITH_RETURN(NativePhysical, nullptr);
+				return gcnew IVPhysicalFlags(NativePhysical);
 			}
 		}
 		property float PercentSubmerged

@@ -92,11 +92,11 @@ namespace IVSDKDotNet
 	}
 	void Script::ShowSubtitleMessage(String^ str, ...array<System::Object^>^ args)
 	{
-		IVSDKDotNet::Native::Natives::PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", String::Format(str, args), 2000, true);
+		ShowSubtitleMessage(String::Format(str, args), 3000);
 	}
 	void Script::ShowSubtitleMessage(String^ str)
 	{
-		IVSDKDotNet::Native::Natives::PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", str, 2000, true);
+		ShowSubtitleMessage(str, 2000);
 	}
 
 	bool Script::IsKeyPressed(Keys key)
@@ -115,6 +115,21 @@ namespace IVSDKDotNet
 	{
 		if (ManagerScript::s_Instance)
 			return ManagerScript::s_Instance->RegisterConsoleCommand(ID, name, actionToExecute);
+
+		return false;
+	}
+
+	bool Script::RegisterPhoneNumber(String^ number, Action^ dialingAction)
+	{
+		if (ManagerScript::s_Instance)
+			return ManagerScript::s_Instance->RegisterPhoneNumber(ID, number, dialingAction);
+
+		return false;
+	}
+	bool Script::UnregisterPhoneNumber(String^ number)
+	{
+		if (ManagerScript::s_Instance)
+			return ManagerScript::s_Instance->UnregisterPhoneNumber(ID, number);
 
 		return false;
 	}
@@ -173,18 +188,12 @@ namespace IVSDKDotNet
 		return nullptr;
 	}
 
-	array<Script^>^ Script::GetAllScripts()
+	bool Script::SendScriptCommand(Script^ toScript, String^ command, array<Object^>^ parameters, [OutAttribute] Object^% result)
 	{
+		if (!toScript)
+			return false;
 		if (ManagerScript::s_Instance)
-			return ManagerScript::s_Instance->GetAllScripts();
-
-		return nullptr;
-	}
-
-	bool Script::SendScriptCommand(Script^ toScript, String^ command, [OutAttribute] Object^% result)
-	{
-		if (ManagerScript::s_Instance)
-			return ManagerScript::s_Instance->SendScriptCommand(toScript, command, result);
+			return ManagerScript::s_Instance->SendScriptCommand(ID, toScript->ID, command, parameters, result);
 
 		result = nullptr;
 		return false;

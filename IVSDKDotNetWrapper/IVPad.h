@@ -74,6 +74,9 @@ namespace IVSDKDotNet
 	public:
 		static IVPad^ GetPad();
 
+		static IVPad^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 	internal:
 		IVPad(CPad* nativePtr);
 
