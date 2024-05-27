@@ -198,7 +198,6 @@ namespace IVSDKDotNet
 			{
 				return m_bForceCursor;
 			}
-		internal:
 			void set(bool value)
 			{
 				m_bForceCursor = value;
@@ -563,7 +562,9 @@ namespace IVSDKDotNet
 		// ImGui Drawing Stuff
 	public:
 
-		[ObsoleteAttribute("This will be removed in version 1.3 of IV-SDK .NET. You should instead use the OnImGuiRendering event the Script class provides you.")]
+		// TODO: Actually remove those obsolete functions in v1.4
+
+		[ObsoleteAttribute("This will be removed in version 1.4 of IV-SDK .NET. You should instead use the OnImGuiRendering event the Script class provides you.")]
 		static bool AddDrawCommand(Script^ caller, Action^ drawingAction)
 		{
 			if (caller == nullptr)
@@ -585,7 +586,7 @@ namespace IVSDKDotNet
 
 			return true;
 		}
-		[ObsoleteAttribute("This will be removed in version 1.3 of IV-SDK .NET.")]
+		[ObsoleteAttribute("This will be removed in version 1.4 of IV-SDK .NET.")]
 		static void RemoveDrawCommand(Script^ caller)
 		{
 			if (caller == nullptr)
@@ -640,7 +641,7 @@ namespace IVSDKDotNet
 		}
 
 		// Primitive Drawing
-		[ObsoleteAttribute("This will be removed in version 1.3 of IV-SDK .NET. You should instead use the OnImGuiRendering event the Script class provides you.")]
+		[ObsoleteAttribute("This will be removed in version 1.4 of IV-SDK .NET. You should instead use the OnImGuiRendering event the Script class provides you.")]
 		static bool BeginCanvas(Script^ caller, RectangleF clippingRect, [OutAttribute] ImGuiIV_DrawingContext% ctx)
 		{
 			if (caller == nullptr)
@@ -692,12 +693,12 @@ namespace IVSDKDotNet
 
 			//return true;
 		}
-		[ObsoleteAttribute("This will be removed in version 1.3 of IV-SDK .NET. You should instead use the OnImGuiRendering event the Script class provides you.")]
+		[ObsoleteAttribute("This will be removed in version 1.4 of IV-SDK .NET. You should instead use the OnImGuiRendering event the Script class provides you.")]
 		static bool BeginCanvas(Script^ caller, [OutAttribute] ImGuiIV_DrawingContext% ctx)
 		{
 			return BeginCanvas(caller, RectangleF::Empty, ctx);
 		}
-		[ObsoleteAttribute("This will be removed in version 1.3 of IV-SDK .NET.")]
+		[ObsoleteAttribute("This will be removed in version 1.4 of IV-SDK .NET.")]
 		static bool EndCanvas()
 		{
 			// Get the draw list from this window
@@ -1250,8 +1251,7 @@ namespace IVSDKDotNet
 
 		static float GetKeyAnalogValue(eImGuiKey key)
 		{
-			ImGuiIO& io = ImGui::GetIO(); (void)io;
-			return io.KeysData[(int)key].AnalogValue;
+			return ImGui::GetKeyData((ImGuiKey)(int)key)->AnalogValue;
 		}
 
 		// Font
@@ -1834,6 +1834,14 @@ namespace IVSDKDotNet
 
 			msclr::interop::marshal_context ctx;
 			ImGui::TextColored(ColorToImVec4(color, true), ctx.marshal_as<const char*>(String::Format(str, args)));
+		}
+		static void TextWithInlineColors(String^ str, ...array<System::Object^>^ args)
+		{
+			if (String::IsNullOrWhiteSpace(str))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImGui::TextWithInlineColors(ctx.marshal_as<const char*>(String::Format(str, args)));
 		}
 
 		static void BulletText(String^ str, ...array<System::Object^>^ args)

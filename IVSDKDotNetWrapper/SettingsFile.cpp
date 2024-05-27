@@ -79,6 +79,7 @@ namespace IVSDKDotNet
 			{
 				line = line->Replace("[", "");
 				line = line->Replace("]", "");
+				line = line->TrimStart()->TrimEnd();
 
 				m_dSections->Add(line, nullptr);
 				currentSection = line;
@@ -91,16 +92,29 @@ namespace IVSDKDotNet
 			{
 				array<String^>^ values = line->Split(s_aSeparator, StringSplitOptions::None);
 
+				String^ key = values[0]->TrimStart()->TrimEnd();
+				String^ value = values[1]->TrimStart()->TrimEnd();
+
 				if (!String::IsNullOrEmpty(currentSection))
 				{
 					IniSectionValue^ c = m_dSections[currentSection];
 
 					if (c)
 						// Add key and value to SectionValue because it already exists.
-						c->Values->Add(values[0], values[1]);
+						c->Values->Add(key, value);
 					else
 						// Create new SectionValue and add key and value because it does not exists yet.
-						m_dSections[currentSection] = gcnew IniSectionValue(values[0], values[1]);
+						m_dSections[currentSection] = gcnew IniSectionValue(key, value);
+				}
+				else // Key/Value it not within a section. Add to default section.
+				{
+					if (!m_dSections->ContainsKey("$Default"))
+					{
+						m_dSections->Add("$Default", gcnew IniSectionValue(key, value));
+						continue;
+					}
+
+					m_dSections["$Default"]->Values->Add(key, value);
 				}
 			}
 
@@ -117,22 +131,29 @@ namespace IVSDKDotNet
 	}
 
 	// - - - Add - - -
-	bool SettingsFile::AddSection(String^ sectionName)
-	{
-		if (String::IsNullOrWhiteSpace(sectionName))
-			return false;
-		if (m_dSections->ContainsKey(sectionName))
-			return false;
-
-		m_dSections->Add(sectionName, nullptr);
-		return true;
-	}
-	bool SettingsFile::AddKeyToSection(String^ section, String^ keyName)
+	bool SettingsFile::AddSection(String^ section)
 	{
 		if (String::IsNullOrWhiteSpace(section))
 			return false;
-		if (String::IsNullOrWhiteSpace(keyName))
+
+		section = section->TrimStart()->TrimEnd();
+
+		if (m_dSections->ContainsKey(section))
 			return false;
+
+		m_dSections->Add(section, nullptr);
+		return true;
+	}
+	bool SettingsFile::AddKeyToSection(String^ section, String^ key)
+	{
+		if (String::IsNullOrWhiteSpace(section))
+			return false;
+		if (String::IsNullOrWhiteSpace(key))
+			return false;
+
+		section = section->TrimStart()->TrimEnd();
+		key = key->TrimStart()->TrimEnd();
+
 		if (!m_dSections->ContainsKey(section))
 			return false;
 
@@ -141,15 +162,15 @@ namespace IVSDKDotNet
 		if (c)
 			// SectionValues exists. Add key and value to SectionValues.
 		{
-			if (c->Values->ContainsKey(keyName)) // Key already exists in list.
+			if (c->Values->ContainsKey(key)) // Key already exists in list.
 				return false;
 
-			c->Values->Add(keyName, "");
+			c->Values->Add(key, "");
 		}
 		else
 			// SectionValues does not exists. Create new SectionValues and add key and value to section values.
 		{
-			m_dSections[section] = gcnew IniSectionValue(keyName, "");
+			m_dSections[section] = gcnew IniSectionValue(key, "");
 		}
 
 		return true;
@@ -169,6 +190,8 @@ namespace IVSDKDotNet
 		if (String::IsNullOrWhiteSpace(section))
 			return false;
 
+		section = section->TrimStart()->TrimEnd();
+
 		return m_dSections->ContainsKey(section);
 	}
 	bool SettingsFile::DoesKeyExists(String^ section, String^ key)
@@ -177,6 +200,10 @@ namespace IVSDKDotNet
 			return false;
 		if (String::IsNullOrWhiteSpace(key))
 			return false;
+
+		section = section->TrimStart()->TrimEnd();
+		key = key->TrimStart()->TrimEnd();
+
 		if (!m_dSections->ContainsKey(section))
 			return false;
 		if (!m_dSections[section])
@@ -188,6 +215,9 @@ namespace IVSDKDotNet
 	{
 		if (String::IsNullOrWhiteSpace(section))
 			return false;
+
+		section = section->TrimStart()->TrimEnd();
+
 		if (!m_dSections->ContainsKey(section))
 			return false;
 
@@ -224,10 +254,25 @@ namespace IVSDKDotNet
 	// - - - Get/Set values - - -
 	String^ SettingsFile::GetValue(String^ section, String^ key, String^ defaultValue)
 	{
+		// Get value from $Default section if it exists
 		if (String::IsNullOrWhiteSpace(section))
-			return defaultValue;
+		{
+			if (!m_dSections->ContainsKey("$Default"))
+				return defaultValue;
+			if (!m_dSections["$Default"]->Values)
+				return defaultValue;
+			if (!m_dSections["$Default"]->Values->ContainsKey(key))
+				return defaultValue;
+
+			return m_dSections["$Default"]->Values[key];
+		}
+
 		if (String::IsNullOrWhiteSpace(key))
 			return defaultValue;
+
+		section = section->TrimStart()->TrimEnd();
+		key = key->TrimStart()->TrimEnd();
+
 		if (!m_dSections->ContainsKey(section))
 			return defaultValue;
 		if (!m_dSections[section])
@@ -241,10 +286,26 @@ namespace IVSDKDotNet
 	}
 	bool SettingsFile::SetValue(String^ section, String^ key, String^ value)
 	{
+		// Set value in $Default section if it exists
 		if (String::IsNullOrWhiteSpace(section))
-			return false;
+		{
+			if (!m_dSections->ContainsKey("$Default"))
+				return false;
+			if (!m_dSections["$Default"]->Values)
+				return false;
+			if (!m_dSections["$Default"]->Values->ContainsKey(key))
+				return false;
+
+			m_dSections["$Default"]->Values[key] = value;
+			return true;
+		}
+
 		if (String::IsNullOrWhiteSpace(key))
 			return false;
+
+		section = section->TrimStart()->TrimEnd();
+		key = key->TrimStart()->TrimEnd();
+
 		if (!m_dSections->ContainsKey(section))
 			return false;
 		if (!m_dSections[section])
@@ -469,8 +530,9 @@ namespace IVSDKDotNet
 		for each (KeyValuePair<String^, IniSectionValue^> entry in m_dSections)
 		{
 
-			// Add section
-			listBuilder->Add(String::Format("[{0}]", entry.Key));
+			// Add section if not $Default section
+			if (entry.Key != "$Default")
+				listBuilder->Add(String::Format("[{0}]", entry.Key));
 
 			// Add values
 			if (entry.Value)

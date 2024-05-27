@@ -115,11 +115,6 @@ namespace Manager.UI
                 // Debug
                 if (ImGuiIV.BeginTabItem("Debug"))
                 {
-                    // Scripts
-                    ImGuiIV.SeparatorText("Scripts");
-                    ImGuiIV.Text("IV-SDK .NET Scripts: {0}", main.ActiveScripts.Count(x => x.IsIVSDKDotNetScript));
-                    ImGuiIV.Text("ScriptHookDotNet Scripts: {0}", main.ActiveScripts.Count(x => x.IsScriptHookDotNetScript));
-
                     // ScriptHookDotNet
                     ImGuiIV.Spacing();
                     ImGuiIV.SeparatorText("ScriptHookDotNet");
@@ -140,7 +135,6 @@ namespace Manager.UI
                     ImGuiIV.SeparatorText("Lists");
                     ImGuiIV.Text("Local Tasks: {0}", main.LocalTasks.Count);
                     ImGuiIV.Text("Delayed Actions: {0}", main.DelayedActions.Count);
-                    ImGuiIV.Text("Registered Console Commands: {0}", main.Console.Commands.Count);
 
                     // States
                     ImGuiIV.Spacing();
@@ -232,6 +226,10 @@ namespace Manager.UI
                         ImGuiIV.SameLine();
                         ImGuiIV.CheckBox("Reload Scripts On Reload", ref Config.ReloadScriptsOnReload);
 
+                        ImGuiIV.HelpMarker("This will load your ScriptHookDotNet mods within the 'scripts' folder located in the main directory of GTA IV.");
+                        ImGuiIV.SameLine();
+                        ImGuiIV.CheckBox("Load ScriptHookDotNet Scripts", ref Config.LoadScriptHookDotNetScripts);
+
                         ImGuiIV.TreePop();
                     }
                     if (ImGuiIV.TreeNode("Notification"))
@@ -314,13 +312,24 @@ namespace Manager.UI
                 {
                     ImGuiIV.SeparatorText("Control");
 
-                    ImGuiIV.Text("Last Script Reload Occured At: {0} ({1} Seconds ago)", main.TimeSinceLastScriptReload, (int)(DateTime.Now - main.TimeSinceLastScriptReload).TotalSeconds);
+                    // Time since last script reload
+                    TimeSpan timeSinceLastScriptReload = DateTime.Now - main.TimeSinceLastScriptReload;
+
+                    if (timeSinceLastScriptReload.TotalSeconds < 59d)
+                        ImGuiIV.Text("Last Script Reload Occured At: {0} ({1} second(s) ago)", main.TimeSinceLastScriptReload, (int)timeSinceLastScriptReload.TotalSeconds);
+                    else if (timeSinceLastScriptReload.TotalMinutes < 61d)
+                        ImGuiIV.Text("Last Script Reload Occured At: {0} ({1} minute(s) ago)", main.TimeSinceLastScriptReload, (int)timeSinceLastScriptReload.TotalMinutes);
+                    else
+                        ImGuiIV.Text("Last Script Reload Occured At: {0} ({1} hour(s) ago)", main.TimeSinceLastScriptReload, (int)timeSinceLastScriptReload.TotalHours);
 
                     if (ImGuiIV.Button("Abort scripts"))
                         main.AbortScripts(ScriptType.All, AbortReason.Manager, false);
                     ImGuiIV.SameLine();
                     if (ImGuiIV.Button("Reload scripts"))
                         main.LoadScripts();
+
+                    ImGuiIV.Text("Active IV-SDK .NET Scripts: {0}", main.ActiveScripts.Count(x => x.IsIVSDKDotNetScript));
+                    ImGuiIV.Text("Active ScriptHookDotNet Scripts: {0}", main.ActiveScripts.Count(x => x.IsScriptHookDotNetScript));
 
                     ImGuiIV.Spacing();
                     ImGuiIV.SeparatorText("Scripts");
@@ -480,8 +489,10 @@ namespace Manager.UI
 
                                         ImGuiIV.BeginListBox("##ScriptConsoleCommands", new Vector2(ImGuiIV.FloatMin, 40f));
 
-                                        for (int c = 0; c < foundScript.ConsoleCommands.Count; c++)
-                                            ImGuiIV.Text(foundScript.ConsoleCommands[c]);
+                                        string[] commands = foundScript.ConsoleCommands.Keys.ToArray();
+
+                                        for (int c = 0; c < commands.Length; c++)
+                                            ImGuiIV.Text(commands[c]);
 
                                         ImGuiIV.EndListBox();
 

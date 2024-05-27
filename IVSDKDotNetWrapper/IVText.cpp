@@ -21,4 +21,14 @@ namespace IVSDKDotNet
         return gcnew String(NativeText->Get(ctx.marshal_as<const char*>(ident)));
     }
 
+    void IVText::ReplaceTextOfTextLabel(String^ ident, String^ newText)
+    {
+        NULLPTR_CHECK(NativeText);
+        NULLPTR_CHECK(ident);
+        NULLPTR_CHECK(newText);
+
+        msclr::interop::marshal_context ctx;
+        wmemcpy(const_cast<wchar_t*>(NativeText->Get(ctx.marshal_as<const char*>(ident))), ctx.marshal_as<const wchar_t*>(newText), newText->Length + 1);
+    }
+
 }

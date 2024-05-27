@@ -1,7 +1,7 @@
 #pragma once
 
-namespace IVSDKDotNet {
-
+namespace IVSDKDotNet
+{
 	public ref class KeyWatchDog
 	{
 	public:
@@ -11,25 +11,32 @@ namespace IVSDKDotNet {
 		KeyWatchDog();
 		~KeyWatchDog();
 
-		//bool IsKeyPressed(Keys key)
-		//{
-		//	int num = (int)key;
-		//	if ((num < 0) || (num > 255)) return false;
-		//	return keystate[num];
-		//}
+		void Process();
 
-		void ProcessCheck();
+		bool IsKeyPressed(Keys key)
+		{
+			int num = (int)key;
 
-		property bool Shift {
+			if ((num < 0) || (num > 255))
+				return false;
+
+			return ((ckeystate[num] & 0x80) != 0);
+		}
+
+		property bool Shift
+		{
 			bool get() { return bShift; }
 		}
-		property bool Ctrl {
+		property bool Ctrl
+		{
 			bool get() { return bCtrl; }
 		}
-		property bool Alt {
+		property bool Alt
+		{
 			bool get() { return bAlt; }
 		}
-		property Keys Modifier {
+		property Keys Modifier
+		{
 			Keys get() { return pModifier; }
 		}
 
@@ -40,13 +47,6 @@ namespace IVSDKDotNet {
 		bool bCtrl;
 		bool bAlt;
 		Keys pModifier;
-
-		bool cIsKeyPressed(Keys key)
-		{
-			int num = (int)key;
-			if ((num < 0) || (num > 255)) return false;
-			return ((ckeystate[num] & 0x80) != 0);
-		}
 
 		void CheckKeyAsync(Keys Key);
 

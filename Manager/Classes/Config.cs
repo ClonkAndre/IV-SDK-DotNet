@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 using IVSDKDotNet;
 
@@ -22,7 +21,7 @@ namespace Manager.Classes
         public static bool PauseScriptExecutionWhenNotInFocus;
         public static bool DoNotLoadLegacyScripts;
         public static bool ReloadScriptsOnReload;
-        public static bool ReadSHDNModsFromDefaultLocation;
+        public static bool LoadScriptHookDotNetScripts;
 
         // Notification
         public static bool ShowNotifications;
@@ -56,7 +55,7 @@ namespace Manager.Classes
             PauseScriptExecutionWhenNotInFocus = settings.GetBoolean("Scripts", "PauseExecutionWhenNotInFocus", true);
             DoNotLoadLegacyScripts = settings.GetBoolean("Scripts", "DoNotLoadLegacyScripts", true);
             ReloadScriptsOnReload = settings.GetBoolean("Scripts", "ReloadScriptsOnReload", false);
-            ReadSHDNModsFromDefaultLocation = settings.GetBoolean("Scripts", "ReadSHDNModsFromDefaultLocation", true);
+            LoadScriptHookDotNetScripts = settings.GetBoolean("Scripts", "LoadScriptHookDotNetScripts", true);
 
             // Section: Notification
             ShowNotifications = settings.GetBoolean("Notification", "ShowNotifications", true);
@@ -89,6 +88,7 @@ namespace Manager.Classes
             theSettingsFile.SetBoolean("Scripts", "PauseExecutionWhenNotInFocus", PauseScriptExecutionWhenNotInFocus);
             theSettingsFile.SetBoolean("Scripts", "DoNotLoadLegacyScripts", DoNotLoadLegacyScripts);
             theSettingsFile.SetBoolean("Scripts", "ReloadScriptsOnReload", ReloadScriptsOnReload);
+            theSettingsFile.SetBoolean("Scripts", "LoadScriptHookDotNetScripts", LoadScriptHookDotNetScripts);
 
             // Section: Notification
             theSettingsFile.SetBoolean("Notification", "ShowNotifications", ShowNotifications);
@@ -121,7 +121,7 @@ namespace Manager.Classes
             PauseScriptExecutionWhenNotInFocus = true;
             DoNotLoadLegacyScripts = true;
             ReloadScriptsOnReload = false;
-            ReadSHDNModsFromDefaultLocation = true;
+            LoadScriptHookDotNetScripts = true;
 
             // Section: Notification
             ShowNotifications = true;
