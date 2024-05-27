@@ -86,17 +86,17 @@ namespace IVSDKDotNet
 		/// <summary>
 		/// Adds a new section to the ini file.
 		/// </summary>
-		/// <param name="sectionName">The name of the new section.</param>
+		/// <param name="section">The name of the new section.</param>
 		/// <returns>True if the section got created. Otherwise false if the section already exists in the ini or if the name is null.</returns>
-		bool AddSection(String^ sectionName);
+		bool AddSection(String^ section);
 
 		/// <summary>
 		/// Adds a new key to the specified section.
 		/// </summary>
 		/// <param name="section">The section to add the new key.</param>
-		/// <param name="keyName">The name of the new key.</param>
+		/// <param name="key">The name of the new key.</param>
 		/// <returns>True if the key got created in the section. Otherwise false if the section does not exists, the key already exists in the ini or if the name is null.</returns>
-		bool AddKeyToSection(String^ section, String^ keyName);
+		bool AddKeyToSection(String^ section, String^ key);
 
 		/// <summary>
 		/// Allows you to insert a string at the given line number.

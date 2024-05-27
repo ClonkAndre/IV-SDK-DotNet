@@ -38,6 +38,7 @@ typedef HRESULT(__stdcall DInput8DeviceAcquireT)(IDirectInputDevice8*);
 #include <vector>
 
 #include "..\IVSDKDotNet\IVSDK\IVSDK.h"
+#include "..\IVSDKDotNet\IVSDK\injector\injector.hpp"
 #include "..\IVSDKDotNet\AdvancedPatcher.h"
 
 // Managed Namespaces

@@ -19,4 +19,13 @@ namespace ImGui
 	IMGUI_API bool Timeline(const char* str_id, float* values, int maxFrames);
 	IMGUI_API void EndTimeline(bool drawCurrentFrame, int currentFrame, int maxFrames, bool drawLines, int lineCount, bool drawValues);
 
+	//------------------------------------------------------------------
+	// Text
+	//------------------------------------------------------------------
+
+	// Code for that is from Louis de Carufel. All credits goes to them!
+	// https://github.com/ocornut/imgui/issues/902#issuecomment-291229555
+
+	IMGUI_API void TextWithInlineColors(const char* fmt, ...);
+
 }

@@ -198,5 +198,25 @@ namespace IVSDKDotNet
 		result = nullptr;
 		return false;
 	}
+	bool Script::SendScriptCommand(Guid toScript, String^ command, array<Object^>^ parameters, [OutAttribute] Object^% result)
+	{
+		if (toScript == Guid::Empty)
+			return false;
+		if (ManagerScript::s_Instance)
+			return ManagerScript::s_Instance->SendScriptCommand(ID, toScript, command, parameters, result);
+
+		result = nullptr;
+		return false;
+	}
+	bool Script::SendScriptCommand(String^ toScript, String^ command, array<Object^>^ parameters, [OutAttribute] Object^% result)
+	{
+		if (!toScript)
+			return false;
+		if (ManagerScript::s_Instance)
+			return ManagerScript::s_Instance->SendScriptCommand(ID, toScript, command, parameters, result);
+
+		result = nullptr;
+		return false;
+	}
 
 }

@@ -1346,7 +1346,11 @@ namespace IVSDKDotNet
 			static void ATTACH_OBJECT_TO_PED(Entity obj, Ped c, unsigned int bone, float pX, float pY, float pZ, float rX, float rY, float rZ, unsigned int unknown1_0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_PED, obj, c, bone, pX, pY, pZ, rX, rY, rZ, unknown1_0); }
 			static void ATTACH_OBJECT_TO_PED_PHYSICALLY(Entity obj, Ped c, b8 unknown, unsigned int bone, Vector3 pos, Vector3 rot, unsigned int unknown1_0, unsigned int unknown2_0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_PED_PHYSICALLY, obj, c, unknown, bone, pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z, unknown1_0, unknown2_0); }
 			static void ATTACH_OBJECT_TO_PED_PHYSICALLY(Entity obj, Ped c, b8 unknown, unsigned int bone, float pX, float pY, float pZ, float rX, float rY, float rZ, unsigned int unknown1_0, unsigned int unknown2_0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_PED_PHYSICALLY, obj, c, unknown, bone, pX, pY, pZ, rX, rY, rZ, unknown1_0, unknown2_0); }
-			static void CHANGE_GARAGE_TYPE(int garage, int type) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CHANGE_GARAGE_TYPE, garage, type); }
+			static void CHANGE_GARAGE_TYPE(String^ garageName, int type)
+			{
+				msclr::interop::marshal_context ctx;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_CHANGE_GARAGE_TYPE, ctx.marshal_as<const char*>(garageName), type);
+			}
 			static void CLEAR_OBJECT_LAST_DAMAGE_ENTITY(Entity obj) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CLEAR_OBJECT_LAST_DAMAGE_ENTITY, obj); }
 			static void CLEAR_OBJECT_LAST_WEAPON_DAMAGE(Entity obj) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CLEAR_OBJECT_LAST_WEAPON_DAMAGE, obj); }
 			static void CLEAR_ROOM_FOR_OBJECT(Entity obj) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CLEAR_ROOM_FOR_OBJECT, obj); }
@@ -3497,7 +3501,6 @@ namespace IVSDKDotNet
 			static void STOP_MOVIE() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_STOP_MOVIE); }
 			static void TOGGLE_TOPLEVEL_SPRITE(b8 toggle) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TOGGLE_TOPLEVEL_SPRITE, toggle); }
 			static void USE_MASK(b8 use) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_USE_MASK, use); }
-			//static void REMOVE_SPHERE(unsigned int sphere) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REMOVE_SPHERE, sphere); }
 			static void DECREMENT_FLOAT_STAT(int stat, float val) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DECREMENT_FLOAT_STAT, stat, val); }
 			static void DECREMENT_INT_STAT(unsigned int stat, unsigned int amount) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DECREMENT_INT_STAT, stat, amount); }
 			static void INCREMENT_FLOAT_STAT(int stat, float val) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_INCREMENT_FLOAT_STAT, stat, val); }
@@ -4761,6 +4764,11 @@ namespace IVSDKDotNet
 				return r;
 			}
 			static Entity GET_OBJECT_PED_IS_HOLDING(Ped ped) { return NativeInvoke::Invoke<Entity>(eNativeHash::NATIVE_GET_OBJECT_PED_IS_HOLDING, ped); }
+			static Texture GET_TEXTURE(TextureDict dictionary, String^ textureName)
+			{
+				msclr::interop::marshal_context ctx;
+				return NativeInvoke::Invoke<Texture>(eNativeHash::NATIVE_GET_TEXTURE, dictionary, ctx.marshal_as<const char*>(textureName));
+			}
 			static Texture GET_TEXTURE_FROM_STREAMED_TXD(String^ txdName, String^ textureName)
 			{
 				msclr::interop::marshal_context ctx;
@@ -5357,6 +5365,11 @@ namespace IVSDKDotNet
 			{
 				return gcnew String(NativeInvoke::Invoke< const ch*>(eNativeHash::NATIVE_NETWORK_GET_NEXT_TEXT_CHAT));
 			}
+			static b8 NETWORK_SEND_TEXT_CHAT(Player playerIndex, String^ msg)
+			{
+				msclr::interop::marshal_context ctx;
+				return NativeInvoke::Invoke<b8>(eNativeHash::NATIVE_NETWORK_SEND_TEXT_CHAT, playerIndex, ctx.marshal_as<const char*>(msg));
+			}
 
 			static String^ NETWORK_GET_SERVER_NAME()
 			{
@@ -5549,6 +5562,17 @@ namespace IVSDKDotNet
 				msclr::interop::marshal_context ctx;
 				return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_LENGTH_OF_LITERAL_STRING, (char*)ctx.marshal_as<const char*>(str));
 			}
+
+			static void SET_PED_STEERS_AROUND_PEDS(Ped ped, bool set) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_SET_PED_STEERS_AROUND_PEDS, ped, set); }
+			static bool GET_PED_STEERS_AROUND_PEDS(Ped ped) { return NativeInvoke::Invoke<bool>(eNativeHash::NATIVE_GET_PED_STEERS_AROUND_PEDS, ped); }
+			static void SET_PED_STEERS_AROUND_OBJECTS(Ped ped, bool set) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_SET_PED_STEERS_AROUND_OBJECTS, ped, set); }
+			static bool GET_PED_STEERS_AROUND_OBJECTS(Ped ped) { return NativeInvoke::Invoke<bool>(eNativeHash::NATIVE_GET_PED_STEERS_AROUND_OBJECTS, ped); }
+
+			static int GET_NO_OF_PLAYERS_IN_TEAM(int teamIndex) { return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_GET_NO_OF_PLAYERS_IN_TEAM, teamIndex); }
+
+			static int ADD_SPHERE(float x, float y, float z, float radius, int unk1) { return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_ADD_SPHERE, x, y, z, radius, unk1); }
+			static void REMOVE_SPHERE(int sphere) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_REMOVE_SPHERE, sphere); }
+
 		};
 	}
 }

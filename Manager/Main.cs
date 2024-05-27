@@ -463,7 +463,7 @@ namespace Manager
 
             // Check for key presses
             if (keyWatchDog != null)
-                keyWatchDog.ProcessCheck();
+                keyWatchDog.Process();
 
             // Raise all script ProcessPad events
             ActiveScripts.ForEach(fs =>
@@ -629,6 +629,29 @@ namespace Manager
         #region Methods
 
         // Load stuff
+        public void LoadSHDNScripts()
+        {
+            if (!Config.LoadScriptHookDotNetScripts)
+                return;
+
+            string shdnScriptsPath = string.Format("{0}\\scripts", IVGame.GameStartupPath);
+
+            if (!Directory.Exists(shdnScriptsPath))
+                return;
+
+            // Abort currently loaded ScriptHookDotNet scripts
+            AbortScripts(ScriptType.ScriptHookDotNet, AbortReason.Manager, false);
+
+            // Load ScriptHookDotNet scripts
+            string[] scriptFiles = Directory.GetFiles(shdnScriptsPath, "*.net.dll", SearchOption.TopDirectoryOnly);
+
+            for (int i = 0; i < scriptFiles.Length; i++)
+                LoadAssembly(scriptFiles[i]);
+
+            // Log
+            Logger.Log(string.Format("Finished loading {0} ScriptHookDotNet scripts.", ActiveScripts.Count(x => x.IsScriptHookDotNetScript)));
+        }
+
         public void LoadScript(string name)
         {
             if (!Directory.Exists(CLR.CLRBridge.IVSDKDotNetScriptsPath))
@@ -736,23 +759,27 @@ namespace Manager
                                 // Log
                                 Logger.Log(string.Format("Found ScriptHookDotNet script: {0}", scriptType.FullName));
 
-                                // Create script
+                                // Create new FoundScript object
+                                // The FoundScript object does not actually get initialized fully.
+                                // When the constructor of the GTA.Script gets called, it will handle the initialization of the FoundScript object (SHDN_LateInitializeScript function will get called).
+                                foundScript = new FoundScript(fileName, path, assembly, scriptType);
+
+                                // We need to put it in the list early for ScriptHookDotNet so the SHDN_LateInitializeScript function can find the script in the ActiveScripts list.
+                                ActiveScripts.Add(foundScript);
+
+                                // Create the script
                                 GTA.Script shdnScript = (GTA.Script)assembly.CreateInstance(scriptType.FullName);
 
                                 if (shdnScript == null)
                                 {
                                     Logger.LogWarning(string.Format("Failed to create new instance of ScriptHookDotNet script {0}.", fileName));
+                                    ActiveScripts.Remove(foundScript);
+                                    foundScript = null;
                                     return false;
                                 }
 
                                 // Reset current constructing shdn script
                                 SHDNStuff.SetCurrentScript(GTA.ScriptEvent.ctor, null);
-
-                                // Create new FoundScript object
-                                foundScript = new FoundScript(fileName, path, assembly, shdnScript, scriptType);
-
-                                // Add script to ActiveScripts list.
-                                ActiveScripts.Add(foundScript);
                             }
                         }
 
@@ -965,17 +992,6 @@ namespace Manager
             }
 
             return null;
-        }
-
-        // Console stuff
-        public void AddConsoleCommandToScript(Guid id, string command)
-        {
-            FoundScript s = GetFoundScript(id);
-            if (s != null)
-            {
-                if (!s.ConsoleCommands.Contains(command))
-                    s.ConsoleCommands.Add(command);
-            }
         }
 
         // Abort script stuff
@@ -1294,25 +1310,6 @@ namespace Manager
 
             TimeSinceLastScriptReload = DateTime.Now;
         }
-        public void LoadSHDNScripts()
-        {
-            string shdnScriptsPath = string.Format("{0}\\scripts", IVGame.GameStartupPath);
-
-            if (!Directory.Exists(shdnScriptsPath))
-                return;
-
-            // Abort currently loaded ScriptHookDotNet scripts
-            AbortScripts(ScriptType.ScriptHookDotNet, AbortReason.Manager, false);
-
-            // Load ScriptHookDotNet scripts
-            string[] scriptFiles = Directory.GetFiles(shdnScriptsPath, "*.net.dll", SearchOption.TopDirectoryOnly);
-
-            for (int i = 0; i < scriptFiles.Length; i++)
-                LoadAssembly(scriptFiles[i]);
-
-            // Log
-            Logger.Log(string.Format("Finished loading {0} ScriptHookDotNet scripts.", ActiveScripts.Count(x => x.IsScriptHookDotNetScript)));
-        }
 
         public override bool AbortScript(Guid id)
         {
@@ -1370,7 +1367,7 @@ namespace Manager
             return ActiveScripts.Count;
         }
 
-        public override bool SendScriptCommand(Guid sender, Guid toScript, string command, object[] args, out object result)
+        public override bool SendScriptCommand(Guid sender, Guid toScript, string command, object[] parameters, out object result)
         {
             // Find target script that should receive the script command
             FoundScript foundScript = ActiveScripts.Where(x => x.ID == toScript).FirstOrDefault();
@@ -1380,7 +1377,32 @@ namespace Manager
                 try
                 {
                     // Try send script command to target script
-                    if (foundScript.RaiseScriptCommandReceived(sender, command, args, out object res))
+                    if (foundScript.RaiseScriptCommandReceived(sender, command, parameters, out object res))
+                    {
+                        result = res;
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HandleScriptException(foundScript, 8d, "ScriptCommandReceived", ex);
+                }
+            }
+
+            result = null;
+            return false;
+        }
+        public override bool SendScriptCommand(Guid sender, string toScript, string command, object[] parameters, out object result)
+        {
+            // Find target script that should receive the script command
+            FoundScript foundScript = ActiveScripts.Where(x => x.Name.ToLower() == toScript.ToLower()).FirstOrDefault();
+
+            if (foundScript != null)
+            {
+                try
+                {
+                    // Try send script command to target script
+                    if (foundScript.RaiseScriptCommandReceived(sender, command, parameters, out object res))
                     {
                         result = res;
                         return true;
@@ -1510,7 +1532,23 @@ namespace Manager
 
         public override bool RegisterConsoleCommand(Guid fromScript, string name, Action<string[]> actionToExecute)
         {
-            return Console.RegisterCommand(fromScript, name, actionToExecute);
+            // Get script by id
+            FoundScript fs = GetFoundScript(fromScript);
+
+            if (fs != null)
+            {
+                string nameToLower = name.ToLower();
+
+                if (fs.ConsoleCommands.ContainsKey(nameToLower))
+                    return false;
+
+                // Add command to commands list
+                fs.ConsoleCommands.Add(nameToLower, actionToExecute);
+
+                return true;
+            }
+
+            return false;
         }
         public override bool ExecuteConsoleCommand(string name)
         {
@@ -1649,7 +1687,66 @@ namespace Manager
         }
         #endregion
 
+        #region Helper
+        public override string Helper_ConvertObjectToJsonString(object obj, bool useFormatting)
+        {
+            if (obj == null)
+                return string.Empty;
+
+            return JsonConvert.SerializeObject(obj, useFormatting ? Formatting.Indented : Formatting.None);
+        }
+        public override object Helper_ConvertJsonStringToObject(string str, Type targetType)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+                return null;
+
+            try
+            {
+                return JsonConvert.DeserializeObject(str, targetType);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        #endregion
+
         #region ScriptHookDotNet
+        public override int SHDN_LateInitializeScript(string name, object script)
+        {
+            if (script == null)
+                return 1;
+
+            FoundScript fs = GetFoundScript(name);
+
+            if (fs != null)
+            {
+                fs.LateInitialize(script);
+                return 0;
+            }
+
+            return 2;
+        }
+
+        public override object SHDN_GetScriptByName(string name)
+        {
+            FoundScript fs = GetFoundScript(name);
+
+            if (fs != null)
+                return fs.TheScriptObject;
+
+            return null;
+        }
+        public override object SHDN_GetScriptByGUID(Guid id)
+        {
+            FoundScript fs = GetFoundScript(id);
+
+            if (fs != null)
+                return fs.TheScriptObject;
+
+            return null;
+        }
+
         public override object SHDN_GetCurrentScript(int iEvent)
         {
             return SHDNStuff.GetCurrentScript((GTA.ScriptEvent)iEvent);
@@ -1674,6 +1771,15 @@ namespace Manager
         public override bool SHDN_VerboseLoggingEnabled()
         {
             return SHDNStuff.EnableVerboseLogging;
+        }
+        public override bool SHDN_IsScriptRunning(Guid id)
+        {
+            FoundScript fs = GetFoundScript(id);
+
+            if (fs != null)
+                return fs.IsScriptReady();
+
+            return false;
         }
         #endregion
 

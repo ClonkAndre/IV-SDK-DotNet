@@ -21,7 +21,7 @@ namespace Manager.UI
     {
 
         #region Variables
-        public Dictionary<string, Action<string[]>> Commands;
+        private Dictionary<string, Action<string[]>> localCommands;
 
         private List<string> inputHistory;
         private int inputHistoryIndex;
@@ -57,25 +57,6 @@ namespace Manager.UI
         {
             Logger.ClearLogItems();
         }
-
-        private void RegisterDefaultCommands()
-        {
-            RegisterCommand(Guid.Empty, "Help", (string[] args) => { HelpCommand(); });
-            RegisterCommand(Guid.Empty, "Clear", (string[] args) => { Clear(); });
-            RegisterCommand(Guid.Empty, "CheckForUpdates", (string[] args) => { Main.Instance.UpdateChecker.CheckForUpdates(false); });
-            RegisterCommand(Guid.Empty, "Autosave", (string[] args) => { Natives.DO_AUTO_SAVE(); });
-            RegisterCommand(Guid.Empty, "Save", (string[] args) => { Natives.ACTIVATE_SAVE_MENU(); });
-            RegisterCommand(Guid.Empty, "SavePlayerPos", (string[] args) => { SavePlayerPosCommand(); });
-            RegisterCommand(Guid.Empty, "AbortScripts", (string[] args) => { Main.Instance.AbortScripts(ScriptType.All, AbortReason.Manual, true); });
-            RegisterCommand(Guid.Empty, "AbortScript", (string[] args) => { AbortScriptCommand(args); });
-            RegisterCommand(Guid.Empty, "ReloadScripts", (string[] args) => { Main.Instance.LoadScripts(); });
-            RegisterCommand(Guid.Empty, "GetRunningScripts", (string[] args) => { Logger.Log(string.Format("There are currently {0} scripts running.", Main.Instance.ActiveScripts.Count.ToString()), true); });
-            RegisterCommand(Guid.Empty, "LoadScript", (string[] args) => { LoadScriptCommand(args); });
-            RegisterCommand(Guid.Empty, "StartAPI", (string[] args) => { Main.Instance.ConnectionManager.Start(true); });
-            RegisterCommand(Guid.Empty, "StopAPI", (string[] args) => { Main.Instance.ConnectionManager.Stop(); });
-            RegisterCommand(Guid.Empty, "Manager", (string[] args) => { ManagerUI.IsConfigUIOpened = !ManagerUI.IsConfigUIOpened; });
-            RegisterCommand(Guid.Empty, "Quit", (string[] args) => { QuitCommand(); });
-        }
         #endregion
 
         #region Functions
@@ -91,62 +72,71 @@ namespace Manager.UI
             return Color.FromArgb(alpha, 255, 255, 255);
         }
 
-        public bool RegisterCommand(Guid fromScript, string name, Action<string[]> actionToExecute)
+        private bool RegisterLocalCommand(string name, Action<string[]> actionToExecute)
         {
             string nameToLower = name.ToLower();
 
-            if (Commands.ContainsKey(nameToLower))
-                return false;
-            if (string.IsNullOrWhiteSpace(nameToLower))
+            if (localCommands.ContainsKey(nameToLower))
                 return false;
 
             // Add command to commands list
-            Commands.Add(nameToLower, actionToExecute);
-
-            // Add commmand to target script
-            if (fromScript != Guid.Empty)
-                Main.Instance.AddConsoleCommandToScript(fromScript, nameToLower);
+            localCommands.Add(nameToLower, actionToExecute);
 
             return true;
         }
         public bool ExecuteCommand(string name)
         {
-#if !DEBUG
-            try
+            if (string.IsNullOrWhiteSpace(name))
+                return false;
+
+            string[] args = Regex.Split(name, @"\s+");
+            string command = args[0].ToLower();
+
+            // Skip first console command argument (which is the command name and we do not care about that we want the actual arguments)
+            args = args.Skip(1).ToArray();
+
+            // Raise event and let subscribers know
+            OnConsoleCommand?.Invoke(command, args);
+
+            // Check if this is a local command
+            if (localCommands.ContainsKey(command))
             {
-#endif
-                if (string.IsNullOrWhiteSpace(name))
-                    return false;
-
-                string[] args = Regex.Split(name, @"\s+");
-                string command = args[0].ToLower();
-
-                // Skip first console command argument (which is the command name and we do not care about that we want the actual arguments)
-                args = args.Skip(1).ToArray();
-
-                // Raise event and let subscribers know
-                OnConsoleCommand?.Invoke(command, args);
-
-                if (!Commands.ContainsKey(command))
-                    return false;
-
-                // Execute command
-                Commands[command]?.Invoke(args);
-
+                // Execute local command
+                localCommands[command]?.Invoke(args);
                 return true;
-#if !DEBUG
             }
-            catch (Exception ex)
-            {
-                Logger.LogError(string.Format("[IV-SDK .NET] An error occured while executing console command '{0}'. Details: {1}", name, ex.ToString()));
-            }
-#endif
 
-            return false;
+            // Command is not a local command, go through each registered script commands
+            Main.Instance.ActiveScripts.ForEach(x =>
+            {
+                // Execute script command
+                if (x.ConsoleCommands.ContainsKey(command))
+                    x.ConsoleCommands[command]?.Invoke(args);
+            });
+
+            return true;
         }
         #endregion
 
         #region Commands
+        private void RegisterDefaultCommands()
+        {
+            RegisterLocalCommand("Help", (string[] args) => { HelpCommand(); });
+            RegisterLocalCommand("Clear", (string[] args) => { Clear(); });
+            RegisterLocalCommand("CheckForUpdates", (string[] args) => { Main.Instance.UpdateChecker.CheckForUpdates(false); });
+            RegisterLocalCommand("Autosave", (string[] args) => { Natives.DO_AUTO_SAVE(); });
+            RegisterLocalCommand("Save", (string[] args) => { Natives.ACTIVATE_SAVE_MENU(); });
+            RegisterLocalCommand("SavePlayerPos", (string[] args) => { SavePlayerPosCommand(); });
+            RegisterLocalCommand("AbortScripts", (string[] args) => { Main.Instance.AbortScripts(ScriptType.All, AbortReason.Manual, true); });
+            RegisterLocalCommand("AbortScript", (string[] args) => { AbortScriptCommand(args); });
+            RegisterLocalCommand("ReloadScripts", (string[] args) => { Main.Instance.LoadScripts(); });
+            RegisterLocalCommand("GetRunningScripts", (string[] args) => { Logger.Log(string.Format("There are currently {0} scripts running.", Main.Instance.ActiveScripts.Count.ToString()), true); });
+            RegisterLocalCommand("LoadScript", (string[] args) => { LoadScriptCommand(args); });
+            RegisterLocalCommand("StartAPI", (string[] args) => { Main.Instance.ConnectionManager.Start(true); });
+            RegisterLocalCommand("StopAPI", (string[] args) => { Main.Instance.ConnectionManager.Stop(); });
+            RegisterLocalCommand("Manager", (string[] args) => { ManagerUI.IsConfigUIOpened = !ManagerUI.IsConfigUIOpened; });
+            RegisterLocalCommand("Quit", (string[] args) => { QuitCommand(); });
+        }
         private void HelpCommand()
         {
             Logger.Log("- - - - - - - Commands - - - - - - -", true);
@@ -252,7 +242,7 @@ namespace Manager.UI
             inputHistory = new List<string>();
 
             // Create commands dictionary and register default commands
-            Commands = new Dictionary<string, Action<string[]>>();
+            localCommands = new Dictionary<string, Action<string[]>>();
             RegisterDefaultCommands();
         }
         #endregion
@@ -274,7 +264,7 @@ namespace Manager.UI
                 ImGuiIV.SetWindowSize(new Vector2(vp.Size.X - 10f, vp.Size.Y / 2.5f), eImGuiCond.FirstUseEver);
             }
 
-            // Log ListBox
+            // Console log
             if (ImGuiIV.BeginListBox("##IVSDKDotNetConsoleLogLB", new Vector2(ImGuiIV.FloatMin, 2f * -ImGuiIV.GetTextLineHeightWithSpacing())))
             {
                 // Get logged items
@@ -293,7 +283,7 @@ namespace Manager.UI
                 ImGuiIV.EndListBox();
             }
 
-            // Input
+            // Send command button
             if (ImGuiIV.Button("Send") || ImGuiIV.IsKeyReleased(eImGuiKey.ImGuiKey_Enter))
             {
                 if (!string.IsNullOrWhiteSpace(input))
@@ -308,12 +298,49 @@ namespace Manager.UI
             ImGuiIV.SameLine();
             ImGuiIV.SetNextItemWidth(-1f);
 
+            // Console input history
+            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_UpArrow, false))
+            {
+                if (inputHistory.Count != 0)
+                {
+                    inputHistoryIndex++;
+                    if (inputHistoryIndex > inputHistory.Count - 1)
+                        inputHistoryIndex = 0;
+
+                    input = inputHistory[inputHistoryIndex];
+                }
+            }
+            else if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_DownArrow, false))
+            {
+                if (inputHistory.Count != 0)
+                {
+                    inputHistoryIndex--;
+                    if (inputHistoryIndex < 0)
+                        inputHistoryIndex = inputHistory.Count - 1;
+
+                    input = inputHistory[inputHistoryIndex];
+                }
+            }
+
+            // Delete all current text entered in the console text field
+            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_Delete, false))
+                input = string.Empty;
+
+            // Insert the text that is currently saved in clipboard into the text field
+            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_Insert, false))
+            {
+                string clipboardText = Clipboard.GetText();
+                if (!string.IsNullOrWhiteSpace(clipboardText))
+                    input += clipboardText;
+            }
+
             if (wasOpened)
             {
                 ImGuiIV.SetKeyboardFocusHere();
                 wasOpened = false;
             }
 
+            // Input field
             ImGuiIV.InputText("##inputTextBox", ref input);
 
             ImGuiIV.End();
@@ -321,55 +348,6 @@ namespace Manager.UI
 
         public void KeyDown(KeyEventArgs e)
         {
-            // Navigation & Input
-            if (IsConsoleOpen)
-            {
-
-                // Navigation
-                switch (e.KeyCode)
-                {
-                    case Keys.Up:
-                        if (inputHistory.Count != 0)
-                        {
-                            inputHistoryIndex++;
-                            if (inputHistoryIndex > inputHistory.Count - 1)
-                                inputHistoryIndex = 0;
-
-                            input = inputHistory[inputHistoryIndex];
-                        }
-                        break;
-                    case Keys.Down:
-                        if (inputHistory.Count != 0)
-                        {
-                            inputHistoryIndex--;
-                            if (inputHistoryIndex < 0)
-                                inputHistoryIndex = inputHistory.Count - 1;
-
-                            input = inputHistory[inputHistoryIndex];
-                        }
-                        break;
-                }
-
-                // Input
-                switch (e.KeyCode)
-                {
-
-                    // Delete stuff
-                    case Keys.Delete: // Delete all current text entered in the console text field
-                        input = string.Empty;
-                        break;
-
-                    // Add stuff
-                    case Keys.Insert: // Insert the text that is currently saved in clipboard into the text field
-                        string clipboardText = Clipboard.GetText();
-                        if (!string.IsNullOrWhiteSpace(clipboardText))
-                            input += clipboardText;
-                        break;
-
-                }
-
-            }
-
             // Open/Close Console
             if (e.KeyCode == Config.ConsoleOpenCloseKey)
             {

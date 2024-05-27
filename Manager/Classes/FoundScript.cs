@@ -33,7 +33,7 @@ namespace Manager.Classes
 
         // Lists
         public List<AdvancedTask> ScriptTasks;
-        public List<string> ConsoleCommands;
+        public Dictionary<string, Action<string[]>> ConsoleCommands;
         public Dictionary<string, BoundPhoneNumber> BoundPhoneNumbers;
 
         // Dear ImGui
@@ -91,15 +91,22 @@ namespace Manager.Classes
             TheScriptObject = scriptObject;
             EntryPoint = entryPoint;
             PublicFields = EntryPoint.GetFields(BindingFlags.Instance | BindingFlags.Public);
-            
+
             // Lists
             // Initializing all lists with a Capacity of 8 so they don't need to resize for every new item that is added to them (Aslong as they don't reach the set Capacity).
             ScriptTasks = new List<AdvancedTask>(8);
-            ConsoleCommands = new List<string>(8);
+            ConsoleCommands = new Dictionary<string, Action<string[]>>(8);
             BoundPhoneNumbers = new Dictionary<string, BoundPhoneNumber>(8);
             Textures = new List<IntPtr>(8);
 
             Running = true;
+        }
+        public FoundScript(string name, string fullPath, Assembly theAssembly, Type entryPoint)
+        {
+            Name = name;
+            FullPath = fullPath;
+            TheAssembly = theAssembly;
+            EntryPoint = entryPoint;
         }
         #endregion
 
@@ -464,6 +471,21 @@ namespace Manager.Classes
         #endregion
 
         #region Methods
+        public void LateInitialize(object scriptObject)
+        {
+            TheScriptObject = scriptObject;
+            PublicFields = EntryPoint.GetFields(BindingFlags.Instance | BindingFlags.Public);
+
+            // Lists
+            // Initializing all lists with a Capacity of 8 so they don't need to resize for every new item that is added to them (Aslong as they don't reach the set Capacity).
+            ScriptTasks = new List<AdvancedTask>(8);
+            ConsoleCommands = new Dictionary<string, Action<string[]>>(8);
+            BoundPhoneNumbers = new Dictionary<string, BoundPhoneNumber>(8);
+            Textures = new List<IntPtr>(8);
+
+            Running = true;
+        }
+
         public void Abort(AbortReason reason, bool showMessage)
         {
             if (cleanUpTask != null)
@@ -482,13 +504,6 @@ namespace Manager.Classes
             ClearImGuiDrawCalls();
 
             // Delete all console commands registered by this script
-            for (int i = 0; i < ConsoleCommands.Count; i++)
-            {
-                string command = ConsoleCommands[i];
-
-                if (Main.Instance.Console.Commands.ContainsKey(command))
-                    Main.Instance.Console.Commands.Remove(command);
-            }
             ConsoleCommands.Clear();
 
             // Delete all phone numbers registered by this script

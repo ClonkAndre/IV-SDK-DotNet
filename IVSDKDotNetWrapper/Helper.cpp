@@ -91,11 +91,6 @@ namespace IVSDKDotNet
 		return res;
 	}
 
-	float Helper::Vector2Length(float X, float Y)
-	{
-		return (float)System::Math::Sqrt((X * X) + (Y * Y));
-	}
-
 	Keys Helper::RemoveRedundantKeyModifiers(Keys key)
 	{
 		switch (key & Keys::KeyCode) {
@@ -180,6 +175,30 @@ namespace IVSDKDotNet
 		}
 
 		return false;
+	}
+
+	String^ Helper::ConvertObjectToJsonString(Object^ obj, bool useFormatting)
+	{
+		if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
+			return IVSDKDotNet::Manager::ManagerScript::s_Instance->Helper_ConvertObjectToJsonString(obj, useFormatting);
+
+		return String::Empty;
+	}
+
+	generic<typename T>
+	T Helper::ConvertJsonStringToObject(String^ str)
+	{
+		if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
+		{
+			Object^ res = IVSDKDotNet::Manager::ManagerScript::s_Instance->Helper_ConvertJsonStringToObject(str, T::typeid);
+
+			if (!res)
+				return T();
+
+			return (T)res;
+		}
+
+		return T();
 	}
 
 	// =========================================================================

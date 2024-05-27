@@ -368,6 +368,24 @@ namespace IVSDKDotNet
 		/// <param name="result">The object returned by the target script.</param>
 		/// <returns>If successful, true is returned. Otherwise, false.</returns>
 		bool SendScriptCommand(Script^ toScript, String^ command, array<Object^>^ args, [OutAttribute] Object^% result);
+		/// <summary>
+		/// Allows you to communicate with other scripts.
+		/// </summary>
+		/// <param name="toScript">The ID of the script to which the command should be send to.</param>
+		/// <param name="command">The command to send to the script.</param>
+		/// <param name="args">The arguments to send to the script with this command.</param>
+		/// <param name="result">The object returned by the target script.</param>
+		/// <returns>If successful, true is returned. Otherwise, false.</returns>
+		bool SendScriptCommand(Guid toScript, String^ command, array<Object^>^ args, [OutAttribute] Object^% result);
+		/// <summary>
+		/// Allows you to communicate with other scripts.
+		/// </summary>
+		/// <param name="toScript">The name of the script to which the command should be send to.</param>
+		/// <param name="command">The command to send to the script.</param>
+		/// <param name="args">The arguments to send to the script with this command.</param>
+		/// <param name="result">The object returned by the target script.</param>
+		/// <returns>If successful, true is returned. Otherwise, false.</returns>
+		bool SendScriptCommand(String^ toScript, String^ command, array<Object^>^ args, [OutAttribute] Object^% result);
 
 		/// <summary>
 		/// The unique ID of this script.
@@ -381,7 +399,8 @@ namespace IVSDKDotNet
 		/// <summary>
 		/// Gets the current AppDomain.
 		/// </summary>
-		property AppDomain^ ScriptDomain {
+		property AppDomain^ ScriptDomain
+		{
 			public:		AppDomain^ get() { return m_AppDomain; }
 			internal:	void set(AppDomain^ value) { m_AppDomain = value; }
 		}
@@ -685,6 +704,7 @@ namespace IVSDKDotNet
 			virtual int GetActiveScriptsCount()					abstract;
 
 			virtual bool SendScriptCommand(Guid sender, Guid toScript, String^ command, array<Object^>^ parameters, [OutAttribute] Object^% result) abstract;
+			virtual bool SendScriptCommand(Guid sender, String^ toScript, String^ command, array<Object^>^ parameters, [OutAttribute] Object^% result) abstract;
 
 			// Task
 			virtual Guid StartNewTask(Guid forScript, Func<Object^>^ actionToExecute, Action<Object^>^ continueWithAction)	abstract;
@@ -699,13 +719,23 @@ namespace IVSDKDotNet
 			virtual void Direct3D9_RegisterScriptTexture(Script^ forScript, IntPtr ptr)			abstract;
 			virtual void Direct3D9_UnregisterScriptTexture(Script^ forScript, IntPtr ptr)		abstract;
 
+			// Helper
+			virtual String^ Helper_ConvertObjectToJsonString(Object^ obj, bool useFormatting) abstract;
+			virtual Object^ Helper_ConvertJsonStringToObject(String^ str, Type^ targetType) abstract;
+
 			// ScriptHookDotNet
+			virtual int SHDN_LateInitializeScript(String^ name, Object^ script) abstract;
+
+			virtual Object^ SHDN_GetScriptByName(String^ name) abstract;
+			virtual Object^ SHDN_GetScriptByGUID(Guid id) abstract;
+
 			virtual Object^ SHDN_GetCurrentScript(int iEvent) abstract;
 			virtual void SHDN_SetCurrentScript(int iEvent, Object^ script) abstract;
 
 			virtual void SHDN_AddFont(Object^ obj) abstract;
 
 			virtual bool SHDN_VerboseLoggingEnabled() abstract;
+			virtual bool SHDN_IsScriptRunning(Guid id) abstract;
 
 		public:
 			ManagerScript();

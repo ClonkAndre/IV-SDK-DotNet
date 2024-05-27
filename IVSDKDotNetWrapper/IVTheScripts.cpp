@@ -132,6 +132,8 @@ namespace IVSDKDotNet
             throw gcnew System::ArgumentOutOfRangeException("index", index, "The index must be 0 or greater, and below or equal 65535!");
         if (value == nullptr)
             throw gcnew System::ArgumentNullException("value");
+        if (String::IsNullOrWhiteSpace(value))
+            throw gcnew System::ArgumentNullException("value");
 
         try
         {

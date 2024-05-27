@@ -49,23 +49,14 @@
     <Filter Include="Header Files\ImGuiIV\ImGui">
       <UniqueIdentifier>{8c53ac43-516b-4850-9364-5bf0356de364}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\LocalStuff">
+      <UniqueIdentifier>{857f4659-8521-45c1-9c7f-e9a89a21d702}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LocalStuff">
+      <UniqueIdentifier>{053f7016-16dc-46ea-83a1-cb56847b62e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CLRBridge.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="defines.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Native.h">
       <Filter>Header Files\Native</Filter>
     </ClInclude>
@@ -87,17 +78,11 @@
     <ClInclude Include="rage.h">
       <Filter>Header Files\RAGE</Filter>
     </ClInclude>
-    <ClInclude Include="SettingsFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="KeyWatchDog.h">
       <Filter>Header Files\Input</Filter>
     </ClInclude>
     <ClInclude Include="Helper.h">
       <Filter>Header Files\Helper</Filter>
-    </ClInclude>
-    <ClInclude Include="Logger.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DirectInputHook.h">
       <Filter>Header Files\Hooks</Filter>
@@ -110,9 +95,6 @@
     </ClInclude>
     <ClInclude Include="ImGuiStuff.h">
       <Filter>Header Files\ImGuiIV</Filter>
-    </ClInclude>
-    <ClInclude Include="Attributes.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IVAudEngine.h">
       <Filter>Header Files</Filter>
@@ -576,40 +558,43 @@
     <ClInclude Include="ImGui\imstb_truetype.h">
       <Filter>Header Files\ImGuiIV\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="Attributes.h">
+      <Filter>Header Files\LocalStuff</Filter>
+    </ClInclude>
+    <ClInclude Include="CLRBridge.h">
+      <Filter>Header Files\LocalStuff</Filter>
+    </ClInclude>
+    <ClInclude Include="defines.h">
+      <Filter>Header Files\LocalStuff</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsFile.h">
+      <Filter>Header Files\LocalStuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Header Files\LocalStuff</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files\LocalStuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts.h">
+      <Filter>Header Files\LocalStuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files\LocalStuff</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AssemblyInfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="pch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CLRBridge.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EventArgs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MemoryAccess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="rage.cpp">
       <Filter>Source Files\RAGE</Filter>
     </ClCompile>
-    <ClCompile Include="SettingsFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="KeyWatchDog.cpp">
       <Filter>Source Files\Input</Filter>
     </ClCompile>
     <ClCompile Include="Helper.cpp">
       <Filter>Source Files\Helper</Filter>
-    </ClCompile>
-    <ClCompile Include="Logger.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\imgui_demo.cpp">
       <Filter>Source Files\ImGui</Filter>
@@ -1063,6 +1048,27 @@
     </ClCompile>
     <ClCompile Include="ImGui\imgui_extensions.cpp">
       <Filter>Source Files\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="AssemblyInfo.cpp">
+      <Filter>Source Files\LocalStuff</Filter>
+    </ClCompile>
+    <ClCompile Include="CLRBridge.cpp">
+      <Filter>Source Files\LocalStuff</Filter>
+    </ClCompile>
+    <ClCompile Include="EventArgs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsFile.cpp">
+      <Filter>Source Files\LocalStuff</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>Source Files\LocalStuff</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Source Files\LocalStuff</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripts.cpp">
+      <Filter>Source Files\LocalStuff</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
