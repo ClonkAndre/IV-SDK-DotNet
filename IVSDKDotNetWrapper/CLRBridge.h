@@ -49,6 +49,23 @@ namespace CLR
 		}
 
 		/// <summary>
+		/// Only set to true if the IV-SDK .NET ScriptHookDotNet mod loader is activated AND the user installed the old ScriptHookDotNet to avoid conflicts.
+		/// </summary>
+		static property bool DisableScriptHookDotNetLoading
+		{
+		public:
+			bool get()
+			{
+				return m_bDisableScriptHookDotNetLoading;
+			}
+		internal:
+			void set(bool value)
+			{
+				m_bDisableScriptHookDotNetLoading = value;
+			}
+		}
+
+		/// <summary>
 		/// Gets the current version of IV-SDK .NET
 		/// </summary>
 		static property String^ Version
@@ -203,8 +220,9 @@ namespace CLR
 	private:
 		static bool m_bIsBridgeDisabled = false;
 		static bool m_bCanTerminate = false;
+		static bool m_bDisableScriptHookDotNetLoading = false;
 
-		static String^ m_sVersion = "1.3";
+		static String^ m_sVersion = "1.4";
 		static String^ m_sLogFileName;
 		static String^ m_sIVSDKDotNetPath;
 		static String^ m_sIVSDKDotNetBinaryPath;

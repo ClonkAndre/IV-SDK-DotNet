@@ -24,7 +24,7 @@ LRESULT __stdcall WndProcHook(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 	// Invoke ImGui WndProc
 	if (ImGuiDraw::OnWndProc(hWnd, uMsg, wParam, lParam))
-		return true;
+		return 1L;
 
 	// Call the original function
 	return CallWindowProc(originalWndProc, hWnd, uMsg, wParam, lParam);
@@ -91,32 +91,6 @@ namespace CLR
 			goto ERR;
 		}
 
-		if (File::Exists("ScriptHookDotNet.dll"))
-		{
-			switch (MessageBox::Show("We've detected that you have a ScriptHookDotNet.dll file within your main directory of GTA IV. " + 
-				"Since version 1.2 of IV-SDK .NET, a modified version of ScriptHookDotNet.dll is already included with IV-SDK .NET, and the one you have in your main directory might conflict with the one already included. " +
-				"Would you like to close the game now and remove the old ScriptHookDotNet?", "IV-SDK .NET", MessageBoxButtons::YesNo, MessageBoxIcon::Warning))
-			{
-				case DialogResult::Yes:
-					Environment::Exit(0);
-					break;
-			}
-		}
-		else
-		{
-			if (File::Exists("ScriptHookDotNet.asi"))
-			{
-				switch (MessageBox::Show("We've detected that you have a ScriptHookDotNet.asi file within your main directory of GTA IV. " +
-					"Since version 1.2 of IV-SDK .NET, it can now load ScriptHookDotNet mods too and it makes the old ScriptHookDotNet obsolete! " +
-					"Would you like to close the game now and remove the old ScriptHookDotNet?", "IV-SDK .NET", MessageBoxButtons::YesNo, MessageBoxIcon::Warning))
-				{
-					case DialogResult::Yes:
-						Environment::Exit(0);
-						break;
-				}
-			}
-		}
-
 		// Initialize Memory Access stuff
 		MemoryAccess::Initialise(version, baseAddress);
 
@@ -128,18 +102,6 @@ namespace CLR
 			Sleep(100);
 		while (rage::g_pDirect3DDevice == nullptr)
 			Sleep(100);
-
-		// Get the ImGui style
-		String^ style = Settings->GetValue("Style", "ImGuiStyle", "dark")->ToLower();
-
-		if (style == "dark")
-			ImGuiIV::SelectedStyle = 0;
-		else if (style == "classic")
-			ImGuiIV::SelectedStyle = 1;
-		else if (style == "light")
-			ImGuiIV::SelectedStyle = 2;
-		else
-			ImGuiIV::SelectedStyle = 0;
 
 		// Initialize stuff
 		MH_STATUS minHookStatus = MH_Initialize();
@@ -153,8 +115,9 @@ namespace CLR
 		if (DirectInputHook::Initialize())
 			Logger::LogDebug("[DirectInputHook] Done!");
 
-		originalWndProc = (WNDPROC)SetWindowLongPtr(FindWindow(L"grcWindow", L"GTAIV"), GWLP_WNDPROC, (LONG_PTR)WndProcHook);
-
+		// FindWindow(L"grcWindow", L"GTAIV")
+		originalWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr((HWND)TheGTAProcess->MainWindowHandle.ToPointer(), GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WndProcHook)));
+		
 		// Enable hooks
 		minHookStatus = MH_EnableHook(MH_ALL_HOOKS);
 
@@ -163,6 +126,36 @@ namespace CLR
 
 		// 300 ms was too little out of the sudden :thinking:
 		Sleep(1100);
+
+		// Do late checks
+		if (Settings->GetBoolean("Scripts", "LoadScriptHookDotNetScripts", true))
+		{
+			if (File::Exists("ScriptHookDotNet.dll") || File::Exists("ScriptHookDotNet.asi"))
+			{
+				String^ msg = String::Format("Incompability detected!{0}{0}"
+					+ "Please remove the old ScriptHookDotNet if you want to use the ScriptHookDotNet mod loader from IV-SDK .NET!{0}{0}"
+					+ "The files that would need to be removed: ScriptHookDotNet.dll and ScriptHookDotNet.asi{0}{0}"
+					+ "- Why am i seeing this message?{0}"
+					+ "You are seeing this message because the 'LoadScriptHookDotNetScripts' option in the IV-SDK .NET config file is enabled, which enables the experimental ScriptHookDotNet mod loader of IV-SDK .NET. For more information about this, open the Console and type in 'wiki' to get to the IV-SDK .NET GitHub Wiki page.{0}{0}"
+					+ "Would you like to close the game now and remove the old ScriptHookDotNet?", Environment::NewLine);
+
+				switch (MessageBox::Show(msg,
+					"IV-SDK .NET",
+					MessageBoxButtons::YesNo,
+					MessageBoxIcon::Warning,
+					MessageBoxDefaultButton::Button1,
+					MessageBoxOptions::DefaultDesktopOnly))
+				{
+					case DialogResult::Yes:
+						Environment::Exit(0);
+						break;
+					case DialogResult::No:
+						DisableScriptHookDotNetLoading = true;
+						MessageBox::Show("Disabled the IV-SDK .NET ScriptHookDotNet mod loader to avoid conflicts.", "IV-SDK .NET", MessageBoxButtons::OK, MessageBoxIcon::Warning, MessageBoxDefaultButton::Button1, MessageBoxOptions::DefaultDesktopOnly);
+						break;
+				}
+			}
+		}
 
 		// Load manager script
 		try
@@ -228,10 +221,11 @@ namespace CLR
 #endif // _DEBUG
 		}
 
-ERR:
 
+ERR:
 		CLRBridge::IsBridgeDisabled = true;
-		SHOW_WARN_MESSAGE("IV-SDK .NET got disabled due to errors while trying to load it. Check the 'IVSDKDotNet.log' file, to find out what went wrong.");
+		Logger::ForceCreateLogFile();
+		MessageBox::Show("IV-SDK .NET got disabled due to errors while trying to load it. Check the 'IVSDKDotNet.log' file, to find out what went wrong.", "IV-SDK .NET", MessageBoxButtons::OK, MessageBoxIcon::Warning);
 	}
 
 	void CLRBridge::InvokeTickEvents()

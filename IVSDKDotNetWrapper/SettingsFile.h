@@ -83,6 +83,9 @@ namespace IVSDKDotNet
 		/// </summary>
 		void Clear();
 
+		array<String^>^ GetSectionNames();
+		array<String^>^ GetValueNames(String^ section);
+
 		/// <summary>
 		/// Adds a new section to the ini file.
 		/// </summary>

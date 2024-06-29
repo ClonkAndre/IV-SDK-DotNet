@@ -7,6 +7,7 @@ public:
 	static inline auto& InterpolationValue = AddressSetter::GetRef<float>(0x123950C, 0xF11D70);
 	static inline auto& WeatherTypeInList = AddressSetter::GetRef<int32_t>(0x1239530, 0xF11D94);
 	static inline auto& Rain = AddressSetter::GetRef<float>(0x12394E4, 0xF11D48);
+	static inline auto& ForcedWind = AddressSetter::GetRef<float>(0x12394CC, 0xF11D30);
 
 	static void ForceWeatherNow(int Type)
 	{

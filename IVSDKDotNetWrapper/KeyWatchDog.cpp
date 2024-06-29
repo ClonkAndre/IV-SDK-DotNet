@@ -5,7 +5,7 @@ namespace IVSDKDotNet
 {
 
 	// - - - Constructor / Destructor - - -
-	KeyWatchDog::KeyWatchDog()
+	KeyWatchDog::KeyWatchDog(String^ tag)
 	{
 		keystate = gcnew array<bool>(256);
 		bShift = false;
@@ -13,6 +13,7 @@ namespace IVSDKDotNet
 		bAlt = false;
 		pModifier = Keys::None;
 		ckeystate = (BYTE*)malloc(256);
+		pTag = tag;
 
 		if (ckeystate == NULL)
 			throw gcnew System::OutOfMemoryException();

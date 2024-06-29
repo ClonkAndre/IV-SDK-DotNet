@@ -40,8 +40,9 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="ScriptHookDotNet">
-      <HintPath>..\..\ScriptHookDotNet-for-IVSDKDotNet\Release\ScriptHookDotNet.dll</HintPath>
+    <Reference Include="ScriptHookDotNet, Version=1.7.2.2, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\..\ScriptHookDotNet-for-IVSDKDotNet\Debug\ScriptHookDotNet.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -68,6 +69,11 @@
     <Compile Include="Classes\Json\Script\ScriptConfig.cs" />
     <Compile Include="Classes\Reflection.cs" />
     <Compile Include="Classes\SHDNStuff.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="UI\ManagerUI.cs" />
     <Compile Include="UI\ConsoleUI.cs" />
     <Compile Include="Enums.cs" />
@@ -112,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <Resource Include="Resources\ivsdkdotnet_logo_small.bin" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IVSDKDotNetWrapper\IVSDKDotNetWrapper.vcxproj">
@@ -119,6 +126,11 @@
       <Name>IVSDKDotNetWrapper</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

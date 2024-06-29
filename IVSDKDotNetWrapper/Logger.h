@@ -3,7 +3,6 @@
 public ref class Logger
 {
 public:
-
 	value struct tLogItem
 	{
 	public:
@@ -77,6 +76,7 @@ public:
 		bool m_AddInConsole;
 	};
 
+public:
 	/// <summary>
 	/// Logs a message to the IVSDKDotNet.log file and also shows it in the IV-SDK .NET Console (if set) without a specific style.
 	/// </summary>
@@ -131,9 +131,9 @@ public:
 
 internal:
 	static void Initialize();
+	static void ForceCreateLogFile();
 
 private:
-	static const int m_MaxTextLengthUntilSplit = 140;
 	static array<String^>^ m_SplitStr = gcnew array<String^>(1) { Environment::NewLine };
 	static List<tLogItem>^ m_LogItems;
 

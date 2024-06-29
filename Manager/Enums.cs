@@ -107,6 +107,7 @@
     public enum NotificationType
     {
         Default,
+        Warning,
         Error
     }
 
@@ -114,7 +115,8 @@
     {
         All,
         IVSDKDotNet,
-        ScriptHookDotNet
+        ScriptHookDotNet,
+        Unknown
     }
 
 }

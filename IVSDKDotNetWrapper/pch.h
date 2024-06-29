@@ -81,8 +81,6 @@ using namespace System::Text;
 // Important
 #include "CLRBridge.h"
 
-
-
 // - - - IV-SDK STUFF - - -
 
 #include "IVPlayerInfo.h"

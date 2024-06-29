@@ -5361,6 +5361,119 @@ namespace IVSDKDotNet
 			nm309_useZeroPoseWhenNotPointing,
 		};
 
+		public enum class ePhoneState : uint32_t
+		{
+			GAME_MODE_DEATHMATCH = 0,
+			GAME_MODE_TEAM_DEATHMATCH = 1,
+			GAME_MODE_MAFIYA_WORK = 2,
+			GAME_MODE_TEAM_MAFIYA_WORK = 3,
+			GAME_MODE_TEAM_CAR_JACK_CITY = 4,
+			GAME_MODE_CAR_JACK_CITY = 5,
+			GAME_MODE_RACE = 6,
+			GAME_MODE_GTA_RACE = 7,
+			GAME_MODE_PARTY_MODE = 8,
+			GAME_MODE_UNKNOWN_9 = 9,
+			GAME_MODE_COPS_AND_CROOKS = 10,
+			GAME_MODE_UNKNOWN_11 = 11,
+			GAME_MODE_TURF_WAR = 12,
+			GAME_MODE_DEAL_BREAKER = 13,
+			GAME_MODE_HANGMANS_NOOSE = 14,
+			GAME_MODE_BOMB_DA_BASE_II = 15,
+
+			GAME_MODE_FREE_MODE = 16,
+
+			// TBoGT
+			GAME_MODE_TBOGT_DEATHMATCH = 26,
+			GAME_MODE_TBOGT_TEAM_DEATHMATCH = 27,
+			GAME_MODE_TBOGT_RACE = 28,
+			GAME_MODE_TBOGT_GTA_RACE = 29,
+
+			// TLaD
+			GAME_MODE_TLAD_DEATHMATCH = 24,
+			GAME_MODE_TLAD_TEAM_DEATHMATCH = 21,
+			GAME_MODE_TLAD_RACE = 20,
+			GAME_MODE_TLAD_CLUB_BUSINESS = 19,
+			GAME_MODE_TLAD_LONE_WOLF_BIKER = 23,
+			GAME_MODE_TLAD_CHOPPER_VS_CHOPPER = 17,
+			GAME_MODE_TLAD_WITNESS_PROTECTION = 18,
+			GAME_MODE_TLAD_OWN_THE_CITY = 22,
+
+			Hidden = 1000,
+			Hiding = 1001,
+
+			StartMenu = 1002,
+			KeypadMenu = 1003,
+			CallingNumber = 1005,
+			CalledNumberBusy = 1007,
+			CalledNumberConnected = 1009,
+
+			MainMenu = 1011,
+
+			PhonebookMenu = 1012,
+			PhonebookContactOptions = 1013,
+
+			MessagesMenu = 1014,
+			OpenedMessageMenu = 1015,
+			OpenedMessageOptionsMenu = 1016,
+
+			OrganizerMenu = 1017,
+
+			MultiplayerStartGameConfirmMessageMenu = 1036,
+			MultiplayerNoGFWLConnectMessageMenu = 1041,
+			MultiplayerMenu = 1047,
+			MultiplayerGameModeSelectionMenu = 1049,
+			MultiplayerNetworkTypeSelectionMenu = 1050,
+			MultiplayerNetworkModeMenu = 1052,
+			MultiplayerNetworkPrivateSlotsMenu = 1053,
+
+			OptionsMenu = 1026,
+			OptionsRingtypeMenu = 1027,
+			OptionsRingtoneMenu = 1028,
+			OptionsSleepModeConfirmMessageMenu = 1030,
+
+			VideoEditorConfirmMessageMenu = 1032,
+
+			CheatsMenu = 1035,
+		};
+
+		/// <summary>
+		/// A bunch of different results.
+		/// </summary>
+		public enum class eResult : unsigned long
+		{
+			/// <summary>
+			/// All good!
+			/// </summary>
+			OK,
+			/// <summary>
+			/// Something unknown happened.
+			/// </summary>
+			Unknown,
+			/// <summary>
+			/// The given data is invalid.
+			/// </summary>
+			InvalidData,
+			/// <summary>
+			/// The given is invalid.
+			/// </summary>
+			InvalidName,
+			/// <summary>
+			/// ImGui is not initialized.
+			/// </summary>
+			ImGuiNotInitialized,
+			/// <summary>
+			/// Something is already added, a function already completed or whatever.
+			/// </summary>
+			Already,
+
+			// D3DERR
+			D3DERR_NotAvailable = D3DERR_NOTAVAILABLE,
+			D3DERR_OutOfVideomemory = D3DERR_OUTOFVIDEOMEMORY,
+			D3DERR_InvalidCall = D3DERR_INVALIDCALL,
+			D3DXERR_InvalidData = _D3DXERR::D3DXERR_INVALIDDATA,
+			OutOfMemory = E_OUTOFMEMORY,
+		};
+
 		// ImGui
 		public enum class eImDrawFlags
 		{
@@ -5574,13 +5687,7 @@ namespace IVSDKDotNet
 			RouteMask_ = RouteFocused | RouteGlobal | RouteGlobalLow | RouteGlobalHigh, // _Always not part of this!
 			RouteAlways = 1 << 12,  // Do not register route, poll keys directly.
 			RouteUnlessBgFocused = 1 << 13,  // Global routes will not be applied if underlying background/void is focused (== no Dear ImGui windows are focused). Useful for overlay applications.
-			RouteExtraMask_ = RouteAlways | RouteUnlessBgFocused,
-
-			// [Internal] Mask of which function support which flags
-			SupportedByIsKeyPressed = Repeat | RepeatRateMask_,
-			SupportedByShortcut = Repeat | RepeatRateMask_ | RouteMask_ | RouteExtraMask_,
-			SupportedBySetKeyOwner = LockThisFrame | LockUntilRelease,
-			SupportedBySetItemKeyOwner = SupportedBySetKeyOwner | CondMask_,
+			RouteExtraMask_ = RouteAlways | RouteUnlessBgFocused
 		};
 		public enum class eImGuiMouseButton
 		{
@@ -5623,6 +5730,127 @@ namespace IVSDKDotNet
 			// [Internal]
 			MouseButtonMask_ = MouseButtonLeft | MouseButtonRight | MouseButtonMiddle,
 			MouseButtonDefault_ = MouseButtonLeft,
+		};
+
+		public enum class eImGuiHoveredFlags
+		{
+			/// <summary>
+			/// Return true if directly over the item/window, not obstructed by another window, not obstructed by an active popup or modal blocking inputs under them.
+			/// </summary>
+			None = 0,
+			/// <summary>
+			/// IsWindowHovered() only: Return true if any children of the window is hovered
+			/// </summary>
+			ChildWindows = 1 << 0,
+			/// <summary>
+			/// IsWindowHovered() only: Test from root window (top most parent of the current hierarchy)
+			/// </summary>
+			RootWindow = 1 << 1,
+			/// <summary>
+			/// IsWindowHovered() only: Return true if any window is hovered
+			/// </summary>
+			AnyWindow = 1 << 2,
+			/// <summary>
+			/// IsWindowHovered() only: Do not consider popup hierarchy (do not treat popup emitter as parent of popup) (when used with _ChildWindows or _RootWindow)
+			/// </summary>
+			NoPopupHierarchy = 1 << 3,
+			/// <summary>
+			/// IsWindowHovered() only: Consider docking hierarchy (treat dockspace host as parent of docked window) (when used with _ChildWindows or _RootWindow)
+			/// </summary>
+			DockHierarchy = 1 << 4,
+			/// <summary>
+			/// Return true even if a popup window is normally blocking access to this item/window
+			/// </summary>
+			AllowWhenBlockedByPopup = 1 << 5,
+			//ImGuiHoveredFlags_AllowWhenBlockedByModal     = 1 << 6,   // Return true even if a modal popup window is normally blocking access to this item/window. FIXME-TODO: Unavailable yet.
+			
+			/// <summary>
+			/// Return true even if an active item is blocking access to this item/window. Useful for Drag and Drop patterns.
+			/// </summary>
+			AllowWhenBlockedByActiveItem = 1 << 7,
+			/// <summary>
+			/// IsItemHovered() only: Return true even if the item uses AllowOverlap mode and is overlapped by another hoverable item.
+			/// </summary>
+			AllowWhenOverlappedByItem = 1 << 8,
+			/// <summary>
+			/// IsItemHovered() only: Return true even if the position is obstructed or overlapped by another window.
+			/// </summary>
+			AllowWhenOverlappedByWindow = 1 << 9,
+			/// <summary>
+			/// IsItemHovered() only: Return true even if the item is disabled
+			/// </summary>
+			AllowWhenDisabled = 1 << 10,
+			/// <summary>
+			/// IsItemHovered() only: Disable using gamepad/keyboard navigation state when active, always query mouse
+			/// </summary>
+			NoNavOverride = 1 << 11,
+			AllowWhenOverlapped = AllowWhenOverlappedByItem | AllowWhenOverlappedByWindow,
+			RectOnly = AllowWhenBlockedByPopup | AllowWhenBlockedByActiveItem | AllowWhenOverlapped,
+			RootAndChildWindows = RootWindow | ChildWindows,
+
+			// Tooltips mode
+			// - typically used in IsItemHovered() + SetTooltip() sequence.
+			// - this is a shortcut to pull flags from 'style.HoverFlagsForTooltipMouse' or 'style.HoverFlagsForTooltipNav' where you can reconfigure desired behavior.
+			//   e.g. 'TooltipHoveredFlagsForMouse' defaults to 'ImGuiHoveredFlags_Stationary | ImGuiHoveredFlags_DelayShort'.
+			// - for frequently actioned or hovered items providing a tooltip, you want may to use ImGuiHoveredFlags_ForTooltip (stationary + delay) so the tooltip doesn't show too often.
+			// - for items which main purpose is to be hovered, or items with low affordance, or in less consistent apps, prefer no delay or shorter delay.
+			
+			/// <summary>
+			/// Shortcut for standard flags when using IsItemHovered() + SetTooltip() sequence.
+			/// </summary>
+			ForTooltip = 1 << 12,
+
+			// (Advanced) Mouse Hovering delays.
+			// - generally you can use ImGuiHoveredFlags_ForTooltip to use application-standardized flags.
+			// - use those if you need specific overrides.
+
+			/// <summary>
+			/// // Require mouse to be stationary for style.HoverStationaryDelay (~0.15 sec) _at least one time_. After this, can move on same item/window. Using the stationary test tends to reduces the need for a long delay.
+			/// </summary>
+			Stationary = 1 << 13,
+			/// <summary>
+			/// IsItemHovered() only: Return true immediately (default). As this is the default you generally ignore this.
+			/// </summary>
+			DelayNone = 1 << 14,
+			/// <summary>
+			/// IsItemHovered() only: Return true after style.HoverDelayShort elapsed (~0.15 sec) (shared between items) + requires mouse to be stationary for style.HoverStationaryDelay (once per item).
+			/// </summary>
+			DelayShort = 1 << 15,
+			/// <summary>
+			/// IsItemHovered() only: Return true after style.HoverDelayNormal elapsed (~0.40 sec) (shared between items) + requires mouse to be stationary for style.HoverStationaryDelay (once per item).
+			/// </summary>
+			DelayNormal = 1 << 16,
+			/// <summary>
+			/// IsItemHovered() only: Disable shared delay system where moving from one item to the next keeps the previous timer for a short time (standard for tooltips with long delays)
+			/// </summary>
+			NoSharedDelay = 1 << 17,
+		};
+
+		public enum class eImGuiFocusedFlags
+		{
+			None = 0,
+			/// <summary>
+			/// Return true if any children of the window is focused
+			/// </summary>
+			ChildWindows = 1 << 0,
+			/// <summary>
+			/// Test from root window (top most parent of the current hierarchy)
+			/// </summary>
+			RootWindow = 1 << 1,
+			/// <summary>
+			/// Return true if any window is focused. Important: If you are trying to tell how to dispatch your low-level inputs, do NOT use this. Use 'io.WantCaptureMouse' instead! Please read the FAQ!
+			/// </summary>
+			AnyWindow = 1 << 2,
+			/// <summary>
+			/// Do not consider popup hierarchy (do not treat popup emitter as parent of popup) (when used with _ChildWindows or _RootWindow)
+			/// </summary>
+			NoPopupHierarchy = 1 << 3,
+			/// <summary>
+			/// Consider docking hierarchy (treat dockspace host as parent of docked window) (when used with _ChildWindows or _RootWindow)
+			/// </summary>
+			DockHierarchy = 1 << 4,
+
+			RootAndChildWindows = ImGuiFocusedFlags_RootWindow | ImGuiFocusedFlags_ChildWindows,
 		};
 
 		/// <summary>
@@ -6126,24 +6354,24 @@ namespace IVSDKDotNet
 		/// <summary>
 		/// Flags for ImGuiIV.Begin()
 		/// </summary>
+		[FlagsAttribute]
 		public enum class eImGuiWindowFlags
 		{
 			None = 0,
-
 			/// <summary>
-			/// Disable title-bar.
+			/// Disable title-bar
 			/// </summary>
 			NoTitleBar = 1 << 0,
 			/// <summary>
-			/// Disable user resizing with the lower-right grip.
+			/// Disable user resizing with the lower-right grip
 			/// </summary>
 			NoResize = 1 << 1,
 			/// <summary>
-			/// Disable user moving the window.
+			/// Disable user moving the window
 			/// </summary>
 			NoMove = 1 << 2,
 			/// <summary>
-			/// Disable scrollbars (window can still scroll with mouse or programmatically).
+			/// Disable scrollbars (window can still scroll with mouse or programmatically)
 			/// </summary>
 			NoScrollbar = 1 << 3,
 			/// <summary>
@@ -6155,7 +6383,7 @@ namespace IVSDKDotNet
 			/// </summary>
 			NoCollapse = 1 << 5,
 			/// <summary>
-			/// Resize every window to its content every frame.
+			/// Resize every window to its content every frame
 			/// </summary>
 			AlwaysAutoResize = 1 << 6,
 			/// <summary>
@@ -6163,7 +6391,7 @@ namespace IVSDKDotNet
 			/// </summary>
 			NoBackground = 1 << 7,
 			/// <summary>
-			/// Never load/save settings in .ini file.
+			/// Never load/save settings in .ini file
 			/// </summary>
 			NoSavedSettings = 1 << 8,
 			/// <summary>
@@ -6171,7 +6399,7 @@ namespace IVSDKDotNet
 			/// </summary>
 			NoMouseInputs = 1 << 9,
 			/// <summary>
-			/// Has a menu-bar.
+			/// Has a menu-bar
 			/// </summary>
 			MenuBar = 1 << 10,
 			/// <summary>
@@ -6183,63 +6411,47 @@ namespace IVSDKDotNet
 			/// </summary>
 			NoFocusOnAppearing = 1 << 12,
 			/// <summary>
-			/// Disable bringing window to front when taking focus (e.g. clicking on it or programmatically giving it focus).
+			/// Disable bringing window to front when taking focus (e.g. clicking on it or programmatically giving it focus)
 			/// </summary>
 			NoBringToFrontOnFocus = 1 << 13,
 			/// <summary>
-			/// Always show vertical scrollbar (even if ContentSize.y is smaller then Size.y).
+			/// Always show vertical scrollbar (even if ContentSize.y < Size.y)
 			/// </summary>
 			AlwaysVerticalScrollbar = 1 << 14,
 			/// <summary>
-			/// Always show horizontal scrollbar (even if ContentSize.x is smaller then Size.x).
+			/// Always show horizontal scrollbar (even if ContentSize.x < Size.x)
 			/// </summary>
 			AlwaysHorizontalScrollbar = 1 << 15,
 			/// <summary>
-			/// Ensure child windows without border uses style.WindowPadding (ignored by default for non-bordered child windows, because more convenient).
+			/// No gamepad/keyboard navigation within the window
 			/// </summary>
-			AlwaysUseWindowPadding = 1 << 16,
+			NoNavInputs = 1 << 16,
 			/// <summary>
-			/// No gamepad/keyboard navigation within the window.
+			/// No focusing toward this window with gamepad/keyboard navigation (e.g. skipped by CTRL+TAB)
 			/// </summary>
-			NoNavInputs = 1 << 18,
-			/// <summary>
-			/// No focusing toward this window with gamepad/keyboard navigation (e.g. skipped by CTRL+TAB).
-			/// </summary>
-			NoNavFocus = 1 << 19,
+			NoNavFocus = 1 << 17,
 			/// <summary>
 			/// Display a dot next to the title. When used in a tab/docking context, tab is selected when clicking the X + closure is not assumed (will wait for user to stop submitting the tab). Otherwise closure is assumed when pressing the X, so if you keep submitting the tab may reappear at end of tab bar.
 			/// </summary>
-			UnsavedDocument = 1 << 20,
+			UnsavedDocument = 1 << 18,
+			/// <summary>
+			/// Disable docking of this window
+			/// </summary>
+			NoDocking = 1 << 19,
 
-			NoNav = NoNavInputs | NoNavFocus,
-			NoDecoration = NoTitleBar | NoResize | NoScrollbar | NoCollapse,
-			NoInputs = NoMouseInputs | NoNavInputs | NoNavFocus,
+			NoNav = ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus,
+			NoDecoration = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse,
+			NoInputs = ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus,
+		};
 
-			// [INTERNAL]
+		[FlagsAttribute]
+		public enum class eImGuiWindowFlagsEx : uint32_t
+		{
+			None = 0,
 			/// <summary>
-			/// [BETA] On child window: allow gamepad/keyboard navigation to cross over parent border to this child or between sibling child windows.
+			/// This makes the window not being able to enable the mouse cursor.
 			/// </summary>
-			NavFlattened = 1 << 23,
-			/// <summary>
-			/// Don't use! For internal use by BeginChild().
-			/// </summary>
-			ChildWindow = 1 << 24,
-			/// <summary>
-			/// Don't use! For internal use by BeginTooltip().
-			/// </summary>
-			Tooltip = 1 << 25,
-			/// <summary>
-			/// Don't use! For internal use by BeginPopup().
-			/// </summary>
-			Popup = 1 << 26,
-			/// <summary>
-			/// Don't use! For internal use by BeginPopupModal().
-			/// </summary>
-			Modal = 1 << 27,
-			/// <summary>
-			/// Don't use! For internal use by BeginMenu().
-			/// </summary>
-			ChildMenu = 1 << 28,
+			NoMouseEnable = 1 << 0,
 		};
 
 		/// <summary>
@@ -6290,121 +6502,119 @@ namespace IVSDKDotNet
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_Alpha,
+			Alpha,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_DisabledAlpha,
+			DisabledAlpha,
 			/// <summary>
 			/// Type: Vector2
 			/// </summary>
-			ImGuiStyleVar_WindowPadding,
+			WindowPadding,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_WindowRounding,
+			WindowRounding,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_WindowBorderSize,
+			WindowBorderSize,
 			/// <summary>
 			/// Type: Vector2
 			/// </summary>
-			ImGuiStyleVar_WindowMinSize,
+			WindowMinSize,
 			/// <summary>
 			/// Type: Vector2
 			/// </summary>
-			ImGuiStyleVar_WindowTitleAlign,
+			WindowTitleAlign,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_ChildRounding,
+			ChildRounding,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_ChildBorderSize,
+			ChildBorderSize,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_PopupRounding,
+			PopupRounding,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_PopupBorderSize,
+			PopupBorderSize,
 			/// <summary>
 			/// Type: Vector2
 			/// </summary>
-			ImGuiStyleVar_FramePadding,
+			FramePadding,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_FrameRounding,
+			FrameRounding,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_FrameBorderSize,
+			FrameBorderSize,
 			/// <summary>
 			/// Type: Vector2
 			/// </summary>
-			ImGuiStyleVar_ItemSpacing,
+			ItemSpacing,
 			/// <summary>
 			/// Type: Vector2
 			/// </summary>
-			ImGuiStyleVar_ItemInnerSpacing,
+			ItemInnerSpacing,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_IndentSpacing,
+			IndentSpacing,
 			/// <summary>
 			/// Type: Vector2
 			/// </summary>
-			ImGuiStyleVar_CellPadding,
+			CellPadding,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_ScrollbarSize,
+			ScrollbarSize,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_ScrollbarRounding,
+			ScrollbarRounding,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_GrabMinSize,
+			GrabMinSize,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_GrabRounding,
+			GrabRounding,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_TabRounding,
+			TabRounding,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_TabBarBorderSize,
+			TabBarBorderSize,
 			/// <summary>
 			/// Type: Vector2
 			/// </summary>
-			ImGuiStyleVar_ButtonTextAlign,
+			ButtonTextAlign,
 			/// <summary>
 			/// Type: Vector2
 			/// </summary>
-			ImGuiStyleVar_SelectableTextAlign,
+			SelectableTextAlign,
 			/// <summary>
 			/// Type: float
 			/// </summary>
-			ImGuiStyleVar_SeparatorTextBorderSize,
+			SeparatorTextBorderSize,
 			/// <summary>
 			/// Type: Vector2
 			/// </summary>
-			ImGuiStyleVar_SeparatorTextAlign,
+			SeparatorTextAlign,
 			/// <summary>
 			/// Type: Vector2
 			/// </summary>
-			ImGuiStyleVar_SeparatorTextPadding,
-
-			ImGuiStyleVar_COUNT
+			SeparatorTextPadding
 		};
 
 		/// <summary>
@@ -6412,112 +6622,110 @@ namespace IVSDKDotNet
 		/// </summary>
 		public enum class eImGuiCol
 		{
-			ImGuiCol_Text,
-			ImGuiCol_TextDisabled,
+			Text,
+			TextDisabled,
 			/// <summary>
 			/// Background of normal windows.
 			/// </summary>
-			ImGuiCol_WindowBg,
+			WindowBg,
 			/// <summary>
 			/// Background of child windows.
 			/// </summary>
-			ImGuiCol_ChildBg,
+			ChildBg,
 			/// <summary>
 			/// Background of popups, menus, tooltips windows.
 			/// </summary>
-			ImGuiCol_PopupBg,
-			ImGuiCol_Border,
-			ImGuiCol_BorderShadow,
+			PopupBg,
+			Border,
+			BorderShadow,
 			/// <summary>
 			/// Background of checkbox, radio button, plot, slider, text input.
 			/// </summary>
-			ImGuiCol_FrameBg,
-			ImGuiCol_FrameBgHovered,
-			ImGuiCol_FrameBgActive,
-			ImGuiCol_TitleBg,
-			ImGuiCol_TitleBgActive,
-			ImGuiCol_TitleBgCollapsed,
-			ImGuiCol_MenuBarBg,
-			ImGuiCol_ScrollbarBg,
-			ImGuiCol_ScrollbarGrab,
-			ImGuiCol_ScrollbarGrabHovered,
-			ImGuiCol_ScrollbarGrabActive,
-			ImGuiCol_CheckMark,
-			ImGuiCol_SliderGrab,
-			ImGuiCol_SliderGrabActive,
-			ImGuiCol_Button,
-			ImGuiCol_ButtonHovered,
-			ImGuiCol_ButtonActive,
+			FrameBg,
+			FrameBgHovered,
+			FrameBgActive,
+			TitleBg,
+			TitleBgActive,
+			TitleBgCollapsed,
+			MenuBarBg,
+			ScrollbarBg,
+			ScrollbarGrab,
+			ScrollbarGrabHovered,
+			ScrollbarGrabActive,
+			CheckMark,
+			SliderGrab,
+			SliderGrabActive,
+			Button,
+			ButtonHovered,
+			ButtonActive,
 			/// <summary>
 			/// Header* colors are used for CollapsingHeader, TreeNode, Selectable, MenuItem.
 			/// </summary>
-			ImGuiCol_Header,
-			ImGuiCol_HeaderHovered,
-			ImGuiCol_HeaderActive,
-			ImGuiCol_Separator,
-			ImGuiCol_SeparatorHovered,
-			ImGuiCol_SeparatorActive,
+			Header,
+			HeaderHovered,
+			HeaderActive,
+			Separator,
+			SeparatorHovered,
+			SeparatorActive,
 			/// <summary>
 			/// Resize grip in lower-right and lower-left corners of windows.
 			/// </summary>
-			ImGuiCol_ResizeGrip,
-			ImGuiCol_ResizeGripHovered,
-			ImGuiCol_ResizeGripActive,
+			ResizeGrip,
+			ResizeGripHovered,
+			ResizeGripActive,
 			/// <summary>
 			/// TabItem in a TabBar.
 			/// </summary>
-			ImGuiCol_Tab,
-			ImGuiCol_TabHovered,
-			ImGuiCol_TabActive,
-			ImGuiCol_TabUnfocused,
-			ImGuiCol_TabUnfocusedActive,
-			ImGuiCol_PlotLines,
-			ImGuiCol_PlotLinesHovered,
-			ImGuiCol_PlotHistogram,
-			ImGuiCol_PlotHistogramHovered,
+			Tab,
+			TabHovered,
+			TabActive,
+			TabUnfocused,
+			TabUnfocusedActive,
+			PlotLines,
+			PlotLinesHovered,
+			PlotHistogram,
+			PlotHistogramHovered,
 			/// <summary>
 			/// Table header background.
 			/// </summary>
-			ImGuiCol_TableHeaderBg,
+			TableHeaderBg,
 			/// <summary>
 			/// Table outer and header borders (prefer using Alpha=1.0 here).
 			/// </summary>
-			ImGuiCol_TableBorderStrong,
+			TableBorderStrong,
 			/// <summary>
 			/// Table inner borders (prefer using Alpha=1.0 here).
 			/// </summary>
-			ImGuiCol_TableBorderLight,
+			TableBorderLight,
 			/// <summary>
 			/// Table row background (even rows).
 			/// </summary>
-			ImGuiCol_TableRowBg,
+			TableRowBg,
 			/// <summary>
 			/// Table row background (odd rows).
 			/// </summary>
-			ImGuiCol_TableRowBgAlt,
-			ImGuiCol_TextSelectedBg,
+			TableRowBgAlt,
+			TextSelectedBg,
 			/// <summary>
 			/// Rectangle highlighting a drop target.
 			/// </summary>
-			ImGuiCol_DragDropTarget,
+			DragDropTarget,
 			/// <summary>
 			/// Gamepad/keyboard: current highlighted item.
 			/// </summary>
-			ImGuiCol_NavHighlight,
+			NavHighlight,
 			/// <summary>
 			/// Highlight window when using CTRL+TAB.
 			/// </summary>
-			ImGuiCol_NavWindowingHighlight,
+			NavWindowingHighlight,
 			/// <summary>
 			/// Darken/colorize entire screen behind the CTRL+TAB window list, when active.
 			/// </summary>
-			ImGuiCol_NavWindowingDimBg,
+			NavWindowingDimBg,
 			/// <summary>
 			/// Darken/colorize entire screen behind a modal window, when one is active.
 			/// </summary>
-			ImGuiCol_ModalWindowDimBg,
-
-			ImGuiCol_COUNT
+			ModalWindowDimBg
 		};
 
 		/// <summary>
@@ -6838,79 +7046,105 @@ namespace IVSDKDotNet
 			Headers = 1 << 0
 		};
 
-		public enum class ePhoneState : uint32_t
+		public enum class eImGuiTableColumnFlags
 		{
-			GAME_MODE_DEATHMATCH = 0,
-			GAME_MODE_TEAM_DEATHMATCH = 1,
-			GAME_MODE_MAFIYA_WORK = 2,
-			GAME_MODE_TEAM_MAFIYA_WORK = 3,
-			GAME_MODE_TEAM_CAR_JACK_CITY = 4,
-			GAME_MODE_CAR_JACK_CITY = 5,
-			GAME_MODE_RACE = 6,
-			GAME_MODE_GTA_RACE = 7,
-			GAME_MODE_PARTY_MODE = 8,
-			GAME_MODE_UNKNOWN_9 = 9,
-			GAME_MODE_COPS_AND_CROOKS = 10,
-			GAME_MODE_UNKNOWN_11 = 11,
-			GAME_MODE_TURF_WAR = 12,
-			GAME_MODE_DEAL_BREAKER = 13,
-			GAME_MODE_HANGMANS_NOOSE = 14,
-			GAME_MODE_BOMB_DA_BASE_II = 15,
+			// Input configuration flags
+			None = 0,
+			/// <summary>
+			/// Overriding/master disable flag: hide column, won't show in context menu (unlike calling TableSetColumnEnabled() which manipulates the user accessible state)
+			/// </summary>
+			Disabled = 1 << 0,
+			/// <summary>
+			/// Default as a hidden/disabled column.
+			/// </summary>
+			DefaultHide = 1 << 1,
+			/// <summary>
+			/// Default as a sorting column.
+			/// </summary>
+			DefaultSort = 1 << 2,
+			/// <summary>
+			/// Column will stretch. Preferable with horizontal scrolling disabled (default if table sizing policy is _SizingStretchSame or _SizingStretchProp).
+			/// </summary>
+			WidthStretch = 1 << 3,
+			/// <summary>
+			/// Column will not stretch. Preferable with horizontal scrolling enabled (default if table sizing policy is _SizingFixedFit and table is resizable).
+			/// </summary>
+			WidthFixed = 1 << 4,
+			/// <summary>
+			/// Disable manual resizing.
+			/// </summary>
+			NoResize = 1 << 5,
+			/// <summary>
+			/// Disable manual reordering this column, this will also prevent other columns from crossing over this column.
+			/// </summary>
+			NoReorder = 1 << 6,
+			/// <summary>
+			/// Disable ability to hide/disable this column.
+			/// </summary>
+			NoHide = 1 << 7,
+			/// <summary>
+			/// Disable clipping for this column (all NoClip columns will render in a same draw command).
+			/// </summary>
+			NoClip = 1 << 8,
+			/// <summary>
+			/// Disable ability to sort on this field (even if ImGuiTableFlags_Sortable is set on the table).
+			/// </summary>
+			NoSort = 1 << 9,
+			/// <summary>
+			/// Disable ability to sort in the ascending direction.
+			/// </summary>
+			NoSortAscending = 1 << 10,
+			/// <summary>
+			/// Disable ability to sort in the descending direction.
+			/// </summary>
+			NoSortDescending = 1 << 11,
+			/// <summary>
+			/// TableHeadersRow() will not submit horizontal label for this column. Convenient for some small columns. Name will still appear in context menu or in angled headers.
+			/// </summary>
+			NoHeaderLabel = 1 << 12,
+			/// <summary>
+			/// Disable header text width contribution to automatic column width.
+			/// </summary>
+			NoHeaderWidth = 1 << 13,
+			/// <summary>
+			/// Make the initial sort direction Ascending when first sorting on this column (default).
+			/// </summary>
+			PreferSortAscending = 1 << 14,
+			/// <summary>
+			/// Make the initial sort direction Descending when first sorting on this column.
+			/// </summary>
+			PreferSortDescending = 1 << 15,
+			/// <summary>
+			/// Use current Indent value when entering cell (default for column 0).
+			/// </summary>
+			IndentEnable = 1 << 16,
+			/// <summary>
+			/// Ignore current Indent value when entering cell (default for columns > 0). Indentation changes _within_ the cell will still be honored.
+			/// </summary>
+			IndentDisable = 1 << 17,
+			/// <summary>
+			/// TableHeadersRow() will submit an angled header row for this column. Note this will add an extra row.
+			/// </summary>
+			AngledHeader = 1 << 18,
 
-			GAME_MODE_FREE_MODE = 16,
-
-			// TBoGT
-			GAME_MODE_TBOGT_DEATHMATCH = 26,
-			GAME_MODE_TBOGT_TEAM_DEATHMATCH = 27,
-			GAME_MODE_TBOGT_RACE = 28,
-			GAME_MODE_TBOGT_GTA_RACE = 29,
-
-			// TLaD
-			GAME_MODE_TLAD_DEATHMATCH = 24,
-			GAME_MODE_TLAD_TEAM_DEATHMATCH = 21,
-			GAME_MODE_TLAD_RACE = 20,
-			GAME_MODE_TLAD_CLUB_BUSINESS = 19,
-			GAME_MODE_TLAD_LONE_WOLF_BIKER = 23,
-			GAME_MODE_TLAD_CHOPPER_VS_CHOPPER = 17,
-			GAME_MODE_TLAD_WITNESS_PROTECTION = 18,
-			GAME_MODE_TLAD_OWN_THE_CITY = 22,
-
-			Hidden = 1000,
-			Hiding = 1001,
-
-			StartMenu = 1002,
-			KeypadMenu = 1003,
-			CallingNumber = 1005,
-			CalledNumberBusy = 1007,
-			CalledNumberConnected = 1009,
-
-			MainMenu = 1011,
-
-			PhonebookMenu = 1012,
-			PhonebookContactOptions = 1013,
-
-			MessagesMenu = 1014,
-			OpenedMessageMenu = 1015,
-			OpenedMessageOptionsMenu = 1016,
-
-			OrganizerMenu = 1017,
-
-			MultiplayerStartGameConfirmMessageMenu = 1036,
-			MultiplayerNoGFWLConnectMessageMenu = 1041,
-			MultiplayerMenu = 1047,
-			MultiplayerGameModeSelectionMenu = 1049,
-			MultiplayerNetworkTypeSelectionMenu = 1050,
-			MultiplayerNetworkModeMenu = 1052,
-			MultiplayerNetworkPrivateSlotsMenu = 1053,
-
-			OptionsMenu = 1026,
-			OptionsRingtypeMenu = 1027,
-			OptionsRingtoneMenu = 1028,
-			OptionsSleepModeConfirmMessageMenu = 1030,
-
-			VideoEditorConfirmMessageMenu = 1032,
-
-			CheatsMenu = 1035,
+			// Output status flags, read-only via TableGetColumnFlags()
+			
+			/// <summary>
+			/// [READONLY OUTPUT FLAG] Status: is enabled == not hidden by user/api (referred to as "Hide" in _DefaultHide and _NoHide) flags.
+			/// </summary>
+			IsEnabled = 1 << 24,
+			/// <summary>
+			/// [READONLY OUTPUT FLAG] Status: is visible == is enabled AND not clipped by scrolling.
+			/// </summary>
+			IsVisible = 1 << 25,
+			/// <summary>
+			/// [READONLY OUTPUT FLAG] Status: is currently part of the sort specs
+			/// </summary>
+			IsSorted = 1 << 26,
+			/// <summary>
+			/// [READONLY OUTPUT FLAG] Status: is hovered by mouse
+			/// </summary>
+			IsHovered = 1 << 27,
 		};
 
 	}

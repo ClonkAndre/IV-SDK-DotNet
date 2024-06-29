@@ -1387,6 +1387,9 @@ namespace IVSDKDotNet
 			}
 		}
 
+	public:
+		UIntPtr GetUIntPtr();
+
 	internal:
 		IVVehicleWheel(CVehicleWheel* nativePtr);
 

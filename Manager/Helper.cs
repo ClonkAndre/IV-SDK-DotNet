@@ -89,14 +89,22 @@ namespace Manager
         #endregion
 
         #region ImGUI
-        public static void AskToOpenWebPageButton(string buttonText, Vector2 size, Uri uri)
+        public static void AskToOpenWebPageButton(bool useSmallButton, string buttonText, Vector2 size, Uri uri)
         {
             string id = "Open " + uri.ToString();
 
-            if (ImGuiIV.Button(buttonText, size))
-                ImGuiIV.OpenPopup(id);
+            if (useSmallButton)
+            {
+                if (ImGuiIV.SmallButton(buttonText))
+                    ImGuiIV.OpenPopup(id);
+            }
+            else
+            {
+                if (ImGuiIV.Button(buttonText, size))
+                    ImGuiIV.OpenPopup(id);
+            }
 
-            Helper.AskToOpenWebPage(id, uri);
+            AskToOpenWebPage(id, uri);
         }
         public static void AskToOpenWebPage(string name, Uri uri)
         {
@@ -104,6 +112,16 @@ namespace Manager
                 return;
 
             ImGuiIV.CreateSimplePopupDialog(name, string.Format("This link takes you to {1} ({2}).{0}Do you want to go there?", Environment.NewLine, uri.Host, uri), true, true, true, "Yes", "No", () => Process.Start(uri.ToString()), null);
+        }
+        #endregion
+
+        #region Methods
+        public static void WriteToDebugOutput(Priority priority, string str, params object[] args)
+        {
+#if DEBUG
+            if (Debugger.IsAttached)
+                Debugger.Log((int)priority, "IV-SDK .NET", string.Format(str + "\n", args));
+#endif
         }
         #endregion
 
