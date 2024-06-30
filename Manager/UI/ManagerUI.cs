@@ -1351,6 +1351,8 @@ SKIP_TO_END:
                 {
                     /// @separator
 
+                    ImGuiIV.Spacing(2);
+
                     if (Main.Instance.TierThreeSupporters.Count == 0)
                     {
                         ImGuiIV.TextUnformatted("No one here yet!");
@@ -1364,6 +1366,8 @@ SKIP_TO_END:
                         }
                     }
 
+                    ImGuiIV.Spacing(2);
+
                     /// @separator
                 }
                 /// @end CollapsingHeader
@@ -1372,6 +1376,8 @@ SKIP_TO_END:
                 if (ImGuiIV.CollapsingHeader("Tier 2"))
                 {
                     /// @separator
+
+                    ImGuiIV.Spacing(2);
 
                     if (Main.Instance.TierTwoSupporters.Count == 0)
                     {
@@ -1386,6 +1392,8 @@ SKIP_TO_END:
                         }
                     }
 
+                    ImGuiIV.Spacing(2);
+
                     /// @separator
                 }
                 /// @end CollapsingHeader
@@ -1394,6 +1402,8 @@ SKIP_TO_END:
                 if (ImGuiIV.CollapsingHeader("Tier 1"))
                 {
                     /// @separator
+
+                    ImGuiIV.Spacing(2);
 
                     if (Main.Instance.TierOneSupporters.Count == 0)
                     {
@@ -1407,6 +1417,8 @@ SKIP_TO_END:
                             ImGuiIV.BulletText(name);
                         }
                     }
+
+                    ImGuiIV.Spacing(2);
 
                     /// @separator
                 }
