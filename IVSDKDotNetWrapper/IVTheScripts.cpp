@@ -126,7 +126,7 @@ namespace IVSDKDotNet
         }
         catch (...) {}
     }
-    void IVTheScripts::SetGlobal(int index, String^ value)
+    bool IVTheScripts::SetGlobal(int index, String^ value)
     {
         if (index < 0 || index > 65535)
             throw gcnew System::ArgumentOutOfRangeException("index", index, "The index must be 0 or greater, and below or equal 65535!");
@@ -135,19 +135,28 @@ namespace IVSDKDotNet
         if (String::IsNullOrWhiteSpace(value))
             throw gcnew System::ArgumentNullException("value");
 
+        if (value->Length > 264607)
+            return false;
+
         try
         {
             msclr::interop::marshal_context ctx;
 
-            uint32_t* addr = &CTheScripts::m_aGlobalVariables[index];
+            uint32_t* globalAddr = &CTheScripts::m_aGlobalVariables[index];
 
-            char* str = (char*)addr;
+            MessageBox::Show(String::Format("The length of the string to store is: {0}", value->Length));
+
+            char* str = (char*)globalAddr;
             char* newStr = (char*)ctx.marshal_as<const char*>(value);
             memcpy(str, newStr, value->Length);
 
             *(str + value->Length) = 0;
+
+            return true;
         }
         catch (...) {}
+
+        return false;
     }
 
 }

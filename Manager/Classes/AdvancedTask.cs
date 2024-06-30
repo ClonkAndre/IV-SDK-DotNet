@@ -199,7 +199,7 @@ namespace Manager.Classes
             }
             catch (Exception ex)
             {
-                Logger.LogError(string.Format("An error occured in Timer {0} for Script {1}. Details: {2}", at.ID.ToString(), at.Owner.Name, ex.ToString()));
+                Logger.LogError(string.Format("An error occured in Timer {0} for Script {1}. Details: {2}", at.ID.ToString(), at.Owner.EntryPoint.FullName, ex.ToString()));
             }
 
             return null;

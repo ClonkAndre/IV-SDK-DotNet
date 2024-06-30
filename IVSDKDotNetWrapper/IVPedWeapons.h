@@ -66,6 +66,9 @@ namespace IVSDKDotNet
 		}
 
 	public:
+		static IVPedWeapons^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 		void GiveWeapon(int weaponType, uint32_t ammoQuantity, bool unk1, bool unk2, bool unk3);
 
 	internal:

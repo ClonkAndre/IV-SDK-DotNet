@@ -97,6 +97,12 @@ namespace IVSDKDotNet
 
 			// - NATIVE_ENABLE_CHASE_AUDIO -
 			Hooks::AddHook(gcnew Hooks::InstalledHook(eNativeHash::NATIVE_ENABLE_CHASE_AUDIO, (DWORD)NATIVE_ENABLE_CHASE_AUDIO));
+			
+			// - NATIVE_IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE -
+			Hooks::AddHook(gcnew Hooks::InstalledHook(eNativeHash::NATIVE_IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE, (DWORD)NATIVE_IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE));
+
+			// - NATIVE_IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE -
+			Hooks::AddHook(gcnew Hooks::InstalledHook(eNativeHash::NATIVE_IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE, (DWORD)NATIVE_IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE));
 		}
 
 		void NativeHookFunctions::NATIVE_PRINTSTRING(IVNativeCallContext* pNativeContext)
@@ -213,6 +219,59 @@ namespace IVSDKDotNet
 
 			// Call orginal native
 			Natives::ENABLE_CHASE_AUDIO(result);
+
+			// Hook
+			hook->Hook();
+		}
+
+		bool NativeHookFunctions::NATIVE_IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE(IVNativeCallContext* pNativeContext)
+		{
+			// Raise event
+			bool shouldReturn = Hooks::RaiseIsWorldPointWithinBrainActivationRangeHook();
+			
+			if (shouldReturn)
+			{
+				pNativeContext->SetResult(0, false);
+				return false;
+			}
+
+			// Unhook
+			Hooks::InstalledHook^ hook = Hooks::FindInstalledHook(eNativeHash::NATIVE_IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE);
+
+			if (!hook)
+				return false;
+
+			hook->Unhook();
+
+			// Call orginal native
+			return Natives::IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE();
+
+			// Hook
+			hook->Hook();
+		}
+		bool NativeHookFunctions::NATIVE_IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE(IVNativeCallContext* pNativeContext)
+		{
+			int arg1 = pNativeContext->GetArgument<int>(0);
+
+			// Raise event
+			bool shouldReturn = Hooks::RaiseIsObjectWithinBrainActivationRangeHook(arg1);
+
+			if (shouldReturn)
+			{
+				pNativeContext->SetResult(0, false);
+				return false;
+			}
+
+			// Unhook
+			Hooks::InstalledHook^ hook = Hooks::FindInstalledHook(eNativeHash::NATIVE_IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE);
+
+			if (!hook)
+				return false;
+
+			hook->Unhook();
+
+			// Call orginal native
+			return Natives::IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE(arg1);
 
 			// Hook
 			hook->Hook();

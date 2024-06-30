@@ -63,5 +63,15 @@ namespace IVSDKDotNet
 			}
 		};
 
+		[AttributeUsageAttribute(AttributeTargets::Class)]
+		public ref class ShowStaticFieldsInInspector : Attribute
+		{
+		public:
+			ShowStaticFieldsInInspector()
+			{
+				
+			}
+		};
+
 	}
 }

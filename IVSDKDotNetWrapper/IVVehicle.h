@@ -2755,8 +2755,50 @@ namespace IVSDKDotNet
 	public ref class IVVehicleAutomobileFlags
 	{
 	public:
+		property bool _f0
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f0;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f0 = value;
+			}
+		}
+		property bool _f1
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f1;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f1 = value;
+			}
+		}
+		property bool _f2
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f2;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f2 = value;
+			}
+		}
 		/// <summary>
-		/// This is not used.
+		/// Not used.
 		/// </summary>
 		property bool NotDamagedUpsideDown
 		{
@@ -2770,6 +2812,398 @@ namespace IVSDKDotNet
 			{
 				NULLPTR_CHECK(NativeVehicle);
 				NativeVehicle->m_nAutomobileFlags.bNotDamagedUpsideDown = value;
+			}
+		}
+		property bool _f4
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f4;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f4 = value;
+			}
+		}
+		property bool _f5
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f5;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f5 = value;
+			}
+		}
+		property bool FiringCannon
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags.bFiringCannon;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags.bFiringCannon = value;
+			}
+		}
+		property bool _f7
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f7;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f7 = value;
+			}
+		}
+		property bool _f8
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f8;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f8 = value;
+			}
+		}
+		property bool _f9
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f9;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f9 = value;
+			}
+		}
+		property bool _fa
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._fa;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._fa = value;
+			}
+		}
+		property bool _fb
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._fb;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._fb = value;
+			}
+		}
+		property bool _fc
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._fc;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._fc = value;
+			}
+		}
+		property bool _fd
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._fd;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._fd = value;
+			}
+		}
+		property bool _fe
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._fe;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._fe = value;
+			}
+		}
+		property bool _ff
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._ff;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._ff = value;
+			}
+		}
+		property bool _f10
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f10;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f10 = value;
+			}
+		}
+		property bool _f11
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f11;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f11 = value;
+			}
+		}
+		property bool _f12
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f12;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f12 = value;
+			}
+		}
+		property bool _f13
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f13;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f13 = value;
+			}
+		}
+		property bool _f14
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f14;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f14 = value;
+			}
+		}
+		property bool _f15
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f15;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f15 = value;
+			}
+		}
+		property bool _f16
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f16;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f16 = value;
+			}
+		}
+		property bool _f17
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f17;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f17 = value;
+			}
+		}
+		property bool _f18
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f18;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f18 = value;
+			}
+		}
+		property bool _f19
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f19;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f19 = value;
+			}
+		}
+		property bool _f1a
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f1a;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f1a = value;
+			}
+		}
+		property bool _f1b
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f1b;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f1b = value;
+			}
+		}
+		property bool _f1c
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f1c;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f1c = value;
+			}
+		}
+		property bool _f1d
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f1d;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f1d = value;
+			}
+		}
+		property bool _f1e
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f1e;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f1e = value;
+			}
+		}
+		property bool _f1f
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeVehicle, false);
+				return NativeVehicle->m_nAutomobileFlags._f1f;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativeVehicle);
+				NativeVehicle->m_nAutomobileFlags._f1f = value;
 			}
 		}
 

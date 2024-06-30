@@ -40,7 +40,22 @@ namespace IVSDKDotNet
 		public:
 			IntPtr get()
 			{
+				if (!IsValid)
+					return IntPtr::Zero;
+
 				return IntPtr(canvasDrawList);
+			}
+		}
+
+		/// <summary>
+		/// Gets if this struct contains valid data.
+		/// </summary>
+		property bool IsValid
+		{
+		public:
+			bool get()
+			{
+				return m_bIsValid;
 			}
 		}
 
@@ -54,11 +69,13 @@ namespace IVSDKDotNet
 			}
 
 			canvasDrawList = (ImDrawList*)drawListPtr.ToPointer();
+			m_bIsValid = true;
 		}
 
 	internal:
-		ImGuiIV_DrawingContext(ImDrawList* drawList)
+		ImGuiIV_DrawingContext(ImDrawList* drawList, bool isValid)
 		{
+			m_bIsValid = isValid;
 			canvasDrawList = drawList;
 		}
 
@@ -67,7 +84,7 @@ namespace IVSDKDotNet
 		// Clip Rectangle
 		void PushClipRect(RectangleF rect, bool intersectWithCurrentClipRect)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->PushClipRect(
@@ -77,14 +94,14 @@ namespace IVSDKDotNet
 		}
 		void PushClipRectFullScreen()
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->PushClipRectFullScreen();
 		}
 		void PopClipRect()
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->PopClipRect();
@@ -93,7 +110,7 @@ namespace IVSDKDotNet
 		// Texture
 		void PushTextureID(IntPtr textureId)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 			if (textureId == IntPtr::Zero)
 				return;
@@ -102,7 +119,7 @@ namespace IVSDKDotNet
 		}
 		void PopTextureID()
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->PopTextureID();
@@ -111,7 +128,7 @@ namespace IVSDKDotNet
 		// Line
 		void AddLine(Vector2 p1, Vector2 p2, Color color, float thickness)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddLine(
@@ -124,7 +141,7 @@ namespace IVSDKDotNet
 		// Rectangle
 		void AddRect(Vector2 min, Vector2 max, Color color, float rounding, eImDrawFlags flags, float thickness)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddRect(
@@ -137,7 +154,7 @@ namespace IVSDKDotNet
 		}
 		void AddRectFilled(Vector2 min, Vector2 max, Color color, float rounding, eImDrawFlags flags)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddRectFilled(
@@ -149,7 +166,7 @@ namespace IVSDKDotNet
 		}
 		void AddRectFilledMultiColor(Vector2 min, Vector2 max, Color upperLeft, Color upperRight, Color bottomLeft, Color bottomRight)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddRectFilledMultiColor(
@@ -164,7 +181,7 @@ namespace IVSDKDotNet
 		// Quad
 		void AddQuad(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, Color color, float thickness)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddQuad(
@@ -177,7 +194,7 @@ namespace IVSDKDotNet
 		}
 		void AddQuadFilled(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, Color color)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddQuadFilled(
@@ -191,7 +208,7 @@ namespace IVSDKDotNet
 		// Triangle
 		void AddTriangle(Vector2 p1, Vector2 p2, Vector2 p3, Color color, float thickness)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddTriangle(
@@ -203,7 +220,7 @@ namespace IVSDKDotNet
 		}
 		void AddTriangleFilled(Vector2 p1, Vector2 p2, Vector2 p3, Color color)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddTriangleFilled(
@@ -216,7 +233,7 @@ namespace IVSDKDotNet
 		// Circle
 		void AddCircle(Vector2 center, float radius, Color color, int numSegments, float thickness)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddCircle(
@@ -228,7 +245,7 @@ namespace IVSDKDotNet
 		}
 		void AddCircleFilles(Vector2 center, float radius, Color color, int numSegments)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddCircleFilled(
@@ -241,7 +258,7 @@ namespace IVSDKDotNet
 		// Ngon
 		void AddNgon(Vector2 center, float radius, Color color, int numSegments, float thickness)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddNgon(
@@ -253,7 +270,7 @@ namespace IVSDKDotNet
 		}
 		void AddNgonFilled(Vector2 center, float radius, Color color, int numSegments)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddNgonFilled(
@@ -266,6 +283,9 @@ namespace IVSDKDotNet
 		// Ellipse
 		void AddEllipse(Vector2 center, Vector2 radius, Color color, float rotation, int numSegments, float thickness)
 		{
+			if (!IsValid)
+				return;
+
 			canvasDrawList->AddEllipse(
 				Vector2ToImVec2(center),
 				radius.X,
@@ -277,6 +297,9 @@ namespace IVSDKDotNet
 		}
 		void AddEllipseFilled(Vector2 center, Vector2 radius, Color color, float rotation, int numSegments)
 		{
+			if (!IsValid)
+				return;
+
 			canvasDrawList->AddEllipseFilled(
 				Vector2ToImVec2(center),
 				radius.X,
@@ -289,7 +312,7 @@ namespace IVSDKDotNet
 		// Bezier
 		void AddBezierCubic(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, Color color, float thickness, int numSegments)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddBezierCubic(
@@ -305,7 +328,7 @@ namespace IVSDKDotNet
 		// Quadratic Bezier
 		void AddBezierQuadratic(Vector2 p1, Vector2 p2, Vector2 p3, Color color, float thickness, int numSegments)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 
 			canvasDrawList->AddBezierQuadratic(
@@ -320,7 +343,7 @@ namespace IVSDKDotNet
 		// Text
 		void AddText(IntPtr fontPtr, float fontSize, Vector2 pos, Color color, String^ textBegin, String^ textEnd, float wrapWidth)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 			if (String::IsNullOrWhiteSpace(textBegin))
 				return;
@@ -358,7 +381,7 @@ namespace IVSDKDotNet
 
 		void AddText(IntPtr fontPtr, Vector2 pos, Color color, float fontSize, String^ textBegin)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 			if (String::IsNullOrWhiteSpace(textBegin))
 				return;
@@ -388,7 +411,7 @@ namespace IVSDKDotNet
 		}
 		void AddText(Vector2 pos, Color color, float fontSize, String^ textBegin)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 			if (String::IsNullOrWhiteSpace(textBegin))
 				return;
@@ -411,7 +434,7 @@ namespace IVSDKDotNet
 		
 		void AddText(IntPtr fontPtr, Vector2 pos, Color color, String^ textBegin, String^ textEnd)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 			if (String::IsNullOrWhiteSpace(textBegin))
 				return;
@@ -445,25 +468,6 @@ namespace IVSDKDotNet
 		void AddText(Vector2 pos, Color color, String^ textBegin, String^ textEnd)
 		{
 			AddText(IntPtr::Zero, pos, color, textBegin, textEnd);
-
-			//if (!canvasDrawList)
-			//	return;
-			//if (String::IsNullOrWhiteSpace(textBegin))
-			//	return;
-
-			//msclr::interop::marshal_context ctx;
-
-			//const char* _textBegin = ctx.marshal_as<const char*>(textBegin);
-			//const char* _textEnd = (const char*)0;
-
-			//if (!String::IsNullOrWhiteSpace(textEnd))
-			//	_textEnd = ctx.marshal_as<const char*>(textEnd);
-
-			//canvasDrawList->AddText(
-			//	Vector2ToImVec2(pos),
-			//	ColorToImU32(color),
-			//	_textBegin,
-			//	_textEnd);
 		}
 
 		void AddText(IntPtr fontPtr, Vector2 pos, Color color, String^ textBegin)
@@ -478,7 +482,7 @@ namespace IVSDKDotNet
 		// Image
 		void AddImage(IntPtr texturePtr, Vector2 min, Vector2 max, Vector2 uvMin, Vector2 uvMax, Color color)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 			if (texturePtr == IntPtr::Zero)
 				return;
@@ -493,7 +497,7 @@ namespace IVSDKDotNet
 		}
 		void AddImage(IntPtr texturePtr, RectangleF rect, Color color)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 			if (rect == RectangleF::Empty)
 				return;
@@ -503,7 +507,7 @@ namespace IVSDKDotNet
 
 		void AddImageQuad(IntPtr texturePtr, Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, Vector2 uv1, Vector2 uv2, Vector2 uv3, Vector2 uv4, Color color)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 			if (texturePtr == IntPtr::Zero)
 				return;
@@ -522,7 +526,7 @@ namespace IVSDKDotNet
 		}
 		void AddImageRounded(IntPtr texturePtr, Vector2 min, Vector2 max, Vector2 uvMin, Vector2 uvMax, Color color, float rounding, eImDrawFlags flags)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 			if (texturePtr == IntPtr::Zero)
 				return;
@@ -540,7 +544,7 @@ namespace IVSDKDotNet
 
 		void AddImageRotated(IntPtr texturePtr, RectangleF rect, Vector2 center, float angle, Color color)
 		{
-			if (!canvasDrawList)
+			if (!IsValid)
 				return;
 			if (texturePtr == IntPtr::Zero)
 				return;
@@ -584,5 +588,6 @@ namespace IVSDKDotNet
 
 	private:
 		ImDrawList* canvasDrawList;
+		bool m_bIsValid;
 	};
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Numerics;
 
 using IVSDKDotNet;
@@ -28,8 +27,8 @@ namespace Manager.UI
 
             // Animation stuff
             public bool FadeOut;
-            public float TextAlpha;
-            public float BackgroundAlpha;
+            public bool FadeIn;
+            public float Alpha;
             #endregion
 
             #region Constructor
@@ -40,8 +39,7 @@ namespace Manager.UI
                 Description = description;
                 Tag = tag;
                 FadeOut = false;
-                TextAlpha = 1.0f;
-                BackgroundAlpha = 0.8f;
+                FadeIn = true;
             }
             #endregion
         }
@@ -59,20 +57,6 @@ namespace Manager.UI
                     return false;
             }
 
-            //string correctedTitle = title;
-            //string correctedDesc = description;
-
-            //if (correctedTitle.Length > 62)
-            //{
-            //    correctedTitle = correctedTitle.Remove(59);
-            //    correctedTitle += "...";
-            //}
-            //if (correctedDesc.Length > 63)
-            //{
-            //    correctedDesc = correctedDesc.Remove(59);
-            //    correctedDesc += "...";
-            //}
-
             // Add notification to list
             NotificationItem item = new NotificationItem(type, title, description, tag);
             Items.Add(item);
@@ -89,21 +73,35 @@ namespace Manager.UI
         {
             for (int i = 0; i < Items.Count; i++)
             {
-                if (Items[i].Tag == tag)
+                NotificationItem item = Items[i];
+
+                if (string.IsNullOrEmpty(item.Tag))
+                    return false;
+
+                if (item.Tag == tag)
                     return true;
             }
 
             return false;
         }
 
-        private Color GetColorFromNotificationType(int alpha, NotificationType type)
+        private Vector3 GetColorFromNotificationType(NotificationType type)
         {
             switch (type)
             {
-                case NotificationType.Default:  return Color.FromArgb(alpha, Color.White);
-                case NotificationType.Error:    return Color.FromArgb(alpha, 255, 80, 80);
-                default:                        return Color.FromArgb(alpha, Color.White);
+                case NotificationType.Default:
+                    {
+                        Vector4 originalBorderColor = ImGuiIV.GetStyle().Colors[(int)eImGuiCol.Border];
+                        return new Vector3(originalBorderColor.X, originalBorderColor.Y, originalBorderColor.Z);
+                    }
+                case NotificationType.Warning:
+                    return new Vector3(1.0f, 1.0f, 0.0f);
+                case NotificationType.Error:
+                    return new Vector3(1.0f, 0.0f, 0.0f);
+
             }
+
+            return Vector3.One;
         }
         #endregion
 
@@ -122,30 +120,66 @@ namespace Manager.UI
             {
                 NotificationItem item = Items[i];
 
+                // Fading
                 if (item.FadeOut)
                 {
-                    if (!(item.BackgroundAlpha <= 0.0f))
-                        item.BackgroundAlpha -= 0.01f;
-                    if (!(item.TextAlpha <= 0.0f))
-                        item.TextAlpha -= 0.01f;
+                    if (!(item.Alpha <= 0.0f))
+                    {
+                        if (IVPlayerInfo.FindThePlayerPed() != UIntPtr.Zero)
+                            item.Alpha -= 1.8f * IVTimer.TimeStep;
+                        else
+                            item.Alpha -= 0.8f * IVTimer.TimeStep;
+                    }
 
-                    if (item.BackgroundAlpha <= 0.0f && item.TextAlpha <= 0.0f)
+                    if (item.Alpha <= 0.0f)
                     {
                         item.FadeOut = false;
                         Items.RemoveAt(i);
+                        continue;
                     }
                 }
+                if (item.FadeIn)
+                {
+                    if (!(item.Alpha >= 0.9f))
+                    {
+                        if (IVPlayerInfo.FindThePlayerPed() != UIntPtr.Zero)
+                            item.Alpha += 1.8f * IVTimer.TimeStep;
+                        else
+                            item.Alpha += 1.0f * IVTimer.TimeStep;
+                    }
+                    else
+                    {
+                        item.FadeIn = false;
+                    }
+                }
+                
+                // Color stuff
+                Vector4 originalTextColor = ImGuiIV.GetStyle().Colors[(int)eImGuiCol.Text];
+                Vector3 notificationTypeColor = GetColorFromNotificationType(item.Type);
 
-                ImGuiIV.SetNextWindowBgAlpha(item.BackgroundAlpha);
-                ImGuiIV.SetNextWindowPos(new Vector2(40f, 32f + i * 55f));
+                ImGuiIV.PushStyleColor(eImGuiCol.Text,      new Vector4(originalTextColor.X, originalTextColor.Y, originalTextColor.Z, item.Alpha));
+                ImGuiIV.PushStyleColor(eImGuiCol.Border,    new Vector4(notificationTypeColor, item.Alpha));
+                ImGuiIV.PushStyleColor(eImGuiCol.Separator, new Vector4(notificationTypeColor, item.Alpha));
 
-                ImGuiIV.PushStyleColor(eImGuiCol.ImGuiCol_Text, new Vector4(1f, 1f, 1f, item.TextAlpha));
-                ImGuiIV.PushStyleColor(eImGuiCol.ImGuiCol_Border, new Vector4(0.7f, 0.7f, 0.7f, item.BackgroundAlpha));
-                ImGuiIV.Begin(string.Format("Notification {0}", i), ref open, eImGuiWindowFlags.NoDecoration | eImGuiWindowFlags.NoInputs | eImGuiWindowFlags.NoNavFocus | eImGuiWindowFlags.NoFocusOnAppearing, true);
+                ImGuiIV.PushStyleVar(eImGuiStyleVar.WindowPadding, new Vector2(10f));
+
+                ImGuiIV.SetNextWindowBgAlpha(item.Alpha);
+
+                // Notification
+                ImGuiIV.Begin(string.Format("##IVSDKDotNetNotification_{0}", i), ref open, eImGuiWindowFlags.NoDecoration | eImGuiWindowFlags.NoInputs | eImGuiWindowFlags.NoNavFocus | eImGuiWindowFlags.NoFocusOnAppearing, eImGuiWindowFlagsEx.NoMouseEnable);
+                
                 ImGuiIV.Text(item.Title);
+                ImGuiIV.Separator();
+                ImGuiIV.Spacing();
                 ImGuiIV.Text(item.Description);
+                ImGuiIV.Dummy();
+
+                ImGuiIV.SetWindowPos(new Vector2(38f, 30f + i * (ImGuiIV.GetWindowSize().Y + 8f)));
+
                 ImGuiIV.End();
-                ImGuiIV.PopStyleColor(2);
+
+                ImGuiIV.PopStyleVar();
+                ImGuiIV.PopStyleColor(3);
             }
         }
 

@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
 using IVSDKDotNet.Native;
+using IVSDKDotNet.Attributes;
 
 using Manager.Classes.Json.Script;
 
@@ -20,16 +21,21 @@ namespace Manager.Classes
     {
         #region Variables and Properties
         // Script stuff
-        public string Name;
+        public string FileName;
         public string FullPath;
         public bool HasOnFirstD3D9FrameEventBeenRaised;
 
         public Assembly TheAssembly;
-        public Type EntryPoint;
-        public FieldInfo[] PublicFields;
         public object TheScriptObject;
 
         public ScriptConfig Config;
+
+        // Public Fields
+        public FieldInfo[] EntryPointPublicFields;
+        public List<FieldInfo[]> OtherPublicFields;
+
+        // Types
+        public Type EntryPoint;
 
         // Lists
         public List<AdvancedTask> ScriptTasks;
@@ -38,6 +44,9 @@ namespace Manager.Classes
 
         // Dear ImGui
         public List<IntPtr> Textures;
+
+        // Manager
+        public bool PublicFieldsWindowOpen;
 
         // Other
         public bool Running;
@@ -80,17 +89,32 @@ namespace Manager.Classes
                 return TheScriptObject.GetType().BaseType == typeof(Script);
             }
         }
+        public ScriptType ScriptType
+        {
+            get
+            {
+                if (TheScriptObject == null)
+                    return ScriptType.Unknown;
+
+                if (IsScriptHookDotNetScript)
+                    return ScriptType.ScriptHookDotNet;
+
+                return ScriptType.IVSDKDotNet;
+            }
+        }
         #endregion
 
         #region Constructor
-        public FoundScript(string name, string fullPath, Assembly theAssembly, object scriptObject, Type entryPoint)
+        // IV-SDK .NET Constructor
+        public FoundScript(string fileName, string fullPath, Assembly theAssembly, object scriptObject, Type entryPoint)
         {
-            Name = name;
+            FileName = fileName;
             FullPath = fullPath;
             TheAssembly = theAssembly;
             TheScriptObject = scriptObject;
             EntryPoint = entryPoint;
-            PublicFields = EntryPoint.GetFields(BindingFlags.Instance | BindingFlags.Public);
+
+            GetPublicFields();
 
             // Lists
             // Initializing all lists with a Capacity of 8 so they don't need to resize for every new item that is added to them (Aslong as they don't reach the set Capacity).
@@ -101,9 +125,11 @@ namespace Manager.Classes
 
             Running = true;
         }
-        public FoundScript(string name, string fullPath, Assembly theAssembly, Type entryPoint)
+        
+        // ScriptHookDotNet Constructor
+        public FoundScript(string fileName, string fullPath, Assembly theAssembly, Type entryPoint)
         {
-            Name = name;
+            FileName = fileName;
             FullPath = fullPath;
             TheAssembly = theAssembly;
             EntryPoint = entryPoint;
@@ -146,6 +172,9 @@ namespace Manager.Classes
             // Raise tick
             if (IsScriptHookDotNetScript)
             {
+                if (Natives.IS_PAUSE_MENU_ACTIVE())
+                    return;
+
                 GTA.Script script = GetScriptAs<GTA.Script>();
 
                 SHDNStuff.SetCurrentScript(GTA.ScriptEvent.Tick, script);
@@ -166,19 +195,7 @@ namespace Manager.Classes
                     if (script.ActionQueue.Count != 0)
                     {
                         GTA.ScriptAction a = script.ActionQueue.Dequeue();
-
                         a.Act?.Invoke();
-
-                        // Do some stuff for certain actions
-                        switch (a.ID)
-                        {
-                            case GTA.ScriptActionID.KeyDown:
-                                script.KeyDownActionQueued = false;
-                                break;
-                            case GTA.ScriptActionID.KeyUp:
-                                script.KeyUpActionQueued = false;
-                                break;
-                        }
                     }
                 }
                 catch (Exception ex)
@@ -318,58 +335,60 @@ namespace Manager.Classes
             script.IngameStartupEventExecutionTime = DateTime.UtcNow - time;
         }
 
-        public void RaiseKeyDown(KeyEventArgs e)
+        public void RaiseKeyDown(object sender, KeyEventArgs e)
         {
             if (!IsScriptReady())
                 return;
 
+            KeyWatchDog keyWatchDog = (KeyWatchDog)sender;
+
             if (IsScriptHookDotNetScript)
             {
-                GTA.Script script = GetScriptAs<GTA.Script>();
-
-                if (script.KeyDownActionQueued)
-                    return;
-
-                script.ActionQueue.Enqueue(new GTA.ScriptAction(GTA.ScriptActionID.KeyDown, () =>
+                if (keyWatchDog.Tag == "ScriptHookDotNet")
                 {
+                    GTA.Script script = GetScriptAs<GTA.Script>();
+
                     script.DoKeyDown(new GTA.KeyEventArgs(e.KeyData));
                     script.ProcessBoundKeys(e.KeyData);
-                }));
-
-                script.KeyDownActionQueued = true;
+                }
             }
             else
             {
-                Script script = GetScriptAs<Script>();
+                if (keyWatchDog.Tag == "IVSDKDotNet")
+                {
+                    Script script = GetScriptAs<Script>();
 
-                DateTime time = DateTime.UtcNow;
-                script.RaiseKeyDown(e);
-                script.KeyDownEventExecutionTime = DateTime.UtcNow - time;
+                    DateTime time = DateTime.UtcNow;
+                    script.RaiseKeyDown(e);
+                    script.KeyDownEventExecutionTime = DateTime.UtcNow - time;
+                }
             }
         }
-        public void RaiseKeyUp(KeyEventArgs e)
+        public void RaiseKeyUp(object sender, KeyEventArgs e)
         {
             if (!IsScriptReady())
                 return;
 
+            KeyWatchDog keyWatchDog = (KeyWatchDog)sender;
+
             if (IsScriptHookDotNetScript)
             {
-                GTA.Script script = GetScriptAs<GTA.Script>();
-
-                if (script.KeyUpActionQueued)
-                    return;
-
-                script.ActionQueue.Enqueue(new GTA.ScriptAction(GTA.ScriptActionID.KeyUp, () => script.DoKeyUp(new GTA.KeyEventArgs(e.KeyData))));
-
-                script.KeyUpActionQueued = true;
+                if (keyWatchDog.Tag == "ScriptHookDotNet")
+                {
+                    GTA.Script script = GetScriptAs<GTA.Script>();
+                    script.DoKeyUp(new GTA.KeyEventArgs(e.KeyData));
+                }
             }
             else
             {
-                Script script = GetScriptAs<Script>();
+                if (keyWatchDog.Tag == "IVSDKDotNet")
+                {
+                    Script script = GetScriptAs<Script>();
 
-                DateTime time = DateTime.UtcNow;
-                script.RaiseKeyUp(e);
-                script.KeyUpEventExecutionTime = DateTime.UtcNow - time;
+                    DateTime time = DateTime.UtcNow;
+                    script.RaiseKeyUp(e);
+                    script.KeyUpEventExecutionTime = DateTime.UtcNow - time;
+                }
             }
         }
 
@@ -416,24 +435,6 @@ namespace Manager.Classes
         }
 
         // Direct3D9 (IV-SDK .NET and ScriptHookDotNet)
-        public void RaiseOnFirstD3D9Frame(IntPtr devicePtr)
-        {
-            if (IsScriptHookDotNetScript)
-                return;
-            if (!IsScriptReady())
-                return;
-
-            if (!HasOnFirstD3D9FrameEventBeenRaised)
-            {
-                Script script = GetScriptAs<Script>();
-
-                DateTime time = DateTime.UtcNow;
-                script.RaiseOnFirstD3D9Frame(devicePtr);
-                script.OnFirstD3D9FrameEventExecutionTime = DateTime.UtcNow - time;
-
-                HasOnFirstD3D9FrameEventBeenRaised = true;
-            }
-        }
         public void RaiseOnImGuiRendering(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
         {
             if (!IsScriptReady())
@@ -464,6 +465,16 @@ namespace Manager.Classes
             {
                 Script script = GetScriptAs<Script>();
 
+                // Raise on first D3D9 frame event
+                if (!HasOnFirstD3D9FrameEventBeenRaised)
+                {
+                    DateTime time = DateTime.UtcNow;
+                    script.RaiseOnFirstD3D9Frame(devicePtr);
+                    script.OnFirstD3D9FrameEventExecutionTime = DateTime.UtcNow - time;
+
+                    HasOnFirstD3D9FrameEventBeenRaised = true;
+                }
+
                 // TODO: Add event execution time
                 script.RaiseOnImGuiRendering(devicePtr, ctx);
             }
@@ -471,10 +482,12 @@ namespace Manager.Classes
         #endregion
 
         #region Methods
+        // - - - Only for ScriptHookDotNet scripts - - -
         public void LateInitialize(object scriptObject)
         {
             TheScriptObject = scriptObject;
-            PublicFields = EntryPoint.GetFields(BindingFlags.Instance | BindingFlags.Public);
+
+            GetPublicFields();
 
             // Lists
             // Initializing all lists with a Capacity of 8 so they don't need to resize for every new item that is added to them (Aslong as they don't reach the set Capacity).
@@ -491,6 +504,9 @@ namespace Manager.Classes
             if (cleanUpTask != null)
                 return;
 
+            // Reset some stuff
+            PublicFieldsWindowOpen = false;
+
             // Stop active script tasks
             StopActiveScriptTasks();
 
@@ -499,9 +515,6 @@ namespace Manager.Classes
 
             // Raise Uninitialize event
             RaiseUninitialize();
-
-            // Clear ImGui Draw Calls List for this Script
-            ClearImGuiDrawCalls();
 
             // Delete all console commands registered by this script
             ConsoleCommands.Clear();
@@ -518,16 +531,16 @@ namespace Manager.Classes
                 switch (reason)
                 {
                     case AbortReason.API:
-                        Logger.Log(string.Format("An API Client has successfully aborted the script {0}.", Name));
+                        Logger.Log(string.Format("An API Client has successfully aborted the script {0}.", EntryPoint.FullName));
                         break;
                     case AbortReason.Manual:
-                        Logger.Log(string.Format("Script {0} was successfully aborted by user.", Name));
+                        Logger.Log(string.Format("Script {0} was successfully aborted by user.", EntryPoint.FullName));
                         break;
                     case AbortReason.Script:
-                        Logger.Log(string.Format("Script {0} was successfully aborted by another script (Or by {0} itself).", Name));
+                        Logger.Log(string.Format("Script {0} was successfully aborted by another script (Or by {0} itself).", EntryPoint.FullName));
                         break;
                     case AbortReason.Manager:
-                        Logger.Log(string.Format("Manager successfully aborted script {0}.", Name));
+                        Logger.Log(string.Format("Manager successfully aborted script {0}.", EntryPoint.FullName));
                         break;
                 }
             }
@@ -538,13 +551,41 @@ namespace Manager.Classes
             else
                 GetScriptAs<Script>().Dispose();
 
-            Name = null;
+            FileName = null;
             FullPath = null;
             EntryPoint = null;
         }
         public void Stop()
         {
             Running = false;
+        }
+
+        private void GetPublicFields()
+        {
+            // Get public fields of entry point
+            EntryPointPublicFields = EntryPoint.GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public);
+
+            // Get public fields of types which got the "ShowStaticFieldsInInspector" attribute
+            if (IsIVSDKDotNetScript)
+            {
+                Type[] scriptTypesWithStaticFieldsAttribute = TheAssembly.GetTypes().Where(x => x.GetCustomAttribute<ShowStaticFieldsInInspector>() != null).ToArray();
+
+                if (scriptTypesWithStaticFieldsAttribute.Length != 0)
+                    OtherPublicFields = new List<FieldInfo[]>();
+
+                // Find fields of types
+                for (int i = 0; i < scriptTypesWithStaticFieldsAttribute.Length; i++)
+                {
+                    Type t = scriptTypesWithStaticFieldsAttribute[i];
+
+                    FieldInfo[] fields = t.GetFields(BindingFlags.Public | BindingFlags.Static);
+
+                    if (fields == null || fields.Length == 0)
+                        continue;
+
+                    OtherPublicFields.Add(fields);
+                }
+            }
         }
 
         public void GetScriptConfig()
@@ -563,7 +604,7 @@ namespace Manager.Classes
             }
             catch (Exception ex)
             {
-                Logger.LogError(string.Format("Failed to get script config of Script {0}! Details: {1}", Name, ex));
+                Logger.LogError(string.Format("Failed to get script config of Script {0}! Details: {1}", EntryPoint.FullName, ex));
             }
         }
         public void CheckForExistenceOfReferencedAssemblies()
@@ -612,7 +653,7 @@ namespace Manager.Classes
             }
         }
 
-        private void StopActiveScriptTasks()
+        private void StopActiveScriptTasks() // TODO: This should be made differently i guess
         {
             cleanUpTask = Task.Run(() =>
             {
@@ -644,7 +685,7 @@ namespace Manager.Classes
 
                         // Log how long this process took
                         TimeSpan timeResult = (taskCleanUpStartTime - DateTime.UtcNow);
-                        Logger.LogDebug(string.Format("{0} active tasks stopped for script {1}. This process took {2}.{3} seconds.", scriptTasks.Length.ToString(), Name, timeResult.Seconds, timeResult.Milliseconds));
+                        Logger.LogDebug(string.Format("{0} active tasks stopped for script {1}. This process took {2}.{3} seconds.", scriptTasks.Length, EntryPoint.FullName, timeResult.Seconds, timeResult.Milliseconds));
 
                     }
 
@@ -661,46 +702,35 @@ namespace Manager.Classes
                 if (x.Result != null)
                 {
                     AbortError = x.Result;
-                    Logger.LogError(string.Format("An error occured while stopping active scripts tasks for {0}. Details: {1}", Name, x.Result));
+                    Logger.LogError(string.Format("An error occured while stopping active scripts tasks for {0}. Details: {1}", EntryPoint.FullName, x.Result));
                 }
             });
         }
-        private void ClearImGuiDrawCalls()
-        {
-            List<ImGuiIV_DrawCommandData> list = ImGuiIV.DrawCommandsList;
-
-            for (int i = 0; i < list.Count; i++)
-            {
-                ImGuiIV_DrawCommandData drawData = list[i];
-
-                if (drawData.CallerScriptID == ID)
-                    ImGuiIV.DrawCommandsList.RemoveAt(i);
-            }
-        }
         private void DestroyScriptTextures()
         {
-            string scriptName = string.IsNullOrEmpty(Name) ? "UNKNOWN" : Name;
-            int texturesCount = Textures.Count;
-
+            string scriptName = EntryPoint == null ? "UNKNOWN" : EntryPoint.FullName;
+            
             if (Textures.Count == 0)
             {
-                Logger.LogDebug(string.Format("There are no Direct3D9 Textures to destroy for script {0}.", scriptName));
+                Logger.LogDebug(string.Format("There are no textures to destroy for script {0}.", scriptName));
                 return;
             }
+
+            int texturesCount = Textures.Count;
 
             // Get rid of each Texture this Script created
             for (int i = 0; i < Textures.Count; i++)
             {
                 IntPtr txtPtr = Textures[i];
 
-                if (IsScriptHookDotNetScript)
+                if (ImGuiIV.IsTextureValid(txtPtr))
                 {
-                    // TODO
+                    if (!ImGuiIV.ReleaseTexture(ref txtPtr))
+                        Logger.LogWarning(string.Format("Could not release texture {0} of script {1}.", txtPtr, scriptName));
                 }
                 else
                 {
-                    if (!ImGuiIV.ReleaseTexture(GetScriptAs<Script>(), ref txtPtr))
-                        Logger.LogWarning(string.Format("Could not release texture {0} of script {1}.", txtPtr, scriptName));
+                    Logger.LogDebug(string.Format("Not destroying texture {0} of script {1} because it's not valid anymore.", txtPtr, scriptName));
                 }
             }
 

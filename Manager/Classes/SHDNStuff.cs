@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 
 using GTA;
 
@@ -14,6 +16,7 @@ namespace Manager.Classes
 
         // States
         public static bool EnableVerboseLogging;
+        public static bool NativeCallLoggingEnabled;
         public static bool WereScriptHookDotNetScriptsLoadedThisSession;
 
         // Other
@@ -23,11 +26,20 @@ namespace Manager.Classes
         public static Script CurrentMouseUpScript;
         public static Script CurrentScriptCommandScript;
         public static Script CurrentPerFrameDrawingScript;
+
+        public static Version CurrentSHDNVersion;
         #endregion
-        
+
         public static void Init()
         {
             FontsToBeCreated = new Queue<Font>();
+
+            // Get current ScriptHookDotNet Version
+            CurrentSHDNVersion = typeof(GTA.Blip).Assembly.GetName().Version;
+        }
+        public static void Cleanup()
+        {
+            FontsToBeCreated.Clear();
         }
 
         public static void SetCurrentScript(ScriptEvent forEvent, object script)
@@ -73,6 +85,41 @@ namespace Manager.Classes
             }
 
             return null;
+        }
+
+        public static void ProcessCache()
+        {
+            if (!CLR.CLRBridge.DisableScriptHookDotNetLoading)
+                ContentCache.RemoveNonExisting();
+        }
+
+        public static void LoadIncludedScriptHookDotNetAssembly()
+        {
+            //if (CLR.CLRBridge.DisableScriptHookDotNetLoading)
+            //    return;
+
+            try
+            {
+                string path = CLR.CLRBridge.IVSDKDotNetBinaryPath + "\\ScriptHookDotNet.dll";
+
+                if (File.Exists(path))
+                {
+                    Assembly a = Assembly.UnsafeLoadFrom(path);
+
+                    if (a != null)
+                        Logger.LogDebug("Loaded included ScriptHookDotNet.dll assembly");
+                }
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Helper.WriteToDebugOutput(Priority.High, "FAILED TO LOAD INCLUDED ScriptHookDotNet.dll ASSEMBLY! Details: {0}", ex);
+                System.Diagnostics.Debugger.Break();
+#else
+                Logger.LogWarning("! ! ! WARNING: Failed to load included ScriptHookDotNet.dll! Make sure it's inside the 'IVSDKDotNet -> bin' directory! Game might crash now..");
+                Logger.LogWarning("Additional Details: " + ex.ToString());
+#endif
+            }
         }
 
     }

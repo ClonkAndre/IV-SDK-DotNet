@@ -8,7 +8,7 @@ namespace IVSDKDotNet
 		event KeyEventHandler^ KeyDown;
 		event KeyEventHandler^ KeyUp;
 
-		KeyWatchDog();
+		KeyWatchDog(String^ tag);
 		~KeyWatchDog();
 
 		void Process();
@@ -40,6 +40,11 @@ namespace IVSDKDotNet
 			Keys get() { return pModifier; }
 		}
 
+		property String^ Tag
+		{
+			String^ get() { return pTag; }
+		}
+
 	private:
 		array<bool>^ keystate;
 		BYTE* ckeystate;
@@ -47,6 +52,7 @@ namespace IVSDKDotNet
 		bool bCtrl;
 		bool bAlt;
 		Keys pModifier;
+		String^ pTag;
 
 		void CheckKeyAsync(Keys Key);
 

@@ -30,6 +30,10 @@ static Vector2 ImVec2ToVector2(ImVec2 vec)
 {
 	return Vector2(vec.x, vec.y);
 }
+static Vector4 ImVec4ToVector4(ImVec4 vec)
+{
+	return Vector4(vec.x, vec.y, vec.z, vec.w);
+}
 
 static ImRect RectangleFToImRect(RectangleF rect)
 {

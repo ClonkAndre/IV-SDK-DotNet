@@ -551,9 +551,38 @@ public:
 	uint8_t pad21[0x16C];												// 1358-14C4
 	struct
 	{
-		unsigned int pad : 3;
+		unsigned int _f0 : 1;
+		unsigned int _f1 : 1;
+		unsigned int _f2 : 1;
 		unsigned int bNotDamagedUpsideDown : 1; // unused
-		unsigned int pad2 : 28;
+		unsigned int _f4 : 1;
+		unsigned int _f5 : 1;
+		unsigned int bFiringCannon : 1;
+		unsigned int _f7 : 1;
+		unsigned int _f8 : 1;
+		unsigned int _f9 : 1;
+		unsigned int _fa : 1;
+		unsigned int _fb : 1;
+		unsigned int _fc : 1;
+		unsigned int _fd : 1;
+		unsigned int _fe : 1;
+		unsigned int _ff : 1;
+		unsigned int _f10 : 1;
+		unsigned int _f11 : 1;
+		unsigned int _f12 : 1;
+		unsigned int _f13 : 1;
+		unsigned int _f14 : 1;
+		unsigned int _f15 : 1;
+		unsigned int _f16 : 1;
+		unsigned int _f17 : 1;
+		unsigned int _f18 : 1;
+		unsigned int _f19 : 1;
+		unsigned int _f1a : 1;
+		unsigned int _f1b : 1;
+		unsigned int _f1c : 1;
+		unsigned int _f1d : 1;
+		unsigned int _f1e : 1;
+		unsigned int _f1f : 1;
 	} m_nAutomobileFlags;												// 14C4-14C8
 	uint8_t pad22[0xA38];												// 14C8-1F00
 	float m_fPlaneTurn;													// 1F00-1F04

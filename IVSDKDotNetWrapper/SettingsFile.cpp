@@ -54,8 +54,7 @@ namespace IVSDKDotNet
 
 		array<String^>^ lines = File::ReadAllLines(FilePath);
 
-		m_dSections->Clear();
-		m_dComments->Clear();
+		Clear();
 
 		String^ currentSection = String::Empty;
 		for (int i = 0; i < lines->Length; i++)
@@ -68,7 +67,7 @@ namespace IVSDKDotNet
 				m_dComments->Add(gcnew IniInsertValue(i, String::Empty));
 				continue;
 			}
-			if (line->StartsWith(";")) // Comment
+			if (line->StartsWith(";") || line->StartsWith("#") || line->StartsWith(">") || line->StartsWith("'") || line->StartsWith("/")) // Comment
 			{
 				m_dComments->Add(gcnew IniInsertValue(i, line));
 				continue;
@@ -128,6 +127,35 @@ namespace IVSDKDotNet
 		m_dSections->Clear();
 		m_dComments->Clear();
 		m_dLateInserts->Clear();
+	}
+
+	array<String^>^ SettingsFile::GetSectionNames()
+	{
+		if (m_dSections->Count == 0)
+			return nullptr;
+
+		List<String^>^ list = gcnew List<String^>();
+
+		for each (String^ key in m_dSections->Keys)
+			list->Add(key);
+
+		return list->ToArray();
+	}
+	array<String^>^ SettingsFile::GetValueNames(String^ section)
+	{
+		section = section->TrimStart()->TrimEnd();
+
+		if (!DoesSectionExists(section))
+			return nullptr;
+		if (!m_dSections[section]->Values)
+			return nullptr;
+
+		List<String^>^ list = gcnew List<String^>();
+
+		for each (String^ key in m_dSections[section]->Values->Keys)
+			list->Add(key);
+
+		return list->ToArray();
 	}
 
 	// - - - Add - - -

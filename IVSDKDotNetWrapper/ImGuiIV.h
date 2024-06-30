@@ -10,49 +10,8 @@ extern IMGUI_IMPL_API LONG_PTR ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT ms
 
 namespace IVSDKDotNet
 {
-	public value struct ImGuiIV_DrawCommandData
-	{
-	public:
-		property System::Guid CallerScriptID
-		{
-		public:
-			System::Guid get()
-			{
-				return m_gCallerScriptID;
-			}
-		internal:
-			void set(System::Guid value)
-			{
-				m_gCallerScriptID = value;
-			}
-		}
 
-	internal:
-		property Action^ Data
-		{
-		internal:
-			Action^ get()
-			{
-				return m_aData;
-			}
-			void set(Action^ value)
-			{
-				m_aData = value;
-			}
-		}
-
-	internal:
-		ImGuiIV_DrawCommandData(System::Guid callerScriptId, Action^ data)
-		{
-			CallerScriptID = callerScriptId;
-			Data = data;
-		}
-
-	private:
-		System::Guid m_gCallerScriptID;
-		Action^ m_aData;
-	};
-
+	// Some structs
 	public value struct ImGuiIV_Viewport
 	{
 	public:
@@ -66,6 +25,18 @@ namespace IVSDKDotNet
 			IntPtr get()
 			{
 				return IntPtr(m_vMainViewport);
+			}
+		}
+
+		/// <summary>
+		/// Gets if this struct contains valid data.
+		/// </summary>
+		property bool IsValid
+		{
+		public:
+			bool get()
+			{
+				return m_bIsValid;
 			}
 		}
 
@@ -129,18 +100,6 @@ namespace IVSDKDotNet
 			}
 		}
 
-		/// <summary>
-		/// Gets if this struct contains valid data.
-		/// </summary>
-		property bool IsValid
-		{
-		public:
-			bool get()
-			{
-				return m_bIsValid;
-			}
-		}
-
 	public:
 
 		/// <summary>
@@ -178,18 +137,1558 @@ namespace IVSDKDotNet
 		ImGuiViewport* m_vMainViewport;
 		bool m_bIsValid;
 	};
+	public value struct ImGuiIV_Style
+	{
+	public:
+
+		/// <summary>
+		/// Native Pointer to the ImGuiStyle structure.
+		/// </summary>
+		property IntPtr ImGuiStylePtr
+		{
+		public:
+			IntPtr get()
+			{
+				return IntPtr(m_style);
+			}
+		}
+
+		/// <summary>
+		/// Gets if this struct contains valid data.
+		/// </summary>
+		property bool IsValid
+		{
+		public:
+			bool get()
+			{
+				return m_bIsValid;
+			}
+		}
+
+		/// <summary>
+		/// Global alpha applies to everything in Dear ImGui.
+		/// </summary>
+		property float Alpha
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->Alpha;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->Alpha = value;
+			}
+		}
+		/// <summary>
+		/// Additional alpha multiplier applied by BeginDisabled(). Multiply over current value of Alpha.
+		/// </summary>
+		property float DisabledAlpha
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->DisabledAlpha;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->DisabledAlpha = value;
+			}
+		}
+		/// <summary>
+		/// Padding within a window.
+		/// </summary>
+		property Vector2 WindowPadding
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->WindowPadding);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->WindowPadding = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// Radius of window corners rounding. Set to 0.0f to have rectangular windows. Large values tend to lead to variety of artifacts and are not recommended.
+		/// </summary>
+		property float WindowRounding
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->WindowRounding;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->WindowRounding = value;
+			}
+		}
+		/// <summary>
+		/// Thickness of border around windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
+		/// </summary>
+		property float WindowBorderSize
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->WindowBorderSize;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->WindowBorderSize = value;
+			}
+		}
+		/// <summary>
+		/// Minimum window size. This is a global setting. If you want to constrain individual windows, use SetNextWindowSizeConstraints().
+		/// </summary>
+		property Vector2 WindowMinSize
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->WindowMinSize);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->WindowMinSize = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// Alignment for title bar text. Defaults to (0.0f,0.5f) for left-aligned,vertically centered.
+		/// </summary>
+		property Vector2 WindowTitleAlign
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->WindowTitleAlign);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->WindowTitleAlign = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// Side of the collapsing/docking button in the title bar (None/Left/Right). Defaults to ImGuiDir_Left.
+		/// </summary>
+		property eImGuiDir WindowMenuButtonPosition
+		{
+			eImGuiDir get()
+			{
+				if (!IsValid)
+					return eImGuiDir::None;
+
+				return (eImGuiDir)m_style->WindowMenuButtonPosition;
+			}
+			void set(eImGuiDir value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->WindowMenuButtonPosition = (ImGuiDir)value;
+			}
+		}
+		/// <summary>
+		/// Radius of child window corners rounding. Set to 0.0f to have rectangular windows.
+		/// </summary>
+		property float ChildRounding
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->ChildRounding;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->ChildRounding = value;
+			}
+		}
+		/// <summary>
+		/// Thickness of border around child windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
+		/// </summary>
+		property float ChildBorderSize
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->ChildBorderSize;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->ChildBorderSize = value;
+			}
+		}
+		/// <summary>
+		/// Radius of popup window corners rounding. (Note that tooltip windows use WindowRounding)
+		/// </summary>
+		property float PopupRounding
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->PopupRounding;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->PopupRounding = value;
+			}
+		}
+		/// <summary>
+		/// Thickness of border around popup/tooltip windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
+		/// </summary>
+		property float PopupBorderSize
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->PopupBorderSize;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->PopupBorderSize = value;
+			}
+		}
+		/// <summary>
+		/// Padding within a framed rectangle (used by most widgets).
+		/// </summary>
+		property Vector2 FramePadding
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->FramePadding);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->FramePadding = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// Radius of frame corners rounding. Set to 0.0f to have rectangular frame (used by most widgets).
+		/// </summary>
+		property float FrameRounding
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->FrameRounding;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->FrameRounding = value;
+			}
+		}
+		/// <summary>
+		/// Thickness of border around frames. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
+		/// </summary>
+		property float FrameBorderSize
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->FrameBorderSize;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->FrameBorderSize = value;
+			}
+		}
+		/// <summary>
+		/// Horizontal and vertical spacing between widgets/lines.
+		/// </summary>
+		property Vector2 ItemSpacing
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->ItemSpacing);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->ItemSpacing = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// Horizontal and vertical spacing between within elements of a composed widget (e.g. a slider and its label).
+		/// </summary>
+		property Vector2 ItemInnerSpacing
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->ItemInnerSpacing);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->ItemInnerSpacing = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// Padding within a table cell. CellPadding.y may be altered between different rows.
+		/// </summary>
+		property Vector2 CellPadding
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->CellPadding);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->CellPadding = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// Expand reactive bounding box for touch-based system where touch position is not accurate enough. Unfortunately we don't sort widgets so priority on overlap will always be given to the first widget. So don't grow this too much!
+		/// </summary>
+		property Vector2 TouchExtraPadding
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->TouchExtraPadding);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->TouchExtraPadding = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// Horizontal indentation when e.g. entering a tree node. Generally == (FontSize + FramePadding.x*2).
+		/// </summary>
+		property float IndentSpacing
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->IndentSpacing;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->IndentSpacing = value;
+			}
+		}
+		/// <summary>
+		/// Minimum horizontal spacing between two columns. Preferably > (FramePadding.x + 1).
+		/// </summary>
+		property float ColumnsMinSpacing
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->ColumnsMinSpacing;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->ColumnsMinSpacing = value;
+			}
+		}
+		/// <summary>
+		/// Width of the vertical scrollbar, Height of the horizontal scrollbar.
+		/// </summary>
+		property float ScrollbarSize
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->ScrollbarSize;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->ScrollbarSize = value;
+			}
+		}
+		/// <summary>
+		/// Radius of grab corners for scrollbar.
+		/// </summary>
+		property float ScrollbarRounding
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->ScrollbarRounding;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->ScrollbarRounding = value;
+			}
+		}
+		/// <summary>
+		/// Minimum width/height of a grab box for slider/scrollbar.
+		/// </summary>
+		property float GrabMinSize
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->GrabMinSize;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->GrabMinSize = value;
+			}
+		}
+		/// <summary>
+		/// Radius of grabs corners rounding. Set to 0.0f to have rectangular slider grabs.
+		/// </summary>
+		property float GrabRounding
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->GrabRounding;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->GrabRounding = value;
+			}
+		}
+		/// <summary>
+		/// The size in pixels of the dead-zone around zero on logarithmic sliders that cross zero.
+		/// </summary>
+		property float LogSliderDeadzone
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->LogSliderDeadzone;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->LogSliderDeadzone = value;
+			}
+		}
+		/// <summary>
+		/// Radius of upper corners of a tab. Set to 0.0f to have rectangular tabs.
+		/// </summary>
+		property float TabRounding
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->TabRounding;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->TabRounding = value;
+			}
+		}
+		/// <summary>
+		/// Thickness of border around tabs.
+		/// </summary>
+		property float TabBorderSize
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->TabBorderSize;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->TabBorderSize = value;
+			}
+		}
+		/// <summary>
+		/// Minimum width for close button to appear on an unselected tab when hovered. Set to 0.0f to always show when hovering, set to FLT_MAX to never show close button unless selected.
+		/// </summary>
+		property float TabMinWidthForCloseButton
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->TabMinWidthForCloseButton;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->TabMinWidthForCloseButton = value;
+			}
+		}
+		/// <summary>
+		/// Thickness of tab-bar separator, which takes on the tab active color to denote focus.
+		/// </summary>
+		property float TabBarBorderSize
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->TabBarBorderSize;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->TabBarBorderSize = value;
+			}
+		}
+		/// <summary>
+		/// Angle of angled headers (supported values range from -50.0f degrees to +50.0f degrees).
+		/// </summary>
+		property float TableAngledHeadersAngle
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->TableAngledHeadersAngle;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->TableAngledHeadersAngle = value;
+			}
+		}
+		/// <summary>
+		/// Side of the color button in the ColorEdit4 widget (left/right). Defaults to ImGuiDir_Right.
+		/// </summary>
+		property eImGuiDir ColorButtonPosition
+		{
+			eImGuiDir get()
+			{
+				if (!IsValid)
+					return eImGuiDir::None;
+
+				return (eImGuiDir)m_style->ColorButtonPosition;
+			}
+			void set(eImGuiDir value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->ColorButtonPosition = (ImGuiDir)value;
+			}
+		}
+		/// <summary>
+		/// Alignment of button text when button is larger than text. Defaults to (0.5f, 0.5f) (centered).
+		/// </summary>
+		property Vector2 ButtonTextAlign
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->ButtonTextAlign);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->ButtonTextAlign = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// Alignment of selectable text. Defaults to (0.0f, 0.0f) (top-left aligned). It's generally important to keep this left-aligned if you want to lay multiple items on a same line.
+		/// </summary>
+		property Vector2 SelectableTextAlign
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->SelectableTextAlign);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->SelectableTextAlign = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// Thickkness of border in SeparatorText()
+		/// </summary>
+		property float SeparatorTextBorderSize
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->SeparatorTextBorderSize;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->SeparatorTextBorderSize = value;
+			}
+		}
+		/// <summary>
+		/// Alignment of text within the separator. Defaults to (0.0f, 0.5f) (left aligned, center).
+		/// </summary>
+		property Vector2 SeparatorTextAlign
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->SeparatorTextAlign);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->SeparatorTextAlign = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// Horizontal offset of text from each edge of the separator + spacing on other axis. Generally small values. .y is recommended to be == FramePadding.y.
+		/// </summary>
+		property Vector2 SeparatorTextPadding
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->SeparatorTextPadding);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->SeparatorTextPadding = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// Window position are clamped to be visible within the display area or monitors by at least this amount. Only applies to regular windows.
+		/// </summary>
+		property Vector2 DisplayWindowPadding
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->DisplayWindowPadding);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->DisplayWindowPadding = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// If you cannot see the edges of your screen (e.g. on a TV) increase the safe area padding. Apply to popups/tooltips as well regular windows. NB: Prefer configuring your TV sets correctly!
+		/// </summary>
+		property Vector2 DisplaySafeAreaPadding
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_style->DisplaySafeAreaPadding);
+			}
+			void set(Vector2 value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->DisplaySafeAreaPadding = Vector2ToImVec2(value);
+			}
+		}
+		/// <summary>
+		/// Thickness of resizing border between docked windows
+		/// </summary>
+		property float DockingSeparatorSize
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->DockingSeparatorSize;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->DockingSeparatorSize = value;
+			}
+		}
+		/// <summary>
+		/// Scale software rendered mouse cursor (when io.MouseDrawCursor is enabled). We apply per-monitor DPI scaling over this scale. May be removed later.
+		/// </summary>
+		property float MouseCursorScale
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->MouseCursorScale;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->MouseCursorScale = value;
+			}
+		}
+		/// <summary>
+		/// Enable anti-aliased lines/borders. Disable if you are really tight on CPU/GPU. Latched at the beginning of the frame (copied to ImDrawList).
+		/// </summary>
+		property bool AntiAliasedLines
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_style->AntiAliasedLines;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->AntiAliasedLines = value;
+			}
+		}
+		/// <summary>
+		/// Enable anti-aliased lines/borders using textures where possible. Require backend to render with bilinear filtering (NOT point/nearest filtering). Latched at the beginning of the frame (copied to ImDrawList).
+		/// </summary>
+		property bool AntiAliasedLinesUseTex
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_style->AntiAliasedLinesUseTex;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->AntiAliasedLinesUseTex = value;
+			}
+		}
+		/// <summary>
+		/// Enable anti-aliased edges around filled shapes (rounded rectangles, circles, etc.). Disable if you are really tight on CPU/GPU. Latched at the beginning of the frame (copied to ImDrawList).
+		/// </summary>
+		property bool AntiAliasedFill
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_style->AntiAliasedFill;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->AntiAliasedFill = value;
+			}
+		}
+		/// <summary>
+		/// Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
+		/// </summary>
+		property float CurveTessellationTol
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->CurveTessellationTol;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->CurveTessellationTol = value;
+			}
+		}
+		/// <summary>
+		/// Maximum error (in pixels) allowed when using AddCircle()/AddCircleFilled() or drawing rounded corner rectangles with no explicit segment count specified. Decrease for higher quality but more geometry.
+		/// </summary>
+		property float CircleTessellationMaxError
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->CircleTessellationMaxError;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->CircleTessellationMaxError = value;
+			}
+		}
+
+		property array<Vector4>^ Colors
+		{
+			array<Vector4>^ get()
+			{
+				if (!IsValid)
+					return nullptr;
+
+				array<Vector4>^ arr = gcnew array<Vector4>(ImGuiCol_COUNT);
+
+				for (int i = 0; i < arr->Length; i++)
+					arr[i] = ImVec4ToVector4(m_style->Colors[i]);
+
+				return arr;
+			}
+			void set(array<Vector4>^ value)
+			{
+				if (!IsValid)
+					return;
+				if (value == nullptr)
+					return;
+
+				for (int i = 0; i < value->Length; i++)
+					m_style->Colors[i] = Vector4ToImVec4(value[i]);
+			}
+		}
+
+		// Behaviors
+
+		/// <summary>
+		/// Delay for IsItemHovered(ImGuiHoveredFlags_Stationary). Time required to consider mouse stationary.
+		/// </summary>
+		property float HoverStationaryDelay
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->HoverStationaryDelay;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->HoverStationaryDelay = value;
+			}
+		}
+		/// <summary>
+		/// Delay for IsItemHovered(ImGuiHoveredFlags_DelayShort). Usually used along with HoverStationaryDelay.
+		/// </summary>
+		property float HoverDelayShort
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->HoverDelayShort;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->HoverDelayShort = value;
+			}
+		}
+		/// <summary>
+		/// Delay for IsItemHovered(ImGuiHoveredFlags_DelayNormal).
+		/// </summary>
+		property float HoverDelayNormal
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_style->HoverDelayNormal;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->HoverDelayNormal = value;
+			}
+		}
+		/// <summary>
+		/// Default flags when using IsItemHovered(ImGuiHoveredFlags_ForTooltip) or BeginItemTooltip()/SetItemTooltip() while using mouse.
+		/// </summary>
+		property eImGuiHoveredFlags HoverFlagsForTooltipMouse
+		{
+			eImGuiHoveredFlags get()
+			{
+				if (!IsValid)
+					return eImGuiHoveredFlags::None;
+
+				return (eImGuiHoveredFlags)m_style->HoverFlagsForTooltipMouse;
+			}
+			void set(eImGuiHoveredFlags value)
+			{
+				if (!IsValid)
+					return;
+				
+				m_style->HoverFlagsForTooltipMouse = (ImGuiHoveredFlags)value;
+			}
+		}
+		/// <summary>
+		/// Default flags when using IsItemHovered(ImGuiHoveredFlags_ForTooltip) or BeginItemTooltip()/SetItemTooltip() while using keyboard/gamepad.
+		/// </summary>
+		property eImGuiHoveredFlags HoverFlagsForTooltipNav
+		{
+			eImGuiHoveredFlags get()
+			{
+				if (!IsValid)
+					return eImGuiHoveredFlags::None;
+
+				return (eImGuiHoveredFlags)m_style->HoverFlagsForTooltipNav;
+			}
+			void set(eImGuiHoveredFlags value)
+			{
+				if (!IsValid)
+					return;
+
+				m_style->HoverFlagsForTooltipNav = (ImGuiHoveredFlags)value;
+			}
+		}
+
+	public:
+		void ScaleAllSizes(float scale_factor)
+		{
+			if (!IsValid)
+				return;
+
+			m_style->ScaleAllSizes(scale_factor);
+		}
+
+	internal:
+		ImGuiIV_Style(ImGuiStyle* style, bool isValid)
+		{
+			m_style = style;
+			m_bIsValid = isValid;
+		}
+
+	private:
+		ImGuiStyle* m_style;
+		bool m_bIsValid;
+	};
+	public value struct ImGuiIV_Payload
+	{
+	public:
+		/// <summary>
+		/// Native Pointer to the ImGuiPayload structure.
+		/// </summary>
+		property IntPtr ImGuiPayloadPtr
+		{
+		public:
+			IntPtr get()
+			{
+				return IntPtr(m_payload);
+			}
+		}
+
+		/// <summary>
+		/// Gets if this struct contains valid data.
+		/// </summary>
+		property bool IsValid
+		{
+		public:
+			bool get()
+			{
+				return m_bIsValid;
+			}
+		}
+
+		property IntPtr Data
+		{
+			IntPtr get()
+			{
+				if (!IsValid)
+					return IntPtr::Zero;
+
+				return IntPtr(m_payload->Data);
+			}
+		}
+		property int DataSize
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return m_payload->DataSize;
+			}
+		}
+
+	public:
+		void Clear()
+		{
+			if (!IsValid)
+				return;
+
+			m_payload->Clear();
+		}
+
+		bool IsDataType(String^ type)
+		{
+			if (!IsValid)
+				return false;
+			if (String::IsNullOrWhiteSpace(type))
+				return false;
+
+			msclr::interop::marshal_context ctx;
+			return m_payload->IsDataType(ctx.marshal_as<const char*>(type));
+		}
+		bool IsPreview()
+		{
+			if (!IsValid)
+				return false;
+
+			return m_payload->IsPreview();
+		}
+		bool IsDelivery()
+		{
+			if (!IsValid)
+				return false;
+
+			return m_payload->IsDelivery();
+		}
+
+	internal:
+		ImGuiIV_Payload(ImGuiPayload* ptr, bool isValid)
+		{
+			m_payload = ptr;
+			m_bIsValid = isValid;
+		}
+
+	private:
+		ImGuiPayload* m_payload;
+		bool m_bIsValid;
+	};
+	public value struct ImGuiIV_InputTextState
+	{
+	public:
+
+		/// <summary>
+		/// Native Pointer to the ImGuiInputTextState structure.
+		/// </summary>
+		property IntPtr ImGuiInputTextStatePtr
+		{
+		public:
+			IntPtr get()
+			{
+				return IntPtr(m_InputTextState);
+			}
+		}
+
+		/// <summary>
+		/// Gets if this struct contains valid data.
+		/// </summary>
+		property bool IsValid
+		{
+		public:
+			bool get()
+			{
+				return m_bIsValid;
+			}
+		}
+
+		/// <summary>
+		/// Widget id owning the text state.
+		/// </summary>
+		property ImGuiID ID
+		{
+			ImGuiID get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return m_InputTextState->ID;
+			}
+			void set(ImGuiID value)
+			{
+				if (!IsValid)
+					return;
+
+				m_InputTextState->ID = value;
+			}
+		}
+
+		/// <summary>
+		/// Widget id owning the text state.
+		/// </summary>
+		property float ScrollX
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_InputTextState->ScrollX;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_InputTextState->ScrollX = value;
+			}
+		}
+
+		/// <summary>
+		/// Timer for cursor blink, reset on every user action so the cursor reappears immediately.
+		/// </summary>
+		property float CursorAnim
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_InputTextState->CursorAnim;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				m_InputTextState->CursorAnim = value;
+			}
+		}
+
+		/// <summary>
+		/// Set when we want scrolling to follow the current cursor position (not always!).
+		/// </summary>
+		property bool CursorFollow
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_InputTextState->CursorFollow;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				m_InputTextState->CursorFollow = value;
+			}
+		}
+
+		/// <summary>
+		/// After a double-click to select all, we ignore further mouse drags to update selection.
+		/// </summary>
+		property bool SelectedAllMouseLock
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_InputTextState->SelectedAllMouseLock;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				m_InputTextState->SelectedAllMouseLock = value;
+			}
+		}
+
+		/// <summary>
+		/// Edited this frame.
+		/// </summary>
+		property bool Edited
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_InputTextState->Edited;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				m_InputTextState->Edited = value;
+			}
+		}
+
+		/// <summary>
+		/// Copy of InputText() flags. may be used to check if e.g. ImGuiInputTextFlags_Password is set.
+		/// </summary>
+		property eImGuiInputTextFlags Flags
+		{
+			eImGuiInputTextFlags get()
+			{
+				if (!IsValid)
+					return eImGuiInputTextFlags::None;
+
+				return (eImGuiInputTextFlags)m_InputTextState->Flags;
+			}
+			void set(eImGuiInputTextFlags value)
+			{
+				if (!IsValid)
+					return;
+
+				m_InputTextState->Flags = (ImGuiInputTextFlags)value;
+			}
+		}
+
+		/// <summary>
+		/// Force a reload of user buf so it may be modified externally. may be automatic in future version.
+		/// </summary>
+		property bool ReloadUserBuf
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_InputTextState->ReloadUserBuf;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				m_InputTextState->ReloadUserBuf = value;
+			}
+		}
+
+		/// <summary>
+		/// POSITIONS ARE IN IMWCHAR units *NOT* UTF-8 this is why this is not exposed yet.
+		/// </summary>
+		property int ReloadSelectionStart
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return m_InputTextState->ReloadSelectionStart;
+			}
+			void set(int value)
+			{
+				if (!IsValid)
+					return;
+
+				m_InputTextState->ReloadSelectionStart = value;
+			}
+		}
+
+		property int ReloadSelectionEnd
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return m_InputTextState->ReloadSelectionEnd;
+			}
+			void set(int value)
+			{
+				if (!IsValid)
+					return;
+
+				m_InputTextState->ReloadSelectionEnd = value;
+			}
+		}
+
+	public:
+		void ClearText()
+		{
+			if (IsValid)
+				m_InputTextState->ClearText();
+		}
+		void ClearFreeMemory()
+		{
+			if (IsValid)
+				m_InputTextState->ClearFreeMemory();
+		}
+
+		int GetUndoAvailCount()
+		{
+			if (IsValid)
+				return m_InputTextState->GetUndoAvailCount();
+
+			return 0;
+		}
+		int GetRedoAvailCount()
+		{
+			if (IsValid)
+				return m_InputTextState->GetRedoAvailCount();
+
+			return 0;
+		}
+
+		void OnKeyPressed(int key)
+		{
+			if (IsValid)
+				m_InputTextState->OnKeyPressed(key);
+		}
+
+		// Cursor & Selection
+		void CursorAnimReset()
+		{
+			if (IsValid)
+				m_InputTextState->CursorAnimReset();
+		}
+		void CursorClamp()
+		{
+			if (IsValid)
+				m_InputTextState->CursorClamp();
+		}
+		bool HasSelection()
+		{
+			if (IsValid)
+				return m_InputTextState->HasSelection();
+
+			return false;
+		}
+		void ClearSelection()
+		{
+			if (IsValid)
+				m_InputTextState->ClearSelection();
+		}
+		int GetCursorPos()
+		{
+			if (IsValid)
+				return m_InputTextState->GetCursorPos();
+
+			return 0;
+		}
+		int GetSelectionStart()
+		{
+			if (IsValid)
+				return m_InputTextState->GetSelectionStart();
+
+			return 0;
+		}
+		int GetSelectionEnd()
+		{
+			if (IsValid)
+				return m_InputTextState->GetSelectionEnd();
+
+			return 0;
+		}
+		void SelectAll()
+		{
+			if (IsValid)
+				m_InputTextState->SelectAll();
+		}
+
+		// Reload user buf (WIP #2890)
+		void ReloadUserBufAndSelectAll()
+		{
+			if (IsValid)
+				m_InputTextState->ReloadUserBufAndSelectAll();
+		}
+		void ReloadUserBufAndKeepSelection()
+		{
+			if (IsValid)
+				m_InputTextState->ReloadUserBufAndKeepSelection();
+		}
+		void ReloadUserBufAndMoveToEnd()
+		{
+			if (IsValid)
+				m_InputTextState->ReloadUserBufAndMoveToEnd();
+		}
+
+	public:
+		ImGuiIV_InputTextState(ImGuiInputTextState* ptr, bool isValid)
+		{
+			m_InputTextState = ptr;
+			m_bIsValid = isValid;
+		}
+
+	private:
+		ImGuiInputTextState* m_InputTextState;
+		bool m_bIsValid;
+	};
 
 	public ref class ImGuiIV
 	{
 	internal:
-		static int SelectedStyle = 0;
+		static ImGuiID DockspaceWindowID;
+#if _DEBUG
+		static ImGuiID IVSDKDotNetWrapperDebugWindowID;
+#endif // _DEBUG
 
 		static array<String^>^ FontNameSplitArray = gcnew array<String^>(1) { "," };
 
 	public:
 
 		/// <summary>
-		/// Gets if the cursor is currently forced to be drawn on screen.
+		/// Gets or sets if the cursor is currently forced to be drawn on screen.
 		/// </summary>
 		static property bool ForceCursor
 		{
@@ -201,23 +1700,6 @@ namespace IVSDKDotNet
 			void set(bool value)
 			{
 				m_bForceCursor = value;
-			}
-		}
-
-		/// <summary>
-		/// Gets the total amount of active ImGui windows.
-		/// </summary>
-		static property int ActiveWindows
-		{
-		public:
-			int get()
-			{
-				return m_iActiveWindows;
-			}
-		internal:
-			void set(int value)
-			{
-				m_iActiveWindows = value;
 			}
 		}
 
@@ -262,32 +1744,15 @@ namespace IVSDKDotNet
 			}
 		}
 
-	public:
-		/// <summary>
-		/// Contains draw data from IV-SDK .NET Scripts that want to use utilize ImGui.
-		/// Used to actually draw and manage ImGui Windows.
-		/// Use "ImGuiIV.AddDrawCommand(this, () => { ... })" to use ImGui in your Script.
-		/// </summary>
-		static List<ImGuiIV_DrawCommandData>^ DrawCommandsList = gcnew List<ImGuiIV_DrawCommandData>(128);
-
+		// Resource stuff
 	public:
 
-		// Texture stuff
-		static bool CreateTextureFromFile(Script^ forScript, String^ fileName, [OutAttribute] IntPtr% texturePtr, [OutAttribute] int% textureWidth, [OutAttribute] int% textureHeight)
+		// Texture
+		static bool CreateTextureFromFile(String^ fileName, [OutAttribute] IntPtr% texturePtr, [OutAttribute] int% textureWidth, [OutAttribute] int% textureHeight, [OutAttribute] eResult% result)
 		{
 			if (ImGui::GetCurrentContext() == nullptr)
 			{
-				Logger::LogError("[ImGuiIV] Failed to create texture from file. Details: ImGui is not initialized.");
-
-				texturePtr = IntPtr::Zero;
-				textureWidth = 0;
-				textureHeight = 0;
-				return false;
-			}
-			if (forScript == nullptr)
-			{
-				Logger::LogError("[ImGuiIV] Failed to create texture from file. Details: forScript cannot be nullptr.");
-
+				result = eResult::ImGuiNotInitialized;
 				texturePtr = IntPtr::Zero;
 				textureWidth = 0;
 				textureHeight = 0;
@@ -295,8 +1760,7 @@ namespace IVSDKDotNet
 			}
 			if (String::IsNullOrWhiteSpace(fileName))
 			{
-				Logger::LogError("[ImGuiIV] Failed to create texture from file. Details: fileName cannot be null or white space.");
-
+				result = eResult::InvalidName;
 				texturePtr = IntPtr::Zero;
 				textureWidth = 0;
 				textureHeight = 0;
@@ -304,51 +1768,46 @@ namespace IVSDKDotNet
 			}
 
 			msclr::interop::marshal_context ctx;
-			PDIRECT3DTEXTURE9 texture;
 
 			// Try create texture
+			PDIRECT3DTEXTURE9 texture;
 			HRESULT hr = D3DXCreateTextureFromFileExA(rage::g_pDirect3DDevice, ctx.marshal_as<const char*>(fileName), D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &texture);
 			
 			if (hr != S_OK)
 			{
-				Logger::LogError(String::Format("[ImGuiIV] Failed to create texture from file. HResult: {0}", hr));
-
+				WRITE_TO_DEBUG_OUTPUT(String::Format("Failed to create texture from file {0}! HRESULT: {1}", Path::GetFileName(fileName), hr));
+				result = (eResult)hr;
 				texturePtr = IntPtr::Zero;
 				textureWidth = 0;
 				textureHeight = 0;
 				return false;
 			}
+
+			// Keeping track of the amount of references
+			texture->AddRef();
 
 			// Get the texture surface description
 			D3DSURFACE_DESC imageDesc;
 			texture->GetLevelDesc(0, &imageDesc);
 
 			// Set stuff
+			result = eResult::OK;
 			texturePtr = IntPtr(texture);
 			textureWidth = imageDesc.Width;
 			textureHeight = imageDesc.Height;
 
-			// Register texture
+			// Register texture to script
+			Assembly^ callingAssembly = Assembly::GetCallingAssembly();
 			if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
-				IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(forScript, texturePtr);
+				IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""), texturePtr);
 
 			return true;
 		}
-		static bool CreateTextureFromMemory(Script^ forScript, array<System::Byte>^ data, [OutAttribute] IntPtr% texturePtr, [OutAttribute] int% textureWidth, [OutAttribute] int% textureHeight)
+		static bool CreateTextureFromMemory(array<System::Byte>^ data, [OutAttribute] IntPtr% texturePtr, [OutAttribute] int% textureWidth, [OutAttribute] int% textureHeight, [OutAttribute] eResult% result)
 		{
 			if (ImGui::GetCurrentContext() == nullptr)
 			{
-				Logger::LogError("[ImGuiIV] Failed to create texture from memory. Details: ImGui is not initialized.");
-
-				texturePtr = IntPtr::Zero;
-				textureWidth = 0;
-				textureHeight = 0;
-				return false;
-			}
-			if (forScript == nullptr)
-			{
-				Logger::LogError("[ImGuiIV] Failed to create texture from memory. Details: forScript cannot be nullptr.");
-
+				result = eResult::ImGuiNotInitialized;
 				texturePtr = IntPtr::Zero;
 				textureWidth = 0;
 				textureHeight = 0;
@@ -356,57 +1815,56 @@ namespace IVSDKDotNet
 			}
 			if (data == nullptr)
 			{
-				Logger::LogError("[ImGuiIV] Failed to create texture from memory. Details: data cannot be null.");
-
+				result = eResult::InvalidData;
 				texturePtr = IntPtr::Zero;
 				textureWidth = 0;
 				textureHeight = 0;
 				return false;
 			}
 
+			// Pin managed array
 			pin_ptr<System::Byte> pinnedData = &data[0];
 			unsigned char* pby = pinnedData;
 			void* dataPtr = reinterpret_cast<void*>(pby);
 
 			msclr::interop::marshal_context ctx;
-			PDIRECT3DTEXTURE9 texture;
 			
 			// Try create texture
-			//HRESULT hr = D3DXCreateTextureFromFileInMemory(rage::g_pDirect3DDevice, dataPtr, data->Length, &texture);
+			PDIRECT3DTEXTURE9 texture;
 			HRESULT hr = D3DXCreateTextureFromFileInMemoryEx(rage::g_pDirect3DDevice, dataPtr, data->Length, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &texture);
 
 			if (hr != S_OK)
 			{
-				Logger::LogError(String::Format("[ImGuiIV] Failed to create texture from memory. HResult: {0}", hr));
-
+				WRITE_TO_DEBUG_OUTPUT(String::Format("Failed to create texture from memory! HRESULT: {0}", hr));
+				result = (eResult)hr;
 				texturePtr = IntPtr::Zero;
 				textureWidth = 0;
 				textureHeight = 0;
 				return false;
 			}
+			
+			// Keeping track of the amount of references
+			texture->AddRef();
 
 			// Get the texture surface description
 			D3DSURFACE_DESC imageDesc;
 			texture->GetLevelDesc(0, &imageDesc);
-
+			
 			// Set stuff
+			result = eResult::OK;
 			texturePtr = IntPtr(texture);
 			textureWidth = imageDesc.Width;
 			textureHeight = imageDesc.Height;
-
-			// Register texture
+			
+			// Register texture to script
+			Assembly^ callingAssembly = Assembly::GetCallingAssembly();
 			if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
-				IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(forScript, texturePtr);
-
+				IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""), texturePtr);
+			
 			return true;
 		}
-		static bool ReleaseTexture(Script^ fromScript, IntPtr% texturePtr)
+		static bool ReleaseTexture(IntPtr% texturePtr)
 		{
-			if (fromScript == nullptr)
-			{
-				Logger::LogError("[ImGuiIV] Failed to release texture. Details: fromScript cannot be nullptr.");
-				return false;
-			}
 			if (texturePtr == IntPtr::Zero)
 				return false;
 
@@ -416,10 +1874,6 @@ namespace IVSDKDotNet
 			{
 				texture->Release();
 
-				// Unregister texture
-				if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
-					IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_UnregisterScriptTexture(fromScript, texturePtr);
-
 				texturePtr = IntPtr::Zero;
 				return true;
 			}
@@ -427,18 +1881,31 @@ namespace IVSDKDotNet
 			return false;
 		}
 
-		// Font stuff
-		static bool AddFontFromFile(String^ fileName, float sizeInPixel, [OutAttribute] IntPtr% fontPtr)
+		static bool IsTextureValid(IntPtr texturePtr)
 		{
-			//if (!ImGuiStates::s_bIsImGuiInitialized)
-			//{
-			//	Logger::LogError("[ImGuiIV] Failed to add font from file. Details: ImGui is not initialized.");
-			//	fontPtr = IntPtr::Zero;
-			//	return false;
-			//}
+			PDIRECT3DTEXTURE9 texture = (PDIRECT3DTEXTURE9)texturePtr.ToPointer();
+
+			if (!texture)
+				return false;
+
+			// Check reference count
+			texture->AddRef();
+
+			return texture->Release() > 0;
+		}
+
+		// Font
+		static bool AddFontFromFile(String^ fileName, float sizeInPixel, [OutAttribute] IntPtr% fontPtr, [OutAttribute] eResult% result)
+		{
+			if (ImGui::GetCurrentContext() == nullptr)
+			{
+				result = eResult::ImGuiNotInitialized;
+				fontPtr = IntPtr::Zero;
+				return false;
+			}
 			if (String::IsNullOrWhiteSpace(fileName))
 			{
-				Logger::LogError("[ImGuiIV] Failed to add font from file. Details: fileName cannot be null or white space.");
+				result = eResult::InvalidName;
 				fontPtr = IntPtr::Zero;
 				return false;
 			}
@@ -469,6 +1936,7 @@ namespace IVSDKDotNet
 				if (fileNameWithExtension == fontName
 					&& sizeInPixel == font->ConfigData->SizePixels)
 				{
+					result = eResult::Already;
 					fontPtr = IntPtr::Zero;
 					return false;
 				}
@@ -481,13 +1949,37 @@ namespace IVSDKDotNet
 
 			if (font)
 			{
+				result = eResult::OK;
 				fontPtr = IntPtr(font);
 				return true;
 			}
 
-			Logger::LogError("[ImGuiIV] Failed to add font from file. Details: Unknown error.");
+			result = eResult::Unknown;
 			fontPtr = IntPtr::Zero;
 			return false;
+		}
+
+	internal:
+		static IntPtr CreateTextureFromMemory(array<System::Byte>^ data)
+		{
+			// Pin managed array
+			pin_ptr<System::Byte> pinnedData = &data[0];
+			unsigned char* pby = pinnedData;
+			void* dataPtr = reinterpret_cast<void*>(pby);
+
+			msclr::interop::marshal_context ctx;
+
+			// Try create texture
+			PDIRECT3DTEXTURE9 texture;
+			HRESULT hr = D3DXCreateTextureFromFileInMemoryEx(rage::g_pDirect3DDevice, dataPtr, data->Length, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &texture);
+
+			if (hr != S_OK)
+			{
+				WRITE_TO_DEBUG_OUTPUT(String::Format("Failed to create texture from memory via INTERNAL function! HRESULT: {0}", hr));
+				return IntPtr::Zero;
+			}
+
+			return IntPtr(texture);
 		}
 
 		// Some helper
@@ -559,53 +2051,77 @@ namespace IVSDKDotNet
 			return Vector4(r, g, b, a);
 		}
 
-		// ImGui Drawing Stuff
+		static int GetActiveWindowCount()
+		{
+			if (ImGui::GetCurrentContext() == nullptr)
+				return 0;
+
+			int activeWindows = 0;
+
+			ImGuiContext* ctx = ImGui::GetCurrentContext();
+			for (int i = 0; i < ctx->Windows.Size; i++)
+			{
+				ImGuiWindow* window = ctx->Windows[i];
+
+				// Skip if this window is the fallback window (Debug##Default)
+				if (window->IsFallbackWindow)
+					continue;
+				// Skip if this window is the dockspace host
+				if (window->Flags & ImGuiWindowFlags_DockNodeHost)
+					continue;
+				// Skip if this window is the dockspace window
+				if (window->ID == DockspaceWindowID)
+					continue;
+#if _DEBUG
+				// Skip if this window is the debug window
+				if (window->ID == IVSDKDotNetWrapperDebugWindowID)
+					continue;
+#endif // _DEBUG
+
+				ImGuiStorage* windowStorage = &window->StateStorage;
+
+				// Check additional flags
+				if (windowStorage->GetBool(ImGui::GetIDWithSeed("eImGuiWindowFlagsEx_NoMouseEnable", nullptr, 0)))
+					continue;
+
+				// Get if window is a top-level window
+				bool isTopLevel = (window->Flags & (ImGuiWindowFlags_ChildWindow | ImGuiWindowFlags_Popup | ImGuiWindowFlags_Tooltip)) == 0;
+
+				if (isTopLevel && window->Active && !window->Collapsed && !window->Hidden)
+					activeWindows++;
+			}
+
+			return activeWindows;
+		}
+		static bool IsThereAnyActiveWindow()
+		{
+			return GetActiveWindowCount() != 0;
+		}
+
+		static ImGuiIV_InputTextState GetInputTextState(String^ label)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return ImGuiIV_InputTextState(nullptr, false);
+
+			ImGuiContext& g = *ImGui::GetCurrentContext();
+
+			ImGuiWindow* window = g.CurrentWindow;
+
+			if (!window)
+				return ImGuiIV_InputTextState(nullptr, false);
+
+			msclr::interop::marshal_context ctx;
+			ImGuiID id = window->GetID(ctx.marshal_as<const char*>(label));
+
+			return ImGuiIV_InputTextState(ImGui::GetInputTextState(id), true);
+		}
+
+		// ImGui stuff
 	public:
 
-		// TODO: Actually remove those obsolete functions in v1.4
-
-		[ObsoleteAttribute("This will be removed in version 1.4 of IV-SDK .NET. You should instead use the OnImGuiRendering event the Script class provides you.")]
-		static bool AddDrawCommand(Script^ caller, Action^ drawingAction)
-		{
-			if (caller == nullptr)
-				return false;
-			if (drawingAction == nullptr)
-				return false;
-
-			// Dot not allow any more items in this list if an item for that Script already exists with this unique Draw ID
-			for (int i = 0; i < DrawCommandsList->Count; i++)
-			{
-				ImGuiIV_DrawCommandData data = DrawCommandsList[i];
-
-				if (data.CallerScriptID == caller->ID)
-					return false;
-			}
-
-			// Add draw call to Queue
-			DrawCommandsList->Add(ImGuiIV_DrawCommandData(caller->ID, drawingAction));
-
-			return true;
-		}
-		[ObsoleteAttribute("This will be removed in version 1.4 of IV-SDK .NET.")]
-		static void RemoveDrawCommand(Script^ caller)
-		{
-			if (caller == nullptr)
-				return;
-
-			// If exists, remove draw command from list
-			for (int i = 0; i < DrawCommandsList->Count; i++)
-			{
-				ImGuiIV_DrawCommandData data = DrawCommandsList[i];
-
-				if (data.CallerScriptID == caller->ID)
-				{
-					DrawCommandsList->RemoveAt(i);
-					return;
-				}
-			}
-		}
-
-		// General
+		//-----------------------------------------------------------------------------
+		// [SECTION] MAIN CODE
+		//-----------------------------------------------------------------------------
 		static void PushID(String^ id)
 		{
 			if (String::IsNullOrWhiteSpace(id))
@@ -640,90 +2156,119 @@ namespace IVSDKDotNet
 			ImGui::PopID();
 		}
 
-		// Primitive Drawing
-		[ObsoleteAttribute("This will be removed in version 1.4 of IV-SDK .NET. You should instead use the OnImGuiRendering event the Script class provides you.")]
-		static bool BeginCanvas(Script^ caller, RectangleF clippingRect, [OutAttribute] ImGuiIV_DrawingContext% ctx)
+		static bool IsItemActive()
 		{
-			if (caller == nullptr)
-				return false;
-			
-			// Begin a new window which will be the canvas
-			Begin(caller->ID.ToString(),
-				eImGuiWindowFlags::NoDecoration
-				| eImGuiWindowFlags::NoInputs
-				| eImGuiWindowFlags::NoBringToFrontOnFocus
-				| eImGuiWindowFlags::NoFocusOnAppearing
-				| eImGuiWindowFlags::NoNavFocus
-				| eImGuiWindowFlags::NoBackground, true);
+			return ImGui::IsItemActive();
+		}
+		static bool IsItemDeactivated()
+		{
+			return ImGui::IsItemDeactivated();
+		}
+		static bool IsItemFocused()
+		{
+			return ImGui::IsItemFocused();
+		}
 
-			// Set window position and size
-			SetWindowPos(Vector2::Zero);
-			SetWindowSize(MainViewport.Size);
+		static bool IsItemHovered(eImGuiHoveredFlags flags)
+		{
+			return ImGui::IsItemHovered((ImGuiHoveredFlags)flags);
+		}
+		static bool IsItemHovered()
+		{
+			return IsItemHovered(eImGuiHoveredFlags::None);
+		}
+		static bool IsAnyItemHovered()
+		{
+			return ImGui::IsAnyItemHovered();
+		}
 
-			// Get the draw list from this window
-			ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-			// Set the draw list up
-			drawList->PushTextureID(ImGui::GetIO().Fonts->TexID);
-
-			// Set a clipping rectangle
-			if (clippingRect == RectangleF::Empty)
-				drawList->PushClipRectFullScreen();
+		static void SetActiveID(ImGuiID id, IntPtr window)
+		{
+			if (window == IntPtr::Zero)
+				ImGui::SetActiveID(id, nullptr);
 			else
-				drawList->PushClipRect(ImVec2(clippingRect.X, clippingRect.Y), ImVec2(clippingRect.Right, clippingRect.Bottom));
-
-			ctx = ImGuiIV_DrawingContext(drawList);
-			return true;
-
-			//ImDrawList* drawList = (ImDrawList*)drawListPtr.ToPointer();
-
-			//if (!drawList)
-			//	return false;
-
-			//// Add draw command to draw list if the buffer is 0
-			//if (drawList->CmdBuffer.size() == 0)
-			//	drawList->AddDrawCmd();
-
-			//drawList->PushTextureID(ImGui::GetIO().Fonts->TexID);
-
-			//if (clippingRect == RectangleF::Empty)
-			//	drawList->PushClipRectFullScreen();
-			//else
-			//	drawList->PushClipRect(ImVec2(clippingRect.X, clippingRect.Y), ImVec2(clippingRect.Right, clippingRect.Bottom));
-
-			//return true;
+				ImGui::SetActiveID(id, (ImGuiWindow*)window.ToPointer());
 		}
-		[ObsoleteAttribute("This will be removed in version 1.4 of IV-SDK .NET. You should instead use the OnImGuiRendering event the Script class provides you.")]
-		static bool BeginCanvas(Script^ caller, [OutAttribute] ImGuiIV_DrawingContext% ctx)
+		static ImGuiID GetActiveID()
 		{
-			return BeginCanvas(caller, RectangleF::Empty, ctx);
+			return ImGui::GetActiveID();
 		}
-		[ObsoleteAttribute("This will be removed in version 1.4 of IV-SDK .NET.")]
-		static bool EndCanvas()
+
+		static void PushTabStop(bool tab_stop)
 		{
-			// Get the draw list from this window
-			ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-			// Pop the texture id that was pushed with the begin function
-			drawList->PopTextureID();
-
-			// End the canvas window
-			End();
-
-			return true;
-
-			//ImDrawList* drawList = (ImDrawList*)drawListPtr.ToPointer();
-
-			//if (!drawList)
-			//	return false;
-
-			//drawList->PopTextureID();
-
-			//return true;
+			ImGui::PushTabStop(tab_stop);
+		}
+		static void PopTabStop()
+		{
+			ImGui::PopTabStop();
 		}
 
-		// Window
-		static bool Begin(String^ name, bool% open, eImGuiWindowFlags flags, bool cannotDisableMouse)
+		//-----------------------------------------------------------------------------
+		// [SECTION] STYLING
+		//-----------------------------------------------------------------------------
+		static ImGuiIV_Style GetStyle()
+		{
+			ImGuiStyle* ptr = &ImGui::GetStyle();
+
+			if (!ptr)
+				return ImGuiIV_Style(nullptr, false);
+
+			return ImGuiIV_Style(ptr, true);
+		}
+
+		static void StyleColorsDark()
+		{
+			ImGui::StyleColorsDark();
+		}
+		static void StyleColorsClassic()
+		{
+			ImGui::StyleColorsClassic();
+		}
+		static void StyleColorsLight()
+		{
+			ImGui::StyleColorsLight();
+		}
+
+		static void StyleLayoutDefault()
+		{
+			ImGuiStyle& style = ImGui::GetStyle();
+
+			style.Alpha = 1.0f;
+			style.DisabledAlpha = 0.6000000238418579f;
+			style.WindowPadding = ImVec2(8.0f, 8.0f);
+			style.WindowRounding = 0.0f;
+			style.WindowBorderSize = 1.0f;
+			style.WindowMinSize = ImVec2(32.0f, 32.0f);
+			style.WindowTitleAlign = ImVec2(0.0f, 0.5f);
+			style.WindowMenuButtonPosition = ImGuiDir_Left;
+			style.ChildRounding = 0.0f;
+			style.ChildBorderSize = 1.0f;
+			style.PopupRounding = 0.0f;
+			style.PopupBorderSize = 1.0f;
+			style.FramePadding = ImVec2(4.0f, 3.0f);
+			style.FrameRounding = 0.0f;
+			style.FrameBorderSize = 0.0f;
+			style.ItemSpacing = ImVec2(8.0f, 4.0f);
+			style.ItemInnerSpacing = ImVec2(4.0f, 4.0f);
+			style.CellPadding = ImVec2(4.0f, 2.0f);
+			style.IndentSpacing = 21.0f;
+			style.ColumnsMinSpacing = 6.0f;
+			style.ScrollbarSize = 14.0f;
+			style.ScrollbarRounding = 9.0f;
+			style.GrabMinSize = 10.0f;
+			style.GrabRounding = 0.0f;
+			style.TabRounding = 4.0f;
+			style.TabBorderSize = 0.0f;
+			style.TabMinWidthForCloseButton = 0.0f;
+			style.ColorButtonPosition = ImGuiDir_Right;
+			style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
+			style.SelectableTextAlign = ImVec2(0.0f, 0.0f);
+		}
+
+		//-----------------------------------------------------------------------------
+		// [SECTION] WINDOW
+		//-----------------------------------------------------------------------------
+		static bool Begin(String^ name, bool% open, eImGuiWindowFlags flags, eImGuiWindowFlagsEx additionalFlags)
 		{
 			if (String::IsNullOrWhiteSpace(name))
 				return false;
@@ -740,21 +2285,27 @@ namespace IVSDKDotNet
 
 			open = pOpen;
 
-			// Increase active windows count if Begin function returned true
+			// Set custom flags if Begin function returned true
 			if (result)
 			{
-				// Increase count
-				if (!cannotDisableMouse)
-					ActiveWindows++;
+				ImGuiStorage* windowStorage = ImGui::GetStateStorage();
+
+				// Check and set flags
+				if (additionalFlags.HasFlag(eImGuiWindowFlagsEx::NoMouseEnable)) // NoMouseEnable
+					windowStorage->SetBool(ImGui::GetIDWithSeed("eImGuiWindowFlagsEx_NoMouseEnable", nullptr, 0), true);
 			}
 
 			return result;
 		}
 		static bool Begin(String^ name, bool% open, eImGuiWindowFlags flags)
 		{
-			return Begin(name, open, flags, false);
+			return Begin(name, open, flags, eImGuiWindowFlagsEx::None);
 		}
-		static bool Begin(String^ name, eImGuiWindowFlags flags, bool cannotDisableMouse)
+		static bool Begin(String^ name, bool% open)
+		{
+			return Begin(name, open, eImGuiWindowFlags::None, eImGuiWindowFlagsEx::None);
+		}
+		static bool Begin(String^ name, eImGuiWindowFlags flags, eImGuiWindowFlagsEx additionalFlags)
 		{
 			if (String::IsNullOrWhiteSpace(name))
 				return false;
@@ -767,44 +2318,32 @@ namespace IVSDKDotNet
 
 			bool result = ImGui::Begin(ctx.marshal_as<const char*>(name), NULL, (ImGuiWindowFlags)flags);
 
-			// Increase active windows count if Begin function returned true
+			// Set custom flags if Begin function returned true
 			if (result)
 			{
-				// Increase count
-				if (!cannotDisableMouse)
-					ActiveWindows++;
+				ImGuiStorage* windowStorage = ImGui::GetStateStorage();
+
+				// Check and set flags
+				if (additionalFlags.HasFlag(eImGuiWindowFlagsEx::NoMouseEnable)) // NoMouseEnable
+					windowStorage->SetBool(ImGui::GetIDWithSeed("eImGuiWindowFlagsEx_NoMouseEnable", nullptr, 0), true);
 			}
 
 			return result;
 		}
+		static bool Begin(String^ name, eImGuiWindowFlags flags)
+		{
+			return Begin(name, flags, eImGuiWindowFlagsEx::None);
+		}
 		static bool Begin(String^ name)
 		{
-			if (String::IsNullOrWhiteSpace(name))
-				return false;
-
-			msclr::interop::marshal_context ctx;
-
-			ImGuiWindowClass wClass;
-			wClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplit;
-			ImGui::SetNextWindowClass(&wClass);
-			
-			bool result = ImGui::Begin(ctx.marshal_as<const char*>(name));
-
-			// Increase active windows count if Begin function returned true
-			if (result)
-			{
-				// Increase count
-				ActiveWindows++;
-			}
-
-			return result;
+			return Begin(name, eImGuiWindowFlags::None, eImGuiWindowFlagsEx::None);
 		}
 		static void End()
 		{
 			ImGui::End();
 		}
 
-		static bool BeginChild(String^ id, Vector2 size, bool border, eImGuiWindowFlags flags)
+		static bool BeginChild(String^ id, Vector2 size, eImGuiChildFlags childFlags, eImGuiWindowFlags windowFlags)
 		{
 			if (String::IsNullOrWhiteSpace(id))
 				return false;
@@ -814,43 +2353,20 @@ namespace IVSDKDotNet
 			ImGui::SetNextWindowClass(&wClass);
 
 			msclr::interop::marshal_context ctx;
-			return ImGui::BeginChild(ctx.marshal_as<const char*>(id), Vector2ToImVec2(size), border, (ImGuiWindowFlags)flags);
+
+			return ImGui::BeginChild(ctx.marshal_as<const char*>(id), Vector2ToImVec2(size), (ImGuiChildFlags)childFlags, (ImGuiWindowFlags)windowFlags);
 		}
-		static bool BeginChild(String^ id, Vector2 size, bool border)
+		static bool BeginChild(String^ id, Vector2 size, eImGuiChildFlags childFlags)
 		{
-			if (String::IsNullOrWhiteSpace(id))
-				return false;
-
-			ImGuiWindowClass wClass;
-			wClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplit;
-			ImGui::SetNextWindowClass(&wClass);
-
-			msclr::interop::marshal_context ctx;
-			return ImGui::BeginChild(ctx.marshal_as<const char*>(id), Vector2ToImVec2(size), border);
+			return BeginChild(id, size, childFlags, eImGuiWindowFlags::None);
 		}
 		static bool BeginChild(String^ id, Vector2 size)
 		{
-			if (String::IsNullOrWhiteSpace(id))
-				return false;
-
-			ImGuiWindowClass wClass;
-			wClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplit;
-			ImGui::SetNextWindowClass(&wClass);
-
-			msclr::interop::marshal_context ctx;
-			return ImGui::BeginChild(ctx.marshal_as<const char*>(id), Vector2ToImVec2(size));
+			return BeginChild(id, size, eImGuiChildFlags::None, eImGuiWindowFlags::None);
 		}
 		static bool BeginChild(String^ id)
 		{
-			if (String::IsNullOrWhiteSpace(id))
-				return false;
-
-			ImGuiWindowClass wClass;
-			wClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplit;
-			ImGui::SetNextWindowClass(&wClass);
-
-			msclr::interop::marshal_context ctx;
-			return ImGui::BeginChild(ctx.marshal_as<const char*>(id));
+			return BeginChild(id, Vector2::Zero, eImGuiChildFlags::None, eImGuiWindowFlags::None);
 		}
 		static void EndChild()
 		{
@@ -874,9 +2390,14 @@ namespace IVSDKDotNet
 			msclr::interop::marshal_context ctx;
 			return IntPtr(ImGui::FindWindowByName(ctx.marshal_as<const char*>(name)));
 		}
-		static IntPtr GetWindowDrawList()
+		static ImGuiIV_DrawingContext GetWindowDrawList()
 		{
-			return IntPtr(ImGui::GetWindowDrawList());
+			ImDrawList* ptr = ImGui::GetWindowDrawList();
+
+			if (!ptr)
+				return ImGuiIV_DrawingContext(nullptr, false);
+
+			return ImGuiIV_DrawingContext(ptr, true);
 		}
 
 		static float GetWindowWidth()
@@ -1003,14 +2524,25 @@ namespace IVSDKDotNet
 			ImGui::GcCompactTransientWindowBuffers((ImGuiWindow*)windowPtr.ToPointer());
 		}
 
-		// Window->Focus
+		static IntPtr GetCurrentWindow()
+		{
+			return IntPtr(ImGui::GetCurrentWindow());
+		}
+
+		//-----------------------------------------------------------------------------
+		// [SECTION] FOCUS
+		//-----------------------------------------------------------------------------
 		static void SetWindowFocus(String^ name)
 		{
 			if (String::IsNullOrWhiteSpace(name))
-				return;
-
-			msclr::interop::marshal_context ctx;
-			ImGui::SetWindowFocus(ctx.marshal_as<const char*>(name));
+			{
+				ImGui::SetWindowFocus(nullptr);
+			}
+			else
+			{
+				msclr::interop::marshal_context ctx;
+				ImGui::SetWindowFocus(ctx.marshal_as<const char*>(name));
+			}
 		}
 		static void SetWindowFocus()
 		{
@@ -1048,9 +2580,13 @@ namespace IVSDKDotNet
 		{
 			return ImGui::IsAnyItemFocused();
 		}
+		static bool IsWindowFocused(eImGuiFocusedFlags flags)
+		{
+			return ImGui::IsWindowFocused((ImGuiFocusedFlags)flags);
+		}
 		static bool IsWindowFocused()
 		{
-			return ImGui::IsWindowFocused();
+			return IsWindowFocused(eImGuiFocusedFlags::None);
 		}
 
 		static ImGuiID GetFocusID()
@@ -1064,8 +2600,10 @@ namespace IVSDKDotNet
 
 			ImGui::SetFocusID(id, (ImGuiWindow*)window.ToPointer());
 		}
-		
-		// Style
+
+		//-----------------------------------------------------------------------------
+		// [SECTION] STYLE
+		//-----------------------------------------------------------------------------
 		static void PushStyleVar(eImGuiStyleVar idx, Vector2 value)
 		{
 			ImGui::PushStyleVar((ImGuiStyleVar)idx, Vector2ToImVec2(value));
@@ -1101,7 +2639,9 @@ namespace IVSDKDotNet
 			PopStyleColor(1);
 		}
 
-		// Input
+		//-----------------------------------------------------------------------------
+		// [SECTION] INPUT
+		//-----------------------------------------------------------------------------
 		static String^ GetKeyName(eImGuiKey key)
 		{
 			return gcnew String(ImGui::GetKeyName((ImGuiKey)(int)key));
@@ -1119,14 +2659,20 @@ namespace IVSDKDotNet
 		{
 			return ImGui::IsKeyDown((ImGuiKey)(int)key);
 		}
-		static bool IsKeyPressed(eImGuiKey key, bool repeat)
-		{
-			return ImGui::IsKeyPressed((ImGuiKey)(int)key, repeat);
-		}
+
 		static bool IsKeyPressed(eImGuiKey key, ImGuiID ownerId, eImGuiInputFlags flags)
 		{
 			return ImGui::IsKeyPressed((ImGuiKey)(int)key, ownerId, (ImGuiInputFlags)(int)flags);
 		}
+		static bool IsKeyPressed(eImGuiKey key, bool repeat)
+		{
+			return ImGui::IsKeyPressed((ImGuiKey)(int)key, repeat);
+		}
+		static bool IsKeyPressed(eImGuiKey key)
+		{
+			return IsKeyPressed(key, true);
+		}
+
 		static bool IsKeyReleased(eImGuiKey key)
 		{
 			return ImGui::IsKeyReleased((ImGuiKey)(int)key);
@@ -1183,6 +2729,12 @@ namespace IVSDKDotNet
 		static bool IsMouseDragging(eImGuiMouseButton button, float lockThreshold)
 		{
 			return ImGui::IsMouseDragging((ImGuiMouseButton)(int)button, lockThreshold);
+		}
+
+		static bool WantsTextInput()
+		{
+			ImGuiIO& io = ImGui::GetIO(); (void)io;
+			return io.WantTextInput;
 		}
 
 		static Vector2 GetMousePos()
@@ -1254,7 +2806,9 @@ namespace IVSDKDotNet
 			return ImGui::GetKeyData((ImGuiKey)(int)key)->AnalogValue;
 		}
 
-		// Font
+		//-----------------------------------------------------------------------------
+		// [SECTION] FONT
+		//-----------------------------------------------------------------------------
 		static void PushFont(IntPtr fontPtr)
 		{
 			if (fontPtr == IntPtr::Zero)
@@ -1317,6 +2871,15 @@ namespace IVSDKDotNet
 		static void SetNextItemWidth(float width)
 		{
 			ImGui::SetNextItemWidth(width);
+		}
+
+		static void PushTextWrapPos(float wrap_local_pos_x)
+		{
+			ImGui::PushTextWrapPos(wrap_local_pos_x);
+		}
+		static void PopTextWrapPos()
+		{
+			ImGui::PopTextWrapPos();
 		}
 
 		static void PushItemWidth(float width)
@@ -1537,6 +3100,10 @@ namespace IVSDKDotNet
 
 			msclr::interop::marshal_context ctx;
 			return ImGui::IsPopupOpen(ctx.marshal_as<const char*>(id), (ImGuiPopupFlags)flags);
+		}
+		static bool IsPopupOpen(String^ id)
+		{
+			return IsPopupOpen(id, eImGuiPopupFlags::None);
 		}
 
 		static void OpenPopup(ImGuiID id, eImGuiPopupFlags flags)
@@ -1777,18 +3344,32 @@ namespace IVSDKDotNet
 			return ImGui::IsDragDropPayloadBeingAccepted();
 		}
 
-		// TODO: These should return a ImGuiPayload*
-		static IntPtr AcceptDragDropPayload(String^ type, eImGuiDragDropFlags flags)
+		static ImGuiIV_Payload AcceptDragDropPayload(String^ type, eImGuiDragDropFlags flags)
 		{
 			if (String::IsNullOrWhiteSpace(type))
-				return IntPtr::Zero;
+				return ImGuiIV_Payload(nullptr, false);
 
 			msclr::interop::marshal_context ctx;
-			return IntPtr((void*)ImGui::AcceptDragDropPayload(ctx.marshal_as<const char*>(type), (ImGuiDragDropFlags)flags));
+			const ImGuiPayload* ptr = ImGui::AcceptDragDropPayload(ctx.marshal_as<const char*>(type), (ImGuiDragDropFlags)flags);
+
+			if (!ptr)
+				return ImGuiIV_Payload(nullptr, false);
+
+			return ImGuiIV_Payload(const_cast<ImGuiPayload*>(ptr), true);
 		}
-		static IntPtr GetDragDropPayload()
+		static ImGuiIV_Payload AcceptDragDropPayload(String^ type)
 		{
-			return IntPtr((void*)ImGui::GetDragDropPayload());
+			return AcceptDragDropPayload(type, eImGuiDragDropFlags::None);
+		}
+
+		static ImGuiIV_Payload GetDragDropPayload()
+		{
+			const ImGuiPayload* ptr = ImGui::GetDragDropPayload();
+
+			if (!ptr)
+				return ImGuiIV_Payload(nullptr, false);
+
+			return ImGuiIV_Payload(const_cast<ImGuiPayload*>(ptr), true);
 		}
 
 		static void RenderDragDropTargetRect(RectangleF bb, RectangleF itemClipRect)
@@ -1810,6 +3391,14 @@ namespace IVSDKDotNet
 
 			msclr::interop::marshal_context ctx;
 			ImGui::Text(ctx.marshal_as<const char*>(String::Format(str, args)));
+		}
+		static void TextUnformatted(String^ str, ...array<System::Object^>^ args)
+		{
+			if (String::IsNullOrWhiteSpace(str))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImGui::TextUnformatted(ctx.marshal_as<const char*>(String::Format(str, args)));
 		}
 		static void TextDisabled(String^ str, ...array<System::Object^>^ args)
 		{
@@ -1839,7 +3428,7 @@ namespace IVSDKDotNet
 		{
 			if (String::IsNullOrWhiteSpace(str))
 				return;
-
+			
 			msclr::interop::marshal_context ctx;
 			ImGui::TextWithInlineColors(ctx.marshal_as<const char*>(String::Format(str, args)));
 		}
@@ -2097,6 +3686,11 @@ namespace IVSDKDotNet
 		//-------------------------------------------------------------------------
 		// [SECTION] Widgets: Low-level Layout helpers
 		//-------------------------------------------------------------------------
+		static void Spacing(int n)
+		{
+			while (n--) // TODO: TEST THIS!!!!!!!!!!!
+				ImGui::Spacing();
+		}
 		static void Spacing()
 		{
 			ImGui::Spacing();
@@ -2121,6 +3715,10 @@ namespace IVSDKDotNet
 		static void SeparatorEx(eImGuiSeparatorFlags flags, float thickness)
 		{
 			ImGui::SeparatorEx((ImGuiSeparatorFlags)flags, thickness);
+		}
+		static void SeparatorEx(eImGuiSeparatorFlags flags)
+		{
+			SeparatorEx(flags, 1.0F);
 		}
 		static void Separator()
 		{
@@ -2708,7 +4306,7 @@ namespace IVSDKDotNet
 
 				return result;
 			}
-
+			
 			std::string* str = new std::string(ctx.marshal_as<const char*>(input));
 
 			bool result = ImGui::InputText(ctx.marshal_as<const char*>(label), str, (ImGuiInputFlags)flags);
@@ -2767,6 +4365,11 @@ namespace IVSDKDotNet
 			return InputTextWithHint(label, hint, input, eImGuiInputFlags::None);
 		}
 
+		static bool TempInputIsActive(ImGuiID id)
+		{
+			return ImGui::TempInputIsActive(id);
+		}
+
 		//-------------------------------------------------------------------------
 		// [SECTION] Widgets: ColorEdit, ColorPicker, ColorButton, etc.
 		//-------------------------------------------------------------------------
@@ -2774,7 +4377,7 @@ namespace IVSDKDotNet
 		{
 			if (String::IsNullOrWhiteSpace(label))
 				return false;
-
+			
 			msclr::interop::marshal_context ctx;
 			
 			ImVec4 vec = ImVec4(color.X, color.Y, color.Z, 0.0F);
@@ -2851,6 +4454,18 @@ namespace IVSDKDotNet
 			msclr::interop::marshal_context ctx;
 			return ImGui::TreeNode(ctx.marshal_as<const char*>(label));
 		}
+		static bool TreeNodeEx(String^ label, eImGuiTreeNodeFlags flags)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return false;
+
+			msclr::interop::marshal_context ctx;
+			return ImGui::TreeNodeEx(ctx.marshal_as<const char*>(label), (ImGuiTreeNodeFlags)flags);
+		}
+		static bool TreeNodeEx(String^ label)
+		{
+			return TreeNodeEx(label, eImGuiTreeNodeFlags::None);
+		}
 		static void TreePop()
 		{
 			ImGui::TreePop();
@@ -2907,6 +4522,15 @@ namespace IVSDKDotNet
 		static bool CollapsingHeader(String^ label)
 		{
 			return CollapsingHeader(label, eImGuiTreeNodeFlags::None);
+		}
+
+		static void SetNextItemOpen(bool isOpen, eImGuiCond cond)
+		{
+			ImGui::SetNextItemOpen(isOpen, (ImGuiCond)cond);
+		}
+		static void SetNextItemOpen(bool isOpen)
+		{
+			SetNextItemOpen(isOpen, eImGuiCond::None);
 		}
 
 		//-------------------------------------------------------------------------
@@ -3168,6 +4792,11 @@ namespace IVSDKDotNet
 			TableNextRow(eImGuiTableRowFlags::None, 0.0F);
 		}
 
+		static void TableHeadersRow()
+		{
+			ImGui::TableHeadersRow();
+		}
+
 		//-------------------------------------------------------------------------
 		// [SECTION] Tables: Columns changes
 		//-------------------------------------------------------------------------
@@ -3179,9 +4808,38 @@ namespace IVSDKDotNet
 		{
 			return ImGui::TableSetColumnIndex(column_n);
 		}
+
+		static bool TableNextColumn(int n)
+		{
+			bool b;
+			while (n--) // TODO: TEST THIS!!!!!!!!!!!!!!!!!
+				b = ImGui::TableNextColumn();
+			return b;
+		}
 		static bool TableNextColumn()
 		{
 			return ImGui::TableNextColumn();
+		}
+
+		static void TableSetupColumn(String^ label, eImGuiTableColumnFlags flags, float init_width_or_weight, ImGuiID userId)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImGui::TableSetupColumn(ctx.marshal_as<const char*>(label), (ImGuiTableColumnFlags)flags, init_width_or_weight, userId);
+		}
+		static void TableSetupColumn(String^ label, eImGuiTableColumnFlags flags, float init_width_or_weight)
+		{
+			TableSetupColumn(label, flags, init_width_or_weight, 0U);
+		}
+		static void TableSetupColumn(String^ label, eImGuiTableColumnFlags flags)
+		{
+			TableSetupColumn(label, flags, 0.0F, 0U);
+		}
+		static void TableSetupColumn(String^ label)
+		{
+			TableSetupColumn(label, eImGuiTableColumnFlags::None, 0.0F, 0U);
 		}
 
 		//-------------------------------------------------------------------------
@@ -3250,8 +4908,8 @@ namespace IVSDKDotNet
 
 	private:
 		static bool m_bForceCursor;
-		static int m_iActiveWindows;
 	};
+
 }
 
 class ImGuiDraw
@@ -3259,7 +4917,7 @@ class ImGuiDraw
 public:
 	static bool OnWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		if (ImGuiStates::s_bIsImGuiInitialized)
+		if (ImGui::GetCurrentContext() != nullptr)
 		{
 			if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
 				return true;
@@ -3278,20 +4936,6 @@ public:
 			return;
 
 		IntPtr d3d9DevicePointer = IntPtr(d3d9Device);
-
-		// Set the style
-		switch (ImGuiIV::SelectedStyle)
-		{
-			case 0: // dark
-				ImGui::StyleColorsDark();
-				break;
-			case 1: // classic
-				ImGui::StyleColorsClassic();
-				break;
-			case 2: // light
-				ImGui::StyleColorsLight();
-				break;
-		}
 
 		// Get ImGuiIO
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -3341,40 +4985,17 @@ public:
 
 		DoDockspace();
 
-		int windowDrawCallsQueueCount = ImGuiIV::DrawCommandsList->Count;
-
 		// Script/Internal Drawing
 		if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
 		{
 			ImDrawList* drawList = ImGui::GetBackgroundDrawList();
-			IVSDKDotNet::Manager::ManagerScript::s_Instance->RaiseOnD3D9Frame(d3d9DevicePointer, ImGuiIV_DrawingContext(drawList));
+			IVSDKDotNet::Manager::ManagerScript::s_Instance->RaiseOnD3D9Frame(d3d9DevicePointer, ImGuiIV_DrawingContext(drawList, true));
 		}
 
-#pragma region Custom Drawing
-		System::Guid callerScriptGuid = System::Guid::Empty;
-
-		try
-		{
-			for (int i = 0; i < IVSDKDotNet::ImGuiIV::DrawCommandsList->Count; i++)
-			{
-				ImGuiIV_DrawCommandData drawData = ImGuiIV::DrawCommandsList[i];
-				callerScriptGuid = drawData.CallerScriptID;
-				drawData.Data->Invoke();
-			}
-		}
-		catch (System::Exception^ ex)
-		{
-			if (callerScriptGuid != System::Guid::Empty)
-			{
-				// Abort script
-				if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
-					IVSDKDotNet::Manager::ManagerScript::s_Instance->AbortScript(callerScriptGuid);
-			}
-		}
-#pragma endregion
+		// Get the amount of active windows
+		int activeScriptWindows = ImGuiIV::GetActiveWindowCount();
 
 #if _DEBUG
-		// TODO: Remove later
 		static bool debugWindowOpened = false;
 
 		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_F9, false))
@@ -3382,13 +5003,16 @@ public:
 
 		if (debugWindowOpened)
 		{
+			ImGuiContext* ctx = ImGui::GetCurrentContext();
+
+			ImGui::ShowDebugLogWindow(&debugWindowOpened);
+
 			ImGui::Begin("IV-SDK .NET Wrapper Debug", &debugWindowOpened, ImGuiWindowFlags_AlwaysAutoResize);
 
-			ImGui::SeparatorText("ImGuiIV States");
+			// Store ID of the debug window so we can exclude this window in certain functions if we have to
+			ImGuiIV::IVSDKDotNetWrapperDebugWindowID = ImGui::GetCurrentWindowRead()->ID;
 
-			// Active Script Windows
-			ImGui::Text("Active Script Windows: %s", std::to_string(ImGuiIV::ActiveWindows).c_str());
-			ImGui::Text("Window Draw Calls List: %s", std::to_string(windowDrawCallsQueueCount).c_str());
+			ImGui::SeparatorText("ImGuiIV States");
 
 			ImGui::BeginDisabled();
 			ImGui::Checkbox("Wants Mouse Disabled", &ImGuiStates::s_bImGuiWantsMouseDisabled);
@@ -3404,6 +5028,10 @@ public:
 			ImGui::Checkbox("Wants Text Input", &io.WantTextInput);
 			ImGui::EndDisabled();
 
+			ImGui::SeparatorText("Opened Windows");
+			ImGui::Text("Script Window Count: %s", std::to_string(activeScriptWindows).c_str());
+			ImGui::Text("All Window Count: %s", std::to_string(ctx->Windows.Size).c_str());
+
 			ImGui::SetWindowPos(ImVec2(10.0F, vp->Size.y - (ImGui::GetWindowSize().y + 250.0F)), ImGuiCond_FirstUseEver);
 			ImGui::End();
 		}
@@ -3415,7 +5043,7 @@ public:
 		// TODO: Fix cursor jump to center of screen when keyboard gets reacquired.
 
 		// Disable mouse input if there are any opened ImGui windows or if the cursor should be forced.
-		if (ImGuiIV::ActiveWindows > 0 || ImGuiIV::ForceCursor)
+		if (activeScriptWindows > 0 || ImGuiIV::ForceCursor)
 		{
 			// Draw a mouse cursor on screen
 			io.MouseDrawCursor = true;
@@ -3453,9 +5081,6 @@ public:
 			ImGuiStates::s_bImGuiWantsKeyboardDisabled = false;
 			ImGuiStates::s_bReactivateKeyboardInputs = false;
 		}
-
-		// Reset active window count
-		ImGuiIV::ActiveWindows = 0;
 
 		// End ImGui Frame and draw
 		ImGui::EndFrame();
@@ -3518,8 +5143,7 @@ private:
 		// Add font
 		String^ fontFile = CLR::CLRBridge::IVSDKDotNetDataPath + "\\public-sans.regular.ttf";
 		msclr::interop::marshal_context ctx;
-		io.Fonts->AddFontFromFileTTF(ctx.marshal_as<const char*>(fontFile), 14.5F);
-		io.FontGlobalScale = 1.05F;
+		io.Fonts->AddFontFromFileTTF(ctx.marshal_as<const char*>(fontFile), 15.5F);
 		
 		ImGuiStates::s_bIsImGuiInitialized = true;
 	}
@@ -3557,7 +5181,10 @@ private:
 		// all active windows docked into it will lose their parent and become undocked.
 		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
 		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
-		ImGui::Begin("MainDockSpace", nullptr, window_flags);
+		ImGui::Begin("IVSDKDotNetMainDockSpace", nullptr, window_flags);
+
+		// Store ID of the dockspace window so we can exclude this window in certain functions if we have to
+		ImGuiIV::DockspaceWindowID = ImGui::GetCurrentWindowRead()->ID;
 
 		if (opt_fullscreen)
 			ImGui::PopStyleVar(2);

@@ -32,6 +32,9 @@ namespace IVSDKDotNet
 			static event SingleIntDelegate^ AwardAchievementHook;
 			static event SingleBoolDelegate^ EnableChaseAudioHook;
 
+			static event DefaultHookDelegate^ IsWorldPointWithinBrainActivationRangeHook;
+			static event SingleIntDelegate^ IsObjectWithinBrainActivationRangeHook;
+
 		internal: // Event Raisers
 			static bool RaisePrintStringHook(String^ str)
 			{
@@ -62,6 +65,15 @@ namespace IVSDKDotNet
 			static bool RaiseEnableChaseAudioHook(bool enable)
 			{
 				return EnableChaseAudioHook(enable);
+			}
+
+			static bool RaiseIsWorldPointWithinBrainActivationRangeHook()
+			{
+				return IsWorldPointWithinBrainActivationRangeHook();
+			}
+			static bool RaiseIsObjectWithinBrainActivationRangeHook(int obj)
+			{
+				return IsObjectWithinBrainActivationRangeHook(obj);
 			}
 
 		internal:
@@ -139,6 +151,9 @@ namespace IVSDKDotNet
 
 			static void NATIVE_AWARD_ACHIEVEMENT(IVNativeCallContext* pNativeContext);
 			static void NATIVE_ENABLE_CHASE_AUDIO(IVNativeCallContext* pNativeContext);
+
+			static bool NATIVE_IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE(IVNativeCallContext* pNativeContext);
+			static bool NATIVE_IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE(IVNativeCallContext* pNativeContext);
 		};
 
 	}

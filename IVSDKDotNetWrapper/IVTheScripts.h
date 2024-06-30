@@ -130,7 +130,7 @@ namespace IVSDKDotNet
 
 		static void SetGlobal(int index, int value);
 		static void SetGlobal(int index, float value);
-		static void SetGlobal(int index, String^ value);
+		static bool SetGlobal(int index, String^ value);
 
 	private:
 		static uint32_t m_iPreviousThread;

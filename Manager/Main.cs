@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Numerics;
 
 using Newtonsoft.Json;
 
@@ -35,7 +36,9 @@ namespace Manager
         
         public List<string> TierOneSupporters;
         public List<string> TierTwoSupporters;
-        public List<string> TierThreeSupporters; 
+        public List<string> TierThreeSupporters;
+
+        public List<IntPtr> GlobalRegisteredTextures; // For any texture that couldn't be assigned to any script
 
         // Managers
         public RemoteConnectionManager ConnectionManager;
@@ -45,7 +48,11 @@ namespace Manager
         public NotificationUI Notification;
 
         // Hooks
-        private KeyWatchDog keyWatchDog;
+        private KeyWatchDog[] keyWatchDogs;
+
+        // Debug
+        public bool DisableKeyEvents;
+        public bool ThrowOnError;
 
         // Other
         public Version CurrentWrapperVersion;
@@ -60,6 +67,8 @@ namespace Manager
         public bool OnWindowFocusChangedEventCalled;
         public bool WasBoundPhoneNumbersProcessed;
         private int lastLogLineCount;
+
+        public int MainThreadID;
         #endregion
 
         #region Events
@@ -75,6 +84,8 @@ namespace Manager
                 Logger.LogDebug(string.Format("Was searching for a resources file with the name {0}. Skipping.", assemblyName));
                 return null;
             }
+
+            Logger.LogDebug(string.Format("Trying to resolve assembly {0}...", assemblyName));
 
             if (File.Exists(assemblyPath))
                 return Assembly.UnsafeLoadFrom(assemblyPath);
@@ -100,6 +111,9 @@ namespace Manager
             else
             {
                 Logger.Log("There is currently no new IV-SDK .NET update available.");
+
+                if (!result.IsSilentCheck)
+                    Notification.ShowNotification(NotificationType.Default, DateTime.UtcNow.AddSeconds(7), "No new IV-SDK .NET update available", "There is currently no new IV-SDK .NET update available.", "NO_NEW_UPDATE_AVAILABLE");
             }
         }
 
@@ -182,6 +196,8 @@ namespace Manager
             TierTwoSupporters =             new List<string>();
             TierThreeSupporters =           new List<string>();
 
+            GlobalRegisteredTextures =      new List<IntPtr>();
+
             // Managers
             ConnectionManager = new RemoteConnectionManager();
 
@@ -190,10 +206,7 @@ namespace Manager
             Console.OnConsoleCommand += Console_OnConsoleCommand;
             Notification = new NotificationUI();
 
-            // TODO: Might remove KeyWatchDog and replace with ImGui key events
-            keyWatchDog =   new KeyWatchDog();
-            keyWatchDog.KeyDown +=  KeyWatchDog_KeyDown;
-            keyWatchDog.KeyUp +=    KeyWatchDog_KeyUp;
+            SetUpKeyWatchDogs();
 
             // Other
             UpdateChecker = new UpdateChecker(CLR.CLRBridge.Version, "https://www.dropbox.com/s/smaz6ij8dkzd7nh/version.txt?dl=1");
@@ -205,6 +218,8 @@ namespace Manager
 
             GTAIVProcess = Process.GetCurrentProcess();
 
+            // ScriptHookDotNet stuff
+            SHDNStuff.LoadIncludedScriptHookDotNetAssembly();
             SHDNStuff.Init();
 
             // Init Reflection
@@ -217,7 +232,7 @@ namespace Manager
             processCheckerTimerID = StartNewTimerInternal(1000, () =>
             {
 
-                if (!Reflection.IsRaiseOnWindowFocusChangedAvailable())
+                if (!Reflection.IsCallOnWindowFocusChangedAvailable())
                 {
                     AbortTaskOrTimer(processCheckerTimerID);
                     return;
@@ -230,7 +245,7 @@ namespace Manager
                 {
                     if (!OnWindowFocusChangedEventCalled)
                     {
-                        Reflection.RaiseOnWindowFocusChanged(true);
+                        Reflection.CallOnWindowFocusChanged(true);
                         OnWindowFocusChangedEventCalled = true;
                     }
                 }
@@ -238,7 +253,7 @@ namespace Manager
                 {
                     if (OnWindowFocusChangedEventCalled)
                     {
-                        Reflection.RaiseOnWindowFocusChanged(false);
+                        Reflection.CallOnWindowFocusChanged(false);
                         OnWindowFocusChangedEventCalled = false;
                     }
                 }
@@ -253,12 +268,22 @@ namespace Manager
             if (Config.PauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
+            // Get ID of this thread
+            MainThreadID = System.Threading.Thread.CurrentThread.ManagedThreadId;
+
+            // Cleanup ScriptHookDotNet cache
+            SHDNStuff.ProcessCache();
+
             // Load ScriptHookDotNet scripts on first frame
             if (!SHDNStuff.WereScriptHookDotNetScriptsLoadedThisSession)
             {
                 LoadSHDNScripts();
                 SHDNStuff.WereScriptHookDotNetScriptsLoadedThisSession = true;
             }
+
+            // Check for key presses for ScriptHookDotNet scripts
+            if (keyWatchDogs != null)
+                keyWatchDogs[1].Process();
 
             // Process stuff from queue
             if (ActionQueue.Count != 0)
@@ -461,9 +486,9 @@ namespace Manager
                 FirstFrame = false;
             }
 
-            // Check for key presses
-            if (keyWatchDog != null)
-                keyWatchDog.Process();
+            // Check for key presses for IV-SDK .NET scripts
+            if (keyWatchDogs != null)
+                keyWatchDogs[0].Process();
 
             // Raise all script ProcessPad events
             ActiveScripts.ForEach(fs =>
@@ -480,18 +505,8 @@ namespace Manager
         }
         public override void RaiseOnD3D9Frame(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
         {
-            // Raise all script OnFirstD3D9Frame events
-            ActiveScripts.ForEach(fs =>
-            {
-                try
-                {
-                    fs.RaiseOnFirstD3D9Frame(devicePtr);
-                }
-                catch (Exception ex)
-                {
-                    HandleScriptException(fs, 8d, "OnFirstD3D9Frame", ex);
-                }
-            });
+            // Reset ImGui style to default for script windows
+            ResetImGuiStyle();
 
             // Raise all script OnImGuiRendering events
             ActiveScripts.ForEach(fs =>
@@ -504,7 +519,14 @@ namespace Manager
                 {
                     HandleScriptException(fs, 8d, "OnImGuiRendering", ex);
                 }
+
+                // The script itself might've changed the style of ImGui so we need to reset it for the next script
+                ResetImGuiStyle();
             });
+
+            // Set internal custom style
+            if (Config.UseCustomThemeForManagerAndConsole)
+                SetImGuiPurpleStyle();
 
             // Draw internal stuff
             Console.DoUI();
@@ -547,13 +569,20 @@ namespace Manager
             if (Config.PauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
-            // Raise local things
-            if (Console != null)
-                Console.KeyDown(e);
+            // Only do stuff here if event comes from IV-SDK .NET KeyWatchDog
+            if (sender == keyWatchDogs[0])
+            {
+                // Raise local things
+                if (Console != null)
+                    Console.KeyDown(e);
 
-            // Check stuff
-            Checker.CheckSwitchCursorKeyPressed(e);
-            Checker.CheckOpenManagerWindowKeyPressed(e);
+                // Check stuff
+                Checker.CheckSwitchCursorKeyPressed(e);
+                Checker.CheckOpenManagerWindowKeyPressed(e);
+            }
+
+            if (DisableKeyEvents)
+                return;
 
             // Raise all script KeyDown events
             ActiveScripts.ForEach(fs =>
@@ -562,18 +591,18 @@ namespace Manager
                 {
                     if (fs.IsScriptHookDotNetScript)
                     {
-                        fs.RaiseKeyDown(e);
+                        fs.RaiseKeyDown(sender, e);
                     }
                     else
                     {
                         if (fs.GetScriptAs<Script>().OnlyRaiseKeyEventsWhenInGame)
                         {
                             if (IVPlayerInfo.FindThePlayerPed() != UIntPtr.Zero)
-                                fs.RaiseKeyDown(e);
+                                fs.RaiseKeyDown(sender, e);
                         }
                         else
                         {
-                            fs.RaiseKeyDown(e);
+                            fs.RaiseKeyDown(sender, e);
                         }
                     }
                 }
@@ -588,6 +617,9 @@ namespace Manager
             if (Config.PauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
+            if (DisableKeyEvents)
+                return;
+
             // Raise all script KeyUp events
             ActiveScripts.ForEach(fs =>
             {
@@ -595,18 +627,18 @@ namespace Manager
                 {
                     if (fs.IsScriptHookDotNetScript)
                     {
-                        fs.RaiseKeyUp(e);
+                        fs.RaiseKeyUp(sender, e);
                     }
                     else
                     {
                         if (fs.GetScriptAs<Script>().OnlyRaiseKeyEventsWhenInGame)
                         {
                             if (IVPlayerInfo.FindThePlayerPed() != UIntPtr.Zero)
-                                fs.RaiseKeyUp(e);
+                                fs.RaiseKeyUp(sender, e);
                         }
                         else
                         {
-                            fs.RaiseKeyUp(e);
+                            fs.RaiseKeyUp(sender, e);
                         }
                     }
                 }
@@ -629,8 +661,43 @@ namespace Manager
         #region Methods
 
         // Load stuff
+        public void LoadScriptsInternal()
+        {
+            LoadIVSDKDotNetScripts();
+
+            // Load ScriptHookDotNet scripts
+            if (SHDNStuff.WereScriptHookDotNetScriptsLoadedThisSession)
+                LoadSHDNScripts();
+
+            TimeSinceLastScriptReload = DateTime.Now;
+        }
+        public void LoadIVSDKDotNetScripts()
+        {
+            if (!Directory.Exists(CLR.CLRBridge.IVSDKDotNetScriptsPath))
+            {
+                Directory.CreateDirectory(CLR.CLRBridge.IVSDKDotNetScriptsPath);
+                return;
+            }
+
+            // Abort currently loaded IV-SDK .NET scripts
+            AbortScripts(ScriptType.IVSDKDotNet, AbortReason.Manager, false);
+
+            // Load IV-SDK .NET scripts
+            string[] scriptFiles = Directory.GetFiles(CLR.CLRBridge.IVSDKDotNetScriptsPath, "*.ivsdk.dll", SearchOption.TopDirectoryOnly);
+
+            for (int i = 0; i < scriptFiles.Length; i++)
+                LoadAssembly(scriptFiles[i]);
+
+            // Log
+            Logger.Log(string.Format("Finished loading {0} IV-SDK .NET scripts.", ActiveScripts.Count(x => x.IsIVSDKDotNetScript)));
+        }
         public void LoadSHDNScripts()
         {
+            if (CLR.CLRBridge.DisableScriptHookDotNetLoading)
+            {
+                Notification.ShowNotification(NotificationType.Warning, DateTime.UtcNow.AddSeconds(7d), "Could not load ScriptHookDotNet mods", "The IV-SDK .NET ScriptHookDotNet mod loader got disabled because the old ScriptHookDotNet is currently installed.", "SHDN_MOD_LOADING_IS_DISABLED");
+                return;
+            }
             if (!Config.LoadScriptHookDotNetScripts)
                 return;
 
@@ -937,10 +1004,10 @@ namespace Manager
                     switch (scriptAssembliesLocation)
                     {
                         case eAssembliesLocation.Custom:
-                            Logger.LogDebug(string.Format("Script {0} is requesting assembly {1} which should be in {2}", foundScript.Name, args.Name, customDir));
+                            Logger.LogDebug(string.Format("Script {0} is requesting assembly {1} which should be in {2}", foundScript.EntryPoint.FullName, args.Name, customDir));
                             break;
                         default:
-                            Logger.LogDebug(string.Format("Script {0} is requesting assembly {1} which should be in {2}", foundScript.Name, args.Name, scriptAssembliesLocation.ToString()));
+                            Logger.LogDebug(string.Format("Script {0} is requesting assembly {1} which should be in {2}", foundScript.EntryPoint.FullName, args.Name, scriptAssembliesLocation.ToString()));
                             break;
                     }
 
@@ -949,7 +1016,7 @@ namespace Manager
                     {
 
                         case eAssembliesLocation.GameRootDirectory:
-                            Logger.LogWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the root directory of GTA IV! Aborting.", foundScript.Name, assemblyName));
+                            Logger.LogWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the root directory of GTA IV! Aborting.", foundScript.EntryPoint.FullName, assemblyName));
                             break;
 
                         case eAssembliesLocation.ScriptsDirectory:
@@ -958,7 +1025,7 @@ namespace Manager
                             if (File.Exists(fileFullPath))
                                 return Assembly.UnsafeLoadFrom(fileFullPath);
 
-                            Logger.LogWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the scripts directory! Aborting.", foundScript.Name, assemblyName));
+                            Logger.LogWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the scripts directory! Aborting.", foundScript.EntryPoint.FullName, assemblyName));
                             break;
 
                         case eAssembliesLocation.DecideManuallyForEachAssembly:
@@ -967,7 +1034,7 @@ namespace Manager
                             if (File.Exists(fileFullPath))
                                 return Assembly.UnsafeLoadFrom(fileFullPath);
 
-                            Logger.LogWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in directory ({2})! Aborting.", foundScript.Name, assemblyName, Path.GetDirectoryName(fileFullPath)));
+                            Logger.LogWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in directory ({2})! Aborting.", foundScript.EntryPoint.FullName, assemblyName, Path.GetDirectoryName(fileFullPath)));
                             break;
 
                         case eAssembliesLocation.Custom:
@@ -976,7 +1043,7 @@ namespace Manager
                             if (File.Exists(fileFullPath))
                                 return Assembly.UnsafeLoadFrom(fileFullPath);
 
-                            Logger.LogWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the custom directory ({2})! Aborting.", foundScript.Name, assemblyName, script.CustomAssembliesPath));
+                            Logger.LogWarning(string.Format("Script {0} was requesting assembly {1} but it was not found in the custom directory ({2})! Aborting.", foundScript.EntryPoint.FullName, assemblyName, script.CustomAssembliesPath));
                             break;
                     }
 
@@ -988,7 +1055,7 @@ namespace Manager
             }
             catch (Exception ex)
             {
-                Logger.LogError(string.Format("An error occured while loading assembly {0} for Script {1}. Aborting. Details: {2}", args.Name, foundScript != null ? foundScript.Name : "UNKNOWN", ex.ToString()));
+                Logger.LogError(string.Format("An error occured while loading assembly {0} for Script {1}. Aborting. Details: {2}", args.Name, foundScript != null ? foundScript.EntryPoint.FullName : "UNKNOWN", ex.ToString()));
             }
 
             return null;
@@ -1025,6 +1092,12 @@ namespace Manager
                     });
                     ActiveScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
 
+                    // Get rid of registered textures that couldn't be assigned to any script
+                    DestroyGlobalRegisteredTextures();
+
+                    // Clear ScriptHookDotNet Cache
+                    GTA.ContentCache.RemoveAll(true);
+
                     break;
                 case ScriptType.IVSDKDotNet:
 
@@ -1047,12 +1120,16 @@ namespace Manager
                     });
                     ActiveScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
 
+                    // Clear ScriptHookDotNet Cache
+                    GTA.ContentCache.RemoveAll(true);
+
                     break;
             }
 
             // Force garbage collection
             GC.Collect();
             GC.WaitForPendingFinalizers();
+            GC.Collect();
         }
 
         // DelayedAction
@@ -1061,11 +1138,123 @@ namespace Manager
             DelayedActions.Insert(DelayedActions.Count, new DelayedAction(id, purpose, executeIn, actionToExecute, parameter));
         }
 
+        // ImGui
+        private void ResetImGuiStyle()
+        {
+            string selectedImGuiStyle = Config.ImGuiStyle.ToLower();
+
+            if (selectedImGuiStyle == "dark")
+                ImGuiIV.StyleColorsDark();
+            else if (selectedImGuiStyle == "classic")
+                ImGuiIV.StyleColorsClassic();
+            else if (selectedImGuiStyle == "light")
+                ImGuiIV.StyleColorsLight();
+            else
+                ImGuiIV.StyleColorsDark();
+
+            ImGuiIV.StyleLayoutDefault();
+        }
+        private void SetImGuiPurpleStyle()
+        {
+            // Purple Comfy style by RegularLunar from ImThemes
+            // Slighty modified
+            ImGuiIV_Style style = ImGuiIV.GetStyle();
+
+            style.Alpha = 1.0f;
+            style.DisabledAlpha = 0.5f;
+            style.WindowPadding = new Vector2(8.0f, 8.0f);
+            style.WindowRounding = 10.0f;
+            style.WindowBorderSize = 1.0f;
+            style.WindowMinSize = new Vector2(30.0f, 30.0f);
+            style.WindowTitleAlign = new Vector2(0.5f, 0.5f);
+            style.WindowMenuButtonPosition = eImGuiDir.Right;
+            style.ChildRounding = 5.0f;
+            style.ChildBorderSize = 1.0f;
+            style.PopupRounding = 10.0f;
+            style.PopupBorderSize = 0.0f;
+            style.FramePadding = new Vector2(5.0f, 3.5f);
+            style.FrameRounding = 5.0f;
+            style.FrameBorderSize = 0.0f;
+            style.ItemSpacing = new Vector2(5.0f, 4.0f);
+            style.ItemInnerSpacing = new Vector2(5.0f, 5.0f);
+            style.CellPadding = new Vector2(4.0f, 2.0f);
+            style.IndentSpacing = 5.0f;
+            style.ColumnsMinSpacing = 5.0f;
+            style.ScrollbarSize = 15.0f;
+            style.ScrollbarRounding = 9.0f;
+            style.GrabMinSize = 15.0f;
+            style.GrabRounding = 5.0f;
+            style.TabRounding = 5.0f;
+            style.TabBorderSize = 0.0f;
+            style.TabMinWidthForCloseButton = 0.0f;
+            style.ColorButtonPosition = eImGuiDir.Right;
+            style.ButtonTextAlign = new Vector2(0.5f, 0.5f);
+            style.SelectableTextAlign = new Vector2(0.0f, 0.0f);
+
+            Vector4[] colors = style.Colors;
+            colors[(int)eImGuiCol.Text] = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+            colors[(int)eImGuiCol.TextDisabled] = new Vector4(1.0f, 1.0f, 1.0f, 0.3605149984359741f);
+            colors[(int)eImGuiCol.WindowBg] = new Vector4(0.09803921729326248f, 0.09803921729326248f, 0.09803921729326248f, 1.0f);
+            colors[(int)eImGuiCol.ChildBg] = new Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+            colors[(int)eImGuiCol.PopupBg] = new Vector4(0.09803921729326248f, 0.09803921729326248f, 0.09803921729326248f, 1.0f);
+            colors[(int)eImGuiCol.Border] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.BorderShadow] = new Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[(int)eImGuiCol.FrameBg] = new Vector4(0.1568627506494522f, 0.1568627506494522f, 0.1568627506494522f, 1.0f);
+            colors[(int)eImGuiCol.FrameBgHovered] = new Vector4(0.3803921639919281f, 0.4235294163227081f, 0.572549045085907f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.FrameBgActive] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.TitleBg] = new Vector4(0.09803921729326248f, 0.09803921729326248f, 0.09803921729326248f, 1.0f);
+            colors[(int)eImGuiCol.TitleBgActive] = new Vector4(0.09803921729326248f, 0.09803921729326248f, 0.09803921729326248f, 1.0f);
+            colors[(int)eImGuiCol.TitleBgCollapsed] = new Vector4(0.2588235437870026f, 0.2588235437870026f, 0.2588235437870026f, 0.55f);
+            colors[(int)eImGuiCol.MenuBarBg] = new Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[(int)eImGuiCol.ScrollbarBg] = new Vector4(0.1568627506494522f, 0.1568627506494522f, 0.1568627506494522f, 0.0f);
+            colors[(int)eImGuiCol.ScrollbarGrab] = new Vector4(0.2f, 0.2f, 0.2f, 1.0f);
+            colors[(int)eImGuiCol.ScrollbarGrabHovered] = new Vector4(0.2352941185235977f, 0.2352941185235977f, 0.2352941185235977f, 1.0f);
+            colors[(int)eImGuiCol.ScrollbarGrabActive] = new Vector4(0.294117659330368f, 0.294117659330368f, 0.294117659330368f, 1.0f);
+            colors[(int)eImGuiCol.CheckMark] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.SliderGrab] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.SliderGrabActive] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.Button] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.ButtonHovered] = new Vector4(0.56f, 0.38f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.ButtonActive] = new Vector4(0.44f, 0.22f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.Header] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.HeaderHovered] = new Vector4(0.56f, 0.38f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.HeaderActive] = new Vector4(0.44f, 0.22f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.Separator] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.SeparatorHovered] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.SeparatorActive] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.ResizeGrip] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.ResizeGripHovered] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.ResizeGripActive] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.Tab] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.TabHovered] = new Vector4(0.56f, 0.38f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.TabActive] = new Vector4(0.44f, 0.22f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.TabUnfocused] = new Vector4(0.0f, 0.4509803950786591f, 1.0f, 0.0f);
+            colors[(int)eImGuiCol.TabUnfocusedActive] = new Vector4(0.1333333402872086f, 0.2588235437870026f, 0.4235294163227081f, 0.0f);
+            colors[(int)eImGuiCol.PlotLines] = new Vector4(0.294117659330368f, 0.294117659330368f, 0.294117659330368f, 1.0f);
+            colors[(int)eImGuiCol.PlotLinesHovered] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.PlotHistogram] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.PlotHistogramHovered] = new Vector4(0.7372549176216125f, 0.6941176652908325f, 0.886274516582489f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.TableHeaderBg] = new Vector4(0.1882352977991104f, 0.1882352977991104f, 0.2000000029802322f, 1.0f);
+            colors[(int)eImGuiCol.TableBorderStrong] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.TableBorderLight] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.2901960909366608f);
+            colors[(int)eImGuiCol.TableRowBg] = new Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[(int)eImGuiCol.TableRowBgAlt] = new Vector4(1.0f, 1.0f, 1.0f, 0.03433477878570557f);
+            colors[(int)eImGuiCol.TextSelectedBg] = new Vector4(0.501960813999176f, 0.3019607961177826f, 1.0f, 0.5490196347236633f);
+            colors[(int)eImGuiCol.DragDropTarget] = new Vector4(1.0f, 1.0f, 0.0f, 0.8999999761581421f);
+            colors[(int)eImGuiCol.NavHighlight] = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+            colors[(int)eImGuiCol.NavWindowingHighlight] = new Vector4(1.0f, 1.0f, 1.0f, 0.699999988079071f);
+            colors[(int)eImGuiCol.NavWindowingDimBg] = new Vector4(0.800000011920929f, 0.800000011920929f, 0.800000011920929f, 0.2000000029802322f);
+            colors[(int)eImGuiCol.ModalWindowDimBg] = new Vector4(0.800000011920929f, 0.800000011920929f, 0.800000011920929f, 0.3499999940395355f);
+            style.Colors = colors;
+        }
+
         // Other
         public void HandleScriptException(FoundScript target, double notifySecondsVisible, string eventErrorOccuredIn, Exception ex, bool isInternalEvent = false)
         {
             // Stop script so it doesn't raise any events anymore
             target.Stop();
+
+            string scriptName = target.EntryPoint.FullName;
 
             // Show and Log the error
             if (target.IsScriptHookDotNetScript)
@@ -1073,49 +1262,58 @@ namespace Manager
                 Notification.ShowNotification(
                     NotificationType.Error,
                     DateTime.UtcNow.AddSeconds(notifySecondsVisible),
-                    string.Format("[ScriptHookDotNet] An error occured in {0} {2} {1}.", target.Name, eventErrorOccuredIn, isInternalEvent ? "internal event" : ""),
+                    string.Format("[ScriptHookDotNet] An error occured in {0} {2} {1}.", scriptName, eventErrorOccuredIn, isInternalEvent ? "internal event" : ""),
                     ex.Message,
-                    string.Format("ERROR_IN_SCRIPT_{0}", target.Name));
+                    string.Format("ERROR_IN_SCRIPT_{0}", scriptName));
 
-                Logger.LogError(string.Format("An error occured while processing {0} event for ScriptHookDotNet script {1}. Aborting script. Details: {2}", eventErrorOccuredIn, target.Name, ex));
+                Logger.LogError(string.Format("An error occured while processing {0} event for ScriptHookDotNet script {1}. Aborting script. Details: {2}", eventErrorOccuredIn, scriptName, ex));
             }
             else
             {
                 Notification.ShowNotification(
                     NotificationType.Error,
                     DateTime.UtcNow.AddSeconds(notifySecondsVisible),
-                    string.Format("An error occured in {0} {1}.", target.Name, eventErrorOccuredIn),
+                    string.Format("An error occured in {0} {1}.", scriptName, eventErrorOccuredIn),
                     ex.Message,
-                    string.Format("ERROR_IN_SCRIPT_{0}", target.Name));
+                    string.Format("ERROR_IN_SCRIPT_{0}", scriptName));
 
-                Logger.LogError(string.Format("An error occured while processing {0} event for script {1}. Aborting script. Details: {2}", eventErrorOccuredIn, target.Name, ex));
+                Logger.LogError(string.Format("An error occured while processing {0} event for script {1}. Aborting script. Details: {2}", eventErrorOccuredIn, scriptName, ex));
             }
 
             // Abort script
             AbortScriptInternal(AbortReason.Manager, target, true);
         }
+        private void SetUpKeyWatchDogs()
+        {
+            keyWatchDogs = new KeyWatchDog[2];
+
+            // IV-SDK .NET
+            keyWatchDogs[0] = new KeyWatchDog("IVSDKDotNet");
+            keyWatchDogs[0].KeyDown += KeyWatchDog_KeyDown;
+            keyWatchDogs[0].KeyUp   += KeyWatchDog_KeyUp;
+
+            // ScriptHookDotNet
+            keyWatchDogs[1] = new KeyWatchDog("ScriptHookDotNet");
+            keyWatchDogs[1].KeyDown += KeyWatchDog_KeyDown;
+            keyWatchDogs[1].KeyUp   += KeyWatchDog_KeyUp;
+        }
         private void SaveLogFile()
         {
             try
             {
-                StringBuilder strBuilder = new StringBuilder();
-
-                // Build file content
-                List<Logger.tLogItem> logItems = Logger.GetLogItems();
-                for (int i = 0; i < logItems.Count; i++)
-                    strBuilder.AppendLine(logItems[i].ToString());
+                string[] logItems = Logger.GetLogItemsAsString();
 
                 // Save file at target location
                 if (Config.CreateLogFilesInMainDirectory)
                 {
-                    File.WriteAllText("IVSDKDotNet.log", strBuilder.ToString());
+                    File.WriteAllLines("IVSDKDotNet.log", logItems);
                 }
                 else
                 {
                     if (!Directory.Exists(CLR.CLRBridge.IVSDKDotNetLogsPath))
                     {
                         Directory.CreateDirectory(CLR.CLRBridge.IVSDKDotNetLogsPath);
-                        File.WriteAllText(string.Format("{0}\\{1}", CLR.CLRBridge.IVSDKDotNetLogsPath, CLR.CLRBridge.CurrentLogFileName), strBuilder.ToString());
+                        File.WriteAllLines(string.Format("{0}\\{1}", CLR.CLRBridge.IVSDKDotNetLogsPath, CLR.CLRBridge.CurrentLogFileName), logItems);
                         return;
                     }
 
@@ -1130,13 +1328,13 @@ namespace Manager
                     }
 
                     // Save file
-                    File.WriteAllText(string.Format("{0}\\{1}", CLR.CLRBridge.IVSDKDotNetLogsPath, CLR.CLRBridge.CurrentLogFileName), strBuilder.ToString());
+                    File.WriteAllLines(string.Format("{0}\\{1}", CLR.CLRBridge.IVSDKDotNetLogsPath, CLR.CLRBridge.CurrentLogFileName), logItems);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 #if DEBUG
-                throw;
+                throw ex;
 #endif
             }
         }
@@ -1150,6 +1348,32 @@ namespace Manager
             {
                 Logger.LogError(string.Format("An error occured while trying to get all current Patreon / Ko-fi supporters. Sorry about that :({0}" +
                     "Details: {1}", Environment.NewLine, ex));
+            }
+        }
+
+        private void DestroyGlobalRegisteredTextures()
+        {
+            if (GlobalRegisteredTextures.Count == 0)
+                return;
+
+            Logger.LogDebug(string.Format("Trying to get rid of {0} textures registered in the global textures list.", GlobalRegisteredTextures.Count));
+
+            for (int i = 0; i < GlobalRegisteredTextures.Count; i++)
+            {
+                IntPtr texturePtr = GlobalRegisteredTextures[i];
+
+                if (ImGuiIV.IsTextureValid(texturePtr))
+                {
+                    if (!ImGuiIV.ReleaseTexture(ref texturePtr))
+                        Logger.LogWarning(string.Format("Could not release texture {0} registered in the global textures list.", texturePtr));
+                }
+                else
+                {
+                    Logger.LogDebug(string.Format("Not destroying texture {0} registered in the global textures list because it's not valid anymore.", texturePtr));
+                }
+
+                GlobalRegisteredTextures.RemoveAt(i);
+                i--;
             }
         }
 
@@ -1181,17 +1405,21 @@ namespace Manager
         }
         public FoundScript GetFoundScript(string name)
         {
-            return ActiveScripts.Where(x => x.Name == name).FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
+
+            return ActiveScripts.Where(x => x.FileName.ToLower() == name.ToLower()
+                || x.EntryPoint.FullName.ToLower() == name.ToLower()).FirstOrDefault();
         }
 
         public bool AbortScriptInternal(AbortReason reason, Guid id)
         {
             // Try find and abort script
-            FoundScript script = ActiveScripts.Where(x => x.ID == id).FirstOrDefault();
+            FoundScript script = GetFoundScript(id);
 
             if (script != null)
             {
-                Logger.Log(string.Format("Aborting script {0}...", script.Name));
+                Logger.Log(string.Format("Aborting script {0}...", script.EntryPoint.FullName));
                 script.Abort(reason, true);
                 return ActiveScripts.Remove(script);
             }
@@ -1203,7 +1431,7 @@ namespace Manager
             if (script != null)
             {
                 if (showMessage)
-                    Logger.Log(string.Format("Aborting script {0}...", script.Name));
+                    Logger.Log(string.Format("Aborting script {0}...", script.EntryPoint.FullName));
 
                 script.Abort(reason, showMessage);
 
@@ -1254,16 +1482,27 @@ namespace Manager
                 // Stop task
                 AbortTaskOrTimer(processCheckerTimerID);
 
+                // Cleanup SHDN stuff
+                SHDNStuff.Cleanup();
+
                 // Cleanup lists
                 ActiveScripts.Clear();
                 LocalTasks.Clear();
                 DelayedActions.Clear();
 
-                // Uninit keyWatchDog
-                keyWatchDog.KeyDown -= KeyWatchDog_KeyDown;
-                keyWatchDog.KeyUp -= KeyWatchDog_KeyUp;
-                keyWatchDog.Dispose();
-                keyWatchDog = null;
+                // Destroy keyWatchDogs
+                if (keyWatchDogs != null)
+                {
+                    for (int i = 0; i < keyWatchDogs.Length; i++)
+                    {
+                        KeyWatchDog keyWatchDog = keyWatchDogs[i];
+                        keyWatchDog.KeyDown -= KeyWatchDog_KeyDown;
+                        keyWatchDog.KeyUp -= KeyWatchDog_KeyUp;
+                        keyWatchDog.Dispose();
+                        keyWatchDogs[i] = null;
+                    }
+                    keyWatchDogs = null;
+                }
 
                 Logger.LogDebug("Cleanup in manager script finished!");
             }
@@ -1286,29 +1525,7 @@ namespace Manager
         #region Script Stuff
         public override void LoadScripts()
         {
-            if (!Directory.Exists(CLR.CLRBridge.IVSDKDotNetScriptsPath))
-            {
-                Directory.CreateDirectory(CLR.CLRBridge.IVSDKDotNetScriptsPath);
-                return;
-            }
-
-            // Abort currently loaded IV-SDK .NET scripts
-            AbortScripts(ScriptType.IVSDKDotNet, AbortReason.Manager, false);
-
-            // Load IV-SDK .NET scripts
-            string[] scriptFiles = Directory.GetFiles(CLR.CLRBridge.IVSDKDotNetScriptsPath, "*.ivsdk.dll", SearchOption.TopDirectoryOnly);
-
-            for (int i = 0; i < scriptFiles.Length; i++)
-                LoadAssembly(scriptFiles[i]);
-
-            // Log
-            Logger.Log(string.Format("Finished loading {0} IV-SDK .NET scripts.", ActiveScripts.Count(x => x.IsIVSDKDotNetScript)));
-
-            // Load ScriptHookDotNet scripts
-            if (SHDNStuff.WereScriptHookDotNetScriptsLoadedThisSession)
-                LoadSHDNScripts();
-
-            TimeSinceLastScriptReload = DateTime.Now;
+            LoadScriptsInternal();
         }
 
         public override bool AbortScript(Guid id)
@@ -1318,17 +1535,15 @@ namespace Manager
 
         public override Script GetScript(Guid id)
         {
-            // This will only work for IV-SDK .NET Scripts for now
             return ActiveScripts.Where(x => x.ID == id && x.IsIVSDKDotNetScript).Select(s => s.GetScriptAs<Script>()).FirstOrDefault();
         }
         public override Script GetScript(string name)
         {
-            // This will only work for IV-SDK .NET Scripts for now
-            return ActiveScripts.Where(x => x.Name == name && x.IsIVSDKDotNetScript).Select(s => s.GetScriptAs<Script>()).FirstOrDefault();
+            return ActiveScripts.Where(x => x.FileName == name || x.EntryPoint.FullName == name && x.IsIVSDKDotNetScript).Select(s => s.GetScriptAs<Script>()).FirstOrDefault();
         }
         public override bool IsScriptRunning(Guid id)
         {
-            FoundScript foundScript = ActiveScripts.Where(x => x.ID == id).FirstOrDefault();
+            FoundScript foundScript = GetFoundScript(id);
 
             if (foundScript != null)
                 return foundScript.IsScriptReady();
@@ -1337,7 +1552,7 @@ namespace Manager
         }
         public override bool IsScriptRunning(string name)
         {
-            FoundScript foundScript = ActiveScripts.Where(x => x.Name == name).FirstOrDefault();
+            FoundScript foundScript = GetFoundScript(name);
 
             if (foundScript != null)
                 return foundScript.IsScriptReady();
@@ -1346,16 +1561,16 @@ namespace Manager
         }
         public override string GetScriptName(Guid id)
         {
-            FoundScript foundScript = ActiveScripts.Where(x => x.ID == id).FirstOrDefault();
+            FoundScript foundScript = GetFoundScript(id);
 
             if (foundScript != null)
-                return foundScript.Name;
+                return foundScript.EntryPoint.FullName;
 
             return string.Empty;
         }
         public override string GetScriptFullPath(Guid id)
         {
-            FoundScript foundScript = ActiveScripts.Where(x => x.ID == id).FirstOrDefault();
+            FoundScript foundScript = GetFoundScript(id);
 
             if (foundScript != null)
                 return foundScript.FullPath;
@@ -1370,7 +1585,7 @@ namespace Manager
         public override bool SendScriptCommand(Guid sender, Guid toScript, string command, object[] parameters, out object result)
         {
             // Find target script that should receive the script command
-            FoundScript foundScript = ActiveScripts.Where(x => x.ID == toScript).FirstOrDefault();
+            FoundScript foundScript = GetFoundScript(toScript);
 
             if (foundScript != null)
             {
@@ -1395,7 +1610,7 @@ namespace Manager
         public override bool SendScriptCommand(Guid sender, string toScript, string command, object[] parameters, out object result)
         {
             // Find target script that should receive the script command
-            FoundScript foundScript = ActiveScripts.Where(x => x.Name.ToLower() == toScript.ToLower()).FirstOrDefault();
+            FoundScript foundScript = GetFoundScript(toScript);
 
             if (foundScript != null)
             {
@@ -1429,7 +1644,7 @@ namespace Manager
                 bool r = task.Start(TaskCreationOptions.None, funcToExecute, (AdvancedTask.InvokeData args) =>
                 {
                     continueWithAction?.Invoke(args.CustomData);
-                    StartDelayedAction(args.STask.ID, string.Format("Disposing and deleting task {0} of script {1}. CFSM: TaskDisposer in AdvancedTask class", args.STask.ID.ToString(), args.STask.Owner.Name), DateTime.UtcNow.AddSeconds(5), AdvancedTask.TaskDisposer, args.STask);
+                    StartDelayedAction(args.STask.ID, string.Format("Disposing and deleting task {0} of script {1}. CFSM: TaskDisposer in AdvancedTask class", args.STask.ID.ToString(), args.STask.Owner.EntryPoint.FullName), DateTime.UtcNow.AddSeconds(5), AdvancedTask.TaskDisposer, args.STask);
                 });
 
                 if (r)
@@ -1453,7 +1668,7 @@ namespace Manager
 
                 bool r = task.Start(TaskCreationOptions.LongRunning, () => AdvancedTask.TimerStatic(task, actionToExecute), (AdvancedTask.InvokeData args) =>
                 {
-                    StartDelayedAction(args.STask.ID, string.Format("Disposing and deleting timer task {0} of script {1}. CFSM: TaskDisposer in AdvancedTask class", args.STask.ID.ToString(), args.STask.Owner.Name), DateTime.UtcNow.AddSeconds(5), AdvancedTask.TaskDisposer, args.STask);
+                    StartDelayedAction(args.STask.ID, string.Format("Disposing and deleting timer task {0} of script {1}. CFSM: TaskDisposer in AdvancedTask class", args.STask.ID.ToString(), args.STask.Owner.EntryPoint.FullName), DateTime.UtcNow.AddSeconds(5), AdvancedTask.TaskDisposer, args.STask);
                 });
 
                 if (r)
@@ -1472,40 +1687,27 @@ namespace Manager
         #region Direct3D9 Stuff
 
         // Texture stuff
-        public override void Direct3D9_RegisterScriptTexture(Script forScript, IntPtr ptr)
+        public override void Direct3D9_RegisterScriptTexture(string forScript, IntPtr ptr)
         {
             // Get script from ID
-            FoundScript fs = GetFoundScript(forScript.ID);
+            FoundScript fs = GetFoundScript(forScript);
 
             if (fs != null)
             {
                 if (!fs.Textures.Contains(ptr))
                 {
                     fs.Textures.Add(ptr);
-                    Logger.LogDebug(string.Format("Registered texture {0} for script {1}.", ptr, fs.Name));
+                    Logger.LogDebug(string.Format("Registered texture {0} for script {1}.", ptr, fs.EntryPoint.FullName));
                 }
                 else
                 {
-                    Logger.LogDebug(string.Format("Texture {0} is already registered for script {1}.", ptr, fs.Name));
+                    Logger.LogDebug(string.Format("Texture {0} is already registered for script {1}.", ptr, fs.EntryPoint.FullName));
                 }
             }
-        }
-        public override void Direct3D9_UnregisterScriptTexture(Script forScript, IntPtr ptr)
-        {
-            // Get script from ID
-            FoundScript fs = GetFoundScript(forScript.ID);
-
-            if (fs != null)
+            else
             {
-                if (fs.Textures.Contains(ptr))
-                {
-                    fs.Textures.Remove(ptr);
-                    Logger.LogDebug(string.Format("Unregistered texture {0} from script {1}.", ptr, fs.Name));
-                }
-                else
-                {
-                    Logger.LogDebug(string.Format("Texture {0} is already unregistered from script {1}.", ptr, fs.Name));
-                }
+                Logger.LogDebug("Could not find script to assign texture to! Adding to global texture list.");
+                GlobalRegisteredTextures.Add(ptr);
             }
         }
 
@@ -1712,19 +1914,29 @@ namespace Manager
         #endregion
 
         #region ScriptHookDotNet
-        public override int SHDN_LateInitializeScript(string name, object script)
+        public override int SHDN_LateInitializeScript(string name, object script, out string assemblyFullPath)
         {
             if (script == null)
+            {
+                assemblyFullPath = null;
                 return 1;
+            }
 
             FoundScript fs = GetFoundScript(name);
 
             if (fs != null)
             {
+                Helper.WriteToDebugOutput(Priority.Default, "Found FoundScript object for late initialization of ScriptHookDotNet script {0}!", name);
+                assemblyFullPath = fs.FullPath;
                 fs.LateInitialize(script);
                 return 0;
             }
+            else
+            {
+                Helper.WriteToDebugOutput(Priority.High, "Unable to find FoundScript object for late initialization of ScriptHookDotNet script {0}!", name);
+            }
 
+            assemblyFullPath = null;
             return 2;
         }
 
@@ -1772,6 +1984,10 @@ namespace Manager
         {
             return SHDNStuff.EnableVerboseLogging;
         }
+        public override bool SHDN_NativeCallLoggingEnabled()
+        {
+            return SHDNStuff.NativeCallLoggingEnabled;
+        }
         public override bool SHDN_IsScriptRunning(Guid id)
         {
             FoundScript fs = GetFoundScript(id);
@@ -1780,6 +1996,13 @@ namespace Manager
                 return fs.IsScriptReady();
 
             return false;
+        }
+        #endregion
+
+        #region Other
+        public override int GetMainThreadID()
+        {
+            return MainThreadID;
         }
         #endregion
 

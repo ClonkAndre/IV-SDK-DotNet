@@ -77,6 +77,18 @@ namespace IVSDKDotNet
 				CWeather::Rain = value;
 			}
 		}
+		static property float ForcedWind
+		{
+		public:
+			float get()
+			{
+				return CWeather::ForcedWind;
+			}
+			void set(float value)
+			{
+				CWeather::ForcedWind = value;
+			}
+		}
 
 	public:
 		static void ForceWeatherNow(int type);

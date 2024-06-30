@@ -42,6 +42,17 @@ using namespace System::Windows::Forms;
 #define CHECK_NULL_OR_WHITESPACE_STRING(str)					if (String::IsNullOrWhiteSpace(str)) return;
 #define CHECK_NULL_OR_WHITESPACE_STRING_WITH_RETURN(str, ret)	if (String::IsNullOrWhiteSpace(str)) return ret;
 
+// Logging
+#ifdef _DEBUG
+
+#define WRITE_TO_DEBUG_OUTPUT(text) if (System::Diagnostics::Debugger::IsAttached) System::Diagnostics::Debugger::Log(0, "IV-SDK .NET", text + "\n")
+
+#else
+
+#define WRITE_TO_DEBUG_OUTPUT(text)
+
+#endif
+
 // =======================================================================
 // ============================= TYPES ===================================
 // =======================================================================

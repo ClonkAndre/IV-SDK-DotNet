@@ -22,16 +22,22 @@ namespace Manager.UI
 
         #region Variables
         private Dictionary<string, Action<string[]>> localCommands;
+        private string[] autoCompleteCommands;
 
-        private List<string> inputHistory;
-        private int inputHistoryIndex;
+        // Suggestions Popup
+        private bool popupOpen;
+        private bool isHoveringPopup;
+
+        private int selectionIndex;
 
         // Input
         private string input;
+        private bool clearSelection;
 
         // Other
         public bool IsConsoleOpen;
         private bool wasOpened;
+        private bool canScrollToEnd;
         #endregion
 
         #region Delegates and Events
@@ -52,6 +58,7 @@ namespace Manager.UI
         {
             IsConsoleOpen = false;
             input = string.Empty;
+            selectionIndex = 0;
         }
         public void Clear()
         {
@@ -64,7 +71,13 @@ namespace Manager.UI
         {
             switch (style)
             {
-                case eConsoleLogStyle.Default: return Color.FromArgb(alpha, 255, 255, 255);
+                case eConsoleLogStyle.Default:
+                    {
+                        if (Config.ImGuiStyle.ToLower() == "light" && !Config.UseCustomThemeForManagerAndConsole)
+                            return Color.FromArgb(alpha, 0, 0, 0);
+                        else
+                            return Color.FromArgb(alpha, 255, 255, 255);
+                    }
                 case eConsoleLogStyle.Debug:   return Color.FromArgb(alpha, 134, 56, 255);
                 case eConsoleLogStyle.Warning: return Color.FromArgb(alpha, 214, 207, 0);
                 case eConsoleLogStyle.Error:   return Color.FromArgb(alpha, 205, 0, 0);
@@ -135,7 +148,13 @@ namespace Manager.UI
             RegisterLocalCommand("StartAPI", (string[] args) => { Main.Instance.ConnectionManager.Start(true); });
             RegisterLocalCommand("StopAPI", (string[] args) => { Main.Instance.ConnectionManager.Stop(); });
             RegisterLocalCommand("Manager", (string[] args) => { ManagerUI.IsConfigUIOpened = !ManagerUI.IsConfigUIOpened; });
+            RegisterLocalCommand("Teleport", (string[] args) => { TeleportCommand(args); });
+            RegisterLocalCommand("TP", (string[] args) => { TeleportCommand(args); });
+            RegisterLocalCommand("Wiki", (string[] args) => { Process.Start("https://github.com/ClonkAndre/IV-SDK-DotNet/wiki"); });
             RegisterLocalCommand("Quit", (string[] args) => { QuitCommand(); });
+
+            // Get list of commands for auto complete
+            autoCompleteCommands = localCommands.Keys.ToArray();
         }
         private void HelpCommand()
         {
@@ -154,6 +173,8 @@ namespace Manager.UI
             Logger.Log("StartAPI            - Starts the API so clients can connect to IV-SDK .NET.", true);
             Logger.Log("StopAPI             - Stops the API so clients can no longer connect to IV-SDK .NET.", true);
             Logger.Log("Manager             - Opens the Manager Window from which you can for example change some IV-SDK .NET settings, or control scripts.", true);
+            Logger.Log("Teleport (or TP)    - Teleports the player to the given location.", true);
+            Logger.Log("Wiki                - Opens the IV-SDK .NET Wiki webpage on GitHub.", true);
             Logger.Log("Quit                - Tries to force quit GTA IV.", true);
         }
         private void SavePlayerPosCommand()
@@ -217,6 +238,40 @@ namespace Manager.UI
             else
                 Logger.LogWarning("LoadScript usage: LoadScript TheScriptToLoad.ivsdk.dll");
         }
+        private void TeleportCommand(string[] args)
+        {
+            UIntPtr playerPtr = IVPlayerInfo.FindThePlayerPed();
+
+            if (playerPtr == UIntPtr.Zero)
+            {
+                Logger.LogWarning("The teleport command can only be used when in-game.");
+                return;
+            }
+
+            if (args.Length < 3)
+            {
+                Logger.LogWarning("Teleport usage: teleport X Y Z");
+                return;
+            }
+
+            // 0 = X
+            // 1 = Y
+            // 2 = Z
+            bool res1 = float.TryParse(args[0], out float x);
+            bool res2 = float.TryParse(args[1], out float y);
+            bool res3 = float.TryParse(args[2], out float z);
+
+            if (!res1 || !res2 || !res3)
+            {
+                Logger.LogWarning("Teleport usage: teleport X Y Z");
+                return;
+            }
+
+            // Teleport
+            IVPed.FromUIntPtr(playerPtr).Teleport(new Vector3(x, y, z), false, true);
+
+            Logger.LogWarning(string.Format("Teleported the player to location X: {0}, Y: {1}, Z: {2}", x, y, z));
+        }
         private void QuitCommand()
         {
             Process p = Main.Instance.GTAIVProcess;
@@ -238,9 +293,6 @@ namespace Manager.UI
         {
             input = string.Empty;
 
-            // Lists
-            inputHistory = new List<string>();
-
             // Create commands dictionary and register default commands
             localCommands = new Dictionary<string, Action<string[]>>();
             RegisterDefaultCommands();
@@ -252,12 +304,12 @@ namespace Manager.UI
             if (!IsConsoleOpen)
                 return;
 
-            // Get the main Viewport
+            // Get the main ImGui Viewport
             ImGuiIV_Viewport vp = ImGuiIV.MainViewport;
 
             // Begin the IV-SDK .NET Console Window
             ImGuiIV.Begin("IV-SDK .NET Console", ref IsConsoleOpen, eImGuiWindowFlags.NoCollapse);
-
+            
             if (vp.IsValid)
             {
                 ImGuiIV.SetWindowPos(new Vector2(5f, 5f), eImGuiCond.FirstUseEver);
@@ -275,20 +327,29 @@ namespace Manager.UI
                     Logger.tLogItem item = items[i];
 
                     // Add item to ListBox with the right color
-                    ImGuiIV.PushStyleColor(eImGuiCol.ImGuiCol_Text, GetColorFromConsoleLogStyle(255, item.Style));
-                    ImGuiIV.TextWrapped(item.ToString());
+                    ImGuiIV.PushStyleColor(eImGuiCol.Text, GetColorFromConsoleLogStyle(255, item.Style));
+                    ImGuiIV.TextUnformatted(item.ToString());
                     ImGuiIV.PopStyleColor();
                 }
+
+                // Auto-scroll
+                if (canScrollToEnd)
+                    ImGuiIV.SetScrollHereY(1f);
 
                 ImGuiIV.EndListBox();
             }
 
+            // Check if mouse is hovering over the listbox for auto-scroll
+            Vector2 listBoxItemRectMin = ImGuiIV.GetItemRectMin();
+            Vector2 listBoxItemRectMax = listBoxItemRectMin + ImGuiIV.GetItemRectSize();
+            canScrollToEnd = !ImGuiIV.IsMouseHoveringRect(new RectangleF(listBoxItemRectMin.X, listBoxItemRectMin.Y, listBoxItemRectMax.X, listBoxItemRectMax.Y), false);
+
             // Send command button
-            if (ImGuiIV.Button("Send") || ImGuiIV.IsKeyReleased(eImGuiKey.ImGuiKey_Enter))
+            ImGuiIV.Spacing(2);
+            if (ImGuiIV.Button("Send", new Vector2(80f, 0f)) || ImGuiIV.IsKeyReleased(eImGuiKey.ImGuiKey_Enter))
             {
                 if (!string.IsNullOrWhiteSpace(input))
                 {
-                    inputHistory.Add(input);
                     Logger.Log(input, true);
                     ExecuteCommand(input);
                 }
@@ -298,42 +359,6 @@ namespace Manager.UI
             ImGuiIV.SameLine();
             ImGuiIV.SetNextItemWidth(-1f);
 
-            // Console input history
-            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_UpArrow, false))
-            {
-                if (inputHistory.Count != 0)
-                {
-                    inputHistoryIndex++;
-                    if (inputHistoryIndex > inputHistory.Count - 1)
-                        inputHistoryIndex = 0;
-
-                    input = inputHistory[inputHistoryIndex];
-                }
-            }
-            else if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_DownArrow, false))
-            {
-                if (inputHistory.Count != 0)
-                {
-                    inputHistoryIndex--;
-                    if (inputHistoryIndex < 0)
-                        inputHistoryIndex = inputHistory.Count - 1;
-
-                    input = inputHistory[inputHistoryIndex];
-                }
-            }
-
-            // Delete all current text entered in the console text field
-            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_Delete, false))
-                input = string.Empty;
-
-            // Insert the text that is currently saved in clipboard into the text field
-            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_Insert, false))
-            {
-                string clipboardText = Clipboard.GetText();
-                if (!string.IsNullOrWhiteSpace(clipboardText))
-                    input += clipboardText;
-            }
-
             if (wasOpened)
             {
                 ImGuiIV.SetKeyboardFocusHere();
@@ -341,7 +366,140 @@ namespace Manager.UI
             }
 
             // Input field
-            ImGuiIV.InputText("##inputTextBox", ref input);
+            if (ImGuiIV.InputText("##inputTextBox", ref input))
+                selectionIndex = 0; // Reset selected index for suggestions popup
+            Vector2 textboxRectMin = ImGuiIV.GetItemRectMin();
+            Vector2 textboxRectSize = ImGuiIV.GetItemRectSize();
+
+            if (clearSelection)
+            {
+                ImGuiIV.GetInputTextState("##inputTextBox").ClearSelection();
+                clearSelection = false;
+            }
+
+            // Delete all current text entered in the console text field
+            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_Delete, false))
+            {
+                ImGuiIV.SetActiveID(0, ImGuiIV.GetCurrentWindow());
+                ImGuiIV.SetKeyboardFocusHere(-1);
+
+                input = string.Empty;
+
+                ImGuiIV.GetInputTextState("##inputTextBox").ClearSelection();
+            }
+
+            // Insert the text that is currently saved in clipboard into the text field
+            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_Insert, false))
+            {
+                string clipboardText = Clipboard.GetText();
+                if (!string.IsNullOrWhiteSpace(clipboardText))
+                {
+                    ImGuiIV.SetActiveID(0, ImGuiIV.GetCurrentWindow());
+                    ImGuiIV.SetKeyboardFocusHere(-1);
+
+                    input = clipboardText;
+
+                    ImGuiIV.GetInputTextState("##inputTextBox").ClearSelection();
+                }
+            }
+
+            // Check if popup can be opened or not
+            if (ImGuiIV.WantsTextInput() && !string.IsNullOrWhiteSpace(input))
+            {
+                popupOpen = true;
+
+                if (!ImGuiIV.IsPopupOpen("ivsdkdotnetConsoleCommandsPopup"))
+                    selectionIndex = 0;
+            }
+            else
+            {
+                if (!isHoveringPopup)
+                    popupOpen = false;
+            }
+
+            if (popupOpen)
+                ImGuiIV.OpenPopup("ivsdkdotnetConsoleCommandsPopup");
+
+            // Suggestions popup
+            if (ImGuiIV.BeginPopup("ivsdkdotnetConsoleCommandsPopup", eImGuiWindowFlags.NoFocusOnAppearing))
+            {
+                ImGuiIV.SetWindowPos(textboxRectMin + new Vector2(0f, textboxRectSize.Y) + new Vector2(0f, 15f));
+
+                Vector2 windowPos = ImGuiIV.GetWindowPos();
+                Vector2 windowSize = ImGuiIV.GetWindowSize();
+                if (ImGuiIV.IsMouseHoveringRect(new RectangleF(windowPos.X, windowPos.Y, windowSize.X, windowSize.Y), false))
+                {
+                    ImGuiIV.SetWindowFocus("ivsdkdotnetConsoleCommandsPopup");
+                    isHoveringPopup = true;
+                }
+                else
+                {
+                    isHoveringPopup = false;
+                    if (ImGuiIV.IsWindowFocused(eImGuiFocusedFlags.ChildWindows))
+                        ImGuiIV.SetWindowFocus(null);
+                }
+
+                string inputToLower = input.ToLower();
+                string[] autoCompleteCommandsFiltered = autoCompleteCommands.Where(x => x.ToLower().Contains(inputToLower)).ToArray();
+
+                if (autoCompleteCommandsFiltered.Length != 0)
+                {
+                    // Navigate through suggestions list
+                    if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_UpArrow, false))
+                    {
+                        if (selectionIndex <= 0)
+                        {
+                            selectionIndex = autoCompleteCommandsFiltered.Length - 1;
+                        }
+                        else
+                        {
+                            selectionIndex--;
+                        }
+                    }
+                    if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_DownArrow, false))
+                    {
+                        if (selectionIndex >= autoCompleteCommandsFiltered.Length - 1)
+                        {
+                            selectionIndex = 0;
+                        }
+                        else
+                        {
+                            selectionIndex++;
+                        }
+                    }
+                    if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_Tab)
+                        || ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_RightArrow))
+                    {
+                        ImGuiIV.SetActiveID(0, ImGuiIV.GetCurrentWindow());
+                        //ImGuiIV.SetItemDefaultFocus();
+                        //ImGuiIV.SetKeyboardFocusHere(-1);
+                        wasOpened = true;
+                        clearSelection = true;
+
+                        input = autoCompleteCommandsFiltered[selectionIndex];
+                    }
+
+                    for (int i = 0; i < autoCompleteCommandsFiltered.Length; i++)
+                    {
+                        string command = autoCompleteCommandsFiltered[i].ToLower();
+
+                        if (command.Contains(inputToLower))
+                        {
+                            if (ImGuiIV.Selectable(autoCompleteCommandsFiltered[i], selectionIndex == i))
+                                input = autoCompleteCommandsFiltered[i];
+                        }
+                    }
+
+                    if (!popupOpen)
+                        ImGuiIV.CloseCurrentPopup();
+                }
+                else
+                {
+                    ImGuiIV.CloseCurrentPopup();
+                }
+
+                ImGuiIV.EndPopup();
+            }
 
             ImGuiIV.End();
         }

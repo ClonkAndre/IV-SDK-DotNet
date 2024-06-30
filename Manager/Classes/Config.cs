@@ -26,6 +26,10 @@ namespace Manager.Classes
         // Notification
         public static bool ShowNotifications;
 
+        // Style
+        public static string ImGuiStyle;
+        public static bool UseCustomThemeForManagerAndConsole;
+
         // Console
         public static Keys ConsoleOpenCloseKey;
 
@@ -60,6 +64,10 @@ namespace Manager.Classes
             // Section: Notification
             ShowNotifications = settings.GetBoolean("Notification", "ShowNotifications", true);
 
+            // Section: Style
+            ImGuiStyle = settings.GetValue("Style", "ImGuiStyle", "dark");
+            UseCustomThemeForManagerAndConsole = settings.GetBoolean("Style", "UseCustomThemeForManagerAndConsole", true);
+
             // Section: Console
             ConsoleOpenCloseKey = settings.GetKey("Console", "OpenCloseKey", Keys.F4);
 
@@ -93,6 +101,10 @@ namespace Manager.Classes
             // Section: Notification
             theSettingsFile.SetBoolean("Notification", "ShowNotifications", ShowNotifications);
 
+            // Section: Style
+            theSettingsFile.SetValue("Style", "ImGuiStyle", ImGuiStyle);
+            theSettingsFile.SetBoolean("Style", "UseCustomThemeForManagerAndConsole", UseCustomThemeForManagerAndConsole);
+            
             // Section: Console
             theSettingsFile.SetKey("Console", "OpenCloseKey", ConsoleOpenCloseKey);
 
@@ -125,6 +137,10 @@ namespace Manager.Classes
 
             // Section: Notification
             ShowNotifications = true;
+
+            // Section: Style
+            ImGuiStyle = "dark";
+            UseCustomThemeForManagerAndConsole = true;
 
             // Section: Console
             ConsoleOpenCloseKey = Keys.F4;

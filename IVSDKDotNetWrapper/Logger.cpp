@@ -67,6 +67,18 @@ void Logger::Initialize()
 {
 	m_LogItems = gcnew List<tLogItem>();
 }
+void Logger::ForceCreateLogFile()
+{
+    if (m_LogItems == nullptr)
+        return;
+
+    array<String^>^ lines = gcnew array<String^>(m_LogItems->Count);
+
+    for (int i = 0; i < lines->Length; i++)
+        lines[i] = m_LogItems[i].Text;
+
+    System::IO::File::WriteAllLines("IVSDKDotNet.log", lines);
+}
 
 void Logger::Log(eConsoleLogStyle style, String^ str, bool alsoShowInConsole)
 {
@@ -86,6 +98,13 @@ void Logger::Log(eConsoleLogStyle style, String^ str, bool alsoShowInConsole)
         fixedStr = fixedStr->Replace("{", "");
     if (fixedStr->Contains("}"))
         fixedStr = fixedStr->Replace("}", "");
+
+    //// Remove the first 1000 items to make space for new items
+    //if (m_LogItems->Count >= m_LogItems->Capacity)
+    //{
+    //    NoLogFileSavingNow = true;
+    //    m_LogItems->RemoveRange(0, 1000);
+    //}
 
     m_LogItems->Add(tLogItem(DateTime::UtcNow, style, fixedStr, alsoShowInConsole));
 }

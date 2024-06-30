@@ -5,6 +5,8 @@
 namespace IVSDKDotNet
 {
 
+	ref class ResultTask;
+
 	/// <summary>
 	///	Marks the class as a IV-SDK .NET Script.
 	///	This class needs to be inherited if you want this class to be the entry point of your IV-SDK .NET Script.
@@ -716,15 +718,15 @@ namespace IVSDKDotNet
 			virtual void ChangeTimerInterval(Guid id, int interval)								abstract;
 
 			// Direct3D9 Stuff
-			virtual void Direct3D9_RegisterScriptTexture(Script^ forScript, IntPtr ptr)			abstract;
-			virtual void Direct3D9_UnregisterScriptTexture(Script^ forScript, IntPtr ptr)		abstract;
+			virtual void Direct3D9_RegisterScriptTexture(String^ forScript, IntPtr ptr)			abstract;
+			//virtual void Direct3D9_UnregisterScriptTexture(String^ forScript, IntPtr ptr)		abstract;
 
 			// Helper
 			virtual String^ Helper_ConvertObjectToJsonString(Object^ obj, bool useFormatting) abstract;
 			virtual Object^ Helper_ConvertJsonStringToObject(String^ str, Type^ targetType) abstract;
 
 			// ScriptHookDotNet
-			virtual int SHDN_LateInitializeScript(String^ name, Object^ script) abstract;
+			virtual int SHDN_LateInitializeScript(String^ name, Object^ script, [OutAttribute] String^% assemblyFullPath) abstract;
 
 			virtual Object^ SHDN_GetScriptByName(String^ name) abstract;
 			virtual Object^ SHDN_GetScriptByGUID(Guid id) abstract;
@@ -735,7 +737,11 @@ namespace IVSDKDotNet
 			virtual void SHDN_AddFont(Object^ obj) abstract;
 
 			virtual bool SHDN_VerboseLoggingEnabled() abstract;
+			virtual bool SHDN_NativeCallLoggingEnabled() abstract;
 			virtual bool SHDN_IsScriptRunning(Guid id) abstract;
+
+			// Other
+			virtual int GetMainThreadID() abstract;
 
 		public:
 			ManagerScript();
