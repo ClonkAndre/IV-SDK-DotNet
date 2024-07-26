@@ -50,37 +50,37 @@ namespace Manager.Classes
 
             // Section: Main
             CreateLogFilesInMainDirectory = settings.GetBoolean("Main", "CreateLogFilesInMainDirectory", true);
-            MaxLogsFiles = settings.GetInteger("Main", "MaxLogsFiles", 5);
+            MaxLogsFiles =                  settings.GetInteger("Main", "MaxLogsFiles", 5);
 
-            SwitchCursorKey = settings.GetValue("Main", "SwitchCursorKey", "Control+F8");
-            OpenManagerWindowKey = settings.GetValue("Main", "OpenManagerWindowKey", "Control+F10");
+            SwitchCursorKey =       settings.GetValue("Main", "SwitchCursorKey", "Control+F8");
+            OpenManagerWindowKey =  settings.GetValue("Main", "OpenManagerWindowKey", "Control+F10");
 
             // Section: Scripts
-            PauseScriptExecutionWhenNotInFocus = settings.GetBoolean("Scripts", "PauseExecutionWhenNotInFocus", true);
-            DoNotLoadLegacyScripts = settings.GetBoolean("Scripts", "DoNotLoadLegacyScripts", true);
-            ReloadScriptsOnReload = settings.GetBoolean("Scripts", "ReloadScriptsOnReload", false);
-            LoadScriptHookDotNetScripts = settings.GetBoolean("Scripts", "LoadScriptHookDotNetScripts", true);
+            PauseScriptExecutionWhenNotInFocus =    settings.GetBoolean("Scripts", "PauseExecutionWhenNotInFocus", true);
+            DoNotLoadLegacyScripts =                settings.GetBoolean("Scripts", "DoNotLoadLegacyScripts", true);
+            ReloadScriptsOnReload =                 settings.GetBoolean("Scripts", "ReloadScriptsOnReload", false);
+            LoadScriptHookDotNetScripts =           settings.GetBoolean("Scripts", "LoadScriptHookDotNetScripts", true);
 
             // Section: Notification
             ShowNotifications = settings.GetBoolean("Notification", "ShowNotifications", true);
 
             // Section: Style
-            ImGuiStyle = settings.GetValue("Style", "ImGuiStyle", "dark");
-            UseCustomThemeForManagerAndConsole = settings.GetBoolean("Style", "UseCustomThemeForManagerAndConsole", true);
+            ImGuiStyle =                            settings.GetValue("Style", "ImGuiStyle", "dark");
+            UseCustomThemeForManagerAndConsole =    settings.GetBoolean("Style", "UseCustomThemeForManagerAndConsole", true);
 
             // Section: Console
             ConsoleOpenCloseKey = settings.GetKey("Console", "OpenCloseKey", Keys.F4);
 
             // Section: API
-            AllowRemoteConnections = settings.GetBoolean("API", "AllowConnections", false);
-            ShowNotificationOnConnection = settings.GetBoolean("API", "ShowNotificationOnConnection", true);
-            ServerPort = (ushort)settings.GetInteger("API", "PortOverride", 57315);
-            MaxServerClients = (ushort)settings.GetInteger("API", "MaxClientsOverride", 1);
-            AllowRemoteReloadScripts = settings.GetBoolean("API", "AllowRemoteReloadScripts", true);
-            AllowRemoteLoadScripts = settings.GetBoolean("API", "AllowRemoteLoadScripts", true);
-            AllowRemoteAbortScripts = settings.GetBoolean("API", "AllowRemoteAbortScripts", true);
+            AllowRemoteConnections =            settings.GetBoolean("API", "AllowConnections", false);
+            ShowNotificationOnConnection =      settings.GetBoolean("API", "ShowNotificationOnConnection", true);
+            ServerPort =                (ushort)settings.GetInteger("API", "PortOverride", 57315);
+            MaxServerClients =          (ushort)settings.GetInteger("API", "MaxClientsOverride", 1);
+            AllowRemoteReloadScripts =          settings.GetBoolean("API", "AllowRemoteReloadScripts", true);
+            AllowRemoteLoadScripts =            settings.GetBoolean("API", "AllowRemoteLoadScripts", true);
+            AllowRemoteAbortScripts =           settings.GetBoolean("API", "AllowRemoteAbortScripts", true);
 
-            AllowRemoteNativeFunctionCalls = settings.GetBoolean("API", "AllowRemoteNativeFunctionCalls", true);
+            AllowRemoteNativeFunctionCalls =    settings.GetBoolean("API", "AllowRemoteNativeFunctionCalls", true);
         }
 
         public static bool SaveSettings()

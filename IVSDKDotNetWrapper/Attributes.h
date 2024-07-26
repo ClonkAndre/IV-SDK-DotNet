@@ -41,13 +41,13 @@ namespace IVSDKDotNet
 		};
 
 		[AttributeUsageAttribute(AttributeTargets::Field)]
-		public ref class TooltipAttribute : Attribute
+		public ref class HelpMarkerAttribute : Attribute
 		{
 		public:
 			String^ Text;
 
 		public:
-			TooltipAttribute(String^ text)
+			HelpMarkerAttribute(String^ text)
 			{
 				Text = text;
 			}

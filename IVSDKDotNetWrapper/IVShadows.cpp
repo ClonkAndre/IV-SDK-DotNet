@@ -5,76 +5,52 @@ namespace IVSDKDotNet
 {
 
 	// - - - Methods / Functions - - -
-	void IVShadows::StoreStaticShadowOriginal(uint32_t a1, uint32_t a2, uint32_t nFlags, Vector3 pVec1, Vector3 pVec2, Vector3 vPos, Color vColor, float fIntensity, uint32_t texHash, uint32_t txdSlot, float fRange, float a12, float a13, uint32_t a14, uint32_t a15, uint32_t nID)
+	void IVShadows::AddSceneLight(uint32_t a1, uint32_t nLightType, uint32_t nFlags, Vector3 vDir, Vector3 vTanDir, Vector3 vPos, Color vColor, float fIntensity, int32_t txdSlot, int32_t texHash, float fRange, float fInnerConeAngle, float fOuterConeAngle, float fVolIntensity, float fVolSizeScale, int32_t interiorId, uint32_t a15, uint32_t nID)
 	{
-		CVector v1;
-		v1.x = 0.0F;
-		v1.y = 0.0F;
-		v1.z = -1.0F;
+		CVector m_vDir;
+		m_vDir.x = vDir.X;
+		m_vDir.y = vDir.Y;
+		m_vDir.z = vDir.Z;
 
-		CVector v2;
-		v2.x = 0.0F;
-		v2.y = 1.0F;
-		v2.z = 0.0F;
+		CVector m_vTanDir;
+		m_vTanDir.x = vTanDir.X;
+		m_vTanDir.y = vTanDir.Y;
+		m_vTanDir.z = vTanDir.Z;
 
-		CVector v3Pos;
-		v3Pos.x = vPos.X;
-		v3Pos.y = vPos.Y;
-		v3Pos.z = vPos.Z;
+		CVector m_vPos;
+		m_vPos.x = vPos.X;
+		m_vPos.y = vPos.Y;
+		m_vPos.z = vPos.Z;
 
-		CVector v4Color;
-		v4Color.x = vColor.R;
-		v4Color.y = vColor.G;
-		v4Color.z = vColor.B;
+		CVector m_vColor;
+		m_vColor.x = vColor.R / 256.0F;
+		m_vColor.y = vColor.G / 256.0F;
+		m_vColor.z = vColor.B / 256.0F;
 
-		CShadows::StoreStaticShadow(a1, a2, nFlags, &v1, &v2, &v3Pos, &v4Color, fIntensity, texHash, txdSlot, fRange, a12, a13, a14, a15, nID);
+		CShadows::AddSceneLight(
+			a1,							// a1
+			nLightType,					// a2
+			*(uint32_t*)&nFlags,		// a3
+			&m_vDir,					// a4
+			&m_vTanDir,					// a5
+			&m_vPos,					// a6
+			&m_vColor,					// a7
+			*(float*)&fIntensity,		// a8
+			texHash,					// a9
+			txdSlot,					// a10
+			*(float*)&fRange,			// a11
+			*(float*)&fInnerConeAngle,	// a12
+			*(float*)&fOuterConeAngle,	// a13
+			*(float*)&fVolIntensity,	// a14
+			fVolSizeScale,				// a15
+			interiorId,					// a16
+			a15,						// a17
+			nID);						// a18
 	}
-	void IVShadows::StoreStaticShadowAdvanced(uint32_t a1, uint32_t a2, bool castShadows, Vector3 pVec1, Vector3 pVec2, Vector3 vPos, Color vColor, float fIntensity, uint32_t texHash, uint32_t txdSlot, float fRange, float a12, float a13, uint32_t a14, uint32_t a15, uint32_t nID)
-	{
-		CVector v1;
-		v1.x = 0.0F;
-		v1.y = 0.0F;
-		v1.z = -1.0F;
 
-		CVector v2;
-		v2.x = 0.0F;
-		v2.y = 1.0F;
-		v2.z = 0.0F;
-
-		CVector v3Pos;
-		v3Pos.x = vPos.X;
-		v3Pos.y = vPos.Y;
-		v3Pos.z = vPos.Z;
-
-		CVector v4Color;
-		v4Color.x = vColor.R;
-		v4Color.y = vColor.G;
-		v4Color.z = vColor.B;
-
-		CShadows::StoreStaticShadow(a1, a2, castShadows ? 0x504 : 0x500, &v1, &v2, &v3Pos, &v4Color, fIntensity, texHash, txdSlot, fRange, a12, a13, a14, a15, nID);
-	}
 	void IVShadows::StoreStaticShadow(bool castShadows, Vector3 vPos, Color vColor, float fIntensity, float fRange)
 	{
-		CVector v1;
-		v1.x = 0.0F;
-		v1.y = 0.0F;
-		v1.z = -1.0F;
-
-		CVector v2;
-		v2.x = 0.0F;
-		v2.y = 1.0F;
-		v2.z = 0.0F;
-
-		CVector v3Pos;
-		v3Pos.x = vPos.X;
-		v3Pos.y = vPos.Y;
-		v3Pos.z = vPos.Z;
-
-		CVector v4Color;
-		v4Color.x = vColor.R;
-		v4Color.y = vColor.G;
-		v4Color.z = vColor.B;
-
-		CShadows::StoreStaticShadow(0, 0, castShadows ? 0x504 : 0x500, &v1, &v2, &v3Pos, &v4Color, fIntensity, 0, 0, fRange, 0.3F, 3.0F, -1, 0, (uint32_t)FindPlayerPed() + 1);
+		AddSceneLight(0, 0, castShadows ? 0x504 : 0x500, -Vector3::UnitZ, Vector3::UnitY, vPos, vColor, fIntensity, 0, 0, fRange, 0.0F, 0.0F, 0.0F, 0.0F, 0, 0, castShadows ? (uint32_t)FindPlayerPed() + 1 : 0);
 	}
+
 }

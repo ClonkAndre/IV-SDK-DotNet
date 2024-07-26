@@ -27,7 +27,7 @@ namespace IVSDKDotNet
         CWorld::RemoveFallenObjects();
     }
 
-    bool IVWorld::ProcessLineOfSight(Vector3 source, Vector3 target, UIntPtr pUnk, IVLineOfSightResults% pResults, uint32_t nFlags, uint32_t nUnk1, uint32_t nUnk2, uint32_t nSeeThroughShootThrough, uint32_t nUnk4)
+    bool IVWorld::ProcessLineOfSight(Vector3 source, Vector3 target, UIntPtr pUnk, [OutAttribute] IVLineOfSightResults% pResults, uint32_t nFlags, uint32_t nUnk1, uint32_t nUnk2, uint32_t nSeeThroughShootThrough, uint32_t nUnk4)
     {
         CVector* nSource = new CVector();
         nSource->x = source.X;
@@ -47,11 +47,11 @@ namespace IVSDKDotNet
         if (result)
             pResults = IVLineOfSightResults(&lineOfSightResult);
         else
-            pResults = IVLineOfSightResults();
+            pResults = IVLineOfSightResults::Empty();
 
         return result;
     }
-    bool IVWorld::ProcessLineOfSight(Vector3 source, Vector3 target, IVLineOfSightResults% pResults, uint32_t nSeeThroughShootThrough)
+    bool IVWorld::ProcessLineOfSight(Vector3 source, Vector3 target, [OutAttribute] IVLineOfSightResults% pResults, uint32_t nSeeThroughShootThrough)
     {
         CVector* nSource = new CVector();
         nSource->x = source.X;
@@ -71,7 +71,7 @@ namespace IVSDKDotNet
         if(result)
             pResults = IVLineOfSightResults(&lineOfSightResult);
         else
-            pResults = IVLineOfSightResults();
+            pResults = IVLineOfSightResults::Empty();
 
         return result;
     }

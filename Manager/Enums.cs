@@ -69,14 +69,7 @@
 
     public enum TaskUseCase
     {
-        TickRaiser,
-        GameLoadRaiser,
-        GameLoadPriorityRaiser,
-        MountDeviceRaiser,
-        DrawingRaiser,
-        ProcessCameraRaiser,
-        ProcessAutomobileRaiser,
-        ProcessPadRaiser,
+        Unknown,
         Timer,
         Custom
     }
@@ -117,6 +110,29 @@
         IVSDKDotNet,
         ScriptHookDotNet,
         Unknown
+    }
+
+    public enum SupportedPublicFields
+    {
+        Unknown,
+        _byte,
+        _sbyte,
+        _short,
+        _ushort,
+        _int,
+        _uint,
+        _long,
+        _ulong,
+        _float,
+        _double,
+        _decimal,
+        _bool,
+        _string,
+        _Vector2,
+        _Vector3,
+        _Vector4,
+        _Quaternion,
+        _Color
     }
 
 }

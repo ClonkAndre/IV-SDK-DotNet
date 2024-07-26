@@ -31,12 +31,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeMatrix, Vector3::Zero);
-				return CVectorPadToVector(NativeMatrix->right);
+				return CVectorPadToVector3(NativeMatrix->right);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeMatrix);
-				NativeMatrix->right = VectorToCVectorPad(value);
+				NativeMatrix->right = Vector3ToCVectorPad(value);
 			}
 		}
 		/// <summary>B</summary>
@@ -45,12 +45,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeMatrix, Vector3::Zero);
-				return CVectorPadToVector(NativeMatrix->up);
+				return CVectorPadToVector3(NativeMatrix->up);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeMatrix);
-				NativeMatrix->up = VectorToCVectorPad(value);
+				NativeMatrix->up = Vector3ToCVectorPad(value);
 			}
 		}
 		/// <summary>C</summary>
@@ -59,12 +59,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeMatrix, Vector3::Zero);
-				return CVectorPadToVector(NativeMatrix->at);
+				return CVectorPadToVector3(NativeMatrix->at);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeMatrix);
-				NativeMatrix->at = VectorToCVectorPad(value);
+				NativeMatrix->at = Vector3ToCVectorPad(value);
 			}
 		}
 		/// <summary>D</summary>
@@ -73,12 +73,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeMatrix, Vector3::Zero);
-				return CVectorPadToVector(NativeMatrix->pos);
+				return CVectorPadToVector3(NativeMatrix->pos);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeMatrix);
-				NativeMatrix->pos = VectorToCVectorPad(value);
+				NativeMatrix->pos = Vector3ToCVectorPad(value);
 			}
 		}
 

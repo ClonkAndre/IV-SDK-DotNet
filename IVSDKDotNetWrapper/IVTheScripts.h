@@ -124,6 +124,7 @@ namespace IVSDKDotNet
 		static void RestorePreviousThread();
 
 		static uint32_t GetGlobalAddress(int index);
+
 		static int GetGlobalInteger(int index);
 		static float GetGlobalFloat(int index);
 		static String^ GetGlobalString(int index);

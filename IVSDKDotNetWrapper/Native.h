@@ -367,6 +367,10 @@ namespace IVSDKDotNet
 			static void SET_CHAR_KEEP_TASK(Ped ped, b8 value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_KEEP_TASK, ped, value); }
 			static void SET_CHAR_MAX_HEALTH(Ped ped, unsigned int value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_MAX_HEALTH, ped, value); }
 			static void SET_CHAR_MAX_TIME_IN_WATER(Ped ped, float time) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_MAX_TIME_IN_WATER, ped, time); }
+			
+			static void SET_CHAR_WILL_TRY_TO_LEAVE_WATER(Ped ped, b8 set) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_WILL_TRY_TO_LEAVE_WATER, ped, set); }
+			static b8 GET_CHAR_WILL_TRY_TO_LEAVE_WATER(Ped ped) { return NativeInvoke::Invoke<b8>(eNativeHash::NATIVE_GET_CHAR_WILL_TRY_TO_LEAVE_WATER, ped); }
+
 			static void SET_CHAR_MAX_TIME_UNDERWATER(Ped ped, float time) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_MAX_TIME_UNDERWATER, ped, time); }
 			static void SET_CHAR_MELEE_ACTION_FLAG0(Ped ped, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_MELEE_ACTION_FLAG0, ped, set); }
 			static void SET_CHAR_MELEE_ACTION_FLAG1(Ped ped, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_MELEE_ACTION_FLAG1, ped, set); }
@@ -2681,6 +2685,7 @@ namespace IVSDKDotNet
 			static void ADD_AMMO_TO_CHAR(Ped ped, int weapon, int amount) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_AMMO_TO_CHAR, ped, weapon, amount); }
 			static void BLOCK_PED_WEAPON_SWITCHING(Ped ped, b8 value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_BLOCK_PED_WEAPON_SWITCHING, ped, value); }
 			static void ENABLE_MAX_AMMO_CAP(b8 enable) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ENABLE_MAX_AMMO_CAP, enable); }
+			static void FIRE_SINGLE_BULLET(Vector3 source, Vector3 target, unsigned int unknown) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_FIRE_SINGLE_BULLET, source.X, source.Y, source.Z, target.X, target.Y, target.Z, unknown); }
 			static void FIRE_SINGLE_BULLET(float x, float y, float z, float targetX, float targetY, float targetZ, unsigned int unknown) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_FIRE_SINGLE_BULLET, x, y, z, targetX, targetY, targetZ, unknown); }
 			static void FORCE_CHAR_TO_DROP_WEAPON(Ped ped) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_FORCE_CHAR_TO_DROP_WEAPON, ped); }
 			static void GET_AMMO_IN_CHAR_WEAPON(Ped ped, int weapon, [OutAttribute] int% pAmmo)
@@ -3509,12 +3514,14 @@ namespace IVSDKDotNet
 			static void STOP_MOVIE() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_STOP_MOVIE); }
 			static void TOGGLE_TOPLEVEL_SPRITE(b8 toggle) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_TOGGLE_TOPLEVEL_SPRITE, toggle); }
 			static void USE_MASK(b8 use) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_USE_MASK, use); }
+			
 			static void DECREMENT_FLOAT_STAT(int stat, float val) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DECREMENT_FLOAT_STAT, stat, val); }
-			static void DECREMENT_INT_STAT(unsigned int stat, unsigned int amount) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DECREMENT_INT_STAT, stat, amount); }
+			static void DECREMENT_INT_STAT(int stat, int amount) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DECREMENT_INT_STAT, stat, amount); }
 			static void INCREMENT_FLOAT_STAT(int stat, float val) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_INCREMENT_FLOAT_STAT, stat, val); }
-			static void INCREMENT_FLOAT_STAT_NO_MESSAGE(unsigned int stat, float value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_INCREMENT_FLOAT_STAT_NO_MESSAGE, stat, value); }
-			static void INCREMENT_INT_STAT(unsigned int stat, unsigned int value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_INCREMENT_INT_STAT, stat, value); }
-			static void INCREMENT_INT_STAT_NO_MESSAGE(unsigned int stat, unsigned int value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_INCREMENT_INT_STAT_NO_MESSAGE, stat, value); }
+			static void INCREMENT_FLOAT_STAT_NO_MESSAGE(int stat, float value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_INCREMENT_FLOAT_STAT_NO_MESSAGE, stat, value); }
+			static void INCREMENT_INT_STAT(int stat, int value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_INCREMENT_INT_STAT, stat, value); }
+			static void INCREMENT_INT_STAT_NO_MESSAGE(int stat, int value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_INCREMENT_INT_STAT_NO_MESSAGE, stat, value); }
+			
 			static void PLAYSTATS_CHEAT(int stat) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAYSTATS_CHEAT, stat); }
 			static void PLAYSTATS_FLOAT(int Unk785, float Unk786) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAYSTATS_FLOAT, Unk785, Unk786); }
 			static void PLAYSTATS_INT(ScriptAny Unk787, int Unk788) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PLAYSTATS_INT, Unk787, Unk788); }
@@ -3535,10 +3542,13 @@ namespace IVSDKDotNet
 				msclr::interop::marshal_context ctx;
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REGISTER_STRING_FOR_FRONTEND_STAT, stat, ctx.marshal_as<const char*>(str));
 			}
-			static uint32_t GET_INT_STAT(uint32_t stat) { return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_INT_STAT, stat); }
-			static float GET_FLOAT_STAT(uint32_t stat) { return NativeInvoke::Invoke<float>(eNativeHash::NATIVE_GET_FLOAT_STAT, stat); }
-			static void SET_FLOAT_STAT(unsigned int stat, float value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_FLOAT_STAT, stat, value); }
-			static void SET_INT_STAT(unsigned int stat, unsigned int value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_INT_STAT, stat, value); }
+
+			static float GET_FLOAT_STAT(int stat) { return NativeInvoke::Invoke<float>(eNativeHash::NATIVE_GET_FLOAT_STAT, stat); }
+			static void SET_FLOAT_STAT(int stat, float value) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_SET_FLOAT_STAT, stat, value); }
+			
+			static int GET_INT_STAT(int stat) { return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_GET_INT_STAT, stat); }
+			static void SET_INT_STAT(int stat, int value) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_SET_INT_STAT, stat, value); }
+			
 			static void SET_STAT_FRONTEND_ALWAYS_VISIBLE(b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_STAT_FRONTEND_ALWAYS_VISIBLE, set); }
 			static void SET_STAT_FRONTEND_DISPLAY_TYPE(int stat, int type) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_STAT_FRONTEND_DISPLAY_TYPE, stat, type); }
 			static void SET_STAT_FRONTEND_NEVER_VISIBLE(int stat) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_STAT_FRONTEND_NEVER_VISIBLE, stat); }
@@ -3974,16 +3984,27 @@ namespace IVSDKDotNet
 			static void NETWORK_VERIFY_USER_STRING(ScriptAny Unk940) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_NETWORK_VERIFY_USER_STRING, Unk940); }
 			static void OBFUSCATE_INT(int Unk941, int Unk942) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_OBFUSCATE_INT, Unk941, Unk942); }
 			static void OBFUSCATE_INT_ARRAY(ScriptAny Unk943, ScriptAny Unk944) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_OBFUSCATE_INT_ARRAY, Unk943, Unk944); }
+			
 			static void REGISTER_CLIENT_BROADCAST_VARIABLES(IntPtr data, int sizeOfData, int brodcastID)
 			{
 				void* d = data.ToPointer();
 				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_REGISTER_CLIENT_BROADCAST_VARIABLES, &d, sizeOfData, brodcastID);
 			}
+			static void REGISTER_CLIENT_BROADCAST_VARIABLES_UNSAFE(void* data, int sizeOfData, int brodcastID)
+			{
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_REGISTER_CLIENT_BROADCAST_VARIABLES, &data, sizeOfData, brodcastID);
+			}
+
 			static void REGISTER_HOST_BROADCAST_VARIABLES(IntPtr data, int sizeOfData, int brodcastID)
 			{
 				void* d = data.ToPointer();
-				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_REGISTER_HOST_BROADCAST_VARIABLES, &d, sizeOfData, brodcastID);
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_REGISTER_HOST_BROADCAST_VARIABLES, data.ToPointer(), sizeOfData, brodcastID);
 			}
+			static void REGISTER_HOST_BROADCAST_VARIABLES_UNSAFE(void* data, int sizeOfData, int brodcastID)
+			{
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_REGISTER_HOST_BROADCAST_VARIABLES, &data, sizeOfData, brodcastID);
+			}
+
 			static void REGISTER_KILL_IN_MULTIPLAYER_GAME(Player playerIndex, int id, unsigned int ukn) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REGISTER_KILL_IN_MULTIPLAYER_GAME, playerIndex, id, ukn); }
 			static void REGISTER_MULTIPLAYER_GAME_WIN(Player playerIndex, b8 Unk949) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REGISTER_MULTIPLAYER_GAME_WIN, playerIndex, Unk949); }
 			static void REGISTER_NETWORK_BEST_GAME_SCORES(Player playerIndex, int Unk950, int Unk951) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REGISTER_NETWORK_BEST_GAME_SCORES, playerIndex, Unk950, Unk951); }
@@ -4063,6 +4084,7 @@ namespace IVSDKDotNet
 			}
 			static void FLUSH_ALL_PLAYER_RESPAWN_COORDS() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_FLUSH_ALL_PLAYER_RESPAWN_COORDS); }
 			static void SEND_CLIENT_BROADCAST_VARIABLES_NOW() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SEND_CLIENT_BROADCAST_VARIABLES_NOW); }
+			static void SEND_HOST_BROADCAST_VARIABLES_NOW() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SEND_HOST_BROADCAST_VARIABLES_NOW); }
 			static void SET_PLAYER_AS_DAMAGED_PLAYER(Player playerIndex, int Unk1057, b8 Unk1058) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_PLAYER_AS_DAMAGED_PLAYER, playerIndex, Unk1057, Unk1058); }
 			static void STOP_SYNCING_SCRIPT_ANIMATIONS(b8 Unk1061) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_STOP_SYNCING_SCRIPT_ANIMATIONS, Unk1061); }
 			static void EVOLVE_PTFX(unsigned int ptfx, String^ evolvetype, float val)
@@ -4791,6 +4813,18 @@ namespace IVSDKDotNet
 				msclr::interop::marshal_context ctx;
 				return NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_HAS_STREAMED_TXD_LOADED, ctx.marshal_as<const char*>(txdName));
 			}
+
+			static TextureDict GET_TXD(String^ txdName)
+			{
+				msclr::interop::marshal_context ctx;
+				return NativeInvoke::Invoke<TextureDict>(eNativeHash::NATIVE_GET_TXD, ctx.marshal_as<const char*>(txdName));
+			}
+			static TextureDict LOAD_TXD(String^ txdName)
+			{
+				msclr::interop::marshal_context ctx;
+				return NativeInvoke::Invoke<TextureDict>(eNativeHash::NATIVE_LOAD_TXD, ctx.marshal_as<const char*>(txdName));
+			}
+
 			static b8 HAS_THIS_ADDITIONAL_TEXT_LOADED(String^ pTextBlockName, int SlotNumber)
 			{
 				msclr::interop::marshal_context ctx;
@@ -5125,6 +5159,45 @@ namespace IVSDKDotNet
 				pRetHeading = h;
 				return r;
 			}
+			
+			static b8 GET_RANDOM_WATER_NODE(Vector3 pos, float pRadius, b8 flag0, b8 flag1, b8 flag2, b8 flag3, [OutAttribute] Vector3% pResult, [OutAttribute] float% pRetHeading)
+			{
+				float x, y, z, h;
+				b8 r = NativeInvoke::Invoke<b8>(eNativeHash::NATIVE_GET_RANDOM_WATER_NODE, pos.X, pos.Y, pos.Z, pRadius, flag0, flag1, flag2, flag3, &x, &y, &z, &h);
+				pResult = Vector3(x, y, z);
+				pRetHeading = h;
+				return r;
+			}
+			static b8 GET_RANDOM_WATER_NODE(float pX, float pY, float pZ, float pRadius, b8 flag0, b8 flag1, b8 flag2, b8 flag3, [OutAttribute] float% pRetX, [OutAttribute] float% pRetY, [OutAttribute] float% pRetZ, [OutAttribute] float% pRetHeading)
+			{
+				float x, y, z, h;
+				b8 r = NativeInvoke::Invoke<b8>(eNativeHash::NATIVE_GET_RANDOM_WATER_NODE, pX, pY, pZ, pRadius, flag0, flag1, flag2, flag3, &x, &y, &z, &h);
+				pRetX = x;
+				pRetY = y;
+				pRetZ = z;
+				pRetHeading = h;
+				return r;
+			}
+			
+			static b8 GET_NTH_CLOSEST_WATER_NODE_WITH_HEADING(Vector3 pos, b8 flag0, b8 flag1, [OutAttribute] Vector3% pResult, [OutAttribute] float% pHeading)
+			{
+				float x, y, z, h;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_NTH_CLOSEST_WATER_NODE_WITH_HEADING, pos.X, pos.Y, pos.Z, flag0, flag1, &x, &y, &z, &h);
+				pResult = Vector3(x, y, z);
+				pHeading = h;
+				return r;
+			}
+			static b8 GET_NTH_CLOSEST_WATER_NODE_WITH_HEADING(float pX, float pY, float pZ, b8 flag0, b8 flag1, [OutAttribute] float% pResX, [OutAttribute] float% pResY, [OutAttribute] float% pResZ, [OutAttribute] float% pHeading)
+			{
+				float x, y, z, h;
+				b8 r = NativeInvoke::Invoke< b8>(eNativeHash::NATIVE_GET_NTH_CLOSEST_WATER_NODE_WITH_HEADING, pX, pY, pZ, flag0, flag1, &x, &y, &z, &h);
+				pResX = x;
+				pResY = y;
+				pResZ = z;
+				pHeading = h;
+				return r;
+			}
+
 			static b8 GET_SAFE_POSITION_FOR_CHAR(Vector3 pos, b8 onGround, [OutAttribute] Vector3% pResult)
 			{
 				float x, y, z;

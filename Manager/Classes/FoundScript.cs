@@ -38,7 +38,6 @@ namespace Manager.Classes
         public Type EntryPoint;
 
         // Lists
-        public List<AdvancedTask> ScriptTasks;
         public Dictionary<string, Action<string[]>> ConsoleCommands;
         public Dictionary<string, BoundPhoneNumber> BoundPhoneNumbers;
 
@@ -118,7 +117,6 @@ namespace Manager.Classes
 
             // Lists
             // Initializing all lists with a Capacity of 8 so they don't need to resize for every new item that is added to them (Aslong as they don't reach the set Capacity).
-            ScriptTasks = new List<AdvancedTask>(8);
             ConsoleCommands = new Dictionary<string, Action<string[]>>(8);
             BoundPhoneNumbers = new Dictionary<string, BoundPhoneNumber>(8);
             Textures = new List<IntPtr>(8);
@@ -207,12 +205,9 @@ namespace Manager.Classes
             }
             else
             {
-                DateTime time = DateTime.UtcNow;
-
                 Script script = GetScriptAs<Script>();
 
                 script.RaiseTick();
-                script.TickEventExecutionTime = DateTime.UtcNow - time;
 
                 // Raise WaitTick if can tick
                 DateTime utcNow = DateTime.UtcNow;
@@ -238,10 +233,7 @@ namespace Manager.Classes
                 return;
 
             Script script = GetScriptAs<Script>();
-
-            DateTime time = DateTime.UtcNow;
             script.RaiseGameLoad();
-            script.GameLoadEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseGameLoadPriority()
         {
@@ -251,10 +243,7 @@ namespace Manager.Classes
                 return;
 
             Script script = GetScriptAs<Script>();
-
-            DateTime time = DateTime.UtcNow;
             script.RaiseGameLoadPriority();
-            script.GameLoadPriorityEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseMountDevice()
         {
@@ -264,10 +253,7 @@ namespace Manager.Classes
                 return;
 
             Script script = GetScriptAs<Script>();
-
-            DateTime time = DateTime.UtcNow;
             script.RaiseMountDevice();
-            script.MountDeviceEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseDrawing()
         {
@@ -277,10 +263,7 @@ namespace Manager.Classes
                 return;
 
             Script script = GetScriptAs<Script>();
-
-            DateTime time = DateTime.UtcNow;
             script.RaiseDrawing();
-            script.DrawingEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseProcessCamera()
         {
@@ -290,10 +273,7 @@ namespace Manager.Classes
                 return;
 
             Script script = GetScriptAs<Script>();
-
-            DateTime time = DateTime.UtcNow;
             script.RaiseProcessCamera();
-            script.ProcessCameraEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseProcessAutomobile(UIntPtr vehPtr)
         {
@@ -303,10 +283,7 @@ namespace Manager.Classes
                 return;
 
             Script script = GetScriptAs<Script>();
-
-            DateTime time = DateTime.UtcNow;
             script.RaiseProcessAutomobile(vehPtr);
-            script.ProcessAutomobileEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseProcessPad(UIntPtr padPtr)
         {
@@ -316,10 +293,7 @@ namespace Manager.Classes
                 return;
 
             Script script = GetScriptAs<Script>();
-
-            DateTime time = DateTime.UtcNow;
             script.RaiseProcessPad(padPtr);
-            script.ProcessPadEventExecutionTime = DateTime.UtcNow - time;
         }
         public void RaiseIngameStartup()
         {
@@ -329,10 +303,7 @@ namespace Manager.Classes
                 return;
 
             Script script = GetScriptAs<Script>();
-
-            DateTime time = DateTime.UtcNow;
             script.RaiseIngameStartup();
-            script.IngameStartupEventExecutionTime = DateTime.UtcNow - time;
         }
 
         public void RaiseKeyDown(object sender, KeyEventArgs e)
@@ -357,10 +328,7 @@ namespace Manager.Classes
                 if (keyWatchDog.Tag == "IVSDKDotNet")
                 {
                     Script script = GetScriptAs<Script>();
-
-                    DateTime time = DateTime.UtcNow;
                     script.RaiseKeyDown(e);
-                    script.KeyDownEventExecutionTime = DateTime.UtcNow - time;
                 }
             }
         }
@@ -384,10 +352,7 @@ namespace Manager.Classes
                 if (keyWatchDog.Tag == "IVSDKDotNet")
                 {
                     Script script = GetScriptAs<Script>();
-
-                    DateTime time = DateTime.UtcNow;
                     script.RaiseKeyUp(e);
-                    script.KeyUpEventExecutionTime = DateTime.UtcNow - time;
                 }
             }
         }
@@ -468,14 +433,11 @@ namespace Manager.Classes
                 // Raise on first D3D9 frame event
                 if (!HasOnFirstD3D9FrameEventBeenRaised)
                 {
-                    DateTime time = DateTime.UtcNow;
                     script.RaiseOnFirstD3D9Frame(devicePtr);
-                    script.OnFirstD3D9FrameEventExecutionTime = DateTime.UtcNow - time;
 
                     HasOnFirstD3D9FrameEventBeenRaised = true;
                 }
 
-                // TODO: Add event execution time
                 script.RaiseOnImGuiRendering(devicePtr, ctx);
             }
         }
@@ -491,7 +453,6 @@ namespace Manager.Classes
 
             // Lists
             // Initializing all lists with a Capacity of 8 so they don't need to resize for every new item that is added to them (Aslong as they don't reach the set Capacity).
-            ScriptTasks = new List<AdvancedTask>(8);
             ConsoleCommands = new Dictionary<string, Action<string[]>>(8);
             BoundPhoneNumbers = new Dictionary<string, BoundPhoneNumber>(8);
             Textures = new List<IntPtr>(8);
@@ -508,7 +469,7 @@ namespace Manager.Classes
             PublicFieldsWindowOpen = false;
 
             // Stop active script tasks
-            StopActiveScriptTasks();
+            Main.Instance.AbortScriptTasks(ID);
 
             // Disable the functionality to raise any script events (Except for the Uninitialize event)
             Stop();
@@ -607,105 +568,52 @@ namespace Manager.Classes
                 Logger.LogError(string.Format("Failed to get script config of Script {0}! Details: {1}", EntryPoint.FullName, ex));
             }
         }
-        public void CheckForExistenceOfReferencedAssemblies()
-        {
-            if (IsScriptHookDotNetScript)
-                return;
-            if (Config == null)
-                return;
+        //public void CheckForExistenceOfReferencedAssemblies()
+        //{
+        //    if (IsScriptHookDotNetScript)
+        //        return;
+        //    if (Config == null)
+        //        return;
 
-            // TODO
+        //    // TODO
 
-            Script script = GetScriptAs<Script>();
+        //    Script script = GetScriptAs<Script>();
 
-            // Check if referenced assemblies of script exists
-            AssemblyName[] referencedAssemblies = TheAssembly.GetReferencedAssemblies();
+        //    // Check if referenced assemblies of script exists
+        //    AssemblyName[] referencedAssemblies = TheAssembly.GetReferencedAssemblies();
 
-            for (int i = 0; i < referencedAssemblies.Length; i++)
-            {
-                string assemblyName = string.Format("{0}.dll", referencedAssemblies[i].Name);
-                Logger.LogDebug("Looking for: " + assemblyName);
+        //    for (int i = 0; i < referencedAssemblies.Length; i++)
+        //    {
+        //        string assemblyName = string.Format("{0}.dll", referencedAssemblies[i].Name);
+        //        Logger.LogDebug("Looking for: " + assemblyName);
 
-                // Try finding the assembly location
-                string assemblyFileName = string.Empty;
+        //        // Try finding the assembly location
+        //        string assemblyFileName = string.Empty;
 
-                switch (script.AssembliesLocation)
-                {
-                    case eAssembliesLocation.GameRootDirectory:
-                        assemblyFileName = Directory.GetFiles(IVGame.GameStartupPath, "*.dll").Where(x => x.ToLower().EndsWith(assemblyName.ToLower())).FirstOrDefault();
-                        break;
-                    case eAssembliesLocation.ScriptsDirectory:
-                        assemblyFileName = Directory.GetFiles(CLR.CLRBridge.IVSDKDotNetScriptsPath, "*.dll").Where(x => x.ToLower().EndsWith(assemblyName.ToLower())).FirstOrDefault();
-                        break;
+        //        switch (script.AssembliesLocation)
+        //        {
+        //            case eAssembliesLocation.GameRootDirectory:
+        //                assemblyFileName = Directory.GetFiles(IVGame.GameStartupPath, "*.dll").Where(x => x.ToLower().EndsWith(assemblyName.ToLower())).FirstOrDefault();
+        //                break;
+        //            case eAssembliesLocation.ScriptsDirectory:
+        //                assemblyFileName = Directory.GetFiles(CLR.CLRBridge.IVSDKDotNetScriptsPath, "*.dll").Where(x => x.ToLower().EndsWith(assemblyName.ToLower())).FirstOrDefault();
+        //                break;
 
-                    default:
-                        continue;
-                }
+        //            default:
+        //                continue;
+        //        }
 
-                if (string.IsNullOrWhiteSpace(assemblyFileName))
-                    continue;
+        //        if (string.IsNullOrWhiteSpace(assemblyFileName))
+        //            continue;
 
-                // If file does not exists
-                if (!File.Exists(assemblyFileName))
-                {
-                    Logger.LogWarning("- does not exists!");
-                }
-            }
-        }
+        //        // If file does not exists
+        //        if (!File.Exists(assemblyFileName))
+        //        {
+        //            Logger.LogWarning("- does not exists!");
+        //        }
+        //    }
+        //}
 
-        private void StopActiveScriptTasks() // TODO: This should be made differently i guess
-        {
-            cleanUpTask = Task.Run(() =>
-            {
-                try
-                {
-                    if (ScriptTasks.Count != 0)
-                    {
-                        DateTime taskCleanUpStartTime = DateTime.UtcNow;
-                        Task[] scriptTasks = new Task[ScriptTasks.Count];
-
-                        // Put all active tasks in task array and cancel them
-                        for (int i = 0; i < ScriptTasks.Count; i++)
-                        {
-                            AdvancedTask sTask = ScriptTasks[i];
-                            scriptTasks[i] = sTask.task;
-                            sTask.taskController.Cancel();
-                        }
-
-                        // Wait until all tasks are completed
-                        Task.WaitAll(scriptTasks);
-
-                        // Dispose and remove all tasks from user
-                        for (int i = 0; i < ScriptTasks.Count; i++)
-                        {
-                            AdvancedTask sTask = ScriptTasks[i];
-                            sTask.Dispose();
-                            ScriptTasks.RemoveAt(i);
-                        }
-
-                        // Log how long this process took
-                        TimeSpan timeResult = (taskCleanUpStartTime - DateTime.UtcNow);
-                        Logger.LogDebug(string.Format("{0} active tasks stopped for script {1}. This process took {2}.{3} seconds.", scriptTasks.Length, EntryPoint.FullName, timeResult.Seconds, timeResult.Milliseconds));
-
-                    }
-
-                    ScriptTasks.Clear();
-
-                    return null;
-                }
-                catch (Exception ex)
-                {
-                    return ex;
-                }
-            }).ContinueWith(x =>
-            {
-                if (x.Result != null)
-                {
-                    AbortError = x.Result;
-                    Logger.LogError(string.Format("An error occured while stopping active scripts tasks for {0}. Details: {1}", EntryPoint.FullName, x.Result));
-                }
-            });
-        }
         private void DestroyScriptTextures()
         {
             string scriptName = EntryPoint == null ? "UNKNOWN" : EntryPoint.FullName;

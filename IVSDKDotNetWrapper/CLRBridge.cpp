@@ -6,17 +6,25 @@ using namespace IVSDKDotNet;
 using namespace IVSDKDotNet::Manager;
 
 WNDPROC originalWndProc = nullptr;
-
 LRESULT __stdcall WndProcHook(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	// Window starts being destroyed
-	if (uMsg == WM_DESTROY)
+	if (uMsg == WM_CLOSE || uMsg == WM_DESTROY) // WM_DESTROY
 	{
+		// Invoke event for scripts
+		RAGE::RaiseOnExit();
+
 		// Cleanup internal things
 		CLR::CLRBridge::Cleanup();
 
-		// Invoke event
-		RAGE::RaiseOnExit();
+		// Wait for cleanup process to finish
+		while (!CLR::CLRBridge::CanTerminate)
+		{
+			Sleep(1);
+		}
+
+		// Call the original function
+		return CallWindowProc(originalWndProc, hWnd, uMsg, wParam, lParam);
 	}
 
 	// Invoke event
@@ -114,6 +122,8 @@ namespace CLR
 			Logger::LogDebug("[DXHook] Done!");
 		if (DirectInputHook::Initialize())
 			Logger::LogDebug("[DirectInputHook] Done!");
+		if (XInputHook::Initialize())
+			Logger::LogDebug("[XInputHook] Done!");
 
 		// FindWindow(L"grcWindow", L"GTAIV")
 		originalWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr((HWND)TheGTAProcess->MainWindowHandle.ToPointer(), GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WndProcHook)));
@@ -318,7 +328,10 @@ ERR:
 
 	void CLRBridge::Cleanup()
 	{
-		Logger::Log("Starting to clean up...");
+		IsShuttingDown = true;
+
+		// Log
+		Logger::Log("Application is closing, starting cleanup process...");
 
 		// Start cleanup in manager script
 		if (ManagerScript::s_Instance)
@@ -338,7 +351,9 @@ ERR:
 		// ImGui
 		ImGuiDraw::UninitializeImGui();
 
-		Logger::LogDebug("Cleanup finished!");
+		// Log
+		Logger::Log("Cleanup process finished!");
+		Logger::ForceCreateLogFile();
 
 		CanTerminate = true;
 	}

@@ -25,6 +25,10 @@ namespace IVSDKDotNet
 		void SetTexture(String^ sName);
 		void Delete();
 
+	public:
+		static IVSprite2D^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 	internal:
 		IVSprite2D(CSprite2d* nativePtr);
 

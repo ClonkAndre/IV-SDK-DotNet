@@ -14,7 +14,7 @@ namespace IVSDKDotNet
 		uint32_t _f198; // 001C
 		float _f19C; // 0020
 		float _f1A0; // 0024
-		uint32_t _f1A4; // 0028
+		uint32_t PhoneType; // 0028
 		uint32_t _f1A8; // 002C
 		uint32_t _f1AC; // 0030
 		uint32_t _f1B0; // 0034 - 1 when calling
@@ -30,7 +30,7 @@ namespace IVSDKDotNet
 		uint32_t _f1D8; // 005C
 		uint32_t _f1DC; // 0060 (Hex)
 		uint32_t _f1E0; // 0064
-		uint32_t _f1E4; // 0068
+		uint32_t DisablePhone; // 0068
 		uint32_t _f1E8; // 006C - Ringtone? Number of ringtone id
 		uint32_t _f1EC; // 0070 - Ringtype? 4 = Ring/Vibrate, 0 = Ring, 3 = Vibrate, 1 = Quiet and 2 = Silent
 		uint32_t _f1F0; // 0074
@@ -247,18 +247,18 @@ namespace IVSDKDotNet
 				NativePhoneInfo->_f1A0 = value;
 			}
 		}
-		property uint32_t _f1A4
+		property uint32_t PhoneType
 		{
 		public:
 			uint32_t get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePhoneInfo, 0);
-				return NativePhoneInfo->_f1A4;
+				return NativePhoneInfo->PhoneType;
 			}
 			void set(uint32_t value)
 			{
 				NULLPTR_CHECK(NativePhoneInfo);
-				NativePhoneInfo->_f1A4 = value;
+				NativePhoneInfo->PhoneType = value;
 			}
 		}
 		property uint32_t _f1A8
@@ -477,18 +477,18 @@ namespace IVSDKDotNet
 				NativePhoneInfo->_f1E0 = value;
 			}
 		}
-		property uint32_t _f1E4
+		property uint32_t DisablePhone
 		{
 		public:
 			uint32_t get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePhoneInfo, 0);
-				return NativePhoneInfo->_f1E4;
+				return NativePhoneInfo->DisablePhone;
 			}
 			void set(uint32_t value)
 			{
 				NULLPTR_CHECK(NativePhoneInfo);
-				NativePhoneInfo->_f1E4 = value;
+				NativePhoneInfo->DisablePhone = value;
 			}
 		}
 		/// <summary>
@@ -921,6 +921,25 @@ namespace IVSDKDotNet
 				strcpy_s(NativePhoneInfo->_f24D, 6, ctx.marshal_as<const char*>(value));
 			}
 		}
+
+		property bool SleepMode
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePhoneInfo, false);
+				return *(bool*)((uint32_t)NativePhoneInfo + 0x21C);
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePhoneInfo);
+				*(bool*)((uint32_t)NativePhoneInfo + 0x21C) = value;
+			}
+		}
+
+	public:
+		static IVPhoneInfo^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
 
 	internal:
 		IVPhoneInfo(sPhoneInfo* nativePtr);

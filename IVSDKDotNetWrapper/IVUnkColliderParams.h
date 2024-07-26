@@ -27,12 +27,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeColliderParams2, Vector3::Zero);
-				return CVectorPadToVector(NativeColliderParams2->m_vUnk);
+				return CVectorPadToVector3(NativeColliderParams2->m_vUnk);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeColliderParams2);
-				NativeColliderParams2->m_vUnk = VectorToCVectorPad(value);
+				NativeColliderParams2->m_vUnk = Vector3ToCVectorPad(value);
 			}
 		}
 		property Vector3 Unk2
@@ -41,12 +41,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeColliderParams2, Vector3::Zero);
-				return CVectorPadToVector(NativeColliderParams2->m_vUnk2);
+				return CVectorPadToVector3(NativeColliderParams2->m_vUnk2);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeColliderParams2);
-				NativeColliderParams2->m_vUnk2 = VectorToCVectorPad(value);
+				NativeColliderParams2->m_vUnk2 = Vector3ToCVectorPad(value);
 			}
 		}
 		property Vector3 Velocity
@@ -55,12 +55,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeColliderParams2, Vector3::Zero);
-				return CVectorPadToVector(NativeColliderParams2->m_vVelocity);
+				return CVectorPadToVector3(NativeColliderParams2->m_vVelocity);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeColliderParams2);
-				NativeColliderParams2->m_vVelocity = VectorToCVectorPad(value);
+				NativeColliderParams2->m_vVelocity = Vector3ToCVectorPad(value);
 			}
 		}
 		property Vector3 RotationVelocity
@@ -69,12 +69,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeColliderParams2, Vector3::Zero);
-				return CVectorPadToVector(NativeColliderParams2->m_vRotationVelocity);
+				return CVectorPadToVector3(NativeColliderParams2->m_vRotationVelocity);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeColliderParams2);
-				NativeColliderParams2->m_vRotationVelocity = VectorToCVectorPad(value);
+				NativeColliderParams2->m_vRotationVelocity = Vector3ToCVectorPad(value);
 			}
 		}
 

@@ -94,11 +94,6 @@ namespace plugin
 	}
 	void InitWrapper()
 	{
-		//// Force english culture of current thread
-		//System::Globalization::CultureInfo^ cultureInfo = gcnew System::Globalization::CultureInfo("en-US");
-		//System::Threading::Thread::CurrentThread->CurrentCulture = cultureInfo;
-		//System::Threading::Thread::CurrentThread->CurrentUICulture = cultureInfo;
-
 		// Initialize IV-SDK .NET
 		CLR::CLRBridge::Initialize((uint32_t)plugin::gameVer, AddressSetter::gBaseAddress);
 

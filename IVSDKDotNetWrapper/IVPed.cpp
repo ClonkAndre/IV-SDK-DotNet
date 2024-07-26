@@ -5,16 +5,6 @@ namespace IVSDKDotNet
 {
 
 	// - - - Constructor - - -
-	IVPedFlags::IVPedFlags(CPed* nativePtr)
-	{
-		NULLPTR_CHECK(nativePtr);
-		NativePed = nativePtr;
-	}
-	IVPedFlags2::IVPedFlags2(CPed* nativePtr)
-	{
-		NULLPTR_CHECK(nativePtr);
-		NativePed = nativePtr;
-	}
 	IVPed::IVPed(CPed* nativePtr) : IVPhysical(nativePtr)
 	{
 		NULLPTR_CHECK(nativePtr);

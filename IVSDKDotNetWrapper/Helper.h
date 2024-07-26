@@ -49,15 +49,16 @@ static RectangleF ImRectToRectangleF(ImRect rect)
 	return RectangleF(rect.Min.x, rect.Min.y, rect.Max.x, rect.Max.y);
 }
 
-static Vector3 CVectorPadToVector(CVector_pad v)
+static Vector3 CVectorPadToVector3(CVector_pad v)
 {
 	return Vector3(v.x, v.y, v.z);
 }
-static Vector3 CVectorToVector(CVector v)
+static Vector3 CVectorToVector3(CVector v)
 {
 	return Vector3(v.x, v.y, v.z);
 }
-static CVector_pad VectorToCVectorPad(Vector3 v)
+
+static CVector_pad Vector3ToCVectorPad(Vector3 v)
 {
 	CVector_pad pad;
 	pad.flags = 0;
@@ -66,7 +67,7 @@ static CVector_pad VectorToCVectorPad(Vector3 v)
 	pad.z = v.Z;
 	return pad;
 }
-static CVector VectorToCVector(Vector3 v)
+static CVector Vector3ToCVector(Vector3 v)
 {
 	CVector pad;
 	pad.x = v.X;

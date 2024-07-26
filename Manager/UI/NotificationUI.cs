@@ -45,6 +45,13 @@ namespace Manager.UI
         }
         #endregion
 
+        #region Methods
+        public void Cleanup()
+        {
+            Items.Clear();
+        }
+        #endregion
+
         #region Functions
         public bool ShowNotification(NotificationType type, DateTime showTime, string title, string description, string tag)
         {
@@ -64,6 +71,9 @@ namespace Manager.UI
             // Start delayed action to remove the notification item
             Main.Instance.StartDelayedAction(Guid.NewGuid(), "Removing notification", showTime, (DelayedAction dA, object obj) =>
             {
+                if (CLR.CLRBridge.IsShuttingDown)
+                    return;
+
                 ((NotificationItem)obj).FadeOut = true;
             }, item);
 

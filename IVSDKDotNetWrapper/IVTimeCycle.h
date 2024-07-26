@@ -669,12 +669,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeTimeCycleParams, Vector3::Zero);
-				return CVectorToVector(NativeTimeCycleParams->mSkyColor);
+				return CVectorToVector3(NativeTimeCycleParams->mSkyColor);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeTimeCycleParams);
-				NativeTimeCycleParams->mSkyColor = VectorToCVector(value);
+				NativeTimeCycleParams->mSkyColor = Vector3ToCVector(value);
 			}
 		}
 		property Vector3 SkyHorizonColor
@@ -683,12 +683,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeTimeCycleParams, Vector3::Zero);
-				return CVectorToVector(NativeTimeCycleParams->mSkyHorizonColor);
+				return CVectorToVector3(NativeTimeCycleParams->mSkyHorizonColor);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeTimeCycleParams);
-				NativeTimeCycleParams->mSkyHorizonColor = VectorToCVector(value);
+				NativeTimeCycleParams->mSkyHorizonColor = Vector3ToCVector(value);
 			}
 		}
 		property Vector3 SkyEastHorizonColor
@@ -697,12 +697,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeTimeCycleParams, Vector3::Zero);
-				return CVectorToVector(NativeTimeCycleParams->mSkyEastHorizonColor);
+				return CVectorToVector3(NativeTimeCycleParams->mSkyEastHorizonColor);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeTimeCycleParams);
-				NativeTimeCycleParams->mSkyEastHorizonColor = VectorToCVector(value);
+				NativeTimeCycleParams->mSkyEastHorizonColor = Vector3ToCVector(value);
 			}
 		}
 		property Vector3 Cloud1Color
@@ -711,12 +711,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeTimeCycleParams, Vector3::Zero);
-				return CVectorToVector(NativeTimeCycleParams->mCloud1Color);
+				return CVectorToVector3(NativeTimeCycleParams->mCloud1Color);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeTimeCycleParams);
-				NativeTimeCycleParams->mCloud1Color = VectorToCVector(value);
+				NativeTimeCycleParams->mCloud1Color = Vector3ToCVector(value);
 			}
 		}
 		property float Unknown11C
@@ -795,12 +795,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeTimeCycleParams, Vector3::Zero);
-				return CVectorToVector(NativeTimeCycleParams->mCloud2Color);
+				return CVectorToVector3(NativeTimeCycleParams->mCloud2Color);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeTimeCycleParams);
-				NativeTimeCycleParams->mCloud2Color = VectorToCVector(value);
+				NativeTimeCycleParams->mCloud2Color = Vector3ToCVector(value);
 			}
 		}
 		property float Cloud2ShadowStrength
@@ -1019,12 +1019,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeTimeCycleParams, Vector3::Zero);
-				return CVectorToVector(NativeTimeCycleParams->mCloud3Color);
+				return CVectorToVector3(NativeTimeCycleParams->mCloud3Color);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeTimeCycleParams);
-				NativeTimeCycleParams->mCloud3Color = VectorToCVector(value);
+				NativeTimeCycleParams->mCloud3Color = Vector3ToCVector(value);
 			}
 		}
 		property float Unknown190
@@ -1047,12 +1047,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeTimeCycleParams, Vector3::Zero);
-				return CVectorToVector(NativeTimeCycleParams->mSunColor);
+				return CVectorToVector3(NativeTimeCycleParams->mSunColor);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeTimeCycleParams);
-				NativeTimeCycleParams->mSunColor = VectorToCVector(value);
+				NativeTimeCycleParams->mSunColor = Vector3ToCVector(value);
 			}
 		}
 		property float CloudsBrightness
@@ -1131,12 +1131,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeTimeCycleParams, Vector3::Zero);
-				return CVectorToVector(NativeTimeCycleParams->mMoonColor);
+				return CVectorToVector3(NativeTimeCycleParams->mMoonColor);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeTimeCycleParams);
-				NativeTimeCycleParams->mMoonColor = VectorToCVector(value);
+				NativeTimeCycleParams->mMoonColor = Vector3ToCVector(value);
 			}
 		}
 		property float MoonGlow

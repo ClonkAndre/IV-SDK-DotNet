@@ -12,6 +12,17 @@ namespace IVSDKDotNet
     }
 
     // - - - Methods / Functions - - -
+    IVSprite2D^ IVSprite2D::FromUIntPtr(UIntPtr ptr)
+    {
+        UINTPTR_ZERO_CHECK_WITH_RETURN(ptr, nullptr);
+        return gcnew IVSprite2D((CSprite2d*)ptr.ToPointer());
+    }
+    UIntPtr IVSprite2D::GetUIntPtr()
+    {
+        NULLPTR_CHECK_WITH_RETURN(NativeSprite2D, UIntPtr::Zero);
+        return UIntPtr(NativeSprite2D);
+    }
+
     void IVSprite2D::SetTexture(String^ sName)
     {
         NULLPTR_CHECK(NativeSprite2D);
@@ -25,5 +36,7 @@ namespace IVSDKDotNet
         NULLPTR_CHECK(NativeSprite2D);
         NativeSprite2D->Delete();
     }
+
+
 
 }

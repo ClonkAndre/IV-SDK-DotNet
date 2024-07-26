@@ -27,12 +27,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeConstrainedCollider, Vector3::Zero);
-				return CVectorPadToVector(NativeConstrainedCollider->m_vPos2);
+				return CVectorPadToVector3(NativeConstrainedCollider->m_vPos2);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeConstrainedCollider);
-				NativeConstrainedCollider->m_vPos2 = VectorToCVectorPad(value);
+				NativeConstrainedCollider->m_vPos2 = Vector3ToCVectorPad(value);
 			}
 		}
 		property float UnkScale
@@ -97,12 +97,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeConstrainedCollider, Vector3::Zero);
-				return CVectorPadToVector(NativeConstrainedCollider->m_vUnk1);
+				return CVectorPadToVector3(NativeConstrainedCollider->m_vUnk1);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeConstrainedCollider);
-				NativeConstrainedCollider->m_vUnk1 = VectorToCVectorPad(value);
+				NativeConstrainedCollider->m_vUnk1 = Vector3ToCVectorPad(value);
 			}
 		}
 		property Vector3 Unk2
@@ -111,12 +111,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeConstrainedCollider, Vector3::Zero);
-				return CVectorPadToVector(NativeConstrainedCollider->m_vUnk2);
+				return CVectorPadToVector3(NativeConstrainedCollider->m_vUnk2);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeConstrainedCollider);
-				NativeConstrainedCollider->m_vUnk2 = VectorToCVectorPad(value);
+				NativeConstrainedCollider->m_vUnk2 = Vector3ToCVectorPad(value);
 			}
 		}
 		property Vector3 Unk3
@@ -125,12 +125,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeConstrainedCollider, Vector3::Zero);
-				return CVectorPadToVector(NativeConstrainedCollider->m_vUnk3);
+				return CVectorPadToVector3(NativeConstrainedCollider->m_vUnk3);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeConstrainedCollider);
-				NativeConstrainedCollider->m_vUnk3 = VectorToCVectorPad(value);
+				NativeConstrainedCollider->m_vUnk3 = Vector3ToCVectorPad(value);
 			}
 		}
 		property Vector3 Pos
@@ -139,12 +139,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeConstrainedCollider, Vector3::Zero);
-				return CVectorPadToVector(NativeConstrainedCollider->m_vPos);
+				return CVectorPadToVector3(NativeConstrainedCollider->m_vPos);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeConstrainedCollider);
-				NativeConstrainedCollider->m_vPos = VectorToCVectorPad(value);
+				NativeConstrainedCollider->m_vPos = Vector3ToCVectorPad(value);
 			}
 		}
 		property Vector3 PedVelocity
@@ -153,12 +153,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeConstrainedCollider, Vector3::Zero);
-				return CVectorPadToVector(NativeConstrainedCollider->m_vPedVelocity);
+				return CVectorPadToVector3(NativeConstrainedCollider->m_vPedVelocity);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeConstrainedCollider);
-				NativeConstrainedCollider->m_vPedVelocity = VectorToCVectorPad(value);
+				NativeConstrainedCollider->m_vPedVelocity = Vector3ToCVectorPad(value);
 			}
 		}
 		property Vector3 Unk4
@@ -167,12 +167,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeConstrainedCollider, Vector3::Zero);
-				return CVectorPadToVector(NativeConstrainedCollider->m_vUnk4);
+				return CVectorPadToVector3(NativeConstrainedCollider->m_vUnk4);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeConstrainedCollider);
-				NativeConstrainedCollider->m_vUnk4 = VectorToCVectorPad(value);
+				NativeConstrainedCollider->m_vUnk4 = Vector3ToCVectorPad(value);
 			}
 		}
 		property IVUnkColliderParams UnkParameters
