@@ -17,10 +17,10 @@ namespace IVSDKDotNet
 	{
 		// Create new matrix from 4 vectors
 		CMatrix* m = new CMatrix();
-		m->right = VectorToCVectorPad(right);
-		m->up = VectorToCVectorPad(up);
-		m->at = VectorToCVectorPad(at);
-		m->pos = VectorToCVectorPad(pos);
+		m->right = Vector3ToCVectorPad(right);
+		m->up = Vector3ToCVectorPad(up);
+		m->at = Vector3ToCVectorPad(at);
+		m->pos = Vector3ToCVectorPad(pos);
 
 		m_bManuallyCreated = true;
 		NativeMatrix = m;

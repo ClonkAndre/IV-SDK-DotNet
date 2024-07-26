@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Numerics;
@@ -31,7 +30,7 @@ namespace Manager
         public Queue<Action> ActionQueue;
 
         public List<FoundScript> ActiveScripts;
-        public List<AdvancedTask> LocalTasks;
+        public List<AdvancedTask> ActiveTasks;
         public List<DelayedAction> DelayedActions;
         
         public List<string> TierOneSupporters;
@@ -53,6 +52,7 @@ namespace Manager
         // Debug
         public bool DisableKeyEvents;
         public bool ThrowOnError;
+        public bool DoNotResetImGuiStyle;
 
         // Other
         public Version CurrentWrapperVersion;
@@ -189,7 +189,7 @@ namespace Manager
             ActionQueue =                   new Queue<Action>();
 
             ActiveScripts =                 new List<FoundScript>();
-            LocalTasks =                    new List<AdvancedTask>();
+            ActiveTasks =                   new List<AdvancedTask>();
             DelayedActions =                new List<DelayedAction>();
 
             TierOneSupporters =             new List<string>();
@@ -1131,6 +1131,21 @@ namespace Manager
             GC.WaitForPendingFinalizers();
             GC.Collect();
         }
+        public void AbortScriptTasks(Guid scriptId)
+        {
+            AdvancedTask[] tasks = ActiveTasks.Where(x => x.OwnerID == scriptId).ToArray();
+
+            if (tasks.Length == 0)
+                return;
+
+            for (int i = 0; i < tasks.Length; i++)
+            {
+                AdvancedTask advancedTask = tasks[i];
+
+                advancedTask.PauseTimer = true;
+                advancedTask.RequestCancellation();
+            }
+        }
 
         // DelayedAction
         public void StartDelayedAction(Guid id, string purpose, DateTime executeIn, Action<DelayedAction, object> actionToExecute, object parameter)
@@ -1141,6 +1156,9 @@ namespace Manager
         // ImGui
         private void ResetImGuiStyle()
         {
+            if (DoNotResetImGuiStyle)
+                return;
+
             string selectedImGuiStyle = Config.ImGuiStyle.ToLower();
 
             if (selectedImGuiStyle == "dark")
@@ -1421,6 +1439,7 @@ namespace Manager
             {
                 Logger.Log(string.Format("Aborting script {0}...", script.EntryPoint.FullName));
                 script.Abort(reason, true);
+                GC.Collect();
                 return ActiveScripts.Remove(script);
             }
 
@@ -1445,19 +1464,28 @@ namespace Manager
 
         public Guid StartNewTimerInternal(int interval, Action actionToExecute)
         {
-            AdvancedTask task = new AdvancedTask(Guid.NewGuid(), null, TaskUseCase.Timer, interval);
+            // Create task
+            AdvancedTask task = new AdvancedTask(Guid.NewGuid(), Guid.Empty, TaskUseCase.Timer, interval);
 
-            bool r = task.Start(TaskCreationOptions.LongRunning, () => AdvancedTask.TimerStatic(task, actionToExecute), (AdvancedTask.InvokeData args) =>
+            // Start task
+            bool r = task.Start(TaskCreationOptions.LongRunning, () => AdvancedTask.TimerStatic(task, actionToExecute), (TaskData args) =>
             {
-                StartDelayedAction(args.STask.ID, string.Format("Disposing and deleting task {0} of Manager. CFSM: LocalTaskDisposer in AdvancedTask class", args.STask.ID.ToString()), DateTime.UtcNow.AddSeconds(5), AdvancedTask.LocalTaskDisposer, args.STask);
+                // If the task ends, a delayed action will start which gets rid of the task in 5 seconds
+                StartDelayedAction(
+                    args.Source.ID,
+                    string.Format("Getting rid of task {0} from Manager. (CFSM: TaskDisposer in AdvancedTask class)", args.Source.ID),
+                    DateTime.UtcNow.AddSeconds(5),
+                    AdvancedTask.TaskDisposer,
+                    args.Source);
             });
 
             if (r)
             {
-                LocalTasks.Add(task);
+                ActiveTasks.Add(task);
                 return task.ID;
             }
 
+            task = null;
             return Guid.Empty;
         }
 
@@ -1471,7 +1499,11 @@ namespace Manager
             try
             {
                 // Log
-                Logger.Log("Starting to clean up in the manager script...");
+                Logger.LogDebug("Manager is starting its cleanup process...");
+
+                if (Console != null)
+                    Console.Close();
+                Notification.Cleanup();
 
                 // Stop remote server
                 ConnectionManager.Dispose();
@@ -1479,16 +1511,61 @@ namespace Manager
                 // Abort all currently running scripts
                 AbortScripts(ScriptType.All, AbortReason.Manager, false);
 
-                // Stop task
-                AbortTaskOrTimer(processCheckerTimerID);
+                // Stop all active task
+                if (ActiveTasks.Count != 0)
+                {
+                    double waitAllTimeout = 3.5d;
+                    DateTime taskCleanUpStartTime = DateTime.UtcNow;
+                    int activeTasksCount = ActiveTasks.Count;
+
+                    try
+                    {
+                        Task[] tasksToCancel = new Task[activeTasksCount];
+
+                        // Put all active tasks in task array and cancel them
+                        for (int i = 0; i < activeTasksCount; i++)
+                        {
+                            AdvancedTask advancedTask = ActiveTasks[i];
+
+                            // Put actual task in task array
+                            tasksToCancel[i] = advancedTask.ActualTask.Task;
+
+                            // Request task to cancel
+                            advancedTask.RequestCancellation();
+                        }
+
+                        // Wait until all tasks are completed
+                        if (Task.WaitAll(tasksToCancel, TimeSpan.FromSeconds(waitAllTimeout)))
+                        {
+                            // Dispose all tasks
+                            ActiveTasks.ForEach(x => x.Dispose());
+
+                            // Log how long this process took
+                            TimeSpan timeResult = (DateTime.UtcNow - taskCleanUpStartTime);
+                            Logger.LogDebug(string.Format("{0} active tasks stopped. This process took {1}.{2} seconds.", activeTasksCount, timeResult.Seconds, timeResult.Milliseconds));
+                        }
+                        else
+                        {
+                            Logger.LogWarning(string.Format("Could not get rid of {0} active tasks after waiting for {1} seconds.", activeTasksCount, waitAllTimeout));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(string.Format("Stopping {0} active tasks failed. Details: {1}", activeTasksCount, ex));
+                    }
+                }
 
                 // Cleanup SHDN stuff
                 SHDNStuff.Cleanup();
 
                 // Cleanup lists
                 ActiveScripts.Clear();
-                LocalTasks.Clear();
+                ActiveTasks.Clear();
                 DelayedActions.Clear();
+
+                TierOneSupporters.Clear();
+                TierTwoSupporters.Clear();
+                TierThreeSupporters.Clear();
 
                 // Destroy keyWatchDogs
                 if (keyWatchDogs != null)
@@ -1504,7 +1581,7 @@ namespace Manager
                     keyWatchDogs = null;
                 }
 
-                Logger.LogDebug("Cleanup in manager script finished!");
+                Logger.LogDebug("Cleanup process for manager script finished!");
             }
             catch (Exception ex)
             {
@@ -1639,20 +1716,32 @@ namespace Manager
 
             if (s != null)
             {
-                AdvancedTask task = new AdvancedTask(Guid.NewGuid(), s, TaskUseCase.Custom);
+                // Create task
+                AdvancedTask task = new AdvancedTask(Guid.NewGuid(), s.ID, TaskUseCase.Custom);
 
-                bool r = task.Start(TaskCreationOptions.None, funcToExecute, (AdvancedTask.InvokeData args) =>
+                // Start task
+                bool r = task.Start(TaskCreationOptions.None, funcToExecute, (TaskData args) =>
                 {
+                    // Invoke custom continue with action
                     continueWithAction?.Invoke(args.CustomData);
-                    StartDelayedAction(args.STask.ID, string.Format("Disposing and deleting task {0} of script {1}. CFSM: TaskDisposer in AdvancedTask class", args.STask.ID.ToString(), args.STask.Owner.EntryPoint.FullName), DateTime.UtcNow.AddSeconds(5), AdvancedTask.TaskDisposer, args.STask);
+
+                    // If the task ends, a delayed action will start which gets rid of the task in 5 seconds
+                    StartDelayedAction(
+                        args.Source.ID,
+                        string.Format("Getting rid of task {0} from Script {1}. (CFSM: TaskDisposer in AdvancedTask class)", args.Source.ID, args.Source.OwnerID),
+                        DateTime.UtcNow.AddSeconds(5),
+                        AdvancedTask.TaskDisposer,
+                        args.Source);
                 });
 
                 if (r)
                 {
-                    s.ScriptTasks.Add(task);
+                    //s.ScriptTasks.Add(task);
+                    ActiveTasks.Add(task);
                     return task.ID;
                 }
 
+                task = null;
                 return Guid.Empty;
             }
 
@@ -1664,19 +1753,29 @@ namespace Manager
 
             if (s != null)
             {
-                AdvancedTask task = new AdvancedTask(Guid.NewGuid(), s, TaskUseCase.Timer, interval);
+                // Create task
+                AdvancedTask task = new AdvancedTask(Guid.NewGuid(), s.ID, TaskUseCase.Timer, interval);
 
-                bool r = task.Start(TaskCreationOptions.LongRunning, () => AdvancedTask.TimerStatic(task, actionToExecute), (AdvancedTask.InvokeData args) =>
+                // Start task
+                bool r = task.Start(TaskCreationOptions.LongRunning, () => AdvancedTask.TimerStatic(task, actionToExecute), (TaskData args) =>
                 {
-                    StartDelayedAction(args.STask.ID, string.Format("Disposing and deleting timer task {0} of script {1}. CFSM: TaskDisposer in AdvancedTask class", args.STask.ID.ToString(), args.STask.Owner.EntryPoint.FullName), DateTime.UtcNow.AddSeconds(5), AdvancedTask.TaskDisposer, args.STask);
+                    // If the task ends, a delayed action will start which gets rid of the task in 5 seconds
+                    StartDelayedAction(
+                        args.Source.ID,
+                        string.Format("Getting rid of task {0} from Script {1}. (CFSM: TaskDisposer in AdvancedTask class)", args.Source.ID, args.Source.OwnerID),
+                        DateTime.UtcNow.AddSeconds(5),
+                        AdvancedTask.TaskDisposer,
+                        args.Source);
                 });
 
                 if (r)
                 {
-                    s.ScriptTasks.Add(task);
+                    //s.ScriptTasks.Add(task);
+                    ActiveTasks.Add(task);
                     return task.ID;
                 }
 
+                task = null;
                 return Guid.Empty;
             }
 
@@ -1797,95 +1896,35 @@ namespace Manager
         #region Tasks
         public override void WaitInTask(Guid id, int waitTimeInMilliseconds)
         {
-            // ActiveScripts
-            for (int i = 0; i < ActiveScripts.Count; i++)
+            ActiveTasks.ForEach(x =>
             {
-                for (int s = 0; s < ActiveScripts[i].ScriptTasks.Count; s++)
-                {
-                    AdvancedTask at = ActiveScripts[i].ScriptTasks[s];
-
-                    if (at.ID == id)
-                        at.Wait(waitTimeInMilliseconds);
-                }
-            }
-
-            // local tasks
-            for (int i = 0; i < LocalTasks.Count; i++)
-            {
-                AdvancedTask at = LocalTasks[i];
-
-                if (at.ID == id)
-                    at.Wait(waitTimeInMilliseconds);
-            }
+                if (x.ID == id)
+                    x.Wait(waitTimeInMilliseconds);
+            });
         }
         public override void AbortTaskOrTimer(Guid id)
         {
-            // ActiveScripts
-            for (int i = 0; i < ActiveScripts.Count; i++)
+            ActiveTasks.ForEach(x =>
             {
-                for (int s = 0; s < ActiveScripts[i].ScriptTasks.Count; s++)
-                {
-                    AdvancedTask at = ActiveScripts[i].ScriptTasks[s];
-
-                    if (at.ID == id)
-                        at.Abort();
-                }
-            }
-
-            // local tasks
-            for (int i = 0; i < LocalTasks.Count; i++)
-            {
-                AdvancedTask at = LocalTasks[i];
-
-                if (at.ID == id)
-                    at.Abort();
-            }
+                if (x.ID == id)
+                    x.RequestCancellation();
+            });
         }
         public override void ChangeTimerState(Guid id, bool pause)
         {
-            // ActiveScripts
-            for (int i = 0; i < ActiveScripts.Count; i++)
+            ActiveTasks.ForEach(x =>
             {
-                for (int s = 0; s < ActiveScripts[i].ScriptTasks.Count; s++)
-                {
-                    AdvancedTask at = ActiveScripts[i].ScriptTasks[s];
-
-                    if (at.ID == id)
-                        at.ShouldPause = pause;
-                }
-            }
-
-            // local tasks
-            for (int i = 0; i < LocalTasks.Count; i++)
-            {
-                AdvancedTask at = LocalTasks[i];
-
-                if (at.ID == id)
-                    at.ShouldPause = pause;
-            }
+                if (x.ID == id)
+                    x.PauseTimer = pause;
+            });
         }
         public override void ChangeTimerInterval(Guid id, int interval)
         {
-            // ActiveScripts
-            for (int i = 0; i < ActiveScripts.Count; i++)
+            ActiveTasks.ForEach(x =>
             {
-                for (int s = 0; s < ActiveScripts[i].ScriptTasks.Count; s++)
-                {
-                    AdvancedTask at = ActiveScripts[i].ScriptTasks[s];
-
-                    if (at.ID == id)
-                        at.SleepTime = interval;
-                }
-            }
-
-            // local tasks
-            for (int i = 0; i < LocalTasks.Count; i++)
-            {
-                AdvancedTask at = LocalTasks[i];
-
-                if (at.ID == id)
-                    at.SleepTime = interval;
-            }
+                if (x.ID == id)
+                    x.TimerInterval = interval;
+            });
         }
         #endregion
 

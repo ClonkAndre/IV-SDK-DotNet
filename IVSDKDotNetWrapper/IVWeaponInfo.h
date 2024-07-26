@@ -626,12 +626,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeWeaponInfo, Vector3::Zero);
-				return CVectorPadToVector(NativeWeaponInfo->m_vOffset);
+				return CVectorPadToVector3(NativeWeaponInfo->m_vOffset);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeWeaponInfo);
-				NativeWeaponInfo->m_vOffset = VectorToCVectorPad(value);
+				NativeWeaponInfo->m_vOffset = Vector3ToCVectorPad(value);
 			}
 		}
 		property Vector3 CrouchOffset
@@ -640,12 +640,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeWeaponInfo, Vector3::Zero);
-				return CVectorPadToVector(NativeWeaponInfo->m_vCrouchOffset);
+				return CVectorPadToVector3(NativeWeaponInfo->m_vCrouchOffset);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeWeaponInfo);
-				NativeWeaponInfo->m_vCrouchOffset = VectorToCVectorPad(value);
+				NativeWeaponInfo->m_vCrouchOffset = Vector3ToCVectorPad(value);
 			}
 		}
 		property float AimingPitch
@@ -948,12 +948,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeWeaponInfo, Vector3::Zero);
-				return CVectorPadToVector(NativeWeaponInfo->m_vProjectileOffset);
+				return CVectorPadToVector3(NativeWeaponInfo->m_vProjectileOffset);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeWeaponInfo);
-				NativeWeaponInfo->m_vProjectileOffset = VectorToCVectorPad(value);
+				NativeWeaponInfo->m_vProjectileOffset = Vector3ToCVectorPad(value);
 			}
 		}
 		property Vector3 ProjectileRotOffset
@@ -962,12 +962,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeWeaponInfo, Vector3::Zero);
-				return CVectorPadToVector(NativeWeaponInfo->m_vProjectileRotOffset);
+				return CVectorPadToVector3(NativeWeaponInfo->m_vProjectileRotOffset);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeWeaponInfo);
-				NativeWeaponInfo->m_vProjectileRotOffset = VectorToCVectorPad(value);
+				NativeWeaponInfo->m_vProjectileRotOffset = Vector3ToCVectorPad(value);
 			}
 		}
 		property float ProjectilePhysicsExplodeImpactThreshold

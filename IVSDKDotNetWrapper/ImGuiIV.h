@@ -1674,6 +1674,176 @@ namespace IVSDKDotNet
 		ImGuiInputTextState* m_InputTextState;
 		bool m_bIsValid;
 	};
+	public value struct ImGuiIV_IO
+	{
+	public:
+
+		/// <summary>
+		/// Native Pointer to the ImGuiIO structure.
+		/// </summary>
+		property IntPtr ImGuiIOPtr
+		{
+		public:
+			IntPtr get()
+			{
+				return IntPtr(m_IO);
+			}
+		}
+
+		/// <summary>
+		/// Gets if this struct contains valid data.
+		/// </summary>
+		property bool IsValid
+		{
+		public:
+			bool get()
+			{
+				return m_bIsValid;
+			}
+		}
+
+		property Vector2 DisplaySize
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_IO->DisplaySize);
+			}
+		}
+		property float DeltaTime
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_IO->DeltaTime;
+			}
+		}
+
+		//------------------------------------------------------------------
+		// Output - Updated by NewFrame() or EndFrame()/Render()
+		//------------------------------------------------------------------
+		property float Framerate
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_IO->Framerate;
+			}
+		}
+		property Vector2 MouseDelta
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_IO->MouseDelta);
+			}
+		}
+
+		//------------------------------------------------------------------
+		// [Internal] Dear ImGui will maintain those fields. Forward compatibility not guaranteed!
+		//------------------------------------------------------------------
+
+		// Main Input State
+		property Vector2 MousePos
+		{
+			Vector2 get()
+			{
+				if (!IsValid)
+					return Vector2::Zero;
+
+				return ImVec2ToVector2(m_IO->MousePos);
+			}
+		}
+		property float MouseWheel
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_IO->MouseWheel;
+			}
+		}
+		property float MouseWheelH
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return m_IO->MouseWheelH;
+			}
+		}
+		property eImGuiMouseSource MouseSource
+		{
+			eImGuiMouseSource get()
+			{
+				if (!IsValid)
+					return eImGuiMouseSource::Unknown;
+
+				return (eImGuiMouseSource)m_IO->MouseSource;
+			}
+		}
+		property bool KeyCtrl
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_IO->KeyCtrl;
+			}
+		}
+		property bool KeyShift
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_IO->KeyShift;
+			}
+		}
+		property bool KeyAlt
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_IO->KeyAlt;
+			}
+		}
+		property bool KeySuper
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_IO->KeySuper;
+			}
+		}
+
+	public:
+		ImGuiIV_IO(ImGuiIO* ptr, bool isValid)
+		{
+			m_IO = ptr;
+			m_bIsValid = isValid;
+		}
+
+	private:
+		ImGuiIO* m_IO;
+		bool m_bIsValid;
+	};
 
 	public ref class ImGuiIV
 	{
@@ -1958,6 +2128,45 @@ namespace IVSDKDotNet
 			fontPtr = IntPtr::Zero;
 			return false;
 		}
+		static bool AddFontFromMemory(array<System::Byte>^ data, float sizeInPixel, [OutAttribute] IntPtr% fontPtr, [OutAttribute] eResult% result)
+		{
+			if (ImGui::GetCurrentContext() == nullptr)
+			{
+				result = eResult::ImGuiNotInitialized;
+				fontPtr = IntPtr::Zero;
+				return false;
+			}
+			if (data == nullptr)
+			{
+				result = eResult::InvalidData;
+				fontPtr = IntPtr::Zero;
+				return false;
+			}
+
+			// Pin managed array
+			pin_ptr<System::Byte> pinnedData = &data[0];
+			unsigned char* pby = pinnedData;
+			void* dataPtr = reinterpret_cast<void*>(pby);
+
+			// Get ImGui IO
+			ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+			msclr::interop::marshal_context ctx;
+
+			// Try add font from file
+			ImFont* font = io.Fonts->AddFontFromMemoryTTF(dataPtr, data->Length, sizeInPixel);
+
+			if (font)
+			{
+				result = eResult::OK;
+				fontPtr = IntPtr(font);
+				return true;
+			}
+
+			result = eResult::Unknown;
+			fontPtr = IntPtr::Zero;
+			return false;
+		}
 
 	internal:
 		static IntPtr CreateTextureFromMemory(array<System::Byte>^ data)
@@ -2051,6 +2260,47 @@ namespace IVSDKDotNet
 			return Vector4(r, g, b, a);
 		}
 
+		static bool DoesAnyWindowHasThisAdditionalFlag(String^ flag)
+		{
+			if (ImGui::GetCurrentContext() == nullptr)
+				return false;
+
+			ImGuiContext* ctx = ImGui::GetCurrentContext();
+			for (int i = 0; i < ctx->Windows.Size; i++)
+			{
+				ImGuiWindow* window = ctx->Windows[i];
+
+				// Skip if this window is the fallback window (Debug##Default)
+				if (window->IsFallbackWindow)
+					continue;
+				// Skip if this window is the dockspace host
+				if (window->Flags & ImGuiWindowFlags_DockNodeHost)
+					continue;
+				// Skip if this window is the dockspace window
+				if (window->ID == DockspaceWindowID)
+					continue;
+#if _DEBUG
+				// Skip if this window is the debug window
+				if (window->ID == IVSDKDotNetWrapperDebugWindowID)
+					continue;
+#endif // _DEBUG
+
+				// Get if window is active and a top-level window
+				bool isTopLevel = (window->Flags & (ImGuiWindowFlags_ChildWindow | ImGuiWindowFlags_Popup | ImGuiWindowFlags_Tooltip)) == 0;
+
+				if (!(isTopLevel && window->Active && !window->Collapsed && !window->Hidden))
+					continue;
+
+				ImGuiStorage* windowStorage = &window->StateStorage;
+
+				// Check if window has this additional flag
+				msclr::interop::marshal_context ctx;
+				if (windowStorage->GetBool(ImGui::GetIDWithSeed(ctx.marshal_as<const char*>("eImGuiWindowFlagsEx_" + flag), nullptr, 0)))
+					return true;
+			}
+
+			return false;
+		}
 		static int GetActiveWindowCount()
 		{
 			if (ImGui::GetCurrentContext() == nullptr)
@@ -2203,6 +2453,33 @@ namespace IVSDKDotNet
 			ImGui::PopTabStop();
 		}
 
+		static Vector2 CalcTextSize(String^ text, String^ textEnd, bool hideTextAfterDoubleHash, float wrapWidth)
+		{
+			if (String::IsNullOrWhiteSpace(text))
+				return Vector2(0.0F, ImGui::GetCurrentContext()->FontSize);
+
+			msclr::interop::marshal_context ctx;
+			return ImVec2ToVector2(ImGui::CalcTextSize(
+				ctx.marshal_as<const char*>(text),
+				String::IsNullOrWhiteSpace(textEnd) ? (const char*)0 : ctx.marshal_as<const char*>(textEnd),
+				hideTextAfterDoubleHash,
+				wrapWidth));
+		}
+		static Vector2 CalcTextSize(String^ text)
+		{
+			return CalcTextSize(text, nullptr, false, -1.0F);
+		}
+
+		static ImGuiIV_IO GetIO()
+		{
+			ImGuiIO* ptr = &ImGui::GetIO();
+
+			if (!ptr)
+				return ImGuiIV_IO(nullptr, false);
+
+			return ImGuiIV_IO(ptr, true);
+		}
+
 		//-----------------------------------------------------------------------------
 		// [SECTION] STYLING
 		//-----------------------------------------------------------------------------
@@ -2290,9 +2567,36 @@ namespace IVSDKDotNet
 			{
 				ImGuiStorage* windowStorage = ImGui::GetStateStorage();
 
+				//const char* titleBarContextMenuName = ctx.marshal_as<const char*>(String::Format("{0}##TitleBarPopup", name));
+
+				//if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+				//{
+				//	ImRect rect = ImGui::GetCurrentWindow()->TitleBarRect();
+
+				//	if (ImGui::IsMouseHoveringRect(rect.Min, rect.Max, false))
+				//	{
+				//		ImGui::OpenPopup(titleBarContextMenuName);
+				//	}
+				//}
+
+				//if (ImGui::BeginPopup(titleBarContextMenuName))
+				//{
+				//	
+				//	if (ImGui::Selectable("Pin"))
+				//	{
+				//		ImGui::GetCurrentWindow()->DisableInputsFrames = 1000;
+				//	}
+				//	ImGui::SameLine();
+				//	HelpMarker("This will pin the window to the screen at the current location disabling the ");
+
+				//	ImGui::EndPopup();
+				//}
+
 				// Check and set flags
 				if (additionalFlags.HasFlag(eImGuiWindowFlagsEx::NoMouseEnable)) // NoMouseEnable
 					windowStorage->SetBool(ImGui::GetIDWithSeed("eImGuiWindowFlagsEx_NoMouseEnable", nullptr, 0), true);
+				if (additionalFlags.HasFlag(eImGuiWindowFlagsEx::DisableControllerInput)) // DisableControllerInput
+					windowStorage->SetBool(ImGui::GetIDWithSeed("eImGuiWindowFlagsEx_DisableControllerInput", nullptr, 0), true);
 			}
 
 			return result;
@@ -2326,6 +2630,8 @@ namespace IVSDKDotNet
 				// Check and set flags
 				if (additionalFlags.HasFlag(eImGuiWindowFlagsEx::NoMouseEnable)) // NoMouseEnable
 					windowStorage->SetBool(ImGui::GetIDWithSeed("eImGuiWindowFlagsEx_NoMouseEnable", nullptr, 0), true);
+				if (additionalFlags.HasFlag(eImGuiWindowFlagsEx::DisableControllerInput)) // DisableControllerInput
+					windowStorage->SetBool(ImGui::GetIDWithSeed("eImGuiWindowFlagsEx_DisableControllerInput", nullptr, 0), true);
 			}
 
 			return result;
@@ -2527,6 +2833,23 @@ namespace IVSDKDotNet
 		static IntPtr GetCurrentWindow()
 		{
 			return IntPtr(ImGui::GetCurrentWindow());
+		}
+
+		static bool IsWindowHovered(eImGuiHoveredFlags flags)
+		{
+			return ImGui::IsWindowHovered((ImGuiHoveredFlags)flags);
+		}
+		static bool IsWindowHovered()
+		{
+			return IsWindowHovered(eImGuiHoveredFlags::None);
+		}
+		static bool IsWindowCollapsed()
+		{
+			return ImGui::IsWindowCollapsed();
+		}
+		static bool IsWindowAppearing()
+		{
+			return ImGui::IsWindowAppearing();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -4926,6 +5249,15 @@ public:
 		return false;
 	}
 
+	static void EnableControllerNavigation(ImGuiIO& io)
+	{
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+	}
+	static void DisableControllerNavigation(ImGuiIO& io)
+	{
+		io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
+	}
+
 	static void OnBeforeD3D9DeviceEndScene(IDirect3DDevice9* d3d9Device)
 	{
 		// Initialize ImGui if not initialized yet
@@ -4959,27 +5291,6 @@ public:
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		//ImGui::Begin("Test");
-
-		//if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right, false))
-		//{
-		//	ImRect rect = ImGui::GetCurrentWindow()->TitleBarRect();
-
-		//	if (ImGui::IsMouseHoveringRect(rect.Min, rect.Max, false))
-		//	{
-		//		ImGui::OpenPopup("Testgset4365");
-		//	}
-		//}
-
-		//if (ImGui::BeginPopup("Testgset4365"))
-		//{
-		//	ImGui::Selectable("lol");
-		//	ImGui::Selectable("Exit");
-		//	ImGui::EndPopup();
-		//}
-
-		//ImGui::End();
-
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		// Do ImGui stuff in here
 
@@ -4990,6 +5301,17 @@ public:
 		{
 			ImDrawList* drawList = ImGui::GetBackgroundDrawList();
 			IVSDKDotNet::Manager::ManagerScript::s_Instance->RaiseOnD3D9Frame(d3d9DevicePointer, ImGuiIV_DrawingContext(drawList, true));
+		}
+
+		if (ImGuiIV::DoesAnyWindowHasThisAdditionalFlag("DisableControllerInput"))
+		{
+			ImGuiStates::s_bDisableControllerInput = true;
+			EnableControllerNavigation(io);
+		}
+		else
+		{
+			ImGuiStates::s_bDisableControllerInput = false;
+			DisableControllerNavigation(io);
 		}
 
 		// Get the amount of active windows
@@ -5133,6 +5455,7 @@ private:
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.IniFilename = NULL;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Controller Navigation
 
 		// Initialize the win32 backend
 		ImGui_ImplWin32_Init(creationParams.hFocusWindow);

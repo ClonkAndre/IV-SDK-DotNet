@@ -4,7 +4,9 @@ class CVehicle;
 class CPlayerInfo
 {
 public:
-	uint8_t pad[0x4C];													// 000-04C
+	uint8_t pad[0x40];                                                  // 000-040
+	uint64_t m_XUID;													// 040-048
+	uint8_t pad1[0x4];													// 048-04C
 	char m_sName[20];													// 04C-060
 	uint8_t pad2[0x390];												// 060-3F0
 	CPed* m_pPlayerPed2;												// 3F0-3F4

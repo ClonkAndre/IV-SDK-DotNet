@@ -65,6 +65,7 @@ namespace IVSDKDotNet
 
         return *(uint32_t*)std::addressof(CTheScripts::m_aGlobalVariables[index]);
     }
+
     int IVTheScripts::GetGlobalInteger(int index)
     {
         try

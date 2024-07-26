@@ -2705,8 +2705,8 @@ namespace IVSDKDotNet
 			STAT_LONGEST_NON_STOP_GAME = 118,               //Longest non-stop game
 			STAT_MADE_FROM_VEHICLE_THEFTS = 119,            //Made from vehicle thefts
 			STAT_MADE_FROM_RANDOM_PEDS = 120,               //Made from random peds
+			COUNT
 		};
-
 		public enum class eIntStatistic
 		{
 			STAT_MISSIONS_PASSED = 253,                 //Missions passed
@@ -2949,6 +2949,7 @@ namespace IVSDKDotNet
 			STAT_VEHICLES_BLOWN_UP = 500,                   //Vehicles blown up
 			STAT_HEALTH = 501,                      //Health5
 			STAT_GANG_MEMBER_COUNT = 502,                   //Gang member count
+			COUNT
 		};
 
 		public enum class ePedRace
@@ -3256,13 +3257,6 @@ namespace IVSDKDotNet
 			DRIVING_STYLE_IGNORE_LIGHTS_AND_LANES,
 			DRIVING_STYLE_IGNORE_STREETS,
 			DRIVING_STYLE_IGNORE_LIGHTS
-		};
-
-		public enum class eExplosionType
-		{
-			EXPLOSION_TYPE_DEFAULT,
-			EXPLOSION_TYPE_MOLOTOV,
-			EXPLOSION_TYPE_ROCKET
 		};
 
 		public enum class eGameKey
@@ -5436,6 +5430,67 @@ namespace IVSDKDotNet
 			CheatsMenu = 1035,
 		};
 
+		public enum class eLightType : uint32_t
+		{
+			/// <summary>
+			/// A point light. They are everywhere!
+			/// </summary>
+			Point = 0x0,
+			/// <summary>
+			/// A spot light.
+			/// </summary>
+			Spot = 0x2,
+			/// <summary>
+			/// Unknown for now. Mostly appears on entities like the player or vehicles. Ambient occlusion?
+			/// </summary>
+			Unk1 = 0x3
+		};
+
+		[System::FlagsAttribute]
+		public enum class eLightFlags : uint32_t
+		{
+			/// <summary>
+			/// This i can spot on *almost* every light so far. Not quite sure what this is for tho.
+			/// </summary>
+			Unk1 = 1 << 0, // 1
+			/// <summary>
+			/// Unknown for now.
+			/// </summary>
+			Unk2 = 1 << 1, // 2
+			/// <summary>
+			/// This flag makes the light cast a shadow!
+			/// </summary>
+			CastShadow = 1 << 2, // 4
+			/// <summary>
+			/// This flag makes the light volumetric!
+			/// </summary>
+			DrawVolume = 1 << 3, // 8
+			/// <summary>
+			/// Pretty sure this is a flag for Flickering/Buzzing light. This is quite hard to see actually.
+			/// </summary>
+			Buzzing = 1 << 4, // 16
+			/// <summary>
+			/// Interior only? Only spotted on lights that where indoors. Tho this flag is also on street lights combined with flag 64 (ExteriorOnly).
+			/// </summary>
+			InteriorOnly = 1 << 5, // 32
+			/// <summary>
+			/// Exterior only? This i can also spot on *almost* every light so far that is outside. Entities like the player and vehicles also have this flag, when entering an interior, the light with this flag goes away. Must be exterior only!
+			/// </summary>
+			ExteriorOnly = 1 << 6, // 64
+			/// <summary>
+			/// Never actually seen being used.
+			/// </summary>
+			Unk3 = 1 << 7, // 128
+			/// <summary>
+			/// This i can spot on vehicle lights (headlights, brake lights, indicator lights and sirens).
+			/// </summary>
+			Vehicle = 1 << 8, // 256
+			/// <summary>
+			/// This i can spot on traffic lights
+			/// </summary>
+			TrafficLight = 1 << 9 // 512
+		};
+
 		/// <summary>
 		/// A bunch of different results.
 		/// </summary>
@@ -5730,6 +5785,22 @@ namespace IVSDKDotNet
 			// [Internal]
 			MouseButtonMask_ = MouseButtonLeft | MouseButtonRight | MouseButtonMiddle,
 			MouseButtonDefault_ = MouseButtonLeft,
+		};
+		public enum class eImGuiMouseSource : int
+		{
+			Unknown = -1,
+			/// <summary>
+			/// Input is coming from an actual mouse.
+			/// </summary>
+			Mouse = 0,
+			/// <summary>
+			/// Input is coming from a touch screen (no hovering prior to initial press, less precise initial press aiming, dual-axis wheeling possible).
+			/// </summary>
+			TouchScreen,
+			/// <summary>
+			/// Input is coming from a pressure/magnetic pen (often used in conjunction with high-sampling rates).
+			/// </summary>
+			Pen
 		};
 
 		public enum class eImGuiHoveredFlags
@@ -6452,6 +6523,11 @@ namespace IVSDKDotNet
 			/// This makes the window not being able to enable the mouse cursor.
 			/// </summary>
 			NoMouseEnable = 1 << 0,
+			/// <summary>
+			/// This makes the window able to disable the controller input, so GTA IV doesn't receive any controller input anymore. 
+			/// Useful for when you want to navigate through your ImGui window with a controller.
+			/// </summary>
+			DisableControllerInput = 1 << 1,
 		};
 
 		/// <summary>

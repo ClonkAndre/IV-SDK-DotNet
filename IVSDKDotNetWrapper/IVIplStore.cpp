@@ -6,11 +6,11 @@ namespace IVSDKDotNet
     // - - - Methods / Functions - - -
     void IVIplStore::LoadIpls(Vector3 pos, bool unk)
     {
-        CIplStore::LoadIpls(VectorToCVector(pos), unk);
+        CIplStore::LoadIpls(Vector3ToCVector(pos), unk);
     }
     void IVIplStore::SetIplsRequired(Vector3 pos)
     {
-        CIplStore::SetIplsRequired(VectorToCVector(pos));
+        CIplStore::SetIplsRequired(Vector3ToCVector(pos));
     }
     void IVIplStore::SetIfIplIsRequiredAtPos(Vector2 pos, UIntPtr def)
     {

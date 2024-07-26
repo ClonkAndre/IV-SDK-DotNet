@@ -582,6 +582,9 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files\LocalStuff</Filter>
     </ClInclude>
+    <ClInclude Include="XInputHook.h">
+      <Filter>Header Files\Hooks</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MemoryAccess.cpp">

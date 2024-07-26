@@ -697,12 +697,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeVehicleWheel, Vector3::Zero);
-				return CVectorPadToVector(NativeVehicleWheel->matrix_right);
+				return CVectorPadToVector3(NativeVehicleWheel->matrix_right);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeVehicleWheel);
-				NativeVehicleWheel->matrix_right = VectorToCVectorPad(value);
+				NativeVehicleWheel->matrix_right = Vector3ToCVectorPad(value);
 			}
 		}
 		property Vector3 MatrixAt
@@ -711,12 +711,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeVehicleWheel, Vector3::Zero);
-				return CVectorPadToVector(NativeVehicleWheel->matrix_at);
+				return CVectorPadToVector3(NativeVehicleWheel->matrix_at);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeVehicleWheel);
-				NativeVehicleWheel->matrix_at = VectorToCVectorPad(value);
+				NativeVehicleWheel->matrix_at = Vector3ToCVectorPad(value);
 			}
 		}
 		/// <summary>
@@ -728,12 +728,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeVehicleWheel, Vector3::Zero);
-				return CVectorToVector(NativeVehicleWheel->_f50);
+				return CVectorToVector3(NativeVehicleWheel->_f50);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeVehicleWheel);
-				NativeVehicleWheel->_f50 = VectorToCVector(value);
+				NativeVehicleWheel->_f50 = Vector3ToCVector(value);
 			}
 		}
 		property uint32_t _f5c
@@ -756,12 +756,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeVehicleWheel, Vector3::Zero);
-				return CVectorToVector(NativeVehicleWheel->m_vPosition);
+				return CVectorToVector3(NativeVehicleWheel->m_vPosition);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeVehicleWheel);
-				NativeVehicleWheel->m_vPosition = VectorToCVector(value);
+				NativeVehicleWheel->m_vPosition = Vector3ToCVector(value);
 			}
 		}
 		property uint32_t _f6c
@@ -891,12 +891,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeVehicleWheel, Vector3::Zero);
-				return CVectorPadToVector(NativeVehicleWheel->_f90);
+				return CVectorPadToVector3(NativeVehicleWheel->_f90);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeVehicleWheel);
-				NativeVehicleWheel->_f90 = VectorToCVectorPad(value);
+				NativeVehicleWheel->_f90 = Vector3ToCVectorPad(value);
 			}
 		}
 		property Vector3 _fa0
@@ -905,12 +905,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeVehicleWheel, Vector3::Zero);
-				return CVectorPadToVector(NativeVehicleWheel->_fa0);
+				return CVectorPadToVector3(NativeVehicleWheel->_fa0);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeVehicleWheel);
-				NativeVehicleWheel->_fa0 = VectorToCVectorPad(value);
+				NativeVehicleWheel->_fa0 = Vector3ToCVectorPad(value);
 			}
 		}
 		property Vector3 _fb0
@@ -919,12 +919,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeVehicleWheel, Vector3::Zero);
-				return CVectorPadToVector(NativeVehicleWheel->_fb0);
+				return CVectorPadToVector3(NativeVehicleWheel->_fb0);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativeVehicleWheel);
-				NativeVehicleWheel->_fb0 = VectorToCVectorPad(value);
+				NativeVehicleWheel->_fb0 = Vector3ToCVectorPad(value);
 			}
 		}
 		property float _fc8

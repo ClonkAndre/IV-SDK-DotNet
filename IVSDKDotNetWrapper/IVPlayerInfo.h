@@ -5,6 +5,14 @@ namespace IVSDKDotNet
 	public ref class IVPlayerInfo
 	{
 	public:
+		property uint64_t XUID
+		{
+			uint64_t get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePlayerInfo, 0);
+				return NativePlayerInfo->m_XUID;
+			}
+		}
 		property String^ Name
 		{
 		public:

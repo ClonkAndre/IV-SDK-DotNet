@@ -49,6 +49,23 @@ namespace CLR
 		}
 
 		/// <summary>
+		/// Gets set to true when everything is about to shut down. 
+		/// </summary>
+		static property bool IsShuttingDown
+		{
+		public:
+			bool get()
+			{
+				return m_bShuttingDown;
+			}
+		internal:
+			void set(bool value)
+			{
+				m_bShuttingDown = value;
+			}
+		}
+
+		/// <summary>
 		/// Only set to true if the IV-SDK .NET ScriptHookDotNet mod loader is activated AND the user installed the old ScriptHookDotNet to avoid conflicts.
 		/// </summary>
 		static property bool DisableScriptHookDotNetLoading
@@ -220,9 +237,10 @@ namespace CLR
 	private:
 		static bool m_bIsBridgeDisabled = false;
 		static bool m_bCanTerminate = false;
+		static bool m_bShuttingDown = false;
 		static bool m_bDisableScriptHookDotNetLoading = false;
 
-		static String^ m_sVersion = "1.4";
+		static String^ m_sVersion = "1.5";
 		static String^ m_sLogFileName;
 		static String^ m_sIVSDKDotNetPath;
 		static String^ m_sIVSDKDotNetBinaryPath;
@@ -231,5 +249,6 @@ namespace CLR
 		static String^ m_sIVSDKDotNetScriptsPath;
 
 		static SettingsFile^ m_cSettings;
+
 };
 }

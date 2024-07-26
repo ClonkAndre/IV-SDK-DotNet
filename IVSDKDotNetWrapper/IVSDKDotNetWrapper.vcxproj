@@ -263,6 +263,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scripts.h" />
     <ClInclude Include="SettingsFile.h" />
+    <ClInclude Include="XInputHook.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImGui\imgui_extensions.cpp">

@@ -24,6 +24,7 @@ namespace ImGuiStates
 	static bool s_bReactivateKeyboardInputs;
 	static bool s_bImGuiWantsMouseDisabled;
 	static bool s_bImGuiWantsKeyboardDisabled;
+	static bool s_bDisableControllerInput;
 }
 
 namespace IVSDKDotNet

@@ -14,15 +14,15 @@ namespace IVSDKDotNet
 		public:
 			UIntPtr get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeLineOfSightResults, UIntPtr::Zero);
-				NULLPTR_CHECK_WITH_RETURN(NativeLineOfSightResults->m_pInst, UIntPtr::Zero);
-				return UIntPtr(NativeLineOfSightResults->m_pInst);
+				if (!m_bValid)
+					return UIntPtr::Zero;
+
+				return m_pInst;
 			}
+		private:
 			void set(UIntPtr value)
 			{
-				NULLPTR_CHECK(NativeLineOfSightResults);
-				UINTPTR_ZERO_CHECK(value);
-				NativeLineOfSightResults->m_pInst = (phInstGta*)value.ToPointer();
+				m_pInst = value;
 			}
 		}
 		/// <summary>
@@ -33,13 +33,15 @@ namespace IVSDKDotNet
 		public:
 			Vector3 get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeLineOfSightResults, Vector3::Zero);
-				return CVectorToVector(NativeLineOfSightResults->m_vEndPosition);
+				if (!m_bValid)
+					return Vector3::Zero;
+
+				return m_vEndPosition;
 			}
+		private:
 			void set(Vector3 value)
 			{
-				NULLPTR_CHECK(NativeLineOfSightResults);
-				NativeLineOfSightResults->m_vEndPosition = VectorToCVector(value);
+				m_vEndPosition = value;
 			}
 		}
 		property uint32_t UnkFlags
@@ -47,13 +49,15 @@ namespace IVSDKDotNet
 		public:
 			uint32_t get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeLineOfSightResults, 0);
-				return NativeLineOfSightResults->m_nUnkFlags;
+				if (!m_bValid)
+					return 0;
+
+				return m_nUnkFlags;
 			}
+		private:
 			void set(uint32_t value)
 			{
-				NULLPTR_CHECK(NativeLineOfSightResults);
-				NativeLineOfSightResults->m_nUnkFlags = value;
+				m_nUnkFlags = value;
 			}
 		}
 		property Vector3 Unk
@@ -61,13 +65,15 @@ namespace IVSDKDotNet
 		public:
 			Vector3 get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeLineOfSightResults, Vector3::Zero);
-				return CVectorToVector(NativeLineOfSightResults->m_vUnk);
+				if (!m_bValid)
+					return Vector3::Zero;
+
+				return m_vUnk;
 			}
+		private:
 			void set(Vector3 value)
 			{
-				NULLPTR_CHECK(NativeLineOfSightResults);
-				NativeLineOfSightResults->m_vUnk = VectorToCVector(value);
+				m_vUnk = value;
 			}
 		}
 		property uint32_t UnkFlags2
@@ -75,13 +81,15 @@ namespace IVSDKDotNet
 		public:
 			uint32_t get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeLineOfSightResults, 0);
-				return NativeLineOfSightResults->m_nUnkFlags2;
+				if (!m_bValid)
+					return 0;
+
+				return m_nUnkFlags2;
 			}
+		private:
 			void set(uint32_t value)
 			{
-				NULLPTR_CHECK(NativeLineOfSightResults);
-				NativeLineOfSightResults->m_nUnkFlags2 = value;
+				m_nUnkFlags2 = value;
 			}
 		}
 		property Vector3 Unk2
@@ -89,13 +97,15 @@ namespace IVSDKDotNet
 		public:
 			Vector3 get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeLineOfSightResults, Vector3::Zero);
-				return CVectorToVector(NativeLineOfSightResults->m_vUnk2);
+				if (!m_bValid)
+					return Vector3::Zero;
+
+				return m_vUnk2;
 			}
+		private:
 			void set(Vector3 value)
 			{
-				NULLPTR_CHECK(NativeLineOfSightResults);
-				NativeLineOfSightResults->m_vUnk2 = VectorToCVector(value);
+				m_vUnk2 = value;
 			}
 		}
 		property uint32_t UnkFlags3
@@ -103,13 +113,15 @@ namespace IVSDKDotNet
 		public:
 			uint32_t get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeLineOfSightResults, 0);
-				return NativeLineOfSightResults->m_nUnkFlags3;
+				if (!m_bValid)
+					return 0;
+
+				return m_nUnkFlags3;
 			}
+		private:
 			void set(uint32_t value)
 			{
-				NULLPTR_CHECK(NativeLineOfSightResults);
-				NativeLineOfSightResults->m_nUnkFlags3 = value;
+				m_nUnkFlags3 = value;
 			}
 		}
 		property float UnkFloat1
@@ -117,13 +129,15 @@ namespace IVSDKDotNet
 		public:
 			float get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeLineOfSightResults, 0.0F);
-				return NativeLineOfSightResults->m_fUnk1;
+				if (!m_bValid)
+					return 0.0F;
+
+				return m_fUnk1;
 			}
+		private:
 			void set(float value)
 			{
-				NULLPTR_CHECK(NativeLineOfSightResults);
-				NativeLineOfSightResults->m_fUnk1 = value;
+				m_fUnk1 = value;
 			}
 		}
 		property float UnkFloat2
@@ -131,13 +145,15 @@ namespace IVSDKDotNet
 		public:
 			float get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeLineOfSightResults, 0.0F);
-				return NativeLineOfSightResults->m_fUnk2;
+				if (!m_bValid)
+					return 0.0F;
+
+				return m_fUnk2;
 			}
+		private:
 			void set(float value)
 			{
-				NULLPTR_CHECK(NativeLineOfSightResults);
-				NativeLineOfSightResults->m_fUnk2 = value;
+				m_fUnk2 = value;
 			}
 		}
 		property uint32_t UnkFlags4
@@ -145,13 +161,15 @@ namespace IVSDKDotNet
 		public:
 			uint32_t get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeLineOfSightResults, 0);
-				return NativeLineOfSightResults->m_nUnkFlags4;
+				if (!m_bValid)
+					return 0;
+
+				return m_nUnkFlags4;
 			}
+		private:
 			void set(uint32_t value)
 			{
-				NULLPTR_CHECK(NativeLineOfSightResults);
-				NativeLineOfSightResults->m_nUnkFlags4 = value;
+				m_nUnkFlags4 = value;
 			}
 		}
 		property uint32_t UnkFlags5
@@ -159,13 +177,15 @@ namespace IVSDKDotNet
 		public:
 			uint32_t get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeLineOfSightResults, 0);
-				return NativeLineOfSightResults->m_nUnkFlags5;
+				if (!m_bValid)
+					return 0;
+
+				return m_nUnkFlags5;
 			}
+		private:
 			void set(uint32_t value)
 			{
-				NULLPTR_CHECK(NativeLineOfSightResults);
-				NativeLineOfSightResults->m_nUnkFlags5 = value;
+				m_nUnkFlags5 = value;
 			}
 		}
 		property uint32_t UnkFlags6
@@ -173,20 +193,38 @@ namespace IVSDKDotNet
 		public:
 			uint32_t get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeLineOfSightResults, 0);
-				return NativeLineOfSightResults->m_nUnkFlags6;
+				if (!m_bValid)
+					return 0;
+
+				return m_nUnkFlags6;
 			}
+		private:
 			void set(uint32_t value)
 			{
-				NULLPTR_CHECK(NativeLineOfSightResults);
-				NativeLineOfSightResults->m_nUnkFlags6 = value;
+				m_nUnkFlags6 = value;
 			}
 		}
 
 	internal:
 		IVLineOfSightResults(tLineOfSightResults* nativePtr);
 
+		static IVLineOfSightResults Empty();
+
 	internal:
-		tLineOfSightResults* NativeLineOfSightResults;
+		bool m_bValid;
+
+		UIntPtr m_pInst;
+		Vector3 m_vEndPosition;
+		uint32_t m_nUnkFlags;
+		Vector3 m_vUnk;
+		uint32_t m_nUnkFlags2;
+		Vector3 m_vUnk2;
+		uint32_t m_nUnkFlags3;
+		float m_fUnk1;
+		float m_fUnk2;
+		uint32_t m_nUnkFlags4;
+		uint32_t m_nUnkFlags5;
+		uint32_t m_nUnkFlags6;
+
 	};
 }

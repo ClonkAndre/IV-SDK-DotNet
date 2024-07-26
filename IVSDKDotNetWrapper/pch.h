@@ -26,6 +26,10 @@ typedef HRESULT(__stdcall DInput8DeviceGetDeviceStateT)(IDirectInputDevice8*, DW
 typedef HRESULT(__stdcall DInput8DeviceGetDeviceDataT)(IDirectInputDevice8*, DWORD, LPDIDEVICEOBJECTDATA, LPDWORD, DWORD);
 typedef HRESULT(__stdcall DInput8DeviceAcquireT)(IDirectInputDevice8*);
 
+// XInput
+#include <XInput.h>
+typedef DWORD(WINAPI* XInputGetState_t)(DWORD, XINPUT_STATE*);
+
 // MinHook
 #include "MinHook.h"
 
@@ -137,7 +141,7 @@ using namespace System::Text;
 // Hooks
 #include "DXHook.h"
 #include "DirectInputHook.h"
-
+#include "XInputHook.h"
 
 
 #include "IVRadar.h"

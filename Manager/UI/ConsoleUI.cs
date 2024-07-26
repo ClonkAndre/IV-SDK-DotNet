@@ -64,6 +64,16 @@ namespace Manager.UI
         {
             Logger.ClearLogItems();
         }
+
+        private void Secrittzzz()
+        {
+            DateTime dtNow = DateTime.UtcNow;
+
+            if (dtNow.Day == 4 && dtNow.Month == 7)
+                Logger.Log("Happy birthday to ItsClonkAndre!");
+            if (dtNow.Day == 22 && dtNow.Month == 10)
+                Logger.Log(string.Format("IV-SDK .NET got {0} years old today!", dtNow.Year - 2022));
+        }
         #endregion
 
         #region Functions
@@ -296,6 +306,8 @@ namespace Manager.UI
             // Create commands dictionary and register default commands
             localCommands = new Dictionary<string, Action<string[]>>();
             RegisterDefaultCommands();
+
+            Secrittzzz();
         }
         #endregion
 

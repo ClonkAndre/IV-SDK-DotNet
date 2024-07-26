@@ -35,10 +35,16 @@ namespace IVSDKDotNet
 
     void IVTimeCycle::Initialise()
     {
+        if (CLR::CLRBridge::IsShuttingDown)
+            return;
+
         CTimeCycle::Initialise();
     }
     void IVTimeCycle::InitModifiers()
     {
+        if (CLR::CLRBridge::IsShuttingDown)
+            return;
+
         CTimeCycle::InitModifiers();
     }
 

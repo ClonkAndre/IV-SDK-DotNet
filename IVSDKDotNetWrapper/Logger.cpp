@@ -75,7 +75,7 @@ void Logger::ForceCreateLogFile()
     array<String^>^ lines = gcnew array<String^>(m_LogItems->Count);
 
     for (int i = 0; i < lines->Length; i++)
-        lines[i] = m_LogItems[i].Text;
+        lines[i] = m_LogItems[i].ToString();
 
     System::IO::File::WriteAllLines("IVSDKDotNet.log", lines);
 }

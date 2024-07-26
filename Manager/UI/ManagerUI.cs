@@ -32,72 +32,22 @@ namespace Manager.UI
 
         // Other
         private static IntPtr ivsdkDotNetLogo;
-
-        private static double initializedTS;
-        private static double tickTS;
-        private static double gameLoadTS;
-        private static double gameLoadPriorityTS;
-        private static double mountDeviceTS;
-        private static double drawingTS;
-        private static double processCamTS;
-        private static double processAutoTS;
-        private static double processPadTS;
-        private static double firstD3D9FrameTS;
-        private static double keyDownTS;
-        private static double keyUpTS;
-        private static double ingameStartupTS;
         #endregion
 
         #region Methods
-        private static void RefreshExecutionTimes(Script script)
-        {
-            // Refresh times
-            if (DateTime.UtcNow > nextRefresh)
-            {
-                initializedTS = script.InitializedEventExecutionTime.TotalSeconds;
-                tickTS = script.TickEventExecutionTime.TotalSeconds;
-                gameLoadTS = script.GameLoadEventExecutionTime.TotalSeconds;
-                gameLoadPriorityTS = script.GameLoadPriorityEventExecutionTime.TotalSeconds;
-                mountDeviceTS = script.MountDeviceEventExecutionTime.TotalSeconds;
-                drawingTS = script.DrawingEventExecutionTime.TotalSeconds;
-                processCamTS = script.ProcessCameraEventExecutionTime.TotalSeconds;
-                processAutoTS = script.ProcessAutomobileEventExecutionTime.TotalSeconds;
-                processPadTS = script.ProcessPadEventExecutionTime.TotalSeconds;
-                firstD3D9FrameTS = script.OnFirstD3D9FrameEventExecutionTime.TotalSeconds;
-                keyDownTS = script.KeyDownEventExecutionTime.TotalSeconds;
-                keyUpTS = script.KeyUpEventExecutionTime.TotalSeconds;
-                ingameStartupTS = script.IngameStartupEventExecutionTime.TotalSeconds;
-
-                // Set next refresh time
-                nextRefresh = DateTime.UtcNow.AddSeconds(1d);
-            }
-
-            ImGuiIV.Text("Initialized: {0}s", initializedTS);
-            ImGuiIV.Text("Tick: {0}s", tickTS);
-            ImGuiIV.Text("GameLoad: {0}s", gameLoadTS);
-            ImGuiIV.Text("GameLoadPriority: {0}s", gameLoadPriorityTS);
-            ImGuiIV.Text("MountDevice: {0}s", mountDeviceTS);
-            ImGuiIV.Text("Drawing: {0}s", drawingTS);
-            ImGuiIV.Text("ProcessCamera: {0}s", processCamTS);
-            ImGuiIV.Text("ProcessAutomobile: {0}s", processAutoTS);
-            ImGuiIV.Text("ProcessPad: {0}s", processPadTS);
-            ImGuiIV.Text("OnFirstD3D9Frame: {0}s", firstD3D9FrameTS);
-            ImGuiIV.Text("KeyDown: {0}s", keyDownTS);
-            ImGuiIV.Text("KeyUp: {0}s", keyUpTS);
-            ImGuiIV.Text("IngameStartup: {0}s", ingameStartupTS);
-        }
         private static void AddField(FoundScript foundScript, FieldInfo info)
         {
             // Early handle custom attributes for members
-            if (info.GetCustomAttribute<HideInInspectorAttribute>() != null)
-                return;
-
             object[] customAttributes = info.GetCustomAttributes(false);
             for (int i = 0; i < customAttributes.Length; i++)
             {
                 object attributeObj = customAttributes[i];
 
-                if (attributeObj.GetType() == typeof(SeparatorAttribute))
+                if (attributeObj.GetType() == typeof(HideInInspectorAttribute))
+                {
+                    return;
+                }
+                else if (attributeObj.GetType() == typeof(SeparatorAttribute))
                 {
                     SeparatorAttribute a = attributeObj as SeparatorAttribute;
 
@@ -106,320 +56,215 @@ namespace Manager.UI
                     else
                         ImGuiIV.SeparatorText(a.Text);
                 }
-                if (attributeObj.GetType() == typeof(SpaceAttribute))
+                else if (attributeObj.GetType() == typeof(SpaceAttribute))
                 {
                     ImGuiIV.Dummy(new Vector2(0f, (attributeObj as SpaceAttribute).Height));
                 }
             }
 
-            // byte
-            if (info.FieldType == typeof(byte))
+            if (IsTypeSupported(info.FieldType, out SupportedPublicFields fieldType))
             {
-                int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
-
+                // The field name
                 ImGuiIV.Text(info.Name);
 
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                    info.SetValue(foundScript.TheScriptObject, Convert.ToByte(value));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // sbyte
-            if (info.FieldType == typeof(sbyte))
-            {
-                int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                    info.SetValue(foundScript.TheScriptObject, Convert.ToSByte(value));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // short
-            if (info.FieldType == typeof(short))
-            {
-                int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                    info.SetValue(foundScript.TheScriptObject, Convert.ToInt16(value));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // ushort
-            if (info.FieldType == typeof(ushort))
-            {
-                int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                    info.SetValue(foundScript.TheScriptObject, Convert.ToUInt16(value));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // int
-            if (info.FieldType == typeof(int))
-            {
-                int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                    info.SetValue(foundScript.TheScriptObject, value);
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // uint
-            if (info.FieldType == typeof(uint))
-            {
-                int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                    info.SetValue(foundScript.TheScriptObject, Convert.ToUInt32(value));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // long
-            if (info.FieldType == typeof(long))
-            {
-                int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                    info.SetValue(foundScript.TheScriptObject, Convert.ToInt64(value));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // ulong
-            if (info.FieldType == typeof(ulong))
-            {
-                int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
-                    info.SetValue(foundScript.TheScriptObject, Convert.ToUInt64(value));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // float
-            if (info.FieldType == typeof(float))
-            {
-                float value = Convert.ToSingle(info.GetValue(foundScript.TheScriptObject));
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value))
-                    info.SetValue(foundScript.TheScriptObject, Convert.ToSingle(value));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0} (float).", info.FieldType.Name));
-            }
-
-            // double
-            if (info.FieldType == typeof(double))
-            {
-                float value = Convert.ToSingle(info.GetValue(foundScript.TheScriptObject));
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value))
-                    info.SetValue(foundScript.TheScriptObject, Convert.ToDouble(value));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // decimal
-            if (info.FieldType == typeof(decimal))
-            {
-                float value = Convert.ToSingle(info.GetValue(foundScript.TheScriptObject));
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value))
-                    info.SetValue(foundScript.TheScriptObject, Convert.ToDecimal(value));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // bool
-            if (info.FieldType == typeof(bool))
-            {
-                bool value = Convert.ToBoolean(info.GetValue(foundScript.TheScriptObject));
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.CheckBox(string.Format("##{0}", info.Name), ref value))
-                    info.SetValue(foundScript.TheScriptObject, value);
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // string
-            if (info.FieldType == typeof(string))
-            {
-                string value = Convert.ToString(info.GetValue(foundScript.TheScriptObject));
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.InputText(string.Format("##{0}", info.Name), ref value))
-                    info.SetValue(foundScript.TheScriptObject, value);
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // Vector2
-            if (info.FieldType == typeof(Vector2))
-            {
-                Vector2 value = (Vector2)info.GetValue(foundScript.TheScriptObject);
-                float[] arr = new float[2] { value.X, value.Y };
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr))
-                    info.SetValue(foundScript.TheScriptObject, new Vector2(arr[0], arr[1]));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // Vector3
-            if (info.FieldType == typeof(Vector3))
-            {
-                Vector3 value = (Vector3)info.GetValue(foundScript.TheScriptObject);
-                float[] arr = new float[3] { value.X, value.Y, value.Z };
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragFloat3(string.Format("##{0}", info.Name), ref arr))
-                    info.SetValue(foundScript.TheScriptObject, new Vector3(arr[0], arr[1], arr[2]));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // Quaternion
-            if (info.FieldType == typeof(Quaternion))
-            {
-                Quaternion value = (Quaternion)info.GetValue(foundScript.TheScriptObject);
-                float[] arr = new float[4] { value.X, value.Y, value.Z, value.W };
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.DragFloat4(string.Format("##{0}", info.Name), ref arr))
-                    info.SetValue(foundScript.TheScriptObject, new Quaternion(arr[0], arr[1], arr[2], arr[3]));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
-            }
-
-            // Color
-            if (info.FieldType == typeof(Color))
-            {
-                Color value = (Color)info.GetValue(foundScript.TheScriptObject);
-                Vector4 arr = ImGuiIV.ColorToFloatRGB(value);
-
-                ImGuiIV.Text(info.Name);
-
-                // Set tooltip if attribute was set
-                if (GetAttribute(info, out TooltipAttribute attr))
-                    ImGuiIV.SetItemTooltip(attr.Text);
-
-                ImGuiIV.SameLine(0f, 30f);
-                if (ImGuiIV.ColorEdit4(string.Format("##{0}", info.Name), ref arr, eImGuiColorEditFlags.InputRGB))
-                    info.SetValue(foundScript.TheScriptObject, ImGuiIV.FloatRGBToColor(arr));
-                ImGuiIV.SameLine();
-                ImGuiIV.HelpMarker(string.Format("This field is a {0}.", info.FieldType.Name));
+                switch (fieldType)
+                {
+                    case SupportedPublicFields._byte:
+                        {
+                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                                info.SetValue(foundScript.TheScriptObject, Convert.ToByte(value));
+                        }
+                        break;
+                    case SupportedPublicFields._sbyte:
+                        {
+                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                                info.SetValue(foundScript.TheScriptObject, Convert.ToSByte(value));
+                        }
+                        break;
+                    case SupportedPublicFields._short:
+                        {
+                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                                info.SetValue(foundScript.TheScriptObject, Convert.ToInt16(value));
+                        }
+                        break;
+                    case SupportedPublicFields._ushort:
+                        {
+                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                                info.SetValue(foundScript.TheScriptObject, Convert.ToUInt16(value));
+                        }
+                        break;
+                    case SupportedPublicFields._int:
+                        {
+                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                                info.SetValue(foundScript.TheScriptObject, value);
+                        }
+                        break;
+                    case SupportedPublicFields._uint:
+                        {
+                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                                info.SetValue(foundScript.TheScriptObject, Convert.ToUInt32(value));
+                        }
+                        break;
+                    case SupportedPublicFields._long:
+                        {
+                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                                info.SetValue(foundScript.TheScriptObject, Convert.ToInt64(value));
+                        }
+                        break;
+                    case SupportedPublicFields._ulong:
+                        {
+                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                                info.SetValue(foundScript.TheScriptObject, Convert.ToUInt64(value));
+                        }
+                        break;
+                    case SupportedPublicFields._float:
+                        {
+                            float value = Convert.ToSingle(info.GetValue(foundScript.TheScriptObject));
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value))
+                                info.SetValue(foundScript.TheScriptObject, Convert.ToSingle(value));
+                        }
+                        break;
+                    case SupportedPublicFields._double:
+                        {
+                            float value = Convert.ToSingle(info.GetValue(foundScript.TheScriptObject));
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value))
+                                info.SetValue(foundScript.TheScriptObject, Convert.ToDouble(value));
+                        }
+                        break;
+                    case SupportedPublicFields._decimal:
+                        {
+                            float value = Convert.ToSingle(info.GetValue(foundScript.TheScriptObject));
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value))
+                                info.SetValue(foundScript.TheScriptObject, Convert.ToDecimal(value));
+                        }
+                        break;
+                    case SupportedPublicFields._bool:
+                        {
+                            bool value = Convert.ToBoolean(info.GetValue(foundScript.TheScriptObject));
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.CheckBox(string.Format("##{0}", info.Name), ref value))
+                                info.SetValue(foundScript.TheScriptObject, value);
+                        }
+                        break;
+                    case SupportedPublicFields._string:
+                        {
+                            string value = Convert.ToString(info.GetValue(foundScript.TheScriptObject));
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.InputText(string.Format("##{0}", info.Name), ref value))
+                                info.SetValue(foundScript.TheScriptObject, value);
+                        }
+                        break;
+                    case SupportedPublicFields._Vector2:
+                        {
+                            Vector2 value = (Vector2)info.GetValue(foundScript.TheScriptObject);
+                            float[] arr = new float[2] { value.X, value.Y };
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr))
+                                info.SetValue(foundScript.TheScriptObject, new Vector2(arr[0], arr[1]));
+                        }
+                        break;
+                    case SupportedPublicFields._Vector3:
+                        {
+                            Vector3 value = (Vector3)info.GetValue(foundScript.TheScriptObject);
+                            float[] arr = new float[3] { value.X, value.Y, value.Z };
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragFloat3(string.Format("##{0}", info.Name), ref arr))
+                                info.SetValue(foundScript.TheScriptObject, new Vector3(arr[0], arr[1], arr[2]));
+                        }
+                        break;
+                    case SupportedPublicFields._Vector4:
+                        {
+                            Vector4 value = (Vector4)info.GetValue(foundScript.TheScriptObject);
+                            float[] arr = new float[4] { value.X, value.Y, value.Z, value.W };
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragFloat4(string.Format("##{0}", info.Name), ref arr))
+                                info.SetValue(foundScript.TheScriptObject, new Vector4(arr[0], arr[1], arr[2], arr[3]));
+                        }
+                        break;
+                    case SupportedPublicFields._Quaternion:
+                        {
+                            Quaternion value = (Quaternion)info.GetValue(foundScript.TheScriptObject);
+                            float[] arr = new float[4] { value.X, value.Y, value.Z, value.W };
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragFloat4(string.Format("##{0}", info.Name), ref arr))
+                                info.SetValue(foundScript.TheScriptObject, new Quaternion(arr[0], arr[1], arr[2], arr[3]));
+                        }
+                        break;
+                    case SupportedPublicFields._Color:
+                        {
+                            Color value = (Color)info.GetValue(foundScript.TheScriptObject);
+                            Vector4 arr = ImGuiIV.ColorToFloatRGB(value);
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.ColorEdit4(string.Format("##{0}", info.Name), ref arr, eImGuiColorEditFlags.InputRGB))
+                                info.SetValue(foundScript.TheScriptObject, ImGuiIV.FloatRGBToColor(arr));
+                        }
+                        break;
+                }
+
+                // What type this field is
+                ImGuiIV.SetItemTooltip(string.Format("This field is a {0}.", info.FieldType.Name));
+
+                // Add help marker if attribute was set so the dev can add comments to these fields in the manager
+                if (GetAttribute(info, out HelpMarkerAttribute attr))
+                {
+                    ImGuiIV.SameLine();
+                    ImGuiIV.HelpMarker(attr.Text);
+                }
             }
         }
         #endregion
@@ -437,6 +282,157 @@ namespace Manager.UI
 
             attribute = (T)foundAttribute;
             return true;
+        }
+        private static bool IsTypeSupported(Type t, out SupportedPublicFields fieldType)
+        {
+            // byte
+            if (t == typeof(byte))
+            {
+                fieldType = SupportedPublicFields._byte;
+                return true;
+            }
+
+            // sbyte
+            else if (t == typeof(sbyte))
+            {
+                fieldType = SupportedPublicFields._sbyte;
+                return true;
+            }
+
+            // short
+            else if (t == typeof(short))
+            {
+                fieldType = SupportedPublicFields._short;
+                return true;
+            }
+
+            // ushort
+            else if (t == typeof(ushort))
+            {
+                fieldType = SupportedPublicFields._ushort;
+                return true;
+            }
+
+            // int
+            else if (t == typeof(int))
+            {
+                fieldType = SupportedPublicFields._int;
+                return true;
+            }
+
+            // uint
+            else if (t == typeof(uint))
+            {
+                fieldType = SupportedPublicFields._uint;
+                return true;
+            }
+
+            // long
+            else if (t == typeof(long))
+            {
+                fieldType = SupportedPublicFields._long;
+                return true;
+            }
+
+            // ulong
+            else if (t == typeof(ulong))
+            {
+                fieldType = SupportedPublicFields._ulong;
+                return true;
+            }
+
+            // float
+            else if (t == typeof(float))
+            {
+                fieldType = SupportedPublicFields._float;
+                return true;
+            }
+
+            // double
+            else if (t == typeof(double))
+            {
+                fieldType = SupportedPublicFields._double;
+                return true;
+            }
+
+            // decimal
+            else if (t == typeof(decimal))
+            {
+                fieldType = SupportedPublicFields._decimal;
+                return true;
+            }
+
+            // bool
+            else if (t == typeof(bool))
+            {
+                fieldType = SupportedPublicFields._bool;
+                return true;
+            }
+
+            // string
+            else if (t == typeof(string))
+            {
+                fieldType = SupportedPublicFields._string;
+                return true;
+            }
+
+            // Vector2
+            else if (t == typeof(Vector2))
+            {
+                fieldType = SupportedPublicFields._Vector2;
+                return true;
+            }
+
+            // Vector3
+            else if (t == typeof(Vector3))
+            {
+                fieldType = SupportedPublicFields._Vector3;
+                return true;
+            }
+
+            // Vector4
+            else if (t == typeof(Vector4))
+            {
+                fieldType = SupportedPublicFields._Vector4;
+                return true;
+            }
+
+            // Quaternion
+            else if (t == typeof(Quaternion))
+            {
+                fieldType = SupportedPublicFields._Quaternion;
+                return true;
+            }
+
+            // Color
+            else if (t == typeof(Color))
+            {
+                fieldType = SupportedPublicFields._Color;
+                return true;
+            }
+
+            // Unsupported
+            fieldType = SupportedPublicFields.Unknown;
+            return false;
+
+            //return t == typeof(byte)
+            //    || t == typeof(sbyte)
+            //    || t == typeof(short)
+            //    || t == typeof(ushort)
+            //    || t == typeof(int)
+            //    || t == typeof(uint)
+            //    || t == typeof(long)
+            //    || t == typeof(ulong)
+            //    || t == typeof(float)
+            //    || t == typeof(double)
+            //    || t == typeof(decimal)
+            //    || t == typeof(bool)
+            //    || t == typeof(string)
+            //    || t == typeof(Vector2)
+            //    || t == typeof(Vector3)
+            //    || t == typeof(Vector4)
+            //    || t == typeof(Quaternion)
+            //    || t == typeof(Color);
         }
         #endregion
 
@@ -523,8 +519,8 @@ namespace Manager.UI
                             }
                         }
 
-                        ImGuiIV.End();
                     }
+                    ImGuiIV.End();
                 }
             }
         }
@@ -543,6 +539,7 @@ namespace Manager.UI
                 ImGuiIV.SeparatorText("General Debug");
                 ImGuiIV.CheckBox("Disable Key Events", ref Main.Instance.DisableKeyEvents);
                 ImGuiIV.CheckBox("Throw On Error", ref Main.Instance.ThrowOnError);
+                ImGuiIV.CheckBox("Do Not Reset ImGui Style", ref Main.Instance.DoNotResetImGuiStyle);
                 ImGuiIV.TextUnformatted("Main Thread ID: {0}", Main.Instance.MainThreadID);
                 ImGuiIV.TextUnformatted("Console Log Items: {0}", Logger.GetLogItems().Count);
 
@@ -597,7 +594,7 @@ namespace Manager.UI
                 ImGuiIV.SeparatorText("Lists");
                 ImGuiIV.TextUnformatted("Active Scripts: {0}", Main.Instance.ActiveScripts.Count);
                 ImGuiIV.TextUnformatted("Action Queue: {0}", Main.Instance.ActionQueue.Count);
-                ImGuiIV.TextUnformatted("Local Tasks: {0}", Main.Instance.LocalTasks.Count);
+                ImGuiIV.TextUnformatted("Active Tasks: {0}", Main.Instance.ActiveTasks.Count);
                 ImGuiIV.TextUnformatted("Delayed Actions: {0}", Main.Instance.DelayedActions.Count);
 
                 // States
@@ -923,7 +920,7 @@ namespace Manager.UI
                                 /// @end Text
 
                                 /// @begin Text
-                                ImGuiIV.TextUnformatted(fs.ScriptTasks == null ? "UNKNOWN" : fs.ScriptTasks.Count.ToString()); // Active Tasks
+                                ImGuiIV.TextUnformatted(Main.Instance.ActiveTasks.Count(x => x.OwnerID == fs.ID).ToString()); // Active Tasks
                                 /// @end Text
 
                                 /// @begin Text

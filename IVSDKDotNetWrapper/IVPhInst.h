@@ -57,12 +57,12 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePhInst, Vector3::Zero);
-				return CVectorToVector(NativePhInst->m_vPos);
+				return CVectorToVector3(NativePhInst->m_vPos);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativePhInst);
-				NativePhInst->m_vPos = VectorToCVector(value);
+				NativePhInst->m_vPos = Vector3ToCVector(value);
 			}
 		}
 

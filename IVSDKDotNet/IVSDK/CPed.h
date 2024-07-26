@@ -143,19 +143,112 @@ public:																	// 000-210
 	uint8_t pad4[0x30];													// 230-260
 	struct
 	{
-		unsigned int pad : 2;
+		unsigned int _f0 : 1;
+		unsigned int _f1 : 1;
 		unsigned int bNoHeadshots : 1;
-		unsigned int pad2 : 29;
-	} m_nPedFlags;														// 260-264
-	uint8_t pad5[0x8];													// 264-26C
+		unsigned int _f3 : 1;
+		unsigned int _f4 : 1;
+		unsigned int _f5 : 1;
+		unsigned int _f6 : 1;
+		unsigned int _f7 : 1;
+		unsigned int _f8 : 1;
+		unsigned int _f9 : 1;
+		unsigned int _fa : 1;
+		unsigned int _fb : 1;
+		unsigned int _fc : 1;
+		unsigned int _fd : 1;
+		unsigned int _fe : 1;
+		unsigned int _ff : 1;
+		unsigned int _f10 : 1;
+		unsigned int _f11 : 1;
+		unsigned int _f12 : 1;
+		unsigned int _f13 : 1;
+		unsigned int _f14 : 1;
+		unsigned int _f15 : 1;
+		unsigned int _f16 : 1;
+		unsigned int _f17 : 1;
+		unsigned int _f18 : 1;
+		unsigned int _f19 : 1;
+		unsigned int _f1a : 1;
+		unsigned int _f1b : 1;
+		unsigned int _f1c : 1;
+		unsigned int _f1d : 1;
+		unsigned int _f1e : 1;
+		unsigned int _f1f : 1;
+	} m_nPedFlags;										// 260-264
+	
 	struct
 	{
-		unsigned int pad : 3;
+		unsigned int _f0 : 1;
+		unsigned int _f1 : 1;
+		unsigned int _f2 : 1;
+		unsigned int _f3 : 1;
+		unsigned int _f4 : 1;
+		unsigned int _f5 : 1;
+		unsigned int _f6 : 1;
+		unsigned int _f7 : 1;
+		unsigned int bWillFlyThroughWindscreen : 1;
+		unsigned int _f9 : 1;
+		unsigned int _fa : 1;
+		unsigned int _fb : 1;
+		unsigned int _fc : 1;
+		unsigned int _fd : 1;
+		unsigned int _fe : 1;
+		unsigned int _ff : 1;
+		unsigned int _f10 : 1;
+		unsigned int _f11 : 1;
+		unsigned int _f12 : 1;
+		unsigned int _f13 : 1;
+		unsigned int _f14 : 1;
+		unsigned int _f15 : 1;
+		unsigned int _f16 : 1;
+		unsigned int _f17 : 1;
+		unsigned int _f18 : 1;
+		unsigned int _f19 : 1;
+		unsigned int _f1a : 1;
+		unsigned int _f1b : 1;
+		unsigned int _f1c : 1;
+		unsigned int _f1d : 1;
+		unsigned int _f1e : 1;
+		unsigned int _f1f : 1;
+	} m_nPedFlags2;										// 264-268
+	uint8_t pad5[0x4];													// 268-26C
+
+	struct
+	{
+		unsigned int _f0 : 1;
+		unsigned int _f1 : 1;
+		unsigned int _f2 : 1;
 		unsigned int bInCar : 1;
-		unsigned int pad2 : 9;
+		unsigned int _f4 : 1;
+		unsigned int _f5 : 1;
+		unsigned int _f6 : 1;
+		unsigned int _f7 : 1;
+		unsigned int _f8 : 1;
+		unsigned int _f9 : 1;
+		unsigned int _fa : 1;
+		unsigned int _fb : 1;
+		unsigned int _fc : 1;
 		unsigned int bInAir : 1;
-		unsigned int pad3 : 18;
-	} m_nPedFlags2;														// 26C-270
+		unsigned int _fe : 1;
+		unsigned int _ff : 1;
+		unsigned int _f10 : 1;
+		unsigned int _f11 : 1;
+		unsigned int _f12 : 1;
+		unsigned int _f13 : 1;
+		unsigned int _f14 : 1;
+		unsigned int _f15 : 1;
+		unsigned int _f16 : 1;
+		unsigned int _f17 : 1;
+		unsigned int _f18 : 1;
+		unsigned int _f19 : 1;
+		unsigned int _f1a : 1;
+		unsigned int _f1b : 1;
+		unsigned int _f1c : 1;
+		unsigned int _f1d : 1;
+		unsigned int _f1e : 1;
+		unsigned int _f1f : 1;
+	} m_nPedFlags3;										// 26C-270
 	uint8_t pad6[0x8];													// 270-278
 	float m_fClimbAnimRate;												// 278-27C
 	uint8_t pad7[0x34];													// 27C-2B0
