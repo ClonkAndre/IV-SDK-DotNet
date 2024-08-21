@@ -4345,6 +4345,13 @@ namespace IVSDKDotNet
 			StuntJumpPool
 		};
 
+		public enum class eStoreType
+		{
+			Invalid,
+			VehicleModelStore,
+			PedModelStore
+		};
+
 		public enum class eTask
 		{
 			TASK_SIMPLE_MOVE_PLAYER = 2,

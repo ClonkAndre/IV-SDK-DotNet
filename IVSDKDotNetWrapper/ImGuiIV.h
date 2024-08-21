@@ -10,7 +10,6 @@ extern IMGUI_IMPL_API LONG_PTR ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT ms
 
 namespace IVSDKDotNet
 {
-
 	// Some structs
 	public value struct ImGuiIV_Viewport
 	{
@@ -1886,6 +1885,23 @@ namespace IVSDKDotNet
 		}
 
 		/// <summary>
+		/// Gets the number of active script windows..
+		/// </summary>
+		static property int ActiveScriptWindows
+		{
+		public:
+			int get()
+			{
+				return m_iActiveScriptWindows;
+			}
+		internal:
+			void set(int value)
+			{
+				m_iActiveScriptWindows = value;
+			}
+		}
+
+		/// <summary>
 		/// Can be passed to ImGui Widgets so that they use the full width available. Uses the 'FloatMin' property for the Vector2's 'X' value.
 		/// </summary>
 		static property Vector2 FullWidth
@@ -2335,7 +2351,7 @@ namespace IVSDKDotNet
 					continue;
 
 				// Get if window is a top-level window
-				bool isTopLevel = (window->Flags & (ImGuiWindowFlags_ChildWindow | ImGuiWindowFlags_Popup | ImGuiWindowFlags_Tooltip)) == 0;
+				bool isTopLevel = (window->Flags & (ImGuiWindowFlags_ChildWindow | ImGuiWindowFlags_Tooltip)) == 0; // ImGuiWindowFlags_Popup
 
 				if (isTopLevel && window->Active && !window->Collapsed && !window->Hidden)
 					activeWindows++;
@@ -5231,16 +5247,16 @@ namespace IVSDKDotNet
 
 	private:
 		static bool m_bForceCursor;
+		static int m_iActiveScriptWindows;
 	};
 
 }
-
 class ImGuiDraw
 {
 public:
 	static bool OnWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		if (ImGui::GetCurrentContext() != nullptr)
+		if (ImGui::GetCurrentContext() != nullptr && ImGuiIV::ActiveScriptWindows > 0)
 		{
 			if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
 				return true;
@@ -5274,6 +5290,11 @@ public:
 
 		// Get the main Viewport of ImGui
 		ImGuiViewport* vp = ImGui::GetMainViewport();
+
+		// Set the mouse position
+		POINT cursorPos;
+		if (GetCursorPos(&cursorPos))
+			io.MousePos = ImVec2(cursorPos.x, cursorPos.y);
 
 		// Invoke on before ImGui new frame event
 		if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
@@ -5315,7 +5336,7 @@ public:
 		}
 
 		// Get the amount of active windows
-		int activeScriptWindows = ImGuiIV::GetActiveWindowCount();
+		ImGuiIV::ActiveScriptWindows = ImGuiIV::GetActiveWindowCount();
 
 #if _DEBUG
 		static bool debugWindowOpened = false;
@@ -5334,14 +5355,6 @@ public:
 			// Store ID of the debug window so we can exclude this window in certain functions if we have to
 			ImGuiIV::IVSDKDotNetWrapperDebugWindowID = ImGui::GetCurrentWindowRead()->ID;
 
-			ImGui::SeparatorText("ImGuiIV States");
-
-			ImGui::BeginDisabled();
-			ImGui::Checkbox("Wants Mouse Disabled", &ImGuiStates::s_bImGuiWantsMouseDisabled);
-			ImGui::Checkbox("Wants Keyboard Disabled", &ImGuiStates::s_bImGuiWantsKeyboardDisabled);
-			ImGui::Checkbox("Reactivate Keyboard Inputs", &ImGuiStates::s_bReactivateKeyboardInputs);
-			ImGui::EndDisabled();
-
 			// Dear ImGui Input
 			ImGui::SeparatorText("Dear ImGui");
 			ImGui::BeginDisabled();
@@ -5351,7 +5364,7 @@ public:
 			ImGui::EndDisabled();
 
 			ImGui::SeparatorText("Opened Windows");
-			ImGui::Text("Script Window Count: %s", std::to_string(activeScriptWindows).c_str());
+			ImGui::Text("Script Window Count: %s", std::to_string(ImGuiIV::ActiveScriptWindows).c_str());
 			ImGui::Text("All Window Count: %s", std::to_string(ctx->Windows.Size).c_str());
 
 			ImGui::SetWindowPos(ImVec2(10.0F, vp->Size.y - (ImGui::GetWindowSize().y + 250.0F)), ImGuiCond_FirstUseEver);
@@ -5362,46 +5375,20 @@ public:
 		// Do ImGui stuff in here
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		// TODO: Fix cursor jump to center of screen when keyboard gets reacquired.
-
-		// Disable mouse input if there are any opened ImGui windows or if the cursor should be forced.
-		if (activeScriptWindows > 0 || ImGuiIV::ForceCursor)
+		// Disable inputs for ImGui if there are any active script windows or if the cursor should be forced to be shown on screen.
+		if (ImGuiIV::ActiveScriptWindows > 0 || ImGuiIV::ForceCursor)
 		{
 			// Draw a mouse cursor on screen
 			io.MouseDrawCursor = true;
 
-			ImGuiStates::s_bImGuiWantsMouseDisabled = true;
-
-			// If ImGui wants text input, disable Keyboard Input too.
-			if (io.WantTextInput)
-				ImGuiStates::s_bImGuiWantsKeyboardDisabled = true;
-			else
-			{
-				// Set s_bReactivateKeyboardInputs to true so the Keyboard Inputs can be regained after we set s_bImGuiWantsKeyboardDisabled to false
-				if (ImGuiStates::s_bImGuiWantsKeyboardDisabled)
-					ImGuiStates::s_bReactivateKeyboardInputs = true;
-
-				ImGuiStates::s_bImGuiWantsKeyboardDisabled = false;
-
-				// Regain Keyboard Input
-				if (ImGuiStates::s_bReactivateKeyboardInputs)
-				{
-					// Set both to false so the devices can be reacquired
-					ImGuiStates::s_bImGuiWantsMouseDisabled = false;
-					ImGuiStates::s_bImGuiWantsKeyboardDisabled = false;
-
-					// Reset so this process can be repeated if necessary
-					ImGuiStates::s_bReactivateKeyboardInputs = false;
-				}
-			}
+			// Disable inputs
+			CLR::CLRBridge::DisableInputs = true;
 		}
 		else
 		{
 			// Reset all
 			io.MouseDrawCursor = false;
-			ImGuiStates::s_bImGuiWantsMouseDisabled = false;
-			ImGuiStates::s_bImGuiWantsKeyboardDisabled = false;
-			ImGuiStates::s_bReactivateKeyboardInputs = false;
+			CLR::CLRBridge::DisableInputs = false;
 		}
 
 		// End ImGui Frame and draw

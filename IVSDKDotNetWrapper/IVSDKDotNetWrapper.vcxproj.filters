@@ -55,6 +55,9 @@
     <Filter Include="Source Files\LocalStuff">
       <UniqueIdentifier>{053f7016-16dc-46ea-83a1-cb56847b62e6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Hooks">
+      <UniqueIdentifier>{b3c69b6c-ceac-434d-8d3d-08f9367af660}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Native.h">
@@ -585,6 +588,21 @@
     <ClInclude Include="XInputHook.h">
       <Filter>Header Files\Hooks</Filter>
     </ClInclude>
+    <ClInclude Include="GameHooks.h">
+      <Filter>Header Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="Patterns.h">
+      <Filter>Header Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="typedefs.h">
+      <Filter>Header Files\LocalStuff</Filter>
+    </ClInclude>
+    <ClInclude Include="IVStore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IVDrawRadioHudTextDC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MemoryAccess.cpp">
@@ -1072,6 +1090,18 @@
     </ClCompile>
     <ClCompile Include="Scripts.cpp">
       <Filter>Source Files\LocalStuff</Filter>
+    </ClCompile>
+    <ClCompile Include="Patterns.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="GameHooks.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="IVStore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IVDrawRadioHudTextDC.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

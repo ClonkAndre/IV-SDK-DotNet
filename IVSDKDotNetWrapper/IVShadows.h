@@ -37,6 +37,17 @@ namespace IVSDKDotNet
 		/// <param name="vColor">The color of the light.</param>
 		/// <param name="fIntensity">Light Intensity.</param>
 		/// <param name="fRange">Light Range.</param>
+		/// <param name="nID">Used by shadow system to track scene lights - 0 if no shadows and tracking.</param>
+		static void StoreStaticShadow(bool castShadows, Vector3 vPos, Color vColor, float fIntensity, float fRange, uint32_t nID);
+
+		/// <summary>
+		/// StoreStaticShadows method with basic parameters. This internally calls the AddSceneLight function.
+		/// </summary>
+		/// <param name="castShadows">Should light cast shadows?</param>
+		/// <param name="vPos">The position of the light.</param>
+		/// <param name="vColor">The color of the light.</param>
+		/// <param name="fIntensity">Light Intensity.</param>
+		/// <param name="fRange">Light Range.</param>
 		static void StoreStaticShadow(bool castShadows, Vector3 vPos, Color vColor, float fIntensity, float fRange);
 
 	};

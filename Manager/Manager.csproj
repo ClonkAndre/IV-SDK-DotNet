@@ -36,9 +36,19 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Preview|AnyCPU'">
+    <OutputPath>bin\Preview\</OutputPath>
+    <DefineConstants>TRACE;PREVIEW</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="ScriptHookDotNet, Version=1.7.2.2, Culture=neutral, processorArchitecture=x86">
       <HintPath>..\..\ScriptHookDotNet-for-IVSDKDotNet\Debug\ScriptHookDotNet.dll</HintPath>
@@ -61,6 +71,7 @@
     <Compile Include="Classes\FoundScript.cs" />
     <Compile Include="Classes\Json\IVPresenceInfo.cs" />
     <Compile Include="Classes\Json\IVSessionInfo.cs" />
+    <Compile Include="Classes\Json\JsonHelper.cs" />
     <Compile Include="Classes\Json\ManagerApiPreferences.cs" />
     <Compile Include="Classes\Json\NativeCallContext.cs" />
     <Compile Include="Classes\Json\NativeCallResult.cs" />
@@ -117,7 +128,6 @@
     <Content Include="Riptide\version.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <Resource Include="Resources\ivsdkdotnet_logo_small.bin" />
   </ItemGroup>
   <ItemGroup>
@@ -131,6 +141,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,8 +1,6 @@
 #pragma once
 #include "pch.h"
 
-using namespace IVSDKDotNet::Enums;
-
 namespace ImGuiStates
 {
 	// Initialized State
@@ -21,9 +19,6 @@ namespace ImGuiStates
 	}
 
 	// Input State
-	static bool s_bReactivateKeyboardInputs;
-	static bool s_bImGuiWantsMouseDisabled;
-	static bool s_bImGuiWantsKeyboardDisabled;
 	static bool s_bDisableControllerInput;
 }
 
@@ -432,7 +427,7 @@ namespace IVSDKDotNet
 				0.0F,
 				nullptr);
 		}
-		
+
 		void AddText(IntPtr fontPtr, Vector2 pos, Color color, String^ textBegin, String^ textEnd)
 		{
 			if (!IsValid)

@@ -3,6 +3,7 @@
 
 namespace IVSDKDotNet
 {
+
 	// - - - Methods / Functions - - -
 	void IVGame::Console::Open()
 	{

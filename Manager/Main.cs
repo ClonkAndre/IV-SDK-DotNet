@@ -12,10 +12,12 @@ using System.Numerics;
 using Newtonsoft.Json;
 
 using IVSDKDotNet;
+using IVSDKDotNet.Attributes;
 using IVSDKDotNet.Enums;
 using IVSDKDotNet.Manager;
 
 using Manager.Classes;
+using Manager.Classes.Json;
 using Manager.Managers;
 using Manager.UI;
 
@@ -69,6 +71,14 @@ namespace Manager
         private int lastLogLineCount;
 
         public int MainThreadID;
+
+        private readonly object activeScriptsLockObj = new object();
+
+#if PREVIEW
+        private SettingsFile previewDatFile;
+        private bool showPreviewDialog = true;
+#endif
+
         #endregion
 
         #region Events
@@ -259,6 +269,40 @@ namespace Manager
                 }
 
             });
+
+#if PREVIEW
+            // Preview build stuff
+            string previewDatFilePath = CLR.CLRBridge.IVSDKDotNetDataPath + "\\preview.dat";
+            previewDatFile = new SettingsFile(previewDatFilePath);
+
+            if (File.Exists(previewDatFilePath))
+            {
+                previewDatFile.Load();
+
+                // Check if loaded file is valid
+                if (!previewDatFile.DoesSectionExists("Preview"))
+                {
+                    previewDatFile.Clear();
+                    previewDatFile.AddSection("Preview");
+                    previewDatFile.AddKeyToSection("Preview", "Version");
+                    return;
+                }
+
+                // Check if dialog was already shown for current preview version
+                if (previewDatFile.GetValue("Preview", "Version", "0") == CLR.CLRBridge.Version)
+                    showPreviewDialog = false;
+            }
+            else
+            {
+                try
+                {
+                    File.Create(previewDatFilePath).Dispose();
+                    previewDatFile.AddSection("Preview");
+                    previewDatFile.AddKeyToSection("Preview", "Version");
+                }
+                catch (Exception){}
+            }
+#endif
         }
         #endregion
 
@@ -398,31 +442,6 @@ namespace Manager
             if (Config.PauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
-            DateTime dtNow = DateTime.UtcNow;
-
-            // Execute Delayed Actions if there are any
-            for (int i = 0; i < DelayedActions.Count; i++)
-            {
-                DelayedAction dA = DelayedActions[i];
-                if (dtNow >= dA.ExecuteIn)
-                {
-                    try
-                    {
-                        if (dA.ActionToExecute != null)
-                        {
-                            if (!string.IsNullOrEmpty(dA.Purpose))
-                                Logger.LogDebug(string.Format("Delayed Action triggered. Purpose: {0}", dA.Purpose));
-                            dA.ActionToExecute.Invoke(dA, dA.Parameter);
-                        }
-                        DelayedActions.RemoveAt(i);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(string.Format("An error occured while executing delayed action. DA Purpose: {0}, Details: {1}", dA.Purpose, ex.ToString()));
-                    }
-                }
-            }
-
             // Raise all script Drawing events
             ActiveScripts.ForEach(fs =>
             {
@@ -505,6 +524,44 @@ namespace Manager
         }
         public override void RaiseOnD3D9Frame(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
         {
+            DateTime dtNow = DateTime.UtcNow;
+
+            // Execute Delayed Actions if there are any
+            for (int i = 0; i < DelayedActions.Count; i++)
+            {
+                DelayedAction dA = DelayedActions[i];
+
+                // When reloading the scripts, this could return NULL.
+                // I think it could be because a script was starting a Task/Timer which when the script unloads,
+                // will also get destroyed and at the end it starts a delayed action to fully get rid of it.
+                // For now we just check if that's the case and then we just remove that delayed action entry from the list and continue :cowboy:
+
+                if (dA == null)
+                {
+                    DelayedActions.RemoveAt(i);
+                    continue;
+                }
+
+                if (dtNow >= dA.ExecuteIn)
+                {
+                    try
+                    {
+                        if (dA.ActionToExecute != null)
+                        {
+                            if (!string.IsNullOrEmpty(dA.Purpose))
+                                Logger.LogDebug(string.Format("Delayed Action triggered. Purpose: {0}", dA.Purpose));
+                            dA.ActionToExecute.Invoke(dA, dA.Parameter);
+                        }
+                        DelayedActions.RemoveAt(i);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(string.Format("An error occured while executing delayed action. DA Purpose: {0}, Details: {1}", dA.Purpose, ex.ToString()));
+                        DelayedActions.RemoveAt(i);
+                    }
+                }
+            }
+
             // Reset ImGui style to default for script windows
             ResetImGuiStyle();
 
@@ -527,6 +584,34 @@ namespace Manager
             // Set internal custom style
             if (Config.UseCustomThemeForManagerAndConsole)
                 SetImGuiPurpleStyle();
+
+#if PREVIEW
+            if (showPreviewDialog)
+            {
+                ImGuiIV.OpenPopup("IV-SDK .NET Preview Version");
+                ImGuiIV.CreateSimplePopupDialog("IV-SDK .NET Preview Version",
+                    string.Format("This is a preview version of IV-SDK .NET v{1}, which means it's only meant to be a preview of what to expect in the final update.{0}" +
+                    "You usually only get this preview when you got an active Patreon/Ko-fi subscription. So if that's the case, thank you!{0}" +
+                    "If you got this preview build from somewhere else, maybe consider supporting my work and get access to more preview stuff!{0}{0}" +
+                    "If you encounter any bugs or got any suggestions, be sure to share them on my discord server or on the gtaforums IV-SDK .NET thread!", Environment.NewLine, CLR.CLRBridge.Version),
+                    true,
+                    true,
+                    false,
+                    "Understood",
+                    null,
+                    () =>
+                    {
+                        // Save that dialog was shown for current preview version
+                        previewDatFile.SetValue("Preview", "Version", CLR.CLRBridge.Version);
+                        previewDatFile.Save();
+
+                        previewDatFile.Clear();
+                        previewDatFile = null;
+                        showPreviewDialog = false;
+                    },
+                    null);
+            }
+#endif
 
             // Draw internal stuff
             Console.DoUI();
@@ -1419,15 +1504,29 @@ namespace Manager
 
         public FoundScript GetFoundScript(Guid id)
         {
-            return ActiveScripts.Where(x => x.ID == id).FirstOrDefault();
+            FoundScript fs = null;
+
+            lock (activeScriptsLockObj)
+            {
+                fs = ActiveScripts.Where(x => x.ID == id).FirstOrDefault();
+            }
+
+            return fs;
         }
         public FoundScript GetFoundScript(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
                 return null;
 
-            return ActiveScripts.Where(x => x.FileName.ToLower() == name.ToLower()
-                || x.EntryPoint.FullName.ToLower() == name.ToLower()).FirstOrDefault();
+            FoundScript fs = null;
+
+            lock (activeScriptsLockObj)
+            {
+                fs = ActiveScripts.Where(x => x.FileName.ToLower() == name.ToLower()
+                    || x.EntryPoint.FullName.ToLower() == name.ToLower()).FirstOrDefault();
+            }
+
+            return fs;
         }
 
         public bool AbortScriptInternal(AbortReason reason, Guid id)
@@ -1934,7 +2033,15 @@ namespace Manager
             if (obj == null)
                 return string.Empty;
 
-            return JsonConvert.SerializeObject(obj, useFormatting ? Formatting.Indented : Formatting.None);
+            // Find all fields which got the json exclude attribute
+            IEnumerable<string> fieldsToIgnore = obj.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public)
+                .Where(x => x.GetCustomAttribute<ExcludeFromJsonSerializationAttribute>() != null)
+                .Select(x => x.Name);
+
+            return JsonConvert.SerializeObject(
+                obj,
+                useFormatting ? Formatting.Indented : Formatting.None,
+                new JsonSerializerSettings() { ContractResolver = new JsonHelper.IgnorePropertiesResolver(fieldsToIgnore) });
         }
         public override object Helper_ConvertJsonStringToObject(string str, Type targetType)
         {

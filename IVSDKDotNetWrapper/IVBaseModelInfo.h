@@ -2,11 +2,94 @@
 
 namespace IVSDKDotNet
 {
+
+	public ref class IVTimeInfo
+	{
+	public:
+		property uint32_t HoursOnOff
+		{
+			uint32_t get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeTimeInfo, 0);
+				return NativeTimeInfo->m_hoursOnOff;
+			}
+			void set(uint32_t value)
+			{
+				NULLPTR_CHECK(NativeTimeInfo);
+				NativeTimeInfo->m_hoursOnOff = value;
+			}
+		}
+		property uint32_t OtherModel
+		{
+			uint32_t get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeTimeInfo, 0);
+				return NativeTimeInfo->m_otherModel;
+			}
+			void set(uint32_t value)
+			{
+				NULLPTR_CHECK(NativeTimeInfo);
+				NativeTimeInfo->m_otherModel = value;
+			}
+		}
+
+	public:
+		void SetTimes(uint8_t timeOn, uint8_t timeOff)
+		{
+			NULLPTR_CHECK(NativeTimeInfo);
+			NativeTimeInfo->SetTimes(timeOn, timeOff);
+		}
+		void SetTimes(uint32_t timeHourFlags)
+		{
+			NULLPTR_CHECK(NativeTimeInfo);
+			NativeTimeInfo->SetTimes(timeHourFlags);
+		}
+
+		void SetHoursOnOffMask(int onOffFlags)
+		{
+			NULLPTR_CHECK(NativeTimeInfo);
+			NativeTimeInfo->SetHoursOnOffMask(onOffFlags);
+		}
+		int GetHoursOnOffMask()
+		{
+			NULLPTR_CHECK_WITH_RETURN(NativeTimeInfo, 0);
+			return NativeTimeInfo->GetHoursOnOffMask();
+		}
+		bool IsOn(int hour)
+		{
+			NULLPTR_CHECK_WITH_RETURN(NativeTimeInfo, false);
+			return NativeTimeInfo->IsOn(hour);
+		}
+
+		void SetOtherTimeModel(int index)
+		{
+			NULLPTR_CHECK(NativeTimeInfo);
+			NativeTimeInfo->SetOtherTimeModel(index);
+		}
+		int GetOtherTimeModel()
+		{
+			NULLPTR_CHECK_WITH_RETURN(NativeTimeInfo, 0);
+			return NativeTimeInfo->GetOtherTimeModel();
+		}
+		bool OnlySwapWhenOffScreen()
+		{
+			NULLPTR_CHECK_WITH_RETURN(NativeTimeInfo, false);
+			return NativeTimeInfo->OnlySwapWhenOffScreen();
+		}
+
+	internal:
+		IVTimeInfo(CTimeInfo* nativePtr);
+
+	internal:
+		CTimeInfo* NativeTimeInfo;
+	};
+
+
 	public ref class IVBaseModelInfo
 	{
 	public:
 		/// <summary>
-		/// Use with: IVPhArchetypeGta.FromPointer(...);
+		/// Use with: IVPhArchetypeGta.FromUIntPtr(...);
 		/// </summary>
 		property UIntPtr Archetype
 		{
@@ -26,7 +109,7 @@ namespace IVSDKDotNet
 			}
 		}
 		/// <summary>
-		/// Use with: IVGtaFragType.FromPointer(...);
+		/// Use with: IVGtaFragType.FromUIntPtr(...);
 		/// </summary>
 		property UIntPtr FragType
 		{
@@ -189,7 +272,11 @@ namespace IVSDKDotNet
 		}
 
 	public:
+		static IVBaseModelInfo^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 		uint8_t GetModelType();
+		IVTimeInfo^ GetTimeInfo();
 		void SetAnimGroup(String^ group);
 		void SetTexDictionary(String^ txd);
 

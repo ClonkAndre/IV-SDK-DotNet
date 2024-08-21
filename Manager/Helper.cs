@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -10,13 +11,10 @@ using IVSDKDotNet;
 
 namespace Manager
 {
-    internal static class Helper
+    internal class Helper
     {
 
         #region Classes
-        /// <summary>
-        /// Some helper functions in use with <see cref="Process"/>.
-        /// </summary>
         public class ProcessHelper
         {
 

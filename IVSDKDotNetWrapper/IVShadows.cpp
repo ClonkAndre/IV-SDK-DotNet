@@ -48,6 +48,10 @@ namespace IVSDKDotNet
 			nID);						// a18
 	}
 
+	void IVShadows::StoreStaticShadow(bool castShadows, Vector3 vPos, Color vColor, float fIntensity, float fRange, uint32_t nID)
+	{
+		AddSceneLight(0, 0, castShadows ? 0x504 : 0x500, -Vector3::UnitZ, Vector3::UnitY, vPos, vColor, fIntensity, 0, 0, fRange, 0.0F, 0.0F, 0.0F, 0.0F, 0, 0, nID);
+	}
 	void IVShadows::StoreStaticShadow(bool castShadows, Vector3 vPos, Color vColor, float fIntensity, float fRange)
 	{
 		AddSceneLight(0, 0, castShadows ? 0x504 : 0x500, -Vector3::UnitZ, Vector3::UnitY, vPos, vColor, fIntensity, 0, 0, fRange, 0.0F, 0.0F, 0.0F, 0.0F, 0, 0, castShadows ? (uint32_t)FindPlayerPed() + 1 : 0);
