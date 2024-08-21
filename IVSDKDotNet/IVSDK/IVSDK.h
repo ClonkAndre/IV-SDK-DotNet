@@ -19,6 +19,8 @@ namespace plugin
 	void gameStartupEvent();
 }
 
+#include "..\Hooking.Patterns.h"
+
 #include "NewAddressSet.h"
 #include "CRGBA.h"
 #include "rage.h"

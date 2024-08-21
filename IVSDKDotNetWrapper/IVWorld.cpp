@@ -3,6 +3,7 @@
 
 namespace IVSDKDotNet
 {
+
     // - - - Methods / Functions - - -
     void IVWorld::Add(UIntPtr entity, bool bUnk)
     {
@@ -75,4 +76,5 @@ namespace IVSDKDotNet
 
         return result;
     }
+
 }

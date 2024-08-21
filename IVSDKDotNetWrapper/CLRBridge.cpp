@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "CLRBridge.h"
 
-using namespace System::Diagnostics;
 using namespace IVSDKDotNet;
 using namespace IVSDKDotNet::Manager;
 
@@ -77,6 +76,8 @@ namespace CLR
 		// Launch debugger
 		if (Settings->GetBoolean("DEBUG", "LaunchDebugger", false))
 			Debugger::Launch();
+#elif PREVIEW
+		Logger::Log(String::Format("IV-SDK .NET PREVIEW version {0} by ItsClonkAndre", Version));
 #else
 		Logger::Log(String::Format("IV-SDK .NET Release version {0} by ItsClonkAndre", Version));
 #endif
@@ -98,13 +99,18 @@ namespace CLR
 			Logger::LogError("Could not initialize IV-SDK .NET because the public-sans.regular.ttf file was not found inside the IVSDKDotNet->Data directory!", false);
 			goto ERR;
 		}
+		if (!File::Exists(IVSDKDotNetBinaryPath + "\\Newtonsoft.Json.dll"))
+		{
+			Logger::LogError("Could not initialize IV-SDK .NET because the Newtonsoft.Json.dll file was not found inside the IVSDKDotNet->bin directory!", false);
+			goto ERR;
+		}
 
 		// Initialize Memory Access stuff
 		MemoryAccess::Initialise(version, baseAddress);
 
 		// Get the GTA IV Process
 		TheGTAProcess = Process::GetCurrentProcess();
-
+		
 		// Wait till process has a MainWindowHandle and for g_pDirect3DDevice to return a valid pointer
 		while (TheGTAProcess->MainWindowHandle == IntPtr::Zero)
 			Sleep(100);
@@ -124,6 +130,8 @@ namespace CLR
 			Logger::LogDebug("[DirectInputHook] Done!");
 		if (XInputHook::Initialize())
 			Logger::LogDebug("[XInputHook] Done!");
+		if (UnmanagedGameHooks::Initialize())
+			Logger::LogDebug("[GameHooks] Done!");
 
 		// FindWindow(L"grcWindow", L"GTAIV")
 		originalWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr((HWND)TheGTAProcess->MainWindowHandle.ToPointer(), GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WndProcHook)));
@@ -134,7 +142,7 @@ namespace CLR
 		if (minHookStatus != MH_STATUS::MH_OK)
 			Logger::LogError(String::Format("[MinHook] Failed to enable Hooks! Details: {0}", gcnew String(MH_StatusToString(minHookStatus))));
 
-		// 300 ms was too little out of the sudden :thinking:
+		// Schleep a bit
 		Sleep(1100);
 
 		// Do late checks
@@ -167,9 +175,29 @@ namespace CLR
 			}
 		}
 
+		// Do early assembly loading
+		try
+		{
+			// Load Newtonsoft.Json assembly
+			Assembly::UnsafeLoadFrom(IVSDKDotNetBinaryPath + "\\Newtonsoft.Json.dll");
+			Logger::LogDebug("Early loaded the Newtonsoft.Json.dll assembly.");
+		}
+		catch (Exception^ ex)
+		{
+			Logger::LogError(String::Format("An exception occured while trying to early load some assemblies. Details: {0}", ex->ToString()));
+
+#if _DEBUG
+			if (Debugger::IsAttached)
+				throw;
+#endif // _DEBUG
+
+			goto ERR;
+		}
+
 		// Load manager script
 		try
 		{
+			// Load the manager assembly
 			Assembly^ assembly = Assembly::UnsafeLoadFrom(managerScriptPath);
 
 			// Get types from assembly
@@ -306,6 +334,70 @@ ERR:
 
 		if (ManagerScript::s_Instance)
 		{
+			// Disable inputs if ImGui wants text input
+			if (DisableInputs && !Native::Natives::IS_USING_CONTROLLER())
+			{
+				CPad* pad = reinterpret_cast<CPad*>(padPtr);
+
+				for (int i = 0; i < 187; i++)
+				{
+					tPadValues* values = &pad->m_aValues[i];
+					IVSDKDotNet::Enums::ePadControls control = (IVSDKDotNet::Enums::ePadControls)i;
+
+					uint8_t newCurrentValue = 0;
+					uint8_t newLastValue = 0;
+
+					switch (control)
+					{
+						// All of these have to be set to 128, otherwise they can produce some ugly results
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_LEFT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_RIGHT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_UP:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_DOWN:
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_LEFT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_RIGHT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_UP:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_DOWN:
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_LEFT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_RIGHT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_UP:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_DOWN:
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_GUN_LEFT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_GUN_RIGHT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_GUN_UP:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_GUN_DOWN:
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_AXIS_X:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_AXIS_Y:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_RIGHT_AXIS_X:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_RIGHT_AXIS_Y:
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOUSE_UD:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOUSE_LR:
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_KEY_STUNTJUMP:
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_AXIS_UD:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_AXIS_LR:
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_LEFT_2:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_RIGHT_2:
+
+							newCurrentValue = 128;
+							newLastValue = 128;
+
+							break;
+					}
+
+					values->m_nCurrentValue = newCurrentValue;
+					values->m_nLastValue = newLastValue;
+				}
+			}
+
 			// ManagerScript things
 			if (ManagerScript::s_Instance->SwitchImGuiForceCursorProperty)
 			{
@@ -328,6 +420,10 @@ ERR:
 
 	void CLRBridge::Cleanup()
 	{
+		// Return if already shutting down
+		if (IsShuttingDown)
+			return;
+
 		IsShuttingDown = true;
 
 		// Log

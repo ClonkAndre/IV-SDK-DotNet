@@ -3720,12 +3720,26 @@ namespace IVSDKDotNet
 			static void SWITCH_ROADS_ON(float x0, float y0, float z0, float x1, float y1, float z1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SWITCH_ROADS_ON, x0, y0, z0, x1, y1, z1); }
 			static void UNMARK_ALL_ROAD_NODES_AS_DONT_WANDER() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_UNMARK_ALL_ROAD_NODES_AS_DONT_WANDER); }
 			static void CLEAR_SHAKE_PLAYERPAD_WHEN_CONTROLLER_DISABLED() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CLEAR_SHAKE_PLAYERPAD_WHEN_CONTROLLER_DISABLED); }
-			static void GET_KEYBOARD_MOVE_INPUT([OutAttribute] int% Unk832, [OutAttribute] int% Unk833)
+			
+			static void GET_KEYBOARD_MOVE_INPUT([OutAttribute] Point% input)
 			{
-				int p1, p2;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_KEYBOARD_MOVE_INPUT, &p1, &p2);
-				Unk832 = p1;
-				Unk833 = p2;
+				int x, y;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_KEYBOARD_MOVE_INPUT, &x, &y);
+				input = Point(x, y);
+			}
+			static void GET_KEYBOARD_MOVE_INPUT([OutAttribute] int% pX, [OutAttribute] int% pY)
+			{
+				int x, y;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_KEYBOARD_MOVE_INPUT, &x, &y);
+				pX = x;
+				pY = y;
+			}
+
+			static void GET_MOUSE_INPUT([OutAttribute] Point% input)
+			{
+				int x, y;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_MOUSE_INPUT, &x, &y);
+				input = Point(x, y);
 			}
 			static void GET_MOUSE_INPUT([OutAttribute] int% pX, [OutAttribute] int% pY)
 			{
@@ -3734,18 +3748,26 @@ namespace IVSDKDotNet
 				pX = x;
 				pY = y;
 			}
-			static void GET_MOUSE_POSITION([OutAttribute] int% pX, [OutAttribute] int% pY)
+
+			static void GET_MOUSE_POSITION([OutAttribute] Vector2% pos)
 			{
-				int x, y;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_MOUSE_POSITION, &x, &y);
+				float x, y;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_GET_MOUSE_POSITION, &x, &y);
+				pos = Vector2(x, y);
+			}
+			static void GET_MOUSE_POSITION([OutAttribute] float% pX, [OutAttribute] float% pY)
+			{
+				float x, y;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_GET_MOUSE_POSITION, &x, &y);
 				pX = x;
 				pY = y;
 			}
-			static void GET_MOUSE_WHEEL([OutAttribute] int% Unk834)
+
+			static void GET_MOUSE_WHEEL([OutAttribute] int% wheelValue)
 			{
 				int p1;
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_MOUSE_WHEEL, &p1);
-				Unk834 = p1;
+				wheelValue = p1;
 			}
 			static float GET_MOUSE_SENSITIVITY()
 			{

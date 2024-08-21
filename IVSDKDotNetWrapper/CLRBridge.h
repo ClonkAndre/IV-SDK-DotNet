@@ -6,7 +6,7 @@ namespace CLR
 {
 
 	/// <summary>
-	/// Bridge between IVSDKDotNet.asi and IVSDKDotNetWrapper.dll.
+	/// The main bridge between IVSDKDotNet.asi and IVSDKDotNetWrapper.dll.
 	/// There can only be one instance of this class.
 	/// </summary>
 	public ref class CLRBridge
@@ -49,7 +49,7 @@ namespace CLR
 		}
 
 		/// <summary>
-		/// Gets set to true when everything is about to shut down. 
+		/// Will get set to true when everything is about to shut down. 
 		/// </summary>
 		static property bool IsShuttingDown
 		{
@@ -66,7 +66,7 @@ namespace CLR
 		}
 
 		/// <summary>
-		/// Only set to true if the IV-SDK .NET ScriptHookDotNet mod loader is activated AND the user installed the old ScriptHookDotNet to avoid conflicts.
+		/// Will get set to true only if the IV-SDK .NET ScriptHookDotNet mod loader is activated AND the user installed the old ScriptHookDotNet to avoid conflicts.
 		/// </summary>
 		static property bool DisableScriptHookDotNetLoading
 		{
@@ -79,6 +79,23 @@ namespace CLR
 			void set(bool value)
 			{
 				m_bDisableScriptHookDotNetLoading = value;
+			}
+		}
+
+		/// <summary>
+		/// Will get set to true when any ImGui window is open and it wants text input.
+		/// </summary>
+		static property bool DisableInputs
+		{
+		public:
+			bool get()
+			{
+				return m_bDisableInputs;
+			}
+		internal:
+			void set(bool value)
+			{
+				m_bDisableInputs = value;
 			}
 		}
 
@@ -239,8 +256,9 @@ namespace CLR
 		static bool m_bCanTerminate = false;
 		static bool m_bShuttingDown = false;
 		static bool m_bDisableScriptHookDotNetLoading = false;
+		static bool m_bDisableInputs = false;
 
-		static String^ m_sVersion = "1.5";
+		static String^ m_sVersion = "1.6";
 		static String^ m_sLogFileName;
 		static String^ m_sIVSDKDotNetPath;
 		static String^ m_sIVSDKDotNetBinaryPath;

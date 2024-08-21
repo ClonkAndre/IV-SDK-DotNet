@@ -15,20 +15,20 @@
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
 
-typedef HRESULT(__stdcall D3D9DeviceEndSceneT)(IDirect3DDevice9*);
-typedef HRESULT(__stdcall D3D9DeviceResetT)(IDirect3DDevice9*, D3DPRESENT_PARAMETERS*);
+//typedef HRESULT(__stdcall D3D9DeviceEndSceneT)(IDirect3DDevice9*);
+//typedef HRESULT(__stdcall D3D9DeviceResetT)(IDirect3DDevice9*, D3DPRESENT_PARAMETERS*);
 
 // DirectInput
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
-typedef HRESULT(__stdcall DInput8DeviceGetDeviceStateT)(IDirectInputDevice8*, DWORD, LPVOID);
-typedef HRESULT(__stdcall DInput8DeviceGetDeviceDataT)(IDirectInputDevice8*, DWORD, LPDIDEVICEOBJECTDATA, LPDWORD, DWORD);
-typedef HRESULT(__stdcall DInput8DeviceAcquireT)(IDirectInputDevice8*);
+//typedef HRESULT(__stdcall DInput8DeviceGetDeviceStateT)(IDirectInputDevice8*, DWORD, LPVOID);
+//typedef HRESULT(__stdcall DInput8DeviceGetDeviceDataT)(IDirectInputDevice8*, DWORD, LPDIDEVICEOBJECTDATA, LPDWORD, DWORD);
+//typedef HRESULT(__stdcall DInput8DeviceAcquireT)(IDirectInputDevice8*);
 
 // XInput
 #include <XInput.h>
-typedef DWORD(WINAPI* XInputGetState_t)(DWORD, XINPUT_STATE*);
+//typedef DWORD(WINAPI* XInputGetState_t)(DWORD, XINPUT_STATE*);
 
 // MinHook
 #include "MinHook.h"
@@ -45,10 +45,15 @@ typedef DWORD(WINAPI* XInputGetState_t)(DWORD, XINPUT_STATE*);
 #include "..\IVSDKDotNet\IVSDK\injector\injector.hpp"
 #include "..\IVSDKDotNet\AdvancedPatcher.h"
 
+// typedefs
+#include "typedefs.h"
+
 // Managed Namespaces
 using namespace System;
 using namespace System::Collections::Generic;
 using namespace System::Collections::ObjectModel;
+using namespace System::Diagnostics;
+using namespace System::Drawing;
 using namespace System::IO;
 using namespace System::Reflection;
 using namespace System::Windows::Forms;
@@ -56,12 +61,26 @@ using namespace System::Numerics;
 using namespace System::Runtime::CompilerServices;
 using namespace System::Text;
 
+// Enums
+#include "enums.h"
+using namespace IVSDKDotNet::Enums;
+
+// Logger
+#include "Logger.h"
+
+// Hooking.Patterns
+#include "Patterns.h"
+
 #include "defines.h"
 
+// For any game related hooking stuff
+#include "GameHooks.h"
+
+
+
 #include "Attributes.h"
-#include "enums.h"
+
 #include "SettingsFile.h"
-#include "Logger.h"
 #include "Helper.h"
 
 // ImGuiIV
@@ -80,9 +99,8 @@ using namespace System::Text;
 // Math
 #include "IVMatrix.h"
 
-#include "Scripts.h"
-
 // Important
+#include "Scripts.h"
 #include "CLRBridge.h"
 
 // - - - IV-SDK STUFF - - -
@@ -225,7 +243,7 @@ using namespace System::Text;
 #include "IVDrawCurvedWindowDC.h"
 //#include "IVDrawSpriteDC.h"  // TODO
 //#include "IVDrawSpriteUVDC.h"  // TODO
-//#include "IVDrawRadioHudTextDC.h"  // TODO
+#include "IVDrawRadioHudTextDC.h"
 #include "IVControlRemapInfo.h"
 #include "IVMenuManager.h"
 #include "IVShaderLib.h"
@@ -243,7 +261,7 @@ using namespace System::Text;
 #include "IVGenericGameStorage.h"
 #include "IVReplay.h"
 #include "IVAudioZones.h"
-// #include "IVStore.h" // TODO
+#include "IVStore.h"
 #include "IVAnimManager.h"
 #include "IVPopulation.h"
 #include "IVWeather.h"

@@ -38,6 +38,10 @@ namespace IVSDKDotNet
 			}
 		}
 
+	public:
+		static IVGtaFragType^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 	internal:
 		IVGtaFragType(gtaFragType* nativePtr);
 

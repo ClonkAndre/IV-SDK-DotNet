@@ -50,6 +50,10 @@ namespace IVSDKDotNet
 			}
 		}
 
+	public:
+		static IVPhArchetypeGta^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 	internal:
 		IVPhArchetypeGta(phArchetypeGta* nativePtr);
 

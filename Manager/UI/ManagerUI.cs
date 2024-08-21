@@ -67,6 +67,14 @@ namespace Manager.UI
                 // The field name
                 ImGuiIV.Text(info.Name);
 
+                // Check if readonly attribute is set
+                bool readOnlyAttributeSet = false;
+                if (GetAttribute(info, out ReadOnlyInInspectorAttribute readOnlyInInspectorAttribute))
+                {
+                    readOnlyAttributeSet = true;
+                    ImGuiIV.BeginDisabled();
+                }
+
                 switch (fieldType)
                 {
                     case SupportedPublicFields._byte:
@@ -254,7 +262,54 @@ namespace Manager.UI
                                 info.SetValue(foundScript.TheScriptObject, ImGuiIV.FloatRGBToColor(arr));
                         }
                         break;
+                    case SupportedPublicFields._Size:
+                        {
+                            Size value = (Size)info.GetValue(foundScript.TheScriptObject);
+                            int[] arr = new int[2] { value.Width, value.Height };
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragInt2(string.Format("##{0}", info.Name), ref arr))
+                                info.SetValue(foundScript.TheScriptObject, new Size(arr[0], arr[1]));
+                        }
+                        break;
+                    case SupportedPublicFields._SizeF:
+                        {
+                            SizeF value = (SizeF)info.GetValue(foundScript.TheScriptObject);
+                            float[] arr = new float[2] { value.Width, value.Height };
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr))
+                                info.SetValue(foundScript.TheScriptObject, new SizeF(arr[0], arr[1]));
+                        }
+                        break;
+                    case SupportedPublicFields._Point:
+                        {
+                            Point value = (Point)info.GetValue(foundScript.TheScriptObject);
+                            int[] arr = new int[2] { value.X, value.Y };
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragInt2(string.Format("##{0}", info.Name), ref arr))
+                                info.SetValue(foundScript.TheScriptObject, new Point(arr[0], arr[1]));
+                        }
+                        break;
+                    case SupportedPublicFields._PointF:
+                        {
+                            PointF value = (PointF)info.GetValue(foundScript.TheScriptObject);
+                            float[] arr = new float[2] { value.X, value.Y };
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr))
+                                info.SetValue(foundScript.TheScriptObject, new PointF(arr[0], arr[1]));
+                        }
+                        break;
                 }
+
+                if (readOnlyAttributeSet)
+                    ImGuiIV.EndDisabled();
 
                 // What type this field is
                 ImGuiIV.SetItemTooltip(string.Format("This field is a {0}.", info.FieldType.Name));
@@ -408,6 +463,34 @@ namespace Manager.UI
             else if (t == typeof(Color))
             {
                 fieldType = SupportedPublicFields._Color;
+                return true;
+            }
+
+            // Size
+            else if (t == typeof(Size))
+            {
+                fieldType = SupportedPublicFields._Size;
+                return true;
+            }
+
+            // SizeF
+            else if (t == typeof(SizeF))
+            {
+                fieldType = SupportedPublicFields._SizeF;
+                return true;
+            }
+
+            // Point
+            else if (t == typeof(Point))
+            {
+                fieldType = SupportedPublicFields._Point;
+                return true;
+            }
+
+            // PointF
+            else if (t == typeof(PointF))
+            {
+                fieldType = SupportedPublicFields._PointF;
                 return true;
             }
 
@@ -840,6 +923,24 @@ namespace Manager.UI
 
                             /// @begin Button
                             ImGuiIV.SameLine(0, 1 * ImGuiIV.GetStyle().ItemSpacing.X);
+                            if (ImGuiIV.Button("Reload this script", new Vector2(170f, 0f)))
+                            {
+                                string fullPath = fs.FullPath;
+                                string actualName = fs.EntryPoint.FullName;
+                                if (Main.Instance.AbortScriptInternal(AbortReason.Manual, fs, true))
+                                {
+                                    if (!Main.Instance.LoadAssembly(fullPath))
+                                    {
+                                        Logger.LogWarning(string.Format("Failed to reload script '{0}'!", actualName));
+                                    }
+                                }
+
+                                continue;
+                            }
+                            /// @end Button
+
+                            /// @begin Button
+                            ImGuiIV.SameLine(0, 1 * ImGuiIV.GetStyle().ItemSpacing.X);
                             if (ImGuiIV.Button(fs.Running ? "Pause this script" : "Resume this script", new Vector2(170f, 0f)))
                             {
                                 fs.Running = !fs.Running;
@@ -1253,6 +1354,8 @@ SKIP_TO_END:
                     /// @begin Text
 #if DEBUG
                     ImGuiIV.TextUnformatted("IV-SDK .NET DEBUG Version {0}", CLR.CLRBridge.Version);
+#elif PREVIEW
+                    ImGuiIV.TextUnformatted("IV-SDK .NET PREVIEW Version {0}", CLR.CLRBridge.Version);
 #else
                     ImGuiIV.TextUnformatted("IV-SDK .NET Release Version {0}", CLR.CLRBridge.Version);
 #endif

@@ -15,6 +15,59 @@ enum ModelInfoType
 	MI_TYPE_PED = 6,
 };
 
+
+class CTimeInfo
+{
+public:
+	// access functions
+	inline void SetTimes(uint8_t timeOn, uint8_t timeOff)
+	{
+		int hour = timeOn;
+		while (hour != timeOff)
+		{
+			m_hoursOnOff |= (1 << hour);
+			hour++;
+			if (hour == 24)
+				hour = 0;
+		}
+	}
+	inline void SetTimes(uint32_t timeHourFlags)
+	{
+		m_hoursOnOff = timeHourFlags;
+	}
+
+	inline void SetHoursOnOffMask(int onOffFlags)
+	{
+		m_hoursOnOff = onOffFlags;
+	}
+	inline int GetHoursOnOffMask()
+	{
+		return m_hoursOnOff;
+	}
+	inline bool IsOn(int hour)
+	{
+		return (m_hoursOnOff & (1 << hour)) != 0;
+	}
+
+	inline void SetOtherTimeModel(int index)
+	{
+		m_otherModel = index;
+	}
+	inline int GetOtherTimeModel()
+	{
+		return m_otherModel;
+	}
+	bool	OnlySwapWhenOffScreen()
+	{
+		return ((m_hoursOnOff & (1 << 24)) == 0);
+	}
+
+public:
+	uint32_t m_hoursOnOff;
+	uint32_t m_otherModel;
+};
+
+
 class CBaseModelInfo
 {
 public:
@@ -39,6 +92,11 @@ public:
 		return ((uint8_t(__thiscall*)(CBaseModelInfo*))(*(void***)this)[3])(this);
 	}
 
+	CTimeInfo* GetTimeInfo()
+	{
+		return ((CTimeInfo*(__thiscall*)(CBaseModelInfo*))(*(void***)this)[5])(this);
+	}
+
 	void SetAnimGroup(char* group)
 	{
 		((void(__thiscall*)(CBaseModelInfo*, char*))(AddressSetter::Get(0x58F3F0, 0x63D400)))(this, group);
@@ -58,6 +116,7 @@ VALIDATE_OFFSET(CBaseModelInfo, m_vMaxBounds, 0x30);
 VALIDATE_OFFSET(CBaseModelInfo, m_nHash, 0x3C);
 VALIDATE_OFFSET(CBaseModelInfo, m_nAnimIndex, 0x56);
 VALIDATE_OFFSET(CBaseModelInfo, m_nIDEFlags, 0x40);
+
 
 class CPedModelInfo : public CBaseModelInfo
 {

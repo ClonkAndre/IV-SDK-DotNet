@@ -3,6 +3,7 @@
 
 namespace IVSDKDotNet
 {
+
 	// - - - Methods / Functions - - -
 	IVBaseModelInfo^ IVModelInfo::GetModelInfo(uint32_t hashKey, [OutAttribute] int% index)
 	{
@@ -40,4 +41,26 @@ namespace IVSDKDotNet
 	{
 		CModelInfo::Initialise();
 	}
+
+	int IVModelInfo::GetIndexFromHashKey(uint32_t hashKey)
+	{
+		int i;
+
+		if (!CModelInfo::GetModelInfo(hashKey, &i))
+			return -1;
+
+		return i;
+	}
+	IVBaseModelInfo^ IVModelInfo::GetModelInfoFromIndex(int index)
+	{
+		if (index >= 0 && index < 30999)
+		{
+			CBaseModelInfo* ptr = CModelInfo::ms_modelInfoPtrs[index];
+			NULLPTR_CHECK_WITH_RETURN(ptr, nullptr);
+			return gcnew IVBaseModelInfo(ptr);
+		}
+
+		return nullptr;
+	}
+
 }

@@ -4,6 +4,14 @@
 namespace IVSDKDotNet
 {
 
+
+	IVTimeInfo::IVTimeInfo(CTimeInfo* nativePtr)
+	{
+		NULLPTR_CHECK(nativePtr);
+		NativeTimeInfo = nativePtr;
+	}
+
+
 	// - - - Constructor - - -
 	IVBaseModelInfo::IVBaseModelInfo(CBaseModelInfo* nativePtr)
 	{
@@ -12,10 +20,26 @@ namespace IVSDKDotNet
 	}
 
 	// - - - Methods / Functions - - -
+	IVBaseModelInfo^ IVBaseModelInfo::FromUIntPtr(UIntPtr ptr)
+	{
+		UINTPTR_ZERO_CHECK_WITH_RETURN(ptr, nullptr);
+		return gcnew IVBaseModelInfo((CBaseModelInfo*)ptr.ToPointer());
+	}
+	UIntPtr IVBaseModelInfo::GetUIntPtr()
+	{
+		NULLPTR_CHECK_WITH_RETURN(NativeModelInfo, UIntPtr::Zero);
+		return UIntPtr(NativeModelInfo);
+	}
+
 	uint8_t IVBaseModelInfo::GetModelType()
 	{
 		NULLPTR_CHECK_WITH_RETURN(NativeModelInfo, 0);
 		return NativeModelInfo->GetModelType();
+	}
+	IVTimeInfo^ IVBaseModelInfo::GetTimeInfo()
+	{
+		NULLPTR_CHECK_WITH_RETURN(NativeModelInfo, nullptr);
+		return gcnew IVTimeInfo(NativeModelInfo->GetTimeInfo());
 	}
 	void IVBaseModelInfo::SetAnimGroup(String^ group)
 	{

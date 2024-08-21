@@ -63,6 +63,26 @@ namespace IVSDKDotNet
 			}
 		};
 
+		[AttributeUsageAttribute(AttributeTargets::Field)]
+		public ref class ReadOnlyInInspectorAttribute : Attribute
+		{
+		public:
+			ReadOnlyInInspectorAttribute()
+			{
+
+			}
+		};
+
+		[AttributeUsageAttribute(AttributeTargets::Field)]
+		public ref class ExcludeFromJsonSerializationAttribute : Attribute
+		{
+		public:
+			ExcludeFromJsonSerializationAttribute()
+			{
+
+			}
+		};
+
 		[AttributeUsageAttribute(AttributeTargets::Class)]
 		public ref class ShowStaticFieldsInInspector : Attribute
 		{

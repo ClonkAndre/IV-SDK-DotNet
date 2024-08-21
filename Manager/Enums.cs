@@ -132,7 +132,11 @@
         _Vector3,
         _Vector4,
         _Quaternion,
-        _Color
+        _Color,
+        _Size,
+        _SizeF,
+        _Point,
+        _PointF,
     }
 
 }

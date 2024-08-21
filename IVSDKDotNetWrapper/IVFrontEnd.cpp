@@ -3,6 +3,8 @@
 
 namespace IVSDKDotNet
 {
+
+	// - - - Methods / Functions - - -
 	void IVFrontEnd::SwitchOnWaypoint(int unk_8, Vector2 pos, bool snapToHoveringBlip, [OutAttribute] Vector3% outPos)
 	{
 		CVector outVec;
@@ -21,4 +23,6 @@ namespace IVSDKDotNet
 	{
 		CFrontEnd::ToggleWaypoint();
 	}
+
+
 }
