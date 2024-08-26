@@ -3397,8 +3397,31 @@ namespace IVSDKDotNet
 			static void DRAW_CHECKPOINT_WITH_ALPHA(Vector3 pos, float radius, Color color) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DRAW_CHECKPOINT_WITH_ALPHA, pos.X, pos.Y, pos.Z, radius, (int)color.R, (int)color.G, (int)color.B, (int)color.A); }
 			static void DRAW_CHECKPOINT_WITH_ALPHA(float x, float y, float z, float radius, int r, int g, int b, int a) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DRAW_CHECKPOINT_WITH_ALPHA, x, y, z, radius, r, g, b, a); }
 			static void DRAW_COLOURED_CYLINDER(float x, float y, float z, float Unk712, float Unk713, int r, int g, int b, int a) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DRAW_COLOURED_CYLINDER, x, y, z, Unk712, Unk713, r, g, b, a); }
-			static void DRAW_CORONA(Vector3 pos, float radius, int Unk714, float Unk715, Color color) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DRAW_CORONA, pos.X, pos.Y, pos.Z, radius, Unk714, Unk715, (int)color.R, (int)color.G, (int)color.B); }
-			static void DRAW_CORONA(float x, float y, float z, float radius, int Unk714, float Unk715, int r, int g, int b) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DRAW_CORONA, x, y, z, radius, Unk714, Unk715, r, g, b); }
+			
+			/// <summary>
+			/// Draws a corona in the world at the given position with the given radius.
+			/// </summary>
+			/// <param name="pos">The position where to draw the corona.</param>
+			/// <param name="radius">The size of the corona.</param>
+			/// <param name="dummy1">Does nothing.</param>
+			/// <param name="dummy2">Does nothing.</param>
+			/// <param name="color">The color of the corona.</param>
+			static void DRAW_CORONA(Vector3 pos, float radius, int dummy1, float dummy2, Color color) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DRAW_CORONA, pos.X, pos.Y, pos.Z, radius, dummy1, dummy2, (int)color.R, (int)color.G, (int)color.B); }
+			
+			/// <summary>
+			/// Draws a corona in the world at the given position with the given radius.
+			/// </summary>
+			/// <param name="x">The X coordinate of where to draw the corona.</param>
+			/// <param name="y">The Y coordinate of where to draw the corona.</param>
+			/// <param name="z">The Z coordinate of where to draw the corona.</param>
+			/// <param name="radius">The size of the corona.</param>
+			/// <param name="dummy1">Does nothing.</param>
+			/// <param name="dummy2">Does nothing.</param>
+			/// <param name="r">The R (Red) color value of the corona.</param>
+			/// <param name="g">The G (Green) color value of the corona.</param>
+			/// <param name="b">The B (Blue) color value of the corona.</param>
+			static void DRAW_CORONA(float x, float y, float z, float radius, int dummy1, float dummy2, int r, int g, int b) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DRAW_CORONA, x, y, z, radius, dummy1, dummy2, r, g, b); }
+			
 			static void DRAW_CURVED_WINDOW(float Unk719, float Unk720, float Unk721, float Unk722, unsigned int alpha) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DRAW_CURVED_WINDOW, Unk719, Unk720, Unk721, Unk722, alpha); }
 			static void DRAW_CURVED_WINDOW_NOTEXT(float Unk723, float Unk724, float Unk725, float Unk726, int Unk727) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DRAW_CURVED_WINDOW_NOTEXT, Unk723, Unk724, Unk725, Unk726, Unk727); }
 			static void DRAW_CURVED_WINDOW_TEXT(float Unk728, float Unk729, float Unk730, int Unk731, int Unk732, String^ str0, String^ str1, int Unk733)

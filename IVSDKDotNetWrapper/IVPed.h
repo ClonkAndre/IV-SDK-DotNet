@@ -732,18 +732,18 @@ namespace IVSDKDotNet
 				NativePed->m_nPedFlags2._f12 = value;
 			}
 		}
-		property bool _f13
+		property bool IsEnemy
 		{
 		public:
 			bool get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
-				return NativePed->m_nPedFlags2._f13;
+				return NativePed->m_nPedFlags2.bIsEnemy;
 			}
 			void set(bool value)
 			{
 				NULLPTR_CHECK(NativePed);
-				NativePed->m_nPedFlags2._f13 = value;
+				NativePed->m_nPedFlags2.bIsEnemy = value;
 			}
 		}
 		property bool _f14

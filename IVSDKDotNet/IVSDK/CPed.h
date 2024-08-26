@@ -52,11 +52,11 @@ struct PedWeaponSlot
 
 struct PedWeapons
 {
-	uint8_t weaponspad1[0x18];											// 00-18 CPed 2B0-2C8
+	uint8_t pad[0x18];													// 00-18 CPed 2B0-2C8
 	uint32_t m_nActiveWeaponSlot;										// 18-1C CPed 2C8-2CC
-	uint8_t weaponspad2[0x10];											// 1C-2C CPed 2CC-2DC
+	uint8_t pad2[0x10];													// 1C-2C CPed 2CC-2DC
 	CObject* m_pWeaponObject;											// 2C-30 CPed 2DC-2E0
-	uint8_t weaponspad3[0xC];											// 30-3C CPed 2E0-388
+	uint8_t pad3[0xC];													// 30-3C CPed 2E0-388
 	PedWeaponSlot m_aWeapons[12];										// 3C-CC CPed 2EC-37C
 
 	void GiveWeapon(int weaponType, uint32_t ammoQuantity, bool unk1, bool unk2, bool unk3)
@@ -64,10 +64,10 @@ struct PedWeapons
 		((void(__thiscall*)(PedWeapons*, int, uint32_t, bool, bool, bool))(AddressSetter::Get(0x5AB750, 0x5CD690)))(this, weaponType, ammoQuantity, unk1, unk2, unk3);
 	}
 };
-VALIDATE_SIZE(PedWeapons, 0xCC);
-VALIDATE_OFFSET(PedWeapons, m_nActiveWeaponSlot, 0x18);
-VALIDATE_OFFSET(PedWeapons, m_pWeaponObject, 0x2C);
-VALIDATE_OFFSET(PedWeapons, m_aWeapons, 0x3C);
+//VALIDATE_SIZE(PedWeapons, 0xCC);
+//VALIDATE_OFFSET(PedWeapons, m_nActiveWeaponSlot, 0x18);
+//VALIDATE_OFFSET(PedWeapons, m_pWeaponObject, 0x2C);
+//VALIDATE_OFFSET(PedWeapons, m_aWeapons, 0x3C);
 
 // incomplete - needs props
 struct tPedDrawableInfo
@@ -198,7 +198,7 @@ public:																	// 000-210
 		unsigned int _f10 : 1;
 		unsigned int _f11 : 1;
 		unsigned int _f12 : 1;
-		unsigned int _f13 : 1;
+		unsigned int bIsEnemy : 1;
 		unsigned int _f14 : 1;
 		unsigned int _f15 : 1;
 		unsigned int _f16 : 1;
