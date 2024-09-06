@@ -42,6 +42,7 @@ namespace Manager
         public List<IntPtr> GlobalRegisteredTextures; // For any texture that couldn't be assigned to any script
 
         // Managers
+        public PluginManager ThePluginManager;
         public RemoteConnectionManager ConnectionManager;
 
         // UI
@@ -209,6 +210,7 @@ namespace Manager
             GlobalRegisteredTextures =      new List<IntPtr>();
 
             // Managers
+            ThePluginManager =  new PluginManager();
             ConnectionManager = new RemoteConnectionManager();
 
             // UI
@@ -862,7 +864,7 @@ namespace Manager
             // Check result
             if (!isIVSDKDotNetScript && !isScriptHookDotNetScript)
             {
-                Logger.LogWarning(string.Format("The file {0} could not be recognized as a IV-SDK .NET Script because it's missing the '.ivsdk' extension.", rawFileName));
+                Logger.LogWarning(string.Format("The file '{0}' could not be recognized as a IV-SDK .NET Script because it's missing the '.ivsdk' extension.", rawFileName));
                 return false;
             }
 
@@ -874,7 +876,7 @@ namespace Manager
 
             if (foundScript != null)
             {
-                Logger.LogWarning(string.Format("Script {0} is already loaded.", fileName));
+                Logger.LogWarning(string.Format("Not loading script '{0}' because it is already loaded.", fileName));
                 return false;
             }
 
@@ -898,7 +900,7 @@ namespace Manager
 
                         if (shdnScriptTypes.Length == 0)
                         {
-                            Logger.LogWarning(string.Format("Could not load ScriptHookDotNet script {0} because no entry-point could be found.", fileName));
+                            Logger.LogWarning(string.Format("Could not load ScriptHookDotNet script '{0}' because no entry-point could be found.", fileName));
                             return false;
                         }
 
@@ -924,7 +926,7 @@ namespace Manager
 
                                 if (shdnScript == null)
                                 {
-                                    Logger.LogWarning(string.Format("Failed to create new instance of ScriptHookDotNet script {0}.", fileName));
+                                    Logger.LogWarning(string.Format("Failed to create new instance of ScriptHookDotNet script '{0}'.", fileName));
                                     ActiveScripts.Remove(foundScript);
                                     foundScript = null;
                                     return false;
@@ -944,7 +946,7 @@ namespace Manager
                     // Could not find any classes that inherit the IVSDKDotNet.Script class
                     if (scriptType == null)
                     {
-                        Logger.LogWarning(string.Format("Could not load script {0} because the entry-point for IV-SDK .NET could not be found.", fileName));
+                        Logger.LogWarning(string.Format("Could not load script '{0}' because the entry-point for IV-SDK .NET could not be found.", fileName));
                         return false;
                     }
 
@@ -959,7 +961,7 @@ namespace Manager
                         if (referencedWrapperAssembly.Version < CurrentWrapperVersion)
                         {
 
-                            Logger.LogWarning(string.Format("Script {0} did not get loaded because it was created with an older version of the IVSDKDotNetWrapper.dll ({1}) and the setting 'DoNotLoadLegacyScripts' is set to true." +
+                            Logger.LogWarning(string.Format("Script '{0}' did not get loaded because it was created with an older version of the IVSDKDotNetWrapper.dll ({1}) and the setting 'DoNotLoadLegacyScripts' is set to true." +
                                 " The current version of the IVSDKDotNetWrapper.dll is: {2}", fileName, referencedWrapperAssembly.Version, CurrentWrapperVersion));
 
                             Notification.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(6d),
@@ -976,7 +978,7 @@ namespace Manager
 
                     if (script == null)
                     {
-                        Logger.LogWarning(string.Format("An unknown error occured while trying to create new instance of IV-SDK .NET script {0}.", fileName));
+                        Logger.LogWarning(string.Format("An unknown error occured while trying to create new instance of IV-SDK .NET script '{0}'.", fileName));
                         return false;
                     }
 

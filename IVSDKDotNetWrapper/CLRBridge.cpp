@@ -50,6 +50,7 @@ namespace CLR
 		IVSDKDotNetBinaryPath =		IVSDKDotNetPath + "\\bin";
 		IVSDKDotNetDataPath =		IVSDKDotNetPath + "\\data";
 		IVSDKDotNetLogsPath =		IVSDKDotNetPath + "\\logs";
+		IVSDKDotNetPluginsPath =	IVSDKDotNetPath + "\\plugins";
 		IVSDKDotNetScriptsPath =	IVSDKDotNetPath + "\\scripts";
 		String^ managerScriptPath = IVSDKDotNetPath + "\\IVSDKDotNet.Manager.dll";
 

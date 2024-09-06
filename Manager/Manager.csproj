@@ -68,6 +68,7 @@
     <Compile Include="Classes\Checker.cs" />
     <Compile Include="Classes\Config.cs" />
     <Compile Include="Classes\DelayedAction.cs" />
+    <Compile Include="Classes\FoundPlugin.cs" />
     <Compile Include="Classes\FoundScript.cs" />
     <Compile Include="Classes\Json\IVPresenceInfo.cs" />
     <Compile Include="Classes\Json\IVSessionInfo.cs" />

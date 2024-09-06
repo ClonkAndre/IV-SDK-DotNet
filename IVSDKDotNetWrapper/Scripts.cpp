@@ -9,9 +9,9 @@ namespace IVSDKDotNet
 	namespace Manager
 	{
 
-		// =========================================================================
-		// ============================= ManagerScript =============================
-		// =========================================================================
+		// ======================================================================
+		// ========================== ManagerScript =============================
+		// ======================================================================
 		ManagerScript::ManagerScript()
 		{
 			// If there already is a instance of the ManagerScript class. Delete this class.
@@ -19,10 +19,13 @@ namespace IVSDKDotNet
 				delete this;
 		}
 
-		void ManagerScript::Debug_ShowMessageBox(String^ str)		{ SHOW_MESSAGE(str); }
-		void ManagerScript::Debug_ShowInfoMessageBox(String^ str)	{ SHOW_INFO_MESSAGE(str); }
-		void ManagerScript::Debug_ShowWarnMessageBox(String^ str)	{ SHOW_WARN_MESSAGE(str); }
-		void ManagerScript::Debug_ShowErrorMessageBox(String^ str)	{ SHOW_ERROR_MESSAGE(str); }
+		// ======================================================================
+		// ========================== ManagerPlugin =============================
+		// ======================================================================
+		ManagerPlugin::ManagerPlugin()
+		{
+			ID = Guid::NewGuid();
+		}
 
 	}
 

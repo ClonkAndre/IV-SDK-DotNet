@@ -195,6 +195,9 @@ namespace IVSDKDotNet
 			OnFirstD3D9Frame(devicePtr);
 		}
 
+		/// <summary>
+		/// Gets raised every frame and allows you to draw stuff on the screen via the ImGuiIV_DrawingContext struct, or draw custom script windows using ImGui via the ImGuiIV wrapper class.
+		/// </summary>
 		event OnImGuiRenderingDelegate^ OnImGuiRendering;
 		void RaiseOnImGuiRendering(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
 		{
@@ -513,12 +516,6 @@ namespace IVSDKDotNet
 
 		public:
 
-			// Debug
-			void Debug_ShowMessageBox(String^ str);
-			void Debug_ShowInfoMessageBox(String^ str);
-			void Debug_ShowWarnMessageBox(String^ str);
-			void Debug_ShowErrorMessageBox(String^ str);
-
 			// General stuff
 			virtual void ApplySettings(SettingsFile^ settings)	abstract;
 			virtual void Cleanup()								abstract;
@@ -624,6 +621,65 @@ namespace IVSDKDotNet
 			static ManagerScript^ s_Instance;
 			Script^ m_pDummyScript;
 
+		};
+
+		public ref class ManagerPlugin abstract
+		{
+		public:
+			delegate void OnFirstD3D9FrameDelegate(IntPtr devicePtr);
+			delegate void OnImGuiRenderingDelegate(IntPtr devicePtr, ImGuiIV_DrawingContext ctx);
+
+		public:
+			/// <summary>
+			/// The unique ID of this plugin.
+			/// </summary>
+			property Guid ID
+			{
+			public:
+				Guid get()
+				{
+					return m_id;
+				}
+			private:
+				void set(Guid value)
+				{
+					m_id = value;
+				}
+			}
+
+		public:
+			ManagerPlugin();
+
+		public:
+			/// <summary>
+			/// Gets raised when the plugin is about to be unloaded so you can free some previously created stuff in here.
+			/// </summary>
+			event EventHandler^ Uninitialize;
+			void RaiseUninitialize()
+			{
+				Uninitialize(this, EventArgs::Empty);
+			}
+
+			/// <summary>
+			/// Gets raised on the very first Direct3D9 Frame. You can use this to create Textures or Fonts.
+			/// </summary>
+			event OnFirstD3D9FrameDelegate^ OnFirstD3D9Frame;
+			void RaiseOnFirstD3D9Frame(IntPtr devicePtr)
+			{
+				OnFirstD3D9Frame(devicePtr);
+			}
+
+			/// <summary>
+			/// Gets raised every frame and allows you to draw stuff on the screen via the ImGuiIV_DrawingContext struct, or draw custom script windows using ImGui via the ImGuiIV wrapper class.
+			/// </summary>
+			event OnImGuiRenderingDelegate^ OnImGuiRendering;
+			void RaiseOnImGuiRendering(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
+			{
+				OnImGuiRendering(devicePtr, ctx);
+			}
+
+		private:
+			Guid m_id;
 		};
 
 	}

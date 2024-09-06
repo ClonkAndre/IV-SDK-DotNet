@@ -3,18 +3,18 @@
 // =======================================================================
 // =========================== DEBUGGING =================================
 // =======================================================================
-#define SHOW_DEBUG_MESSAGES		true
-
-#ifndef NDEBUG
-#define DISABLE_ALL_MESSAGES	false
-#else
-#define DISABLE_ALL_MESSAGES	true
-#endif
-
-#define SHOW_MESSAGE(text)			if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK .NET");
-#define SHOW_INFO_MESSAGE(text)		if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK .NET Info",	MessageBoxButtons::OK, MessageBoxIcon::Information);
-#define SHOW_WARN_MESSAGE(text)		if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK .NET Warning",	MessageBoxButtons::OK, MessageBoxIcon::Warning);
-#define SHOW_ERROR_MESSAGE(text)	if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK .NET Error",	MessageBoxButtons::OK, MessageBoxIcon::Error);
+//#define SHOW_DEBUG_MESSAGES		true
+//
+//#ifndef NDEBUG
+//#define DISABLE_ALL_MESSAGES	false
+//#else
+//#define DISABLE_ALL_MESSAGES	true
+//#endif
+//
+//#define SHOW_MESSAGE(text)			if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK .NET");
+//#define SHOW_INFO_MESSAGE(text)		if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK .NET Info",	MessageBoxButtons::OK, MessageBoxIcon::Information);
+//#define SHOW_WARN_MESSAGE(text)		if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK .NET Warning",	MessageBoxButtons::OK, MessageBoxIcon::Warning);
+//#define SHOW_ERROR_MESSAGE(text)	if (SHOW_DEBUG_MESSAGES && !DISABLE_ALL_MESSAGES) MessageBox::Show(text, "IV-SDK .NET Error",	MessageBoxButtons::OK, MessageBoxIcon::Error);
 
 // =======================================================================
 // ============================ DEFINES ==================================

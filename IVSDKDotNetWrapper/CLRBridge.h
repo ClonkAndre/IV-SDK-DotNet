@@ -199,6 +199,23 @@ namespace CLR
 		}
 
 		/// <summary>
+		/// Gets the full path to the plugins folder inside the IVSDKDotNet directory.
+		/// </summary>
+		static property String^ IVSDKDotNetPluginsPath
+		{
+		public:
+			String^ get()
+			{
+				return m_sIVSDKDotNetPluginsPath;
+			}
+		internal:
+			void set(String^ value)
+			{
+				m_sIVSDKDotNetPluginsPath = value;
+			}
+		}
+
+		/// <summary>
 		/// Gets the full path to the scripts folder inside the IVSDKDotNet directory.
 		/// </summary>
 		static property String^ IVSDKDotNetScriptsPath
@@ -264,6 +281,7 @@ namespace CLR
 		static String^ m_sIVSDKDotNetBinaryPath;
 		static String^ m_sIVSDKDotNetDataPath;
 		static String^ m_sIVSDKDotNetLogsPath;
+		static String^ m_sIVSDKDotNetPluginsPath;
 		static String^ m_sIVSDKDotNetScriptsPath;
 
 		static SettingsFile^ m_cSettings;
