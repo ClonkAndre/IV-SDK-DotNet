@@ -46,4 +46,6 @@ IMGUI_IMPL_API float    ImGui_ImplWin32_GetDpiScaleForMonitor(void* monitor); //
 // - Use together with e.g. clearing your framebuffer with zero-alpha.
 IMGUI_IMPL_API void     ImGui_ImplWin32_EnableAlphaCompositing(void* hwnd);   // HWND hwnd
 
+IMGUI_IMPL_API void ImGui_ImplWin32_WndProcKeyOnlyHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 #endif // #ifndef IMGUI_DISABLE

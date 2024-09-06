@@ -80,6 +80,7 @@
     <Compile Include="Classes\Json\Script\ScriptConfig.cs" />
     <Compile Include="Classes\Reflection.cs" />
     <Compile Include="Classes\SHDNStuff.cs" />
+    <Compile Include="Managers\PluginManager.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

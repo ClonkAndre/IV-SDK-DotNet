@@ -73,6 +73,9 @@ using namespace IVSDKDotNet::Enums;
 
 #include "defines.h"
 
+// Math
+#include "IVMatrix.h"
+
 // For any game related hooking stuff
 #include "GameHooks.h"
 
@@ -96,8 +99,7 @@ using namespace IVSDKDotNet::Enums;
 #include "NativeFunction.h"
 #include "NativeHooks.h"
 
-// Math
-#include "IVMatrix.h"
+
 
 // Important
 #include "Scripts.h"

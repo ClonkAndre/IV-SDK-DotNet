@@ -5256,10 +5256,15 @@ class ImGuiDraw
 public:
 	static bool OnWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		if (ImGui::GetCurrentContext() != nullptr && ImGuiIV::ActiveScriptWindows > 0)
+		if (ImGuiIV::ActiveScriptWindows > 0)
 		{
 			if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
 				return true;
+		}
+		else
+		{
+			// Only handle key inputs so the "IsKeyXXX" functions work even if no ImGui window is visible
+			ImGui_ImplWin32_WndProcKeyOnlyHandler(hWnd, msg, wParam, lParam);
 		}
 
 		return false;
