@@ -105,6 +105,8 @@ namespace Manager.Classes
 
             FileName = null;
             FullPath = null;
+            TheAssembly = null;
+            ThePluginInstance = null;
             EntryPoint = null;
         }
         public void Stop()

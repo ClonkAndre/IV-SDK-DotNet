@@ -8,6 +8,7 @@ using System.Reflection;
 using Manager.Classes;
 
 using IVSDKDotNet.Manager;
+using IVSDKDotNet;
 
 namespace Manager.Managers
 {
@@ -16,13 +17,31 @@ namespace Manager.Managers
 
         #region Variables
         // Lists
-        public List<FoundPlugin> activePlugins;
+        public List<FoundPlugin> ActivePlugins;
 
         // Other
         private readonly object activePluginsLockObj = new object();
         #endregion
 
+        #region Raisers
+        public void RaiseOnImGuiRenderingEvent(FoundPlugin plugin, IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
+        {
+            if (plugin == null)
+                return;
+
+            try
+            {
+                plugin.RaiseOnImGuiRendering(devicePtr, ctx);
+            }
+            catch (Exception ex)
+            {
+                HandlePluginException(plugin, 6d, "OnImGuiRendering", ex);
+            }
+        }
+        #endregion
+
         #region Methods
+
         // Load stuff
         public void LoadPlugins()
         {
@@ -32,8 +51,8 @@ namespace Manager.Managers
                 return;
             }
 
-            // Abort currently loaded IV-SDK .NET Manager plugins
-            AbortPlugins(AbortReason.Manager, false);
+            // Unload currently loaded IV-SDK .NET Manager plugins
+            UnloadPlugins(AbortReason.Manager, false);
 
             // Load IV-SDK .NET Manager plugins
             string[] pluginFiles = Directory.GetFiles(CLR.CLRBridge.IVSDKDotNetPluginsPath, "*.plug", SearchOption.TopDirectoryOnly);
@@ -42,7 +61,7 @@ namespace Manager.Managers
                 LoadAssembly(pluginFiles[i]);
 
             // Log
-            Logger.Log(string.Format("Finished loading {0} IV-SDK .NET Manager plugins.", activePlugins.Count));
+            Logger.Log(string.Format("Finished loading {0} IV-SDK .NET Manager plugins.", ActivePlugins.Count));
         }
 
         private bool LoadAssembly(string path)
@@ -98,8 +117,8 @@ namespace Manager.Managers
                     // Register AssemblyResolve event
                     //script.ScriptDomain.AssemblyResolve += ScriptDomain_AssemblyResolve;
 
-                    // Add script to activePlugins list.
-                    activePlugins.Add(new FoundPlugin(fileName, path, assembly, plugin, scriptType));
+                    // Add plugin to activePlugins list.
+                    ActivePlugins.Add(new FoundPlugin(fileName, path, assembly, plugin, scriptType));
 
                     return true;
                 }
@@ -133,26 +152,49 @@ namespace Manager.Managers
             return false;
         }
 
-        // Abort stuff
-        public void AbortPlugins(AbortReason reason, bool showMessage)
+        // Unload stuff
+        public void UnloadPlugins(AbortReason reason, bool showMessage)
         {
-            if (activePlugins.Count == 0)
+            if (ActivePlugins.Count == 0)
             {
                 if (showMessage)
-                    Logger.Log("There are no plugins to abort.");
+                    Logger.Log("There are no plugins to unload.");
 
                 return;
             }
 
-            // Abort plugins
-            activePlugins.ForEach(x => x.Abort(reason, showMessage));
-            activePlugins.Clear();
+            // Unload plugins
+            ActivePlugins.ForEach(x => x.Abort(reason, showMessage));
+            ActivePlugins.Clear();
 
             // Force garbage collection
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
         }
+
+        // Other
+        public void HandlePluginException(FoundPlugin target, double notifySecondsVisible, string eventErrorOccuredIn, Exception ex, bool isInternalEvent = false)
+        {
+            // Stop plugin so it doesn't raise any events anymore
+            target.Stop();
+
+            string pluginName = target.EntryPoint.FullName;
+
+            // Show and Log the error
+            Main.Instance.Notification.ShowNotification(
+                NotificationType.Error,
+                DateTime.UtcNow.AddSeconds(notifySecondsVisible),
+                string.Format("An error occured in IV-SDK .NET Manager plugin {0} {1}.", pluginName, eventErrorOccuredIn),
+                ex.Message,
+                string.Format("ERROR_IN_PLUGIN_{0}", pluginName));
+
+            Logger.LogError(string.Format("An error occured while processing '{0}' event for IV-SDK .NET Manager plugin '{1}'. Unloading plugin. Details: {2}", eventErrorOccuredIn, pluginName, ex));
+
+            // Unload plugin
+            UnloadPluginInternal(AbortReason.Manager, target, true);
+        }
+
         #endregion
 
         #region Functions
@@ -165,7 +207,7 @@ namespace Manager.Managers
 
             lock (activePluginsLockObj)
             {
-                fp = activePlugins.Where(x => x.FileName.ToLower() == name.ToLower()
+                fp = ActivePlugins.Where(x => x.FileName.ToLower() == name.ToLower()
                     || x.EntryPoint.FullName.ToLower() == name.ToLower()).FirstOrDefault();
             }
 
@@ -177,21 +219,34 @@ namespace Manager.Managers
 
             lock (activePluginsLockObj)
             {
-                fp = activePlugins.Where(x => x.ID == id).FirstOrDefault();
+                fp = ActivePlugins.Where(x => x.ID == id).FirstOrDefault();
             }
 
             return fp;
         }
-        #endregion
 
-        #region Events
+        public bool UnloadPluginInternal(AbortReason reason, FoundPlugin plugin, bool showMessage)
+        {
+            if (plugin != null)
+            {
+                if (showMessage)
+                    Logger.Log(string.Format("Unloading plugin {0}...", plugin.EntryPoint.FullName));
 
+                plugin.Abort(reason, showMessage);
+
+                bool result = ActivePlugins.Remove(plugin);
+                GC.Collect();
+                return result;
+            }
+
+            return false;
+        }
         #endregion
 
         #region Constructor
         public PluginManager()
         {
-            activePlugins = new List<FoundPlugin>();
+            ActivePlugins = new List<FoundPlugin>();
         }
         #endregion
 

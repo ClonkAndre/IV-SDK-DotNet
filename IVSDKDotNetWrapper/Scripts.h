@@ -623,7 +623,10 @@ namespace IVSDKDotNet
 
 		};
 
-		public ref class ManagerPlugin abstract
+		/// <summary>
+		/// Represents a plugin for the IV-SDK .NET Manager.
+		/// </summary>
+		public ref class ManagerPlugin
 		{
 		public:
 			delegate void OnFirstD3D9FrameDelegate(IntPtr devicePtr);
@@ -647,8 +650,42 @@ namespace IVSDKDotNet
 				}
 			}
 
+			/// <summary>
+			/// Gets the display name of this plugin which will show in the IV-SDK .NET Manager Plugins tab.
+			/// </summary>
+			property String^ DisplayName
+			{
+			public:
+				String^ get()
+				{
+					return m_sDisplayName;
+				}
+			private:
+				void set(String^ value)
+				{
+					m_sDisplayName = value;
+				}
+			}
+
+			/// <summary>
+			/// Gets the author of this plugin which will show in the IV-SDK .NET Manager Plugins tab.
+			/// </summary>
+			property String^ Author
+			{
+			public:
+				String^ get()
+				{
+					return m_sAuthor;
+				}
+			private:
+				void set(String^ value)
+				{
+					m_sAuthor = value;
+				}
+			}
+
 		public:
-			ManagerPlugin();
+			ManagerPlugin(String^ displayName, String^ author);
 
 		public:
 			/// <summary>
@@ -671,6 +708,8 @@ namespace IVSDKDotNet
 
 			/// <summary>
 			/// Gets raised every frame and allows you to draw stuff on the screen via the ImGuiIV_DrawingContext struct, or draw custom script windows using ImGui via the ImGuiIV wrapper class.
+			/// You are not forced to begin a new window first to add content to with this event, as its already getting called from within a ImGui window.
+			/// So, you can instantly start using ImGui and use UI Elements such as the Button, Slider etc. These components will show up in the corresponding collapsing header within the IV-SDK .NET Manger Plugins tab.
 			/// </summary>
 			event OnImGuiRenderingDelegate^ OnImGuiRendering;
 			void RaiseOnImGuiRendering(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
@@ -680,6 +719,8 @@ namespace IVSDKDotNet
 
 		private:
 			Guid m_id;
+			String^ m_sDisplayName;
+			String^ m_sAuthor;
 		};
 
 	}

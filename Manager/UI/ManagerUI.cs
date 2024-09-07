@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 using IVSDKDotNet;
@@ -29,6 +31,11 @@ namespace Manager.UI
         private static bool showIVSDKDotNetScripts = true;
         private static bool showScriptHookDotNetScripts = true;
         private static string scriptNameFilter;
+
+        // Developer
+        private static int selectedModuleIndex;
+        private static string targetModuleOffset;
+        private static string readModuleValue;
 
         // Other
         private static IntPtr ivsdkDotNetLogo;
@@ -519,7 +526,7 @@ namespace Manager.UI
         }
         #endregion
 
-        public static void DoUI()
+        public static void DoUI(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
         {
             // Show public fields of scripts in another window
             ShowPublicFieldsWindow();
@@ -548,6 +555,7 @@ namespace Manager.UI
                     DebugTab();
 #endif
                     ScriptsTab();
+                    PluginsTab(devicePtr, ctx);
                     SettingsTab();
                     AboutTab();
 
@@ -1140,6 +1148,75 @@ namespace Manager.UI
 SKIP_TO_END:
 
                 /// @separator
+                ImGuiIV.EndTabItem();
+            }
+            /// @end TabItem
+        }
+        private static void PluginsTab(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
+        {
+            /// @begin TabItem
+            if (ImGuiIV.BeginTabItem("Plugins"))
+            {
+
+                /// @begin Separator
+                ImGuiIV.SeparatorText("Details");
+                /// @end Separator
+
+                /// @begin Text
+                ImGuiIV.TextUnformatted(string.Format("Active plugins: {0}", Main.Instance.ThePluginManager.ActivePlugins.Count));
+                /// @end Text
+
+                /// @begin Separator
+                ImGuiIV.Spacing(3);
+                ImGuiIV.SeparatorText("Control");
+                /// @end Separator
+
+                /// @begin Button
+                if (ImGuiIV.Button("Reload all plugins", new Vector2(150f, 0f)))
+                {
+                    Main.Instance.ThePluginManager.LoadPlugins();
+                }
+                /// @end Button
+
+                ImGuiIV.SameLine(0, 3 * ImGuiIV.GetStyle().ItemSpacing.X);
+
+                /// @begin Button
+                if (ImGuiIV.Button("Unload all plugins", new Vector2(150f, 0f)))
+                {
+                    Main.Instance.ThePluginManager.UnloadPlugins(AbortReason.Manual, true);
+                }
+                /// @end Button
+
+                /// @begin Separator
+                ImGuiIV.Spacing(3);
+                ImGuiIV.SeparatorText("Active plugins");
+                /// @end Separator
+
+                if (Main.Instance.ThePluginManager.ActivePlugins.Count == 0)
+                {
+                    /// @begin Text
+                    ImGuiIV.TextDisabled("There are currently no active plugins.");
+                    /// @end Text
+                }
+                else
+                {
+                    for (int i = 0; i < Main.Instance.ThePluginManager.ActivePlugins.Count; i++)
+                    {
+                        FoundPlugin plugin = Main.Instance.ThePluginManager.ActivePlugins[i];
+
+                        if (!plugin.IsReady())
+                            continue;
+
+                        /// @begin CollapsingHeader
+                        if (ImGuiIV.CollapsingHeader(string.Format("{0} by {1}##IVSDKDotNetManagerPlugin", plugin.ThePluginInstance.DisplayName, plugin.ThePluginInstance.Author)))
+                        {
+                            // Allow plugin to draw their own stuff within this CollapsingHeader
+                            Main.Instance.ThePluginManager.RaiseOnImGuiRenderingEvent(plugin, devicePtr, ctx);
+                        }
+                        /// @end CollapsingHeader
+                    }
+                }
+
                 ImGuiIV.EndTabItem();
             }
             /// @end TabItem

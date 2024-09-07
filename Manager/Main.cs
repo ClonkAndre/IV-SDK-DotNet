@@ -618,7 +618,7 @@ namespace Manager
             // Draw internal stuff
             Console.DoUI();
             Notification.DoUI();
-            ManagerUI.DoUI();
+            ManagerUI.DoUI(devicePtr, ctx);
         }
         public override void RaiseOnBeforeNewImGuiFrame(IntPtr devicePtr)
         {
@@ -1382,7 +1382,7 @@ namespace Manager
                     ex.Message,
                     string.Format("ERROR_IN_SCRIPT_{0}", scriptName));
 
-                Logger.LogError(string.Format("An error occured while processing {0} event for script {1}. Aborting script. Details: {2}", eventErrorOccuredIn, scriptName, ex));
+                Logger.LogError(string.Format("An error occured while processing '{0}' event for script '{1}'. Aborting script. Details: {2}", eventErrorOccuredIn, scriptName, ex));
             }
 
             // Abort script

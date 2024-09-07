@@ -22,9 +22,11 @@ namespace IVSDKDotNet
 		// ======================================================================
 		// ========================== ManagerPlugin =============================
 		// ======================================================================
-		ManagerPlugin::ManagerPlugin()
+		ManagerPlugin::ManagerPlugin(String^ displayName, String^ author)
 		{
 			ID = Guid::NewGuid();
+			DisplayName = displayName;
+			Author = author;
 		}
 
 	}
