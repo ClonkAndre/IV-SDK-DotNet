@@ -275,7 +275,7 @@ namespace CLR
 		static bool m_bDisableScriptHookDotNetLoading = false;
 		static bool m_bDisableInputs = false;
 
-		static String^ m_sVersion = "1.6";
+		static String^ m_sVersion = "1.7";
 		static String^ m_sLogFileName;
 		static String^ m_sIVSDKDotNetPath;
 		static String^ m_sIVSDKDotNetBinaryPath;

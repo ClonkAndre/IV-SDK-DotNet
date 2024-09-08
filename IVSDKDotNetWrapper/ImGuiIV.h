@@ -3559,11 +3559,12 @@ namespace IVSDKDotNet
 		}
 		static bool BeginPopupContextItem(String^ id, eImGuiPopupFlags flags)
 		{
-			if (String::IsNullOrWhiteSpace(id))
-				return false;
-
 			msclr::interop::marshal_context ctx;
-			return ImGui::BeginPopupContextItem(ctx.marshal_as<const char*>(id), (ImGuiPopupFlags)flags);
+			return ImGui::BeginPopupContextItem(String::IsNullOrWhiteSpace(id) ? (const char*)0 : ctx.marshal_as<const char*>(id), (ImGuiPopupFlags)flags);
+		}
+		static bool BeginPopupContextItem()
+		{
+			return BeginPopupContextItem(nullptr, eImGuiPopupFlags::MouseButtonRight);
 		}
 		static bool BeginPopupContextWindow(String^ id, eImGuiPopupFlags flags)
 		{

@@ -505,6 +505,7 @@ namespace IVSDKDotNet
 	/// <summary> Internal-only IV-SDK .NET Manager stuff. </summary>
 	namespace Manager
 	{
+
 		/// <summary>
 		/// Only used for the IV-SDK .NET Manager.
 		/// There can only be one instance of this class.

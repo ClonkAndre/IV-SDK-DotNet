@@ -776,7 +776,7 @@ namespace Manager
                 LoadAssembly(scriptFiles[i]);
 
             // Log
-            Logger.Log(string.Format("Finished loading {0} IV-SDK .NET scripts.", ActiveScripts.Count(x => x.IsIVSDKDotNetScript)));
+            Logger.Log(string.Format("Finished loading {0} IV-SDK .NET script(s).", ActiveScripts.Count(x => x.IsIVSDKDotNetScript)));
         }
         public void LoadSHDNScripts()
         {
@@ -803,7 +803,7 @@ namespace Manager
                 LoadAssembly(scriptFiles[i]);
 
             // Log
-            Logger.Log(string.Format("Finished loading {0} ScriptHookDotNet scripts.", ActiveScripts.Count(x => x.IsScriptHookDotNetScript)));
+            Logger.Log(string.Format("Finished loading {0} ScriptHookDotNet script(s).", ActiveScripts.Count(x => x.IsScriptHookDotNetScript)));
         }
 
         public void LoadScript(string name)
@@ -1697,6 +1697,10 @@ namespace Manager
             // Start the server if allowed
             if (Config.AllowRemoteConnections)
                 ConnectionManager.Start(false);
+
+            // Load plugins if allowed
+            if (Config.AllowPluginLoading)
+                ThePluginManager.LoadPlugins();
         }
         #endregion
 

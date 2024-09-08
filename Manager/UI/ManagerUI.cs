@@ -942,6 +942,10 @@ namespace Manager.UI
                                         Logger.LogWarning(string.Format("Failed to reload script '{0}'!", actualName));
                                     }
                                 }
+                                else
+                                {
+                                    Logger.LogWarning(string.Format("Failed to abort script '{0}'!", actualName));
+                                }
 
                                 continue;
                             }
@@ -1200,6 +1204,12 @@ SKIP_TO_END:
                 }
                 else
                 {
+                    /// @begin Text
+                    ImGuiIV.TextDisabled("Tip: Right-click on a plugin to open up a popup which gives you some control over the plugin.");
+                    /// @end Text
+
+                    ImGuiIV.Spacing(2);
+
                     for (int i = 0; i < Main.Instance.ThePluginManager.ActivePlugins.Count; i++)
                     {
                         FoundPlugin plugin = Main.Instance.ThePluginManager.ActivePlugins[i];
@@ -1214,6 +1224,38 @@ SKIP_TO_END:
                             Main.Instance.ThePluginManager.RaiseOnImGuiRenderingEvent(plugin, devicePtr, ctx);
                         }
                         /// @end CollapsingHeader
+
+                        /// @begin Popup
+                        // When CollapsingHeader was right-clicked, a popup will appear.
+                        if (ImGuiIV.BeginPopupContextItem())
+                        {
+                            if (ImGuiIV.Selectable("Unload this plugin"))
+                            {
+                                Main.Instance.ThePluginManager.UnloadPlugin(AbortReason.Manual, plugin, true);
+                            }
+                            if (ImGuiIV.Selectable("Reload this plugin"))
+                            {
+                                string fullPath = plugin.FullPath;
+                                string actualName = plugin.EntryPoint.FullName;
+                                if (Main.Instance.ThePluginManager.UnloadPlugin(AbortReason.Manual, plugin, true))
+                                {
+                                    if (!Main.Instance.ThePluginManager.LoadAssembly(fullPath))
+                                    {
+                                        Logger.LogWarning(string.Format("Failed to reload plugin '{0}'!", actualName));
+                                    }
+                                }
+                                else
+                                {
+                                    Logger.LogWarning(string.Format("Failed to unload plugin '{0}'!", actualName));
+                                }
+                            }
+                            if (ImGuiIV.Selectable("Close popup"))
+                            {
+                                ImGuiIV.CloseCurrentPopup();
+                            }
+                            ImGuiIV.EndPopup();
+                        }
+                        /// @begin Popup
                     }
                 }
 

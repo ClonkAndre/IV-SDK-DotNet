@@ -23,6 +23,9 @@ namespace Manager.Classes
         public static bool ReloadScriptsOnReload;
         public static bool LoadScriptHookDotNetScripts;
 
+        // Plugins
+        public static bool AllowPluginLoading;
+
         // Notification
         public static bool ShowNotifications;
 
@@ -57,9 +60,12 @@ namespace Manager.Classes
 
             // Section: Scripts
             PauseScriptExecutionWhenNotInFocus =    settings.GetBoolean("Scripts", "PauseExecutionWhenNotInFocus", true);
-            DoNotLoadLegacyScripts =                settings.GetBoolean("Scripts", "DoNotLoadLegacyScripts", true);
+            DoNotLoadLegacyScripts =                settings.GetBoolean("Scripts", "DoNotLoadLegacyScripts", false);
             ReloadScriptsOnReload =                 settings.GetBoolean("Scripts", "ReloadScriptsOnReload", false);
             LoadScriptHookDotNetScripts =           settings.GetBoolean("Scripts", "LoadScriptHookDotNetScripts", true);
+
+            // Section: Plugins
+            AllowPluginLoading = settings.GetBoolean("Plugins", "AllowPluginLoading", true);
 
             // Section: Notification
             ShowNotifications = settings.GetBoolean("Notification", "ShowNotifications", true);
@@ -98,6 +104,9 @@ namespace Manager.Classes
             theSettingsFile.SetBoolean("Scripts", "ReloadScriptsOnReload", ReloadScriptsOnReload);
             theSettingsFile.SetBoolean("Scripts", "LoadScriptHookDotNetScripts", LoadScriptHookDotNetScripts);
 
+            // Section: Plugins
+            theSettingsFile.SetBoolean("Plugins", "AllowPluginLoading", AllowPluginLoading);
+
             // Section: Notification
             theSettingsFile.SetBoolean("Notification", "ShowNotifications", ShowNotifications);
 
@@ -131,9 +140,12 @@ namespace Manager.Classes
 
             // Section: Scripts
             PauseScriptExecutionWhenNotInFocus = true;
-            DoNotLoadLegacyScripts = true;
+            DoNotLoadLegacyScripts = false;
             ReloadScriptsOnReload = false;
             LoadScriptHookDotNetScripts = true;
+
+            // Section: Plugins
+            AllowPluginLoading = true;
 
             // Section: Notification
             ShowNotifications = true;

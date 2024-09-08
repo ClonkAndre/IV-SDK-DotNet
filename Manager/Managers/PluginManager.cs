@@ -61,10 +61,10 @@ namespace Manager.Managers
                 LoadAssembly(pluginFiles[i]);
 
             // Log
-            Logger.Log(string.Format("Finished loading {0} IV-SDK .NET Manager plugins.", ActivePlugins.Count));
+            Logger.Log(string.Format("Finished loading {0} IV-SDK .NET Manager plugin(s).", ActivePlugins.Count));
         }
 
-        private bool LoadAssembly(string path)
+        public bool LoadAssembly(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return false;
@@ -192,7 +192,7 @@ namespace Manager.Managers
             Logger.LogError(string.Format("An error occured while processing '{0}' event for IV-SDK .NET Manager plugin '{1}'. Unloading plugin. Details: {2}", eventErrorOccuredIn, pluginName, ex));
 
             // Unload plugin
-            UnloadPluginInternal(AbortReason.Manager, target, true);
+            UnloadPlugin(AbortReason.Manager, target, true);
         }
 
         #endregion
@@ -225,7 +225,7 @@ namespace Manager.Managers
             return fp;
         }
 
-        public bool UnloadPluginInternal(AbortReason reason, FoundPlugin plugin, bool showMessage)
+        public bool UnloadPlugin(AbortReason reason, FoundPlugin plugin, bool showMessage)
         {
             if (plugin != null)
             {
