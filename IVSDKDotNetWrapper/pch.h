@@ -150,6 +150,8 @@ using namespace IVSDKDotNet::Enums;
 #include "IVPedWeapons.h"
 #include "IVPedDrawableInfo.h"
 #include "IVPedComponentModels.h"
+#include "IVPedIntelligence.h"
+#include "IVPedIntelligenceNY.h"
 #include "IVPed.h"
 #include "IVPedFactoryNY.h"
 

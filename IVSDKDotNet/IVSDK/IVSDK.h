@@ -79,7 +79,9 @@ namespace plugin
 #include "CVisibilityPlugins.h"
 #include "CNetwork.h"
 #include "CShadows.h"
+
 #include "CWeaponInfo.h"
+
 #include "CClock.h"
 #include "CCutsceneMgr.h"
 #include "CRenderPhase.h"

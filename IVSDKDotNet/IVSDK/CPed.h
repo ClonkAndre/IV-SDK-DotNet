@@ -1,5 +1,4 @@
 class CPhysical;
-//class CPedIntelligenceNY;
 class CPlayerInfo;
 class CPedDataNY;
 class CObject;
@@ -91,37 +90,20 @@ struct tPedComponentModels
 };
 VALIDATE_OFFSET(tPedComponentModels, m_pPedBoneDamageFX, 0x58);
 
-class CTask;
-class CPedTaskManager
-{
-public:
-	CTask* m_pPrimaryTasks[5];
-	CTask* m_pSecondaryTasks[6];
-	CTask* m_pMovementTasks[3];
-	CPed* m_pPed;
-};
-
 class CPedIntelligence
 {
 public:
 	uint8_t pad1[0x40];
-	CPedTaskManager m_pedTaskManager;
-	void* m_EventGroup;
-	uint8_t pad2[0x24];
-	void* m_VehicleScanner;
-	void* m_PedScanner;
-	void* m_ObjectScanner;
-	uint8_t pad3[0xD8];
-	void* m_pTaskInfo;
-	void* m_pAmbientsInfo;
-	uint32_t unk1;
-	uint32_t unk2;
+	CPed* m_pPed;
+	uint8_t pad2[0x9C];
+	float m_fSenseRange1;
+	float m_fSenseRange2;
 };
 class CPedIntelligenceNY : public CPedIntelligence
 {
 public:
-	void* m_eventHandler;
-	void* m_eventScanner;
+	uint32_t* m_pEventHandler;
+	uint32_t* m_pEventScanner;
 };
 
 class CPed : public CPhysical

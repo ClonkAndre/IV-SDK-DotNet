@@ -51,10 +51,13 @@ namespace IVSDKDotNet
 		public:
 			delegate HookCallback<int> AddSceneLightDelegate(uint32_t a1, uint32_t nLightType, uint32_t nFlags, Vector3 vDir, Vector3 vTanDir, Vector3 vPos, Vector3 vColor, float fIntensity, int32_t texHash, int32_t txdSlot, float fRange, float fInnerConeAngle, float fOuterConeAngle, float fVolIntensity, float fVolSizeScale, int32_t interiorId, uint32_t a15, uint32_t nID);
 			delegate HookCallback<int> RenderCoronaDelegate(int id, Color color, float a5, Vector3 pos, float range, float a8, float a9, int a10, float a11, char a12, char a13, int a14);
+			delegate HookCallback<int> GetTrafficLightStateDelegate(bool a1, int timeOffsetMilliseconds);
 
 		public:
 			static event AddSceneLightDelegate^ OnAddSceneLight;
 			static event RenderCoronaDelegate^ OnRenderCorona;
+			static event GetTrafficLightStateDelegate^ OnGetTrafficLightState1;
+			static event GetTrafficLightStateDelegate^ OnGetTrafficLightState2;
 
 		internal:
 			static HookCallback<int> RaiseOnAddSceneLight(uint32_t a1, uint32_t nLightType, uint32_t nFlags, CVector* vDir, CVector* vTanDir, CVector* vPos, CVector* vColor, float fIntensity, int32_t texHash, int32_t txdSlot, float fRange, float fInnerConeAngle, float fOuterConeAngle, float fVolIntensity, float fVolSizeScale, int32_t interiorId, uint32_t a15, uint32_t nID)
@@ -93,6 +96,14 @@ namespace IVSDKDotNet
 					a12,
 					a13,
 					a14);
+			}
+			static HookCallback<int> RaiseOnGetTrafficLightState1(bool a1, int timeOffsetMilliseconds)
+			{
+				return OnGetTrafficLightState1(a1, timeOffsetMilliseconds);
+			}
+			static HookCallback<int> RaiseOnGetTrafficLightState2(bool a1, int timeOffsetMilliseconds)
+			{
+				return OnGetTrafficLightState2(a1, timeOffsetMilliseconds);
 			}
 
 		};
@@ -138,12 +149,47 @@ public:
 			Logger::LogDebug("[GameHooks] Hooked RenderCorona func.");
 		}
 
+		// GetTrafficLightState1 func hook
+		if (!originalGetTrafficLightState1)
+		{
+			// First patterns test (Works for 1070 and 1080 other versions are yet to be tested)
+			// 80 7C 24 04 00 8B 44 24 08 74 28      (FUNC: 80 7C 24 04 00 8B 44 24 08 74) // 1070: 0x88C6F0
+			auto scan = hook::pattern(std::string_view("80 7C 24 04 00 8B 44 24 08 74 28"));
+
+			mhStatus = MH_CreateHook((LPVOID*)scan.get_first(0), &GetTrafficLightState1, (void**)&originalGetTrafficLightState1);
+
+			if (mhStatus != MH_OK)
+			{
+				Logger::LogError(String::Format("[GameHooks] Could not hook GetTrafficLightState1 func! Details: {0}", gcnew String(MH_StatusToString(mhStatus))));
+				return false;
+			}
+		}
+
+		// GetTrafficLightState2 func hook
+		if (!originalGetTrafficLightState2)
+		{
+			// First patterns test (Works for 1070 and 1080 other versions are yet to be tested)
+			// 80 7C 24 04 00 74 2F      (FUNC: 80 7C 24 04 00 74 2F) // 1070: 0x88C750
+			auto scan = hook::pattern(std::string_view("80 7C 24 04 00 74 2F"));
+
+			mhStatus = MH_CreateHook((LPVOID*)scan.get_first(0), &GetTrafficLightState2, (void**)&originalGetTrafficLightState2);
+
+			if (mhStatus != MH_OK)
+			{
+				Logger::LogError(String::Format("[GameHooks] Could not hook GetTrafficLightState2 func! Details: {0}", gcnew String(MH_StatusToString(mhStatus))));
+				return false;
+			}
+		}
+
 		return true;
 	}
 
 private:
 	static inline AddSceneLightT* originalAddSceneLight;
 	static inline RenderCoronaT* originalRenderCorona;
+
+	static inline GetTrafficLightStateT* originalGetTrafficLightState1;
+	static inline GetTrafficLightStateT* originalGetTrafficLightState2;
 
 private:
 	static inline int __cdecl AddSceneLightHook(uint32_t a1, uint32_t nLightType, uint32_t nFlags, CVector* vDir, CVector* vTanDir, CVector* vPos, CVector* vColor, float fIntensity, int32_t texHash, int32_t txdSlot, float fRange, float fInnerConeAngle, float fOuterConeAngle, float fVolIntensity, float fVolSizeScale, int32_t interiorId, uint32_t a15, uint32_t nID)
@@ -167,6 +213,30 @@ private:
 
 		// Call original function if allowed to
 		return originalRenderCorona(id, r, g, b, a5, pos, range, a8, a9, a10, a11, a12, a13, a14);
+	}
+
+	// a1 = When set to false: Times them signals differently
+	static inline int __cdecl GetTrafficLightState1(bool a1, int timeOffsetMilliseconds)
+	{
+		// Raise managed event
+		IVSDKDotNet::Hooking::HookCallback<int> callback = IVSDKDotNet::Hooking::GameHooks::RaiseOnGetTrafficLightState1(a1, timeOffsetMilliseconds);
+
+		if (callback.InterceptCall)
+			return callback.CustomReturnValue;
+
+		// Call original function if allowed to
+		return originalGetTrafficLightState1(a1, timeOffsetMilliseconds);
+	}
+	static inline int __cdecl GetTrafficLightState2(bool a1, int timeOffsetMilliseconds)
+	{
+		// Raise managed event
+		IVSDKDotNet::Hooking::HookCallback<int> callback = IVSDKDotNet::Hooking::GameHooks::RaiseOnGetTrafficLightState2(a1, timeOffsetMilliseconds);
+
+		if (callback.InterceptCall)
+			return callback.CustomReturnValue;
+
+		// Call original function if allowed to
+		return originalGetTrafficLightState2(a1, timeOffsetMilliseconds);
 	}
 
 };

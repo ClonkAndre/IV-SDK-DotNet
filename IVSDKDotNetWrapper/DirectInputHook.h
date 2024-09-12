@@ -9,7 +9,7 @@ static DInput8DeviceAcquireT* g_sDInput8DeviceAcquireOriginal = nullptr;
 static HRESULT __stdcall DInput8DeviceGetDeviceStateHook(IDirectInputDevice8* device, DWORD cbData, LPVOID lpvData)
 {
 	HRESULT hr = g_sDInput8DeviceGetDeviceStateOriginal(device, cbData, lpvData);
-
+	
 	if ((cbData == sizeof(DIMOUSESTATE) || cbData == sizeof(DIMOUSESTATE2)) && CLR::CLRBridge::DisableInputs)
 		device->Unacquire();
 
@@ -74,7 +74,7 @@ public:
 	static bool GetDInput8DeviceVTable(void** vtable)
 	{
 		IDirectInput8W* dinput8 = nullptr;
-
+		
 		// Create DirectInput8 device
 		if (DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8W, (void**)&dinput8, 0) != DI_OK)
 			return false;

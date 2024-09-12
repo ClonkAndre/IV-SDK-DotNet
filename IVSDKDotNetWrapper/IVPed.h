@@ -1503,20 +1503,20 @@ namespace IVSDKDotNet
 				NativePed->m_pDrawableInfo = value->NativePedDrawableInfo;
 			}
 		}
-		property UIntPtr PedIntelligence
+		property IVPedIntelligenceNY^ PedIntelligence
 		{
 		public:
-			UIntPtr get()
+			IVPedIntelligenceNY^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativePed, UIntPtr::Zero);
-				NULLPTR_CHECK_WITH_RETURN(NativePed->m_pPedIntelligence, UIntPtr::Zero);
-				return UIntPtr(NativePed->m_pPedIntelligence);
+				NULLPTR_CHECK_WITH_RETURN(NativePed, nullptr);
+				NULLPTR_CHECK_WITH_RETURN(NativePed->m_pPedIntelligence, nullptr);
+				return gcnew IVPedIntelligenceNY(NativePed->m_pPedIntelligence);
 			}
-			void set(UIntPtr value)
+			void set(IVPedIntelligenceNY^ value)
 			{
 				NULLPTR_CHECK(NativePed);
-				UINTPTR_ZERO_CHECK(value);
-				NativePed->m_pPedIntelligence = (CPedIntelligenceNY*)value.ToPointer();
+				NULLPTR_CHECK(value);
+				NativePed->m_pPedIntelligence = (CPedIntelligenceNY*)value->NativePedIntelligenceNY;
 			}
 		}
 		property IVPlayerInfo^ PlayerInfo

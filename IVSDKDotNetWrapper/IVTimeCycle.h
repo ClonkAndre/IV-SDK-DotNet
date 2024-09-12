@@ -1291,6 +1291,12 @@ namespace IVSDKDotNet
 	public:
 		IVTimeCycleParams^ GetTimeCycleParams(int32_t gameHour, int32_t weather);
 
+		generic <typename T>
+		T GetSingleTimeCycleParameter(int32_t gameHour, int32_t weather, eTimeCycleParam param);
+
+		generic <typename T>
+		bool SetSingleTimeCycleParameter(int32_t gameHour, int32_t weather, eTimeCycleParam param, T value);
+
 	internal:
 		IVTimeCycle(CTimeCycle* nativePtr);
 
