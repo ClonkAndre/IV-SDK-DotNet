@@ -5298,11 +5298,6 @@ public:
 		// Get the main Viewport of ImGui
 		ImGuiViewport* vp = ImGui::GetMainViewport();
 
-		// Set the mouse position
-		POINT cursorPos;
-		if (GetCursorPos(&cursorPos))
-			io.MousePos = ImVec2(cursorPos.x, cursorPos.y);
-
 		// Invoke on before ImGui new frame event
 		if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
 			IVSDKDotNet::Manager::ManagerScript::s_Instance->RaiseOnBeforeNewImGuiFrame(d3d9DevicePointer);

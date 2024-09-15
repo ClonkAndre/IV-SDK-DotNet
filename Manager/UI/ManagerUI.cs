@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 using IVSDKDotNet;
@@ -313,6 +313,68 @@ namespace Manager.UI
                                 info.SetValue(foundScript.TheScriptObject, new PointF(arr[0], arr[1]));
                         }
                         break;
+                    case SupportedPublicFields._IList:
+                        {
+                            object obj = info.GetValue(foundScript.TheScriptObject);
+
+                            if (obj == null)
+                            {
+                                ImGuiIV.SameLine(0f, 30f);
+                                ImGuiIV.TextColored(Color.Yellow, "This list is not initialized yet.");
+                                break;
+                            }
+
+                            IList value = (IList)obj;
+                            
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            ImGuiIV.TextColored(Color.Yellow, "There are {0} element(s) in this list.", value.Count);
+
+                            if (ImGuiIV.TreeNode(string.Format("Click to show content of {0}.", info.Name)))
+                            {
+                                ImGuiIV.SetNextItemWidth(ImGuiIV.GetContentRegionAvail().X);
+                                if (ImGuiIV.BeginListBox(string.Format("##{0}", info.Name)))
+                                {
+                                    for (int i = 0; i < value.Count; i++)
+                                        ImGuiIV.Selectable(value[i].ToString());
+
+                                    ImGuiIV.EndListBox();
+                                }
+                                ImGuiIV.TreePop();
+                            }
+                        }
+                        break;
+                    case SupportedPublicFields._ICollection:
+                        {
+                            object obj = info.GetValue(foundScript.TheScriptObject);
+
+                            if (obj == null)
+                            {
+                                ImGuiIV.SameLine(0f, 30f);
+                                ImGuiIV.TextColored(Color.Yellow, "This collection is not initialized yet.");
+                                break;
+                            }
+
+                            ICollection value = (ICollection)obj;
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            ImGuiIV.TextColored(Color.Yellow, "There are {0} element(s) in this collection.", value.Count);
+
+                            if (ImGuiIV.TreeNode(string.Format("Click to show content of {0}.", info.Name)))
+                            {
+                                ImGuiIV.SetNextItemWidth(ImGuiIV.GetContentRegionAvail().X);
+                                if (ImGuiIV.BeginListBox(string.Format("##{0}", info.Name)))
+                                {
+                                    foreach (object item in value)
+                                        ImGuiIV.Selectable(item.ToString());
+
+                                    ImGuiIV.EndListBox();
+                                }
+                                ImGuiIV.TreePop();
+                            }
+                        }
+                        break;
                 }
 
                 if (readOnlyAttributeSet)
@@ -327,6 +389,11 @@ namespace Manager.UI
                     ImGuiIV.SameLine();
                     ImGuiIV.HelpMarker(attr.Text);
                 }
+
+#if DEBUG
+                ImGuiIV.SameLine();
+                ImGuiIV.TextDisabled(info.FieldType.FullName);
+#endif
             }
         }
         #endregion
@@ -501,28 +568,23 @@ namespace Manager.UI
                 return true;
             }
 
+            // List
+            else if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                fieldType = SupportedPublicFields._IList;
+                return true;
+            }
+
+            // Dictionary
+            else if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+            {
+                fieldType = SupportedPublicFields._ICollection;
+                return true;
+            }
+
             // Unsupported
             fieldType = SupportedPublicFields.Unknown;
             return false;
-
-            //return t == typeof(byte)
-            //    || t == typeof(sbyte)
-            //    || t == typeof(short)
-            //    || t == typeof(ushort)
-            //    || t == typeof(int)
-            //    || t == typeof(uint)
-            //    || t == typeof(long)
-            //    || t == typeof(ulong)
-            //    || t == typeof(float)
-            //    || t == typeof(double)
-            //    || t == typeof(decimal)
-            //    || t == typeof(bool)
-            //    || t == typeof(string)
-            //    || t == typeof(Vector2)
-            //    || t == typeof(Vector3)
-            //    || t == typeof(Vector4)
-            //    || t == typeof(Quaternion)
-            //    || t == typeof(Color);
         }
         #endregion
 

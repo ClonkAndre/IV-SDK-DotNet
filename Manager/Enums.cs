@@ -137,6 +137,8 @@
         _SizeF,
         _Point,
         _PointF,
+        _IList,
+        _ICollection
     }
 
 }
