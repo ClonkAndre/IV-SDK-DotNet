@@ -50,5 +50,30 @@ namespace IVSDKDotNet
 		/// <param name="fRange">Light Range.</param>
 		static void StoreStaticShadow(bool castShadows, Vector3 vPos, Color vColor, float fIntensity, float fRange);
 
+		/// <summary>
+		/// Renders a corona. This function will probably be moved somewhere else in the future!
+		/// </summary>
+		/// <param name="id">The id of the corona.</param>
+		/// <param name="color">The color of the corona.</param>
+		/// <param name="a5">Unk.</param>
+		/// <param name="pos">The position of where to place the corona.</param>
+		/// <param name="range">The size of the corona.</param>
+		/// <param name="a8">Unk.</param>
+		/// <param name="a9">Unk.</param>
+		/// <param name="a10">Unk.</param>
+		/// <param name="a11">Unk.</param>
+		/// <param name="a12">Unk.</param>
+		/// <param name="a13">Unk.</param>
+		/// <param name="a14">Unk.</param>
+		static void RenderCorona(int id, Color color, float a5, Vector3 pos, float range, float a8, float a9, int a10, float a11, char a12, char a13, int a14)
+		{
+			CVector m_vPos;
+			m_vPos.x = pos.X;
+			m_vPos.y = pos.Y;
+			m_vPos.z = pos.Z;
+
+			CShadows::RenderCorona(id, color.R, color.G, color.B, a5, &m_vPos, range, a8, a9, a10, a11, a12, a13, a14);
+		}
+
 	};
 }

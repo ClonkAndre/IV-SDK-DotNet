@@ -3,6 +3,7 @@
 
 namespace IVSDKDotNet
 {
+
 	// - - - Methods / Functions - - -
 	bool IVProjectileInfo::AddProjectile(IVEntity^ pEntProjOwner, int projType, IVMatrix^ pMatrix, Vector3 vecStart, Vector3 vecEnd, IVEntity^ pTargetEntity, bool noMPSync, IVObject^ pProjectileObject)
 	{
@@ -35,4 +36,5 @@ namespace IVSDKDotNet
 
 		return result;
 	}
+
 }

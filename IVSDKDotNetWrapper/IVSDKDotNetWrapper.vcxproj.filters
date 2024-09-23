@@ -603,6 +603,18 @@
     <ClInclude Include="IVDrawRadioHudTextDC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IVPedIntelligenceNY.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IVPedIntelligence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IVPedTasks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IVControlledByInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MemoryAccess.cpp">
@@ -1101,6 +1113,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IVDrawRadioHudTextDC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IVPedIntelligenceNY.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IVPedIntelligence.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IVPedTasks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IVControlledByInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

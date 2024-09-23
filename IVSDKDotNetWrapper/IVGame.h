@@ -185,6 +185,20 @@ namespace IVSDKDotNet
 			}
 		}
 
+		// TODO: Add it to IV-SDK
+		//static property int MenuState
+		//{
+		//public:
+		//	int get()
+		//	{
+		//		return AddressSetter::GetRef<int>(0x0, (0x10FC650 - 0x400000));
+		//	}
+		//	void set(int value)
+		//	{
+		//		((void(__cdecl*)(int))(AddressSetter::Get(0x0, 0x3BDD80)))(value);
+		//	}
+		//}
+
 	public:
 		/// <summary>
 		/// Undocumented.

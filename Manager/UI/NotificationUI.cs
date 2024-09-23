@@ -13,7 +13,7 @@ namespace Manager.UI
     {
 
         #region Variables
-        public List<NotificationItem> Items;
+        private List<NotificationItem> items;
         #endregion
 
         #region Classes
@@ -48,7 +48,7 @@ namespace Manager.UI
         #region Methods
         public void Cleanup()
         {
-            Items.Clear();
+            items.Clear();
         }
         #endregion
 
@@ -66,7 +66,7 @@ namespace Manager.UI
 
             // Add notification to list
             NotificationItem item = new NotificationItem(type, title, description, tag);
-            Items.Add(item);
+            items.Add(item);
 
             // Start delayed action to remove the notification item
             Main.Instance.StartDelayedAction(Guid.NewGuid(), "Removing notification", showTime, (DelayedAction dA, object obj) =>
@@ -79,11 +79,12 @@ namespace Manager.UI
 
             return true;
         }
+
         private bool DoesNotificationExistsWithTag(string tag)
         {
-            for (int i = 0; i < Items.Count; i++)
+            for (int i = 0; i < items.Count; i++)
             {
-                NotificationItem item = Items[i];
+                NotificationItem item = items[i];
 
                 if (string.IsNullOrEmpty(item.Tag))
                     return false;
@@ -104,6 +105,8 @@ namespace Manager.UI
                         Vector4 originalBorderColor = ImGuiIV.GetStyle().Colors[(int)eImGuiCol.Border];
                         return new Vector3(originalBorderColor.X, originalBorderColor.Y, originalBorderColor.Z);
                     }
+                case NotificationType.Info:
+                    return new Vector3(0.0f, 0.533f, 1.0f);
                 case NotificationType.Warning:
                     return new Vector3(1.0f, 1.0f, 0.0f);
                 case NotificationType.Error:
@@ -118,7 +121,7 @@ namespace Manager.UI
         #region Constructor
         internal NotificationUI()
         {
-            Items = new List<NotificationItem>();
+            items = new List<NotificationItem>();
         }
         #endregion
 
@@ -126,9 +129,9 @@ namespace Manager.UI
         {
             bool open = true;
 
-            for (int i = 0; i < Items.Count; i++)
+            for (int i = 0; i < items.Count; i++)
             {
-                NotificationItem item = Items[i];
+                NotificationItem item = items[i];
 
                 // Fading
                 if (item.FadeOut)
@@ -144,7 +147,7 @@ namespace Manager.UI
                     if (item.Alpha <= 0.0f)
                     {
                         item.FadeOut = false;
-                        Items.RemoveAt(i);
+                        items.RemoveAt(i);
                         continue;
                     }
                 }

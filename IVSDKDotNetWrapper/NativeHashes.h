@@ -1,7 +1,9 @@
 #pragma once
 
-namespace IVSDKDotNet {
-	namespace Native {
+namespace IVSDKDotNet
+{
+	namespace Native
+	{
 
 		public enum class eNativeHash
 		{

@@ -15,3 +15,5 @@ typedef DWORD(WINAPI* XInputGetState_t)(DWORD, XINPUT_STATE*);
 
 // Game Functions
 typedef int(__cdecl AddSceneLightT)(uint32_t, uint32_t, uint32_t, CVector*, CVector*, CVector*, CVector*, float, int32_t, int32_t, float, float, float, float, float, int32_t, uint32_t, uint32_t);
+typedef int(__cdecl RenderCoronaT)(int, uint8_t, uint8_t, uint8_t, float, CVector*, float, float, float, int, float, char, char, int);
+typedef int(__cdecl GetTrafficLightStateT)(bool, int);

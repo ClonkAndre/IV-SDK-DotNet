@@ -64,16 +64,6 @@ namespace Manager.UI
         {
             Logger.ClearLogItems();
         }
-
-        private void Secrittzzz()
-        {
-            DateTime dtNow = DateTime.UtcNow;
-
-            if (dtNow.Day == 4 && dtNow.Month == 7)
-                Logger.Log("Happy birthday to ItsClonkAndre!");
-            if (dtNow.Day == 22 && dtNow.Month == 10)
-                Logger.Log(string.Format("IV-SDK .NET got {0} years old today!", dtNow.Year - 2022));
-        }
         #endregion
 
         #region Functions
@@ -195,7 +185,7 @@ namespace Manager.UI
                 if (playerPed != null)
                 {
                     Vector3 playerPos = playerPed.Matrix.Pos;
-
+                    
                     bool success = false;
                     string str = string.Format("X: {0} Y: {1} Z: {2} H: {3}",
                         playerPos.X.ToString(CultureInfo.InvariantCulture),                 // 0
@@ -278,9 +268,11 @@ namespace Manager.UI
             }
 
             // Teleport
-            IVPed.FromUIntPtr(playerPtr).Teleport(new Vector3(x, y, z), false, true);
-
-            Logger.LogWarning(string.Format("Teleported the player to location X: {0}, Y: {1}, Z: {2}", x, y, z));
+            Main.Instance.ActionQueue.Enqueue(() =>
+            {
+                IVPed.FromUIntPtr(playerPtr).Teleport(new Vector3(x, y, z), false, true);
+                Logger.Log(string.Format("Teleported the player to location X: {0}, Y: {1}, Z: {2}", x, y, z));
+            });
         }
         private void QuitCommand()
         {
@@ -306,8 +298,6 @@ namespace Manager.UI
             // Create commands dictionary and register default commands
             localCommands = new Dictionary<string, Action<string[]>>();
             RegisterDefaultCommands();
-
-            Secrittzzz();
         }
         #endregion
 

@@ -7,6 +7,7 @@
 // https://github.com/ocornut/imgui
 
 extern IMGUI_IMPL_API LONG_PTR ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+extern IMGUI_IMPL_API void ImGui_ImplWin32_WndProcKeyOnlyHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace IVSDKDotNet
 {
@@ -3559,11 +3560,12 @@ namespace IVSDKDotNet
 		}
 		static bool BeginPopupContextItem(String^ id, eImGuiPopupFlags flags)
 		{
-			if (String::IsNullOrWhiteSpace(id))
-				return false;
-
 			msclr::interop::marshal_context ctx;
-			return ImGui::BeginPopupContextItem(ctx.marshal_as<const char*>(id), (ImGuiPopupFlags)flags);
+			return ImGui::BeginPopupContextItem(String::IsNullOrWhiteSpace(id) ? (const char*)0 : ctx.marshal_as<const char*>(id), (ImGuiPopupFlags)flags);
+		}
+		static bool BeginPopupContextItem()
+		{
+			return BeginPopupContextItem(nullptr, eImGuiPopupFlags::MouseButtonRight);
 		}
 		static bool BeginPopupContextWindow(String^ id, eImGuiPopupFlags flags)
 		{
@@ -5256,10 +5258,15 @@ class ImGuiDraw
 public:
 	static bool OnWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		if (ImGui::GetCurrentContext() != nullptr && ImGuiIV::ActiveScriptWindows > 0)
+		if (ImGuiIV::ActiveScriptWindows > 0)
 		{
 			if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
 				return true;
+		}
+		else
+		{
+			// Only handle key inputs so the "IsKeyXXX" functions work even if no ImGui window is visible
+			ImGui_ImplWin32_WndProcKeyOnlyHandler(hWnd, msg, wParam, lParam);
 		}
 
 		return false;
@@ -5290,11 +5297,6 @@ public:
 
 		// Get the main Viewport of ImGui
 		ImGuiViewport* vp = ImGui::GetMainViewport();
-
-		// Set the mouse position
-		POINT cursorPos;
-		if (GetCursorPos(&cursorPos))
-			io.MousePos = ImVec2(cursorPos.x, cursorPos.y);
 
 		// Invoke on before ImGui new frame event
 		if (IVSDKDotNet::Manager::ManagerScript::s_Instance)

@@ -1,5 +1,4 @@
 class CPhysical;
-//class CPedIntelligenceNY;
 class CPlayerInfo;
 class CPedDataNY;
 class CObject;
@@ -52,11 +51,11 @@ struct PedWeaponSlot
 
 struct PedWeapons
 {
-	uint8_t weaponspad1[0x18];											// 00-18 CPed 2B0-2C8
+	uint8_t pad[0x18];													// 00-18 CPed 2B0-2C8
 	uint32_t m_nActiveWeaponSlot;										// 18-1C CPed 2C8-2CC
-	uint8_t weaponspad2[0x10];											// 1C-2C CPed 2CC-2DC
+	uint8_t pad2[0x10];													// 1C-2C CPed 2CC-2DC
 	CObject* m_pWeaponObject;											// 2C-30 CPed 2DC-2E0
-	uint8_t weaponspad3[0xC];											// 30-3C CPed 2E0-388
+	uint8_t pad3[0xC];													// 30-3C CPed 2E0-388
 	PedWeaponSlot m_aWeapons[12];										// 3C-CC CPed 2EC-37C
 
 	void GiveWeapon(int weaponType, uint32_t ammoQuantity, bool unk1, bool unk2, bool unk3)
@@ -64,10 +63,10 @@ struct PedWeapons
 		((void(__thiscall*)(PedWeapons*, int, uint32_t, bool, bool, bool))(AddressSetter::Get(0x5AB750, 0x5CD690)))(this, weaponType, ammoQuantity, unk1, unk2, unk3);
 	}
 };
-VALIDATE_SIZE(PedWeapons, 0xCC);
-VALIDATE_OFFSET(PedWeapons, m_nActiveWeaponSlot, 0x18);
-VALIDATE_OFFSET(PedWeapons, m_pWeaponObject, 0x2C);
-VALIDATE_OFFSET(PedWeapons, m_aWeapons, 0x3C);
+//VALIDATE_SIZE(PedWeapons, 0xCC);
+//VALIDATE_OFFSET(PedWeapons, m_nActiveWeaponSlot, 0x18);
+//VALIDATE_OFFSET(PedWeapons, m_pWeaponObject, 0x2C);
+//VALIDATE_OFFSET(PedWeapons, m_aWeapons, 0x3C);
 
 // incomplete - needs props
 struct tPedDrawableInfo
@@ -91,37 +90,30 @@ struct tPedComponentModels
 };
 VALIDATE_OFFSET(tPedComponentModels, m_pPedBoneDamageFX, 0x58);
 
-class CTask;
-class CPedTaskManager
+class CPedTasks
 {
 public:
-	CTask* m_pPrimaryTasks[5];
-	CTask* m_pSecondaryTasks[6];
-	CTask* m_pMovementTasks[3];
-	CPed* m_pPed;
+	CTask* m_pPrimaryTasks[5];		// 00-14
+	CTask* m_pSecondaryTasks[6];	// 14-2C
+	CTask* m_pMovementTasks[3];		// 2C-38
+	CPed* m_pOwnerPed;				// 38-3C
 };
 
 class CPedIntelligence
 {
 public:
 	uint8_t pad1[0x40];
-	CPedTaskManager m_pedTaskManager;
-	void* m_EventGroup;
-	uint8_t pad2[0x24];
-	void* m_VehicleScanner;
-	void* m_PedScanner;
-	void* m_ObjectScanner;
-	uint8_t pad3[0xD8];
-	void* m_pTaskInfo;
-	void* m_pAmbientsInfo;
-	uint32_t unk1;
-	uint32_t unk2;
+	CPed* m_pOwnerPed;
+	CPedTasks m_Tasks;
+	uint8_t pad2[0x98]; // 0x9C
+	float m_fSenseRange1;
+	float m_fSenseRange2;
 };
 class CPedIntelligenceNY : public CPedIntelligence
 {
 public:
-	void* m_eventHandler;
-	void* m_eventScanner;
+	uint32_t* m_pEventHandler;
+	uint32_t* m_pEventScanner;
 };
 
 class CPed : public CPhysical
@@ -163,7 +155,7 @@ public:																	// 000-210
 		unsigned int _f11 : 1;
 		unsigned int _f12 : 1;
 		unsigned int _f13 : 1;
-		unsigned int _f14 : 1;
+		unsigned int bIsBleeding : 1;
 		unsigned int _f15 : 1;
 		unsigned int _f16 : 1;
 		unsigned int _f17 : 1;
@@ -182,9 +174,9 @@ public:																	// 000-210
 		unsigned int _f0 : 1;
 		unsigned int _f1 : 1;
 		unsigned int _f2 : 1;
-		unsigned int _f3 : 1;
+		unsigned int bIsWantedByPolice : 1;
 		unsigned int _f4 : 1;
-		unsigned int _f5 : 1;
+		unsigned int bIsDruggedUp : 1;
 		unsigned int _f6 : 1;
 		unsigned int _f7 : 1;
 		unsigned int bWillFlyThroughWindscreen : 1;
@@ -198,7 +190,7 @@ public:																	// 000-210
 		unsigned int _f10 : 1;
 		unsigned int _f11 : 1;
 		unsigned int _f12 : 1;
-		unsigned int _f13 : 1;
+		unsigned int bIsEnemy : 1;
 		unsigned int _f14 : 1;
 		unsigned int _f15 : 1;
 		unsigned int _f16 : 1;
@@ -259,10 +251,51 @@ public:																	// 000-210
 	uint8_t pad9[0xFA];													// 38A-484
 	CEntity* m_pStandingOnEntity;										// 484-488
 	uint8_t pad10[0x194];												// 488-61C
+	
 	uint32_t m_nVoiceHash;												// 61C-620
-	uint8_t pad11[0x19C];												// 620-7BC
+	uint8_t pad11[0x160]; // WAS 0x19C BEFORE							// 620-7BC
+
+	struct
+	{
+		unsigned int bIsDrunk : 1;
+		unsigned int _f1 : 1;
+		unsigned int _f2 : 1;
+		unsigned int _f3 : 1;
+		unsigned int _f4 : 1;
+		unsigned int _f5 : 1;
+		unsigned int _f6 : 1;
+		unsigned int _f7 : 1;
+		unsigned int _f8 : 1;
+		unsigned int _f9 : 1;
+		unsigned int _fa : 1;
+		unsigned int _fb : 1;
+		unsigned int _fc : 1;
+		unsigned int _fd : 1;
+		unsigned int _fe : 1;
+		unsigned int _ff : 1;
+		unsigned int _f10 : 1;
+		unsigned int _f11 : 1;
+		unsigned int _f12 : 1;
+		unsigned int _f13 : 1;
+		unsigned int _f14 : 1;
+		unsigned int _f15 : 1;
+		unsigned int _f16 : 1;
+		unsigned int _f17 : 1;
+		unsigned int _f18 : 1;
+		unsigned int _f19 : 1;
+		unsigned int _f1a : 1;
+		unsigned int _f1b : 1;
+		unsigned int _f1c : 1;
+		unsigned int _f1d : 1;
+		unsigned int _f1e : 1;
+		unsigned int _f1f : 1;
+	} m_nPedFlags4;
+
+	uint8_t pad11_1[0x38]; // WAS 0x3C BEFORE
+
 	rage::phConstrainedCollider* m_pCollider;							// 7BC-7C0
 	uint8_t pad12[0x8];													// 7C0-7C8
+	
 	uint32_t m_nRagdollStatus;											// 7C8-7CC
 	uint32_t m_nRagdollTime;											// 7CC-7D0
 	uint8_t pad13[0x21];												// 7D0-7F1

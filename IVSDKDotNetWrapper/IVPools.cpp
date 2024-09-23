@@ -3,6 +3,7 @@
 
 namespace IVSDKDotNet
 {
+
 	// - - - Methods / Functions
 	IVPool^ IVPools::GetPedPool()
 	{
@@ -88,4 +89,5 @@ namespace IVSDKDotNet
 	{
 		return IVPool::GetFromType(ePool::StuntJumpPool);
 	}
+
 }

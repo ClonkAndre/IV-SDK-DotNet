@@ -4,6 +4,31 @@ namespace IVSDKDotNet
 {
 	public ref class IVTask
 	{
+	public:
+		/// <summary>
+		/// Gets if this is a simple, or a complex task.
+		/// </summary>
+		/// <returns>true if this is a simple task. Otherwise, false for a complex task.</returns>
+		bool IsSimple()
+		{
+			if (!NativeBaseTask)
+				return false;
+
+			return NativeBaseTask->IsSimple();
+		}
+
+		/// <summary>
+		/// Gets the type of this Task. Check out the "eTask" enum for all types.
+		/// </summary>
+		/// <returns>The type of this Task.</returns>
+		int GetTaskType()
+		{
+			if (!NativeBaseTask)
+				return 0;
+
+			return NativeBaseTask->GetType();
+		}
+
 	internal:
 		IVTask(CTask* nativePtr);
 

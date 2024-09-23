@@ -29,6 +29,7 @@ IMGUI_IMPL_API void     ImGui_ImplWin32_NewFrame();
 
 #if 0
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+extern IMGUI_IMPL_API void ImGui_ImplWin32_WndProcKeyOnlyHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif
 
 // DPI-related helpers (optional)

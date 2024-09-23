@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
@@ -29,6 +31,11 @@ namespace Manager.UI
         private static bool showIVSDKDotNetScripts = true;
         private static bool showScriptHookDotNetScripts = true;
         private static string scriptNameFilter;
+
+        // Developer
+        private static int selectedModuleIndex;
+        private static string targetModuleOffset;
+        private static string readModuleValue;
 
         // Other
         private static IntPtr ivsdkDotNetLogo;
@@ -306,6 +313,68 @@ namespace Manager.UI
                                 info.SetValue(foundScript.TheScriptObject, new PointF(arr[0], arr[1]));
                         }
                         break;
+                    case SupportedPublicFields._IList:
+                        {
+                            object obj = info.GetValue(foundScript.TheScriptObject);
+
+                            if (obj == null)
+                            {
+                                ImGuiIV.SameLine(0f, 30f);
+                                ImGuiIV.TextColored(Color.Yellow, "This list is not initialized yet.");
+                                break;
+                            }
+
+                            IList value = (IList)obj;
+                            
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            ImGuiIV.TextColored(Color.Yellow, "There are {0} element(s) in this list.", value.Count);
+
+                            if (ImGuiIV.TreeNode(string.Format("Click to show content of {0}.", info.Name)))
+                            {
+                                ImGuiIV.SetNextItemWidth(ImGuiIV.GetContentRegionAvail().X);
+                                if (ImGuiIV.BeginListBox(string.Format("##{0}", info.Name)))
+                                {
+                                    for (int i = 0; i < value.Count; i++)
+                                        ImGuiIV.Selectable(value[i].ToString());
+
+                                    ImGuiIV.EndListBox();
+                                }
+                                ImGuiIV.TreePop();
+                            }
+                        }
+                        break;
+                    case SupportedPublicFields._ICollection:
+                        {
+                            object obj = info.GetValue(foundScript.TheScriptObject);
+
+                            if (obj == null)
+                            {
+                                ImGuiIV.SameLine(0f, 30f);
+                                ImGuiIV.TextColored(Color.Yellow, "This collection is not initialized yet.");
+                                break;
+                            }
+
+                            ICollection value = (ICollection)obj;
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            ImGuiIV.TextColored(Color.Yellow, "There are {0} element(s) in this collection.", value.Count);
+
+                            if (ImGuiIV.TreeNode(string.Format("Click to show content of {0}.", info.Name)))
+                            {
+                                ImGuiIV.SetNextItemWidth(ImGuiIV.GetContentRegionAvail().X);
+                                if (ImGuiIV.BeginListBox(string.Format("##{0}", info.Name)))
+                                {
+                                    foreach (object item in value)
+                                        ImGuiIV.Selectable(item.ToString());
+
+                                    ImGuiIV.EndListBox();
+                                }
+                                ImGuiIV.TreePop();
+                            }
+                        }
+                        break;
                 }
 
                 if (readOnlyAttributeSet)
@@ -320,6 +389,11 @@ namespace Manager.UI
                     ImGuiIV.SameLine();
                     ImGuiIV.HelpMarker(attr.Text);
                 }
+
+#if DEBUG
+                ImGuiIV.SameLine();
+                ImGuiIV.TextDisabled(info.FieldType.FullName);
+#endif
             }
         }
         #endregion
@@ -494,32 +568,27 @@ namespace Manager.UI
                 return true;
             }
 
+            // List
+            else if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                fieldType = SupportedPublicFields._IList;
+                return true;
+            }
+
+            // Dictionary
+            else if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+            {
+                fieldType = SupportedPublicFields._ICollection;
+                return true;
+            }
+
             // Unsupported
             fieldType = SupportedPublicFields.Unknown;
             return false;
-
-            //return t == typeof(byte)
-            //    || t == typeof(sbyte)
-            //    || t == typeof(short)
-            //    || t == typeof(ushort)
-            //    || t == typeof(int)
-            //    || t == typeof(uint)
-            //    || t == typeof(long)
-            //    || t == typeof(ulong)
-            //    || t == typeof(float)
-            //    || t == typeof(double)
-            //    || t == typeof(decimal)
-            //    || t == typeof(bool)
-            //    || t == typeof(string)
-            //    || t == typeof(Vector2)
-            //    || t == typeof(Vector3)
-            //    || t == typeof(Vector4)
-            //    || t == typeof(Quaternion)
-            //    || t == typeof(Color);
         }
         #endregion
 
-        public static void DoUI()
+        public static void DoUI(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
         {
             // Show public fields of scripts in another window
             ShowPublicFieldsWindow();
@@ -548,6 +617,7 @@ namespace Manager.UI
                     DebugTab();
 #endif
                     ScriptsTab();
+                    PluginsTab(devicePtr, ctx);
                     SettingsTab();
                     AboutTab();
 
@@ -934,6 +1004,10 @@ namespace Manager.UI
                                         Logger.LogWarning(string.Format("Failed to reload script '{0}'!", actualName));
                                     }
                                 }
+                                else
+                                {
+                                    Logger.LogWarning(string.Format("Failed to abort script '{0}'!", actualName));
+                                }
 
                                 continue;
                             }
@@ -1140,6 +1214,113 @@ namespace Manager.UI
 SKIP_TO_END:
 
                 /// @separator
+                ImGuiIV.EndTabItem();
+            }
+            /// @end TabItem
+        }
+        private static void PluginsTab(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
+        {
+            /// @begin TabItem
+            if (ImGuiIV.BeginTabItem("Plugins"))
+            {
+
+                /// @begin Separator
+                ImGuiIV.SeparatorText("Details");
+                /// @end Separator
+
+                /// @begin Text
+                ImGuiIV.TextUnformatted(string.Format("Active plugins: {0}", Main.Instance.ThePluginManager.ActivePlugins.Count));
+                /// @end Text
+
+                /// @begin Separator
+                ImGuiIV.Spacing(3);
+                ImGuiIV.SeparatorText("Control");
+                /// @end Separator
+
+                /// @begin Button
+                if (ImGuiIV.Button("Reload all plugins", new Vector2(150f, 0f)))
+                {
+                    Main.Instance.ThePluginManager.LoadPlugins();
+                }
+                /// @end Button
+
+                ImGuiIV.SameLine(0, 3 * ImGuiIV.GetStyle().ItemSpacing.X);
+
+                /// @begin Button
+                if (ImGuiIV.Button("Unload all plugins", new Vector2(150f, 0f)))
+                {
+                    Main.Instance.ThePluginManager.UnloadPlugins(AbortReason.Manual, true);
+                }
+                /// @end Button
+
+                /// @begin Separator
+                ImGuiIV.Spacing(3);
+                ImGuiIV.SeparatorText("Active plugins");
+                /// @end Separator
+
+                if (Main.Instance.ThePluginManager.ActivePlugins.Count == 0)
+                {
+                    /// @begin Text
+                    ImGuiIV.TextDisabled("There are currently no active plugins.");
+                    /// @end Text
+                }
+                else
+                {
+                    /// @begin Text
+                    ImGuiIV.TextDisabled("Tip: Right-click on a plugin to open up a popup which gives you some control over the plugin.");
+                    /// @end Text
+
+                    ImGuiIV.Spacing(2);
+
+                    for (int i = 0; i < Main.Instance.ThePluginManager.ActivePlugins.Count; i++)
+                    {
+                        FoundPlugin plugin = Main.Instance.ThePluginManager.ActivePlugins[i];
+
+                        if (!plugin.IsReady())
+                            continue;
+
+                        /// @begin CollapsingHeader
+                        if (ImGuiIV.CollapsingHeader(string.Format("{0} by {1}##IVSDKDotNetManagerPlugin", plugin.ThePluginInstance.DisplayName, plugin.ThePluginInstance.Author)))
+                        {
+                            // Allow plugin to draw their own stuff within this CollapsingHeader
+                            Main.Instance.ThePluginManager.RaiseOnImGuiRenderingEvent(plugin, devicePtr, ctx);
+                        }
+                        /// @end CollapsingHeader
+
+                        /// @begin Popup
+                        // When CollapsingHeader was right-clicked, a popup will appear.
+                        if (ImGuiIV.BeginPopupContextItem())
+                        {
+                            if (ImGuiIV.Selectable("Unload this plugin"))
+                            {
+                                Main.Instance.ThePluginManager.UnloadPlugin(AbortReason.Manual, plugin, true);
+                            }
+                            if (ImGuiIV.Selectable("Reload this plugin"))
+                            {
+                                string fullPath = plugin.FullPath;
+                                string actualName = plugin.EntryPoint.FullName;
+                                if (Main.Instance.ThePluginManager.UnloadPlugin(AbortReason.Manual, plugin, true))
+                                {
+                                    if (!Main.Instance.ThePluginManager.LoadAssembly(fullPath))
+                                    {
+                                        Logger.LogWarning(string.Format("Failed to reload plugin '{0}'!", actualName));
+                                    }
+                                }
+                                else
+                                {
+                                    Logger.LogWarning(string.Format("Failed to unload plugin '{0}'!", actualName));
+                                }
+                            }
+                            if (ImGuiIV.Selectable("Close popup"))
+                            {
+                                ImGuiIV.CloseCurrentPopup();
+                            }
+                            ImGuiIV.EndPopup();
+                        }
+                        /// @begin Popup
+                    }
+                }
+
                 ImGuiIV.EndTabItem();
             }
             /// @end TabItem

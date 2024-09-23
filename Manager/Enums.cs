@@ -100,6 +100,7 @@
     public enum NotificationType
     {
         Default,
+        Info,
         Warning,
         Error
     }
@@ -137,6 +138,8 @@
         _SizeF,
         _Point,
         _PointF,
+        _IList,
+        _ICollection
     }
 
 }

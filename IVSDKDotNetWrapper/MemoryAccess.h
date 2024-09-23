@@ -1,8 +1,6 @@
 #pragma once
 
 using namespace System::Runtime::InteropServices;
-//using namespace IVSDKDotNet;
-//using namespace IVSDKDotNet::Enums;
 
 namespace IVSDKDotNet 
 {
@@ -17,6 +15,11 @@ namespace IVSDKDotNet
 
 		static uint32_t GetValue(uint32_t addr1070, uint32_t addr1080);
 		static void		SetValue(uint32_t newValue, uint32_t addr1070, uint32_t addr1080);
+
+		static uint32_t ReadMemory(UIntPtr addr, bool vp)
+		{
+			return injector::ReadMemory<uint32_t>(addr.ToPointer(), vp);
+		}
 
 		/// <summary>
 		/// The base address of GTA IV.

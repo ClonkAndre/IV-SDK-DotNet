@@ -50,6 +50,7 @@ namespace CLR
 		IVSDKDotNetBinaryPath =		IVSDKDotNetPath + "\\bin";
 		IVSDKDotNetDataPath =		IVSDKDotNetPath + "\\data";
 		IVSDKDotNetLogsPath =		IVSDKDotNetPath + "\\logs";
+		IVSDKDotNetPluginsPath =	IVSDKDotNetPath + "\\plugins";
 		IVSDKDotNetScriptsPath =	IVSDKDotNetPath + "\\scripts";
 		String^ managerScriptPath = IVSDKDotNetPath + "\\IVSDKDotNet.Manager.dll";
 
@@ -135,7 +136,7 @@ namespace CLR
 
 		// FindWindow(L"grcWindow", L"GTAIV")
 		originalWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr((HWND)TheGTAProcess->MainWindowHandle.ToPointer(), GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WndProcHook)));
-		
+
 		// Enable hooks
 		minHookStatus = MH_EnableHook(MH_ALL_HOOKS);
 

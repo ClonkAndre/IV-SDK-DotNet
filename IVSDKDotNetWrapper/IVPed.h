@@ -285,18 +285,18 @@ namespace IVSDKDotNet
 				NativePed->m_nPedFlags._f13 = value;
 			}
 		}
-		property bool _f14
+		property bool IsBleeding
 		{
 		public:
 			bool get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
-				return NativePed->m_nPedFlags._f14;
+				return NativePed->m_nPedFlags.bIsBleeding;
 			}
 			void set(bool value)
 			{
 				NULLPTR_CHECK(NativePed);
-				NativePed->m_nPedFlags._f14 = value;
+				NativePed->m_nPedFlags.bIsBleeding = value;
 			}
 		}
 		property bool _f15
@@ -508,18 +508,18 @@ namespace IVSDKDotNet
 				NativePed->m_nPedFlags2._f2 = value;
 			}
 		}
-		property bool _f3
+		property bool IsWantedByPolice
 		{
 		public:
 			bool get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
-				return NativePed->m_nPedFlags2._f3;
+				return NativePed->m_nPedFlags2.bIsWantedByPolice;
 			}
 			void set(bool value)
 			{
 				NULLPTR_CHECK(NativePed);
-				NativePed->m_nPedFlags2._f3 = value;
+				NativePed->m_nPedFlags2.bIsWantedByPolice = value;
 			}
 		}
 		property bool _f4
@@ -536,18 +536,18 @@ namespace IVSDKDotNet
 				NativePed->m_nPedFlags2._f4 = value;
 			}
 		}
-		property bool _f5
+		property bool IsDruggedUp
 		{
 		public:
 			bool get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
-				return NativePed->m_nPedFlags2._f5;
+				return NativePed->m_nPedFlags2.bIsDruggedUp;
 			}
 			void set(bool value)
 			{
 				NULLPTR_CHECK(NativePed);
-				NativePed->m_nPedFlags2._f5 = value;
+				NativePed->m_nPedFlags2.bIsDruggedUp = value;
 			}
 		}
 		property bool _f6
@@ -732,18 +732,18 @@ namespace IVSDKDotNet
 				NativePed->m_nPedFlags2._f12 = value;
 			}
 		}
-		property bool _f13
+		property bool IsEnemy
 		{
 		public:
 			bool get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
-				return NativePed->m_nPedFlags2._f13;
+				return NativePed->m_nPedFlags2.bIsEnemy;
 			}
 			void set(bool value)
 			{
 				NULLPTR_CHECK(NativePed);
-				NativePed->m_nPedFlags2._f13 = value;
+				NativePed->m_nPedFlags2.bIsEnemy = value;
 			}
 		}
 		property bool _f14
@@ -1385,6 +1385,467 @@ namespace IVSDKDotNet
 	internal:
 		CPed* NativePed;
 	};
+	public ref class IVPedFlags4
+	{
+	public:
+		property bool IsDrunk
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4.bIsDrunk;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4.bIsDrunk = value;
+			}
+		}
+		property bool _f1
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f1;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f1 = value;
+			}
+		}
+		property bool _f2
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f2;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f2 = value;
+			}
+		}
+		property bool _f3
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f3;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f3 = value;
+			}
+		}
+		property bool _f4
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f4;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f4 = value;
+			}
+		}
+		property bool _f5
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f5;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f5 = value;
+			}
+		}
+		property bool _f6
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f6;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f6 = value;
+			}
+		}
+		property bool _f7
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f7;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f7 = value;
+			}
+		}
+		property bool _f8
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f8;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f8 = value;
+			}
+		}
+		property bool _f9
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f9;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f9 = value;
+			}
+		}
+		property bool _fa
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._fa;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._fa = value;
+			}
+		}
+		property bool _fb
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._fb;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._fb = value;
+			}
+		}
+		property bool _fc
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._fc;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._fc = value;
+			}
+		}
+		property bool _fd
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._fd;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._fd = value;
+			}
+		}
+		property bool _fe
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._fe;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._fe = value;
+			}
+		}
+		property bool _ff
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._ff;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._ff = value;
+			}
+		}
+		property bool _f10
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f10;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f10 = value;
+			}
+		}
+		property bool _f11
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f11;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f11 = value;
+			}
+		}
+		property bool _f12
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f12;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f12 = value;
+			}
+		}
+		property bool _f13
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f13;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f13 = value;
+			}
+		}
+		property bool _f14
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f14;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f14 = value;
+			}
+		}
+		property bool _f15
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f15;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f15 = value;
+			}
+		}
+		property bool _f16
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f16;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f16 = value;
+			}
+		}
+		property bool _f17
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f17;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f17 = value;
+			}
+		}
+		property bool _f18
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f18;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f18 = value;
+			}
+		}
+		property bool _f19
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f19;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f19 = value;
+			}
+		}
+		property bool _f1a
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f1a;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f1a = value;
+			}
+		}
+		property bool _f1b
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f1b;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f1b = value;
+			}
+		}
+		property bool _f1c
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f1c;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f1c = value;
+			}
+		}
+		property bool _f1d
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f1d;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f1d = value;
+			}
+		}
+		property bool _f1e
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f1e;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f1e = value;
+			}
+		}
+		property bool _f1f
+		{
+		public:
+			bool get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, false);
+				return NativePed->m_nPedFlags4._f1f;
+			}
+			void set(bool value)
+			{
+				NULLPTR_CHECK(NativePed);
+				NativePed->m_nPedFlags4._f1f = value;
+			}
+		}
+
+	internal:
+		IVPedFlags4(CPed* nativePtr)
+		{
+			NativePed = nativePtr;
+		}
+
+	internal:
+		CPed* NativePed;
+	};
 
 	public ref class IVPed : IVPhysical
 	{
@@ -1503,20 +1964,20 @@ namespace IVSDKDotNet
 				NativePed->m_pDrawableInfo = value->NativePedDrawableInfo;
 			}
 		}
-		property UIntPtr PedIntelligence
+		property IVPedIntelligenceNY^ PedIntelligence
 		{
 		public:
-			UIntPtr get()
+			IVPedIntelligenceNY^ get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativePed, UIntPtr::Zero);
-				NULLPTR_CHECK_WITH_RETURN(NativePed->m_pPedIntelligence, UIntPtr::Zero);
-				return UIntPtr(NativePed->m_pPedIntelligence);
+				NULLPTR_CHECK_WITH_RETURN(NativePed, nullptr);
+				NULLPTR_CHECK_WITH_RETURN(NativePed->m_pPedIntelligence, nullptr);
+				return gcnew IVPedIntelligenceNY(NativePed->m_pPedIntelligence);
 			}
-			void set(UIntPtr value)
+			void set(IVPedIntelligenceNY^ value)
 			{
 				NULLPTR_CHECK(NativePed);
-				UINTPTR_ZERO_CHECK(value);
-				NativePed->m_pPedIntelligence = (CPedIntelligenceNY*)value.ToPointer();
+				NULLPTR_CHECK(value);
+				NativePed->m_pPedIntelligence = (CPedIntelligenceNY*)value->NativePedIntelligenceNY;
 			}
 		}
 		property IVPlayerInfo^ PlayerInfo
@@ -1577,6 +2038,15 @@ namespace IVSDKDotNet
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePed, nullptr);
 				return gcnew IVPedFlags3(NativePed);
+			}
+		}
+		property IVPedFlags4^ PedFlags4
+		{
+		public:
+			IVPedFlags4^ get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePed, nullptr);
+				return gcnew IVPedFlags4(NativePed);
 			}
 		}
 

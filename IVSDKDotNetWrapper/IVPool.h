@@ -68,7 +68,7 @@ namespace IVSDKDotNet
 		uint32_t GetIndex(UIntPtr pObject);
 
 		/// <summary>
-		/// Undocumented.
+		/// I assume this allocates a new object in this pool.
 		/// </summary>
 		UIntPtr New();
 
