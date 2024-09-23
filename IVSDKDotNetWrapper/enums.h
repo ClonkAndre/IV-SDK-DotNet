@@ -4352,6 +4352,9 @@ namespace IVSDKDotNet
 			PedModelStore
 		};
 
+		/// <summary>
+		/// All available tasks.
+		/// </summary>
 		public enum class eTask
 		{
 			TASK_SIMPLE_MOVE_PLAYER = 2,

@@ -21,7 +21,9 @@ namespace IVSDKDotNet
 		}
 
 	public:
-		IVVehicle^ CreateVehicle(int32_t model, int32_t createdBy, IVMatrix^ mat, bool bNetwork);
+		IVVehicle^ CreateVehicle(int32_t modelIndex, int32_t createdBy, IVMatrix^ mat, bool bNetwork);
+		IVVehicle^ CreateVehicle(int32_t modelIndex, int32_t createdBy, Vector3 pos, bool bNetwork);
+		int DeleteVehicle(IVVehicle^ veh);
 
 	internal:
 		IVVehicleFactoryNY(CVehicleFactoryNY* nativePtr);

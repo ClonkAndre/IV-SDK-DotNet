@@ -128,9 +128,11 @@
     <ClInclude Include="GameHooks.h" />
     <ClInclude Include="ImGui\ImGuiIncludes.h" />
     <ClInclude Include="ImGui\imgui_extensions.h" />
+    <ClInclude Include="IVControlledByInfo.h" />
     <ClInclude Include="IVDrawRadioHudTextDC.h" />
     <ClInclude Include="IVPedIntelligence.h" />
     <ClInclude Include="IVPedIntelligenceNY.h" />
+    <ClInclude Include="IVPedTasks.h" />
     <ClInclude Include="IVPhoneInfo.h" />
     <ClInclude Include="IVStore.h" />
     <ClInclude Include="MemoryAccess.h" />
@@ -316,9 +318,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Preview|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="IVControlledByInfo.cpp" />
     <ClCompile Include="IVDrawRadioHudTextDC.cpp" />
     <ClCompile Include="IVPedIntelligence.cpp" />
     <ClCompile Include="IVPedIntelligenceNY.cpp" />
+    <ClCompile Include="IVPedTasks.cpp" />
     <ClCompile Include="IVPhoneInfo.cpp" />
     <ClCompile Include="IVStore.cpp" />
     <ClCompile Include="MemoryAccess.cpp" />

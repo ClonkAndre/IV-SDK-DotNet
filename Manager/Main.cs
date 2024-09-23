@@ -272,6 +272,8 @@ namespace Manager
 
             });
 
+            Secrittzzz.Init();
+
 #if PREVIEW
             // Preview build stuff
             string previewDatFilePath = CLR.CLRBridge.IVSDKDotNetDataPath + "\\preview.dat";
@@ -334,6 +336,8 @@ namespace Manager
             // Process stuff from queue
             if (ActionQueue.Count != 0)
                 ActionQueue.Dequeue()?.Invoke();
+
+            Secrittzzz.Process();
 
             // Raise all IV-SDK .NET script Tick events
             ActiveScripts.ForEach(fs =>

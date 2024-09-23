@@ -5,11 +5,6 @@ namespace IVSDKDotNet
 {
 
 	// - - - Constructor - - -
-	IVSpawnData::IVSpawnData(uint8_t flag1, uint8_t flag2)
-	{
-		Flag1 = flag1;
-		Flag2 = flag2;
-	}
 	IVPedFactoryNY::IVPedFactoryNY(CPedFactoryNY* nativePtr)
 	{
 		NULLPTR_CHECK(nativePtr);
@@ -17,27 +12,33 @@ namespace IVSDKDotNet
 	}
 
 	// - - - Methods / Functions - - -
-	IVSpawnData IVSpawnData::Default()
+	int IVPedFactoryNY::DeletePed(IVPed^ ped)
 	{
-		return IVSpawnData(0, 0);
+		NULLPTR_CHECK_WITH_RETURN(NativePedFactoryNY, 0);
+		NULLPTR_CHECK_WITH_RETURN(ped, 0);
+		NULLPTR_CHECK_WITH_RETURN(ped->NativePed, 0);
+
+		return NativePedFactoryNY->DeletePed(ped->NativePed);
 	}
-	IVPed^ IVPedFactoryNY::CreatePed(IVSpawnData pSpawnData, int32_t model, IVMatrix^ mat, bool bNetwork, bool bUnk1)
+	IVPed^ IVPedFactoryNY::CreatePed(IVControlledByInfo info, int32_t model, IVMatrix^ mat, bool bNetwork, bool bUnk1)
 	{
 		NULLPTR_CHECK_WITH_RETURN(NativePedFactoryNY, nullptr);
 		NULLPTR_CHECK_WITH_RETURN(mat, nullptr);
 		NULLPTR_CHECK_WITH_RETURN(mat->NativeMatrix, nullptr);
 
-		tSpawnData* data = new tSpawnData();
-		data->m_nFlag1 = pSpawnData.Flag1;
-		data->m_nFlag2 = pSpawnData.Flag2;
+		CControlledByInfo* controlledByInfo = new CControlledByInfo(info.m_bIsControlledByNetwork, info.m_bIsPlayer);
 
-		CPed* ptr = NativePedFactoryNY->CreatePed(data, model, mat->NativeMatrix, bNetwork, bUnk1);
+		CPed* ptr = NativePedFactoryNY->CreatePed(controlledByInfo, model, mat->NativeMatrix, bNetwork, bUnk1);
 
-		delete data;
+		delete controlledByInfo;
 
 		NULLPTR_CHECK_WITH_RETURN(ptr, nullptr);
 
 		return gcnew IVPed(ptr);
+	}
+	IVPed^ IVPedFactoryNY::CreatePed(IVControlledByInfo info, int32_t model, Vector3 pos, bool bNetwork, bool bUnk1)
+	{
+		return CreatePed(info, model, gcnew IVMatrix(Vector3::Zero, Vector3::Zero, Vector3::Zero, pos), bNetwork, bUnk1);
 	}
 
 }

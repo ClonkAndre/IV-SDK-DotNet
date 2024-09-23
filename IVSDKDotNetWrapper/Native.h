@@ -795,12 +795,20 @@ namespace IVSDKDotNet
 			}
 			static void CREATE_CARS_ON_GENERATORS_IN_AREA(float x0, float y0, float z0, float x1, float y1, float z1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CREATE_CARS_ON_GENERATORS_IN_AREA, x0, y0, z0, x1, y1, z1); }
 			static void CREATE_CAR_GENERATOR(float x, float y, float z, float yaw, float pitch, float roll, unsigned int model, unsigned int color1, unsigned int color2, unsigned int spec1, unsigned int spec2, int Unk66, b8 alarm, b8 doorlock, int* handle) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CREATE_CAR_GENERATOR, x, y, z, yaw, pitch, roll, model, color1, color2, spec1, spec2, Unk66, alarm, doorlock, handle); }
-			static void CREATE_MISSION_TRAIN(unsigned int unknown1, float x, float y, float z, b8 unknown2, [OutAttribute] Train% pTrain)
+			
+			static void CREATE_MISSION_TRAIN(int trainTypeMaybe, Vector3 pos, int direction, [OutAttribute] Train% pTrain)
 			{
 				Train p;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CREATE_MISSION_TRAIN, unknown1, x, y, z, unknown2, &p);
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CREATE_MISSION_TRAIN, trainTypeMaybe, pos.X, pos.Y, pos.Z, direction, &p);
 				pTrain = p;
 			}
+			static void CREATE_MISSION_TRAIN(int trainTypeMaybe, float x, float y, float z, int direction, [OutAttribute] Train% pTrain)
+			{
+				Train p;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CREATE_MISSION_TRAIN, trainTypeMaybe, x, y, z, direction, &p);
+				pTrain = p;
+			}
+			
 			static void CREATE_RANDOM_CAR_FOR_CAR_PARK(float x, float y, float z, float radius) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CREATE_RANDOM_CAR_FOR_CAR_PARK, x, y, z, radius); }
 			static void CREATE_RANDOM_CHAR_AS_DRIVER(Vehicle vehicle, [OutAttribute] Ped% pPed)
 			{
@@ -820,9 +828,8 @@ namespace IVSDKDotNet
 			static void DELETE_CAR_GENERATOR(int handle) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DELETE_CAR_GENERATOR, handle); }
 			static void DELETE_MISSION_TRAIN(Train% pTrain)
 			{
-				Train train = pTrain;
-				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_DELETE_MISSION_TRAIN, &train);
-				pTrain = train;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_DELETE_MISSION_TRAIN, pTrain);
+				pTrain = 0;
 			}
 			static void DELETE_MISSION_TRAINS() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DELETE_MISSION_TRAINS); }
 			static void DETACH_CAR(Vehicle vehicle) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DETACH_CAR, vehicle); }
@@ -1170,12 +1177,7 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_MARK_CAR_AS_NO_LONGER_NEEDED, &veh);
 			}
 			static void MARK_MISSION_TRAINS_AS_NO_LONGER_NEEDED() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_MARK_MISSION_TRAINS_AS_NO_LONGER_NEEDED); }
-			static void MARK_MISSION_TRAIN_AS_NO_LONGER_NEEDED(Train% train)
-			{
-				Train t = train;
-				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_MARK_MISSION_TRAIN_AS_NO_LONGER_NEEDED, &t);
-				train = t;
-			}
+			static void MARK_MISSION_TRAIN_AS_NO_LONGER_NEEDED(Train train) { NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_MARK_MISSION_TRAIN_AS_NO_LONGER_NEEDED, train); }
 			static void OPEN_CAR_DOOR(Vehicle vehicle, unsigned int door) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_OPEN_CAR_DOOR, vehicle, door); }
 			static void OVERRIDE_NUMBER_OF_PARKED_CARS(int num) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_OVERRIDE_NUMBER_OF_PARKED_CARS, num); }
 			static void PAUSE_PLAYBACK_RECORDED_CAR(Vehicle car) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_PAUSE_PLAYBACK_RECORDED_CAR, car); }
@@ -5734,6 +5736,8 @@ namespace IVSDKDotNet
 				unk2 = u2;
 				unk3 = u3;
 			}
+
+			static int GET_CAM_STATE(Camera cam) { return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_GET_CAM_STATE, cam); }
 
 		};
 	}

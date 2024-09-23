@@ -5,19 +5,34 @@ namespace IVSDKDotNet
 	public ref class IVPedIntelligence
 	{
 	public:
-		property UIntPtr Ped
+		property UIntPtr OwnerPed
 		{
 		public:
 			UIntPtr get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePedIntelligence, UIntPtr::Zero);
-				NULLPTR_CHECK_WITH_RETURN(NativePedIntelligence->m_pPed, UIntPtr::Zero);
-				return UIntPtr(NativePedIntelligence->m_pPed);
+				NULLPTR_CHECK_WITH_RETURN(NativePedIntelligence->m_pOwnerPed, UIntPtr::Zero);
+				return UIntPtr(NativePedIntelligence->m_pOwnerPed);
 			}
 			void set(UIntPtr value)
 			{
 				UINTPTR_ZERO_CHECK(value);
-				NativePedIntelligence->m_pPed = (CPed*)value.ToPointer();
+				NativePedIntelligence->m_pOwnerPed = (CPed*)value.ToPointer();
+			}
+		}
+		property IVPedTasks^ Tasks
+		{
+		public:
+			IVPedTasks^ get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePedIntelligence, nullptr);
+				NULLPTR_CHECK_WITH_RETURN(&NativePedIntelligence->m_Tasks, nullptr);
+				return gcnew IVPedTasks(&NativePedIntelligence->m_Tasks);
+			}
+			void set(IVPedTasks^ value)
+			{
+				NULLPTR_CHECK(value);
+				NativePedIntelligence->m_Tasks = *(CPedTasks*)value->NativePedTasks;
 			}
 		}
 		property float SenseRange1
@@ -46,6 +61,10 @@ namespace IVSDKDotNet
 				NativePedIntelligence->m_fSenseRange2 = value;
 			}
 		}
+
+	public:
+		static IVPedIntelligence^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
 
 	internal:
 		IVPedIntelligence(CPedIntelligence* nativePedIntelligence);

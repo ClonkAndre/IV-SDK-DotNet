@@ -51,8 +51,8 @@
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="ScriptHookDotNet, Version=1.7.2.2, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\..\ScriptHookDotNet-for-IVSDKDotNet\Debug\ScriptHookDotNet.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ScriptHookDotNet-for-IVSDKDotNet\Release\ScriptHookDotNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -80,6 +80,7 @@
     <Compile Include="Classes\Json\Script\ScriptDependencyInfo.cs" />
     <Compile Include="Classes\Json\Script\ScriptConfig.cs" />
     <Compile Include="Classes\Reflection.cs" />
+    <Compile Include="Classes\Secrittzzz.cs" />
     <Compile Include="Classes\SHDNStuff.cs" />
     <Compile Include="Managers\PluginManager.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

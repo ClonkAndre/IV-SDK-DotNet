@@ -100,6 +100,7 @@
     public enum NotificationType
     {
         Default,
+        Info,
         Warning,
         Error
     }
