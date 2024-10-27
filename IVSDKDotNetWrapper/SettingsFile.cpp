@@ -347,6 +347,8 @@ namespace IVSDKDotNet
 		return true;
 	}
 
+	// TODO: Make parsing values use the "TryParse" functions instead if "Parse" to prevent possible crashes
+
 #pragma region Boolean
 	bool SettingsFile::GetBoolean(String^ section, String^ key, bool defaultValue)
 	{
@@ -375,6 +377,21 @@ namespace IVSDKDotNet
 		return Int32::Parse(str);
 	}
 	bool SettingsFile::SetInteger(String^ section, String^ key, Int32 value)
+	{
+		return SettingsFile::SetValue(section, key, value.ToString());
+	}
+#pragma endregion
+
+#pragma region Unsigned Integer
+	UInt32 SettingsFile::GetUInteger(String^ section, String^ key, UInt32 defaultValue)
+	{
+		String^ str = GetValue(section, key, "");
+		if (String::IsNullOrWhiteSpace(str))
+			return defaultValue;
+
+		return UInt32::Parse(str);
+	}
+	bool SettingsFile::SetUInteger(String^ section, String^ key, UInt32 value)
 	{
 		return SettingsFile::SetValue(section, key, value.ToString());
 	}

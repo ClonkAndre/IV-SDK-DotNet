@@ -58,6 +58,12 @@
     <Filter Include="Source Files\Hooks">
       <UniqueIdentifier>{b3c69b6c-ceac-434d-8d3d-08f9367af660}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\D3D9">
+      <UniqueIdentifier>{dc57769c-0f3e-451a-bf39-540ae744b653}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D9">
+      <UniqueIdentifier>{72a71ece-1cf6-4167-9eb7-5494bd9da49d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Native.h">
@@ -615,6 +621,12 @@
     <ClInclude Include="IVControlledByInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ManagerStuff.h">
+      <Filter>Header Files\LocalStuff</Filter>
+    </ClInclude>
+    <ClInclude Include="ManagedD3D9.h">
+      <Filter>Header Files\D3D9</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MemoryAccess.cpp">
@@ -1126,6 +1138,9 @@
     </ClCompile>
     <ClCompile Include="IVControlledByInfo.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ManagedD3D9.cpp">
+      <Filter>Source Files\D3D9</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -195,6 +195,26 @@ namespace IVSDKDotNet
 		bool SetInteger(String^ section, String^ key, int value);
 #pragma endregion
 
+#pragma region Unsigned Integer
+		/// <summary>
+		/// Gets the unsigned integer from the given section and key strings from the loaded ini file.
+		/// </summary>
+		/// <param name="section">The section the key is located.</param>
+		/// <param name="key">The key you want to get the value from.</param>
+		/// <param name="defaultValue">The default value if get value fails.</param>
+		/// <returns>The unsigned integer from the given section and key strings. Otherwise it returns defaultValue.</returns>
+		UInt32 GetUInteger(String^ section, String^ key, UInt32 defaultValue);
+
+		/// <summary>
+		/// Sets the unsigned integer from the given section and key strings from the loaded ini file.
+		/// </summary>
+		/// <param name="section">The section the key is located.</param>
+		/// <param name="key">The key you want to set the value to.</param>
+		/// <param name="value">The new value.</param>
+		/// <returns>True if the value from the given section and key got changed. Otherwise false if the section or key does not exists.</returns>
+		bool SetUInteger(String^ section, String^ key, UInt32 value);
+#pragma endregion
+
 #pragma region Float
 		/// <summary>
 		/// Gets the float from the given section and key strings from the loaded ini file.

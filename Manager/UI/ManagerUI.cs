@@ -598,7 +598,7 @@ namespace Manager.UI
 
             // Create IV-SDK .NET logo texture
             if (ivsdkDotNetLogo == IntPtr.Zero)
-                ivsdkDotNetLogo = Reflection.CallCreateTextureFromFile(Properties.Resources.ivsdkdotnet_logo_small);
+                ivsdkDotNetLogo = Reflection.LocalImGuiIV.CreateTextureFromMemory(Properties.Resources.ivsdkdotnet_logo_small);
 
             /// @style Dark
             /// @unit px
@@ -1062,6 +1062,13 @@ namespace Manager.UI
                                 ImGuiIV.TextUnformatted("Active Tasks");
                                 /// @end Text
 
+                                if (fs.RegisteredEvents != null)
+                                {
+                                    /// @begin Text
+                                    ImGuiIV.TextUnformatted("Registered Events");
+                                    /// @end Text
+                                }
+
                                 /// @begin Text
                                 ImGuiIV.TextUnformatted("Is Ready");
                                 /// @end Text
@@ -1097,6 +1104,13 @@ namespace Manager.UI
                                 /// @begin Text
                                 ImGuiIV.TextUnformatted(Main.Instance.ActiveTasks.Count(x => x.OwnerID == fs.ID).ToString()); // Active Tasks
                                 /// @end Text
+
+                                if (fs.RegisteredEvents != null)
+                                {
+                                    /// @begin Text
+                                    ImGuiIV.TextUnformatted(fs.RegisteredEvents.Count.ToString()); // Registered Events
+                                    /// @end Text
+                                }
 
                                 /// @begin Text
                                 ImGuiIV.TextUnformatted(fs.IsScriptReady().ToString()); // Is Ready

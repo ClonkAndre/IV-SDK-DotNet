@@ -17,6 +17,8 @@ namespace Manager.Classes
         public static string SwitchCursorKey;
         public static string OpenManagerWindowKey;
 
+        public static bool EnableAutomaticUpdateCheck;
+
         // Scripts
         public static bool PauseScriptExecutionWhenNotInFocus;
         public static bool DoNotLoadLegacyScripts;
@@ -57,6 +59,8 @@ namespace Manager.Classes
 
             SwitchCursorKey =       settings.GetValue("Main", "SwitchCursorKey", "Control+F8");
             OpenManagerWindowKey =  settings.GetValue("Main", "OpenManagerWindowKey", "Control+F10");
+
+            EnableAutomaticUpdateCheck =   settings.GetBoolean("Main", "EnableAutomaticUpdateCheck", true);
 
             // Section: Scripts
             PauseScriptExecutionWhenNotInFocus =    settings.GetBoolean("Scripts", "PauseExecutionWhenNotInFocus", true);

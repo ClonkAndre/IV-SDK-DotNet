@@ -25,8 +25,9 @@ namespace Manager.UI
             public string Description;
             public string Tag;
 
+            public bool CanBeRemoved;
+
             // Animation stuff
-            public bool FadeOut;
             public bool FadeIn;
             public float Alpha;
             #endregion
@@ -38,7 +39,6 @@ namespace Manager.UI
                 Title = title;
                 Description = description;
                 Tag = tag;
-                FadeOut = false;
                 FadeIn = true;
             }
             #endregion
@@ -74,7 +74,7 @@ namespace Manager.UI
                 if (CLR.CLRBridge.IsShuttingDown)
                     return;
 
-                ((NotificationItem)obj).FadeOut = true;
+                ((NotificationItem)obj).CanBeRemoved = true;
             }, item);
 
             return true;
@@ -133,24 +133,13 @@ namespace Manager.UI
             {
                 NotificationItem item = items[i];
 
-                // Fading
-                if (item.FadeOut)
+                if (item.CanBeRemoved)
                 {
-                    if (!(item.Alpha <= 0.0f))
-                    {
-                        if (IVPlayerInfo.FindThePlayerPed() != UIntPtr.Zero)
-                            item.Alpha -= 1.8f * IVTimer.TimeStep;
-                        else
-                            item.Alpha -= 0.8f * IVTimer.TimeStep;
-                    }
-
-                    if (item.Alpha <= 0.0f)
-                    {
-                        item.FadeOut = false;
-                        items.RemoveAt(i);
-                        continue;
-                    }
+                    items.RemoveAt(i);
+                    continue;
                 }
+
+                // Fading
                 if (item.FadeIn)
                 {
                     if (!(item.Alpha >= 0.9f))

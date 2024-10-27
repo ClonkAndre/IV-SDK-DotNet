@@ -55,6 +55,29 @@ namespace IVSDKDotNet
 			}
 		}
 
+		/// <summary>
+		/// Anti-alias fringe is scaled by this value, this helps to keep things sharp while zooming at vertex buffer content.
+		/// This can be used to create a simple glowing effect tho it is not the best way to do it.
+		/// </summary>
+		property float FringeScale
+		{
+		public:
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return canvasDrawList->_FringeScale;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				canvasDrawList->_FringeScale = value;
+			}
+		}
+
 	public:
 		ImGuiIV_DrawingContext(IntPtr drawListPtr)
 		{

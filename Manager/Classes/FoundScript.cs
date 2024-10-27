@@ -40,6 +40,7 @@ namespace Manager.Classes
         // Lists
         public Dictionary<string, Action<string[]>> ConsoleCommands;
         public Dictionary<string, BoundPhoneNumber> BoundPhoneNumbers;
+        public List<RegisteredEvent> RegisteredEvents;
 
         // Dear ImGui
         public List<IntPtr> Textures;
@@ -119,6 +120,7 @@ namespace Manager.Classes
             // Initializing all lists with a Capacity of 8 so they don't need to resize for every new item that is added to them (Aslong as they don't reach the set Capacity).
             ConsoleCommands = new Dictionary<string, Action<string[]>>(8);
             BoundPhoneNumbers = new Dictionary<string, BoundPhoneNumber>(8);
+            //RegisteredEvents = new List<RegisteredEvent>(8);
             Textures = new List<IntPtr>(8);
 
             Running = true;
@@ -477,6 +479,9 @@ namespace Manager.Classes
             // Raise Uninitialize event
             RaiseUninitialize();
 
+            // Remove all registered event subscriptions
+            RemoveEventSubscriptions();
+
             // Delete all console commands registered by this script
             ConsoleCommands.Clear();
 
@@ -614,6 +619,14 @@ namespace Manager.Classes
         //    }
         //}
 
+        private void RemoveEventSubscriptions()
+        {
+            if (RegisteredEvents != null)
+            {
+                RegisteredEvents.ForEach(x => x.RemoveSubscription());
+                RegisteredEvents.Clear();
+            }
+        }
         private void DestroyScriptTextures()
         {
             string scriptName = EntryPoint == null ? "UNKNOWN" : EntryPoint.FullName;

@@ -235,7 +235,7 @@ namespace Manager
             SHDNStuff.Init();
 
             // Init Reflection
-            if (Reflection.Initialize())
+            if (Reflection.Init())
                 Logger.LogDebug("Initialized Reflection class.");
             else
                 Logger.LogDebug("Failed to initialize Reflection class!");
@@ -244,7 +244,7 @@ namespace Manager
             processCheckerTimerID = StartNewTimerInternal(1000, () =>
             {
 
-                if (!Reflection.IsCallOnWindowFocusChangedAvailable())
+                if (!Reflection.LocalRAGE.IsRaiseOnWindowFocusChangedAvailable())
                 {
                     AbortTaskOrTimer(processCheckerTimerID);
                     return;
@@ -257,7 +257,7 @@ namespace Manager
                 {
                     if (!OnWindowFocusChangedEventCalled)
                     {
-                        Reflection.CallOnWindowFocusChanged(true);
+                        Reflection.LocalRAGE.RaiseOnWindowFocusChanged(true);
                         OnWindowFocusChangedEventCalled = true;
                     }
                 }
@@ -265,7 +265,7 @@ namespace Manager
                 {
                     if (OnWindowFocusChangedEventCalled)
                     {
-                        Reflection.CallOnWindowFocusChanged(false);
+                        Reflection.LocalRAGE.RaiseOnWindowFocusChanged(false);
                         OnWindowFocusChangedEventCalled = false;
                     }
                 }
@@ -506,7 +506,9 @@ namespace Manager
             // Do stuff on first frame
             if (FirstFrame)
             {
-                UpdateChecker.CheckForUpdates(true);
+                if (Config.EnableAutomaticUpdateCheck)
+                    UpdateChecker.CheckForUpdates(true);
+
                 GetSupporters();
                 FirstFrame = false;
             }
@@ -1365,6 +1367,8 @@ namespace Manager
 
             string scriptName = target.EntryPoint.FullName;
 
+            // TODO: Maybe add possible solutions based on the error type.
+
             // Show and Log the error
             if (target.IsScriptHookDotNetScript)
             {
@@ -1712,6 +1716,44 @@ namespace Manager
         public override void LoadScripts()
         {
             LoadScriptsInternal();
+        }
+
+        public override void RegisterEvent(string scriptOrPluginName, Delegate source, Delegate target)
+        {
+            if (target == null)
+                return;
+
+            // A new instance of the script/plugin class is created before the FoundScript/FoundPlugin class is created.
+            // And as events usually get subscribed to in the constructor, the GetFoundScript/GetFoundPlugin function will return null as
+            // the FoundScript/FoundPlugin will get added to the list.
+
+            // Try get target script
+            FoundScript fs = GetFoundScript(scriptOrPluginName);
+
+            if (fs != null)
+            {
+                if (fs.RegisteredEvents != null)
+                {
+                    fs.RegisteredEvents.Add(new RegisteredEvent(source, target));
+                    Logger.LogDebug(string.Format("Registered event to {0} script.", scriptOrPluginName));
+                }
+
+                return;
+            }
+
+            // Try get target plugin
+            FoundPlugin fp = ThePluginManager.GetFoundPlugin(scriptOrPluginName);
+
+            if (fp != null)
+            {
+                if (fp.RegisteredEvents != null)
+                {
+                    fp.RegisteredEvents.Add(new RegisteredEvent(source, target));
+                    Logger.LogDebug(string.Format("Registered event to {0} plugin.", scriptOrPluginName));
+                }
+
+                return;
+            }
         }
 
         public override bool AbortScript(Guid id)

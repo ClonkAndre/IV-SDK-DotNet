@@ -1,5 +1,7 @@
 #pragma once
 
+using namespace IVSDKDotNet::Manager;
+
 namespace IVSDKDotNet
 {
 
@@ -10,7 +12,6 @@ namespace IVSDKDotNet
 		delegate void GameWindowFocusChangedDelegate(bool focused);
 
 	public:
-
 		/// <summary>
 		/// Gets raised when the GTA IV window receives Windows Messages.
 		/// See https://wiki.winehq.org/List_Of_Windows_Messages for a list of all Windows Messages.

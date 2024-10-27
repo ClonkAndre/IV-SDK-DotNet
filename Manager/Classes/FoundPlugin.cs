@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 using IVSDKDotNet;
@@ -19,6 +20,9 @@ namespace Manager.Classes
 
         // Types
         public Type EntryPoint;
+
+        // List
+        public List<RegisteredEvent> RegisteredEvents;
 
         // Dear ImGui
         //public List<IntPtr> Textures;
@@ -47,6 +51,9 @@ namespace Manager.Classes
             TheAssembly = theAssembly;
             ThePluginInstance = pluginInstance;
             EntryPoint = entryPoint;
+
+            // Lists
+            //RegisteredEvents = new List<RegisteredEvent>(8);
 
             Running = true;
         }

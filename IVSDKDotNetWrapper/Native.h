@@ -399,6 +399,7 @@ namespace IVSDKDotNet
 			static void SET_CHAR_SUFFERS_CRITICAL_HITS(Ped ped, b8 value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_SUFFERS_CRITICAL_HITS, ped, value); }
 			static void SET_CHAR_USES_DEAFULT_ANIM_GROUP_WHEN_FLEEING(Ped ped, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_USES_DEAFULT_ANIM_GROUP_WHEN_FLEEING, ped, set); }
 			static void SET_CHAR_USES_UPPERBODY_DAMAGE_ANIMS_ONLY(Ped ped, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_USES_UPPERBODY_DAMAGE_ANIMS_ONLY, ped, set); }
+			static void SET_CHAR_VELOCITY(Ped ped, Vector3 velocity) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_VELOCITY, ped, velocity.X, velocity.Y, velocity.Z); }
 			static void SET_CHAR_VELOCITY(Ped ped, float x, float y, float z) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_VELOCITY, ped, x, y, z); }
 			static void SET_CHAR_VISIBLE(Ped ped, b8 value) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_VISIBLE, ped, value); }
 			static void SET_CHAR_WATCH_MELEE(Ped ped, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_WATCH_MELEE, ped, set); }

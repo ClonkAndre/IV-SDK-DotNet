@@ -145,8 +145,6 @@ namespace IVSDKDotNet
 
             uint32_t* globalAddr = &CTheScripts::m_aGlobalVariables[index];
 
-            MessageBox::Show(String::Format("The length of the string to store is: {0}", value->Length));
-
             char* str = (char*)globalAddr;
             char* newStr = (char*)ctx.marshal_as<const char*>(value);
             memcpy(str, newStr, value->Length);
