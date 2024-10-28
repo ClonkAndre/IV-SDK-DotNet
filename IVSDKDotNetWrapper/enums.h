@@ -3446,8 +3446,9 @@ namespace IVSDKDotNet
 		public enum class ePickupType
 		{
 			PICKUP_TYPE_NONE = 0,
-			PICKUP_TYPE_NULL = 1,//Can't pickup, does not disappear
-			PICKUP_TYPE_REGULAR = 2,//Can pickup, disappears on pickup
+			PICKUP_TYPE_NULL = 1,		// Can't pickup, does not disappear
+			PICKUP_TYPE_REGULAR = 2,	// Can pickup, disappears on pickup
+			PICKUP_TYPE_PIGEON = 3,		// Can't pickup, disappears when shot <- TEST THIS
 			PICKUP_TYPE_WEAPON = 0x16
 		};
 

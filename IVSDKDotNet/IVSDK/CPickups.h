@@ -8,24 +8,27 @@ public:
 	uint16_t blip;
 	uint32_t field_14;
 	CVector pos;
-	uint32_t field_24;
-	uint32_t field_28;
-	uint32_t field_2C;
-	uint32_t field_30;
-	uint32_t field_34;
-	uint32_t field_38;
-	uint16_t field_3C;
-	uint32_t field_40;
-	uint16_t field_42;
-	uint16_t type;
-	uint8_t field_45;
-	uint8_t field_46;
-	uint8_t field_47;
-	uint8_t field_48;
-	uint8_t field_49;
-	uint8_t field_4A;
-	uint8_t field_4B;
-	uint8_t field_4C;
+
+	// TODO: Tidy up this class
+
+	//uint32_t field_24;
+	//uint32_t field_28;
+	//uint32_t field_2C;
+	//uint32_t field_30;
+	//uint32_t field_34;
+	//uint32_t field_38;
+	//uint16_t field_3C;
+	//uint32_t field_40;
+	//uint16_t field_42;
+	//uint16_t type;
+	//uint8_t field_45;
+	//uint8_t field_46;
+	//uint8_t field_47;
+	//uint8_t field_48;
+	//uint8_t field_49;
+	//uint8_t field_4A;
+	//uint8_t field_4B;
+	//uint8_t field_4C;
 
 public:
 	int Destroy()
@@ -38,9 +41,11 @@ public:
 class CPickups
 {
 public:
+	// array:					0x12DEBA4 (0xEDEBA4) <- this seems to hold the type of pickup?
 	// some array:				0x12DEB70
 	// another array:	(int[]) 0x12DEB60 (0xEDEB60) <- this actually holds the pickups
 	static inline auto Pickups = (CPickup*)AddressSetter::Get(0x0, 0xEDEB60); // TODO: Get address for 1070
+	static inline auto PickupTypes = (uint8_t*)AddressSetter::Get(0x0, 0xEDEBA4); // TODO: Get address for 1070
 
 public:
 	// Destroys all pickups
@@ -59,22 +64,26 @@ public:
 																		 // to the byte (CPickups__m_bDeadPedDropWeapon) which gets set to 1
 	}
 
-	static void DoPickUpEffects()
+	static int CreatePickup(CVector* position, CVector* rotation, int modelIndex, int type, bool a5, bool a6, bool a7_maybeBlipRelated, uint32_t objPointerMaybe, char a12, char a13)
 	{
-		((void(__cdecl*)())(AddressSetter::Get(0x534280, 0x589100)))();
+		return ((int(__cdecl*)(CVector*, CVector*, int, int, bool, bool, bool, int, int, int, uint32_t, char, char))(AddressSetter::Get(0x0, 0x58B850)))(position, rotation, modelIndex, type, a5, a6, a7_maybeBlipRelated, 0, 0, 0, objPointerMaybe, a12, a13); // TODO: Get address for 1070
+	}
+	static int RemovePickup(int handle)
+	{
+		return ((int(__cdecl*)(int))(AddressSetter::Get(0x0, 0x58A670)))(handle); // TODO: Get address for 1070
 	}
 
-	// TODO: Remove the unused stuff once the function signature is added here
-	static int CreatePickup(CVector* pos, CVector* rotationMaybe, int a3, int type, bool a5, bool a6, bool createBlipMaybe, int unused_1, int unused_2, int unused_3, uint32_t objPointerMaybe, char a12, char a13)
-	{
-
-	}
 	static void CreateTemporaryRadarBlipsForPickupsInArea(CVector* pos, float radius, int type)
 	{
 		((void(__cdecl*)(CVector*, float, int))(AddressSetter::Get(0x533A90, 0x588910)))(pos, radius, type);
 	}
 	static void RemoveTemporaryRadarBlipsForPickups()
 	{
-		((void(__cdecl*)())(AddressSetter::Get(0x0, 0x988A40)))(); // TODO: Get address for 1070
+		((void(__cdecl*)())(AddressSetter::Get(0x0, 0x588A40)))(); // TODO: Get address for 1070
+	}
+
+	static void DoPickUpEffects()
+	{
+		((void(__cdecl*)())(AddressSetter::Get(0x534280, 0x589100)))();
 	}
 };

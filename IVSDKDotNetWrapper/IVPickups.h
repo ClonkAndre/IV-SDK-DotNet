@@ -411,8 +411,44 @@ namespace IVSDKDotNet
 				//}
 			}
 		}
+		static property array<char>^ PickupTypes
+		{
+		public:
+			array<char>^ get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(CPickups::PickupTypes, nullptr);
+
+				array<char>^ arr = gcnew array<char>(1500);
+
+				for (int i = 0; i < arr->Length; i++)
+					arr[i] = CPickups::PickupTypes[i];
+
+				return arr;
+			}
+			void set(array<char>^ value)
+			{
+				//NULLPTR_CHECK(value);
+				//NULLPTR_CHECK(CPickups::Pickups);
+
+				//for (int i = 0; i < value->Length; i++)
+				//{
+				//	IVPickup^ obj = value[i];
+
+				//	if (!obj)
+				//	{
+				//		continue;
+				//	}
+
+				//	CPickups::Pickups[i] = obj->NativePickup;
+				//}
+			}
+		}
 
 	public:
+		/// <summary>
+		/// Destroys all pickups.
+		/// </summary>
+		/// <returns></returns>
 		static int Shutdown();
 		/// <summary>
 		/// Removes and resets all pickups (not the actual pickup object).
@@ -420,8 +456,50 @@ namespace IVSDKDotNet
 		/// </summary>
 		/// <returns>Always 0</returns>
 		static int Reset();
-		static void DoPickUpEffects();
+		
+		/// <summary>
+		/// Creates a new pickup.
+		/// </summary>
+		/// <param name="position">The position where to create the pickup.</param>
+		/// <param name="rotation">The rotation of the pickup.</param>
+		/// <param name="modelIndex">The model index (not the hash) of the object to create for this pickup. You also dont need to request the model first as GTA will handle it for you.</param>
+		/// <param name="type">The pickup type.</param>
+		/// <param name="a5"></param>
+		/// <param name="a6"></param>
+		/// <param name="a7_maybeBlipRelated"></param>
+		/// <param name="objPointerMaybe"></param>
+		/// <param name="a12"></param>
+		/// <param name="a13"></param>
+		/// <returns>The handle of the pickup created. Returns -1 if the pickup could not be created.</returns>
+		static int CreatePickup(Vector3 position, Vector3 rotation, int modelIndex, int type, bool a5, bool a6, bool a7_maybeBlipRelated, uint32_t objPointerMaybe, char a12, char a13);
+		/// <summary>
+		/// Removes a pickup with the given handle.
+		/// </summary>
+		/// <param name="handle">The handle of the pickup to remove.</param>
+		/// <returns>The index of the removed pickup, or -1 if the pickup couldn't get removed.</returns>
+		static int RemovePickup(int handle);
+		
+		/// <summary>
+		/// Creates a temporary radar blip for each pickup within the range around the given position.
+		/// </summary>
+		/// <param name="pos">The position of where to check for pickups.</param>
+		/// <param name="range">The range to check for pickups around the given position.</param>
+		/// <param name="type">The pickup type to look for.</param>
 		static void CreateTemporaryRadarBlipsForPickupsInArea(Vector3 pos, float range, int type);
+		/// <summary>
+		/// Removes all temporary radar blip.
+		/// </summary>
 		static void RemoveTemporaryRadarBlipsForPickups();
+
+		/// <summary>
+		/// Does the pickup glow thing.
+		/// </summary>
+		static void DoPickUpEffects();
+
+		static uint8_t GetTypeOfPickup(int index)
+		{
+			return CPickups::PickupTypes[0x50 * index];
+		}
+
 	};
 }
