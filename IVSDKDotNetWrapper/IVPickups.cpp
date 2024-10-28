@@ -54,14 +54,25 @@ namespace IVSDKDotNet
 	{
 		return CPickups::RemovePickup(handle);
 	}
-	void IVPickups::CreateTemporaryRadarBlipsForPickupsInArea(Vector3 pos, float range, int type)
+	void IVPickups::CreateTemporaryRadarBlipsForPickupsInArea(Vector3 position, float range, int type)
 	{
-		CVector vec = Vector3ToCVector(pos);
-		CPickups::CreateTemporaryRadarBlipsForPickupsInArea(&vec, range, type);
+		CVector pos = Vector3ToCVector(position);
+		CPickups::CreateTemporaryRadarBlipsForPickupsInArea(&pos, range, type);
+	}
+	int IVPickups::CreateTemporaryRadarBlipForPickup(Vector3 position, int pickupIndex)
+	{
+		CVector pos = Vector3ToCVector(position);
+		return CPickups::CreateTemporaryRadarBlipForPickup(&pos, pickupIndex);
 	}
 	void IVPickups::RemoveTemporaryRadarBlipsForPickups()
 	{
 		CPickups::RemoveTemporaryRadarBlipsForPickups();
+	}
+
+	// Helper functions
+	uint8_t IVPickups::GetTypeOfPickup(int index)
+	{
+		return CPickups::PickupTypes[0x50 * index];
 	}
 
 }
