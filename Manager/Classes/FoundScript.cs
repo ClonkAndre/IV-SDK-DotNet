@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -9,7 +8,6 @@ using System.Windows.Forms;
 using Newtonsoft.Json;
 
 using IVSDKDotNet;
-using IVSDKDotNet.Enums;
 using IVSDKDotNet.Native;
 using IVSDKDotNet.Attributes;
 
@@ -462,8 +460,15 @@ namespace Manager.Classes
             Running = true;
         }
 
-        public void Abort(AbortReason reason, bool showMessage)
+        public void Abort(AbortReason reason, bool showMessage, bool forceAbort = false)
         {
+            // Check if script can be aborted
+            if (!CanScriptBeAborted(reason, forceAbort))
+            {
+                Logger.LogDebug(string.Format("Script {0} will not be aborted as it is set to force no abort.", EntryPoint.FullName));
+                return;
+            }
+
             if (cleanUpTask != null)
                 return;
 
@@ -500,6 +505,7 @@ namespace Manager.Classes
                         Logger.Log(string.Format("An API Client has successfully aborted the script {0}.", EntryPoint.FullName));
                         break;
                     case AbortReason.Manual:
+                    case AbortReason.Console:
                         Logger.Log(string.Format("Script {0} was successfully aborted by user.", EntryPoint.FullName));
                         break;
                     case AbortReason.Script:
@@ -679,6 +685,19 @@ namespace Manager.Classes
                 return Running;
 
             return Running && InitEventCalled;
+        }
+
+        public bool CanScriptBeAborted(AbortReason reason, bool forceAbort)
+        {
+            if (IsIVSDKDotNetScript && !forceAbort)
+            {
+                if (!GetScriptAs<Script>().ForceNoAbort)
+                    return true;
+
+                return reason == AbortReason.Manual;
+            }
+
+            return true;
         }
 
         public bool AddPhoneNumber(string number, Action a)

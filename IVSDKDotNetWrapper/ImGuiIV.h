@@ -5318,7 +5318,7 @@ class ImGuiDraw
 public:
 	static bool OnWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		if (ImGuiIV::ActiveScriptWindows > 0)
+		if (ImGuiIV::ActiveScriptWindows > 0 || ImGuiIV::ForceCursor)
 		{
 			if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
 				return true;

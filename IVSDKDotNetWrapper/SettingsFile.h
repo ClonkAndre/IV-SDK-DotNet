@@ -235,6 +235,26 @@ namespace IVSDKDotNet
 		bool SetFloat(String^ section, String^ key, float value);
 #pragma endregion
 
+#pragma region Double
+		/// <summary>
+		/// Gets the double from the given section and key strings from the loaded ini file.
+		/// </summary>
+		/// <param name="section">The section the key is located.</param>
+		/// <param name="key">The key you want to get the value from.</param>
+		/// <param name="defaultValue">The default value if get value fails.</param>
+		/// <returns>The double from the given section and key strings. Otherwise it returns defaultValue.</returns>
+		double GetDouble(String^ section, String^ key, double defaultValue);
+
+		/// <summary>
+		/// Sets the double from the given section and key strings from the loaded ini file.
+		/// </summary>
+		/// <param name="section">The section the key is located.</param>
+		/// <param name="key">The key you want to set the value to.</param>
+		/// <param name="value">The new value.</param>
+		/// <returns>True if the value from the given section and key got changed. Otherwise false if the section or key does not exists.</returns>
+		bool SetDouble(String^ section, String^ key, double value);
+#pragma endregion
+
 #pragma region Color
 		/// <summary>
 		/// Gets the color from the given section and key strings from the loaded ini file.

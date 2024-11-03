@@ -2,15 +2,19 @@ class CPickup
 {
 public:
 	uint32_t field_0;
-	uint32_t WorldObject;
+	uint32_t m_pWorldObject;
 	uint32_t field_8;
-	uint32_t RoomKey;
-	int32_t Blip;
-	uint8_t pad[0x2];
-	CVector Position;
-	uint8_t pad2[0x20];
-	uint8_t Type;
-	uint8_t pad3[0xA];
+	uint32_t m_nRoomKey;
+	int32_t m_nBlip;
+	//uint8_t pad[0x2];
+	int32_t m_nLastPickedUpTime;
+	CVector m_vPosition;
+	uint8_t pad2[0x1C]; // Was 0x20 before
+	int16_t m_nModelIndex;
+	//uint8_t pad3[0x2];
+	uint16_t field_42; // Some important index
+	uint8_t m_nType;
+	uint8_t pad4[0xA];
 
 public:
 	// Gets rid of this pickup and also of the attached blip if it has one.
@@ -48,6 +52,12 @@ public:
 																				// How to get the address easily:
 																				// Go to the native function "SET_DEAD_PEDS_DROP_WEAPONS" and check for xrefs
 																				// to the byte (CPickups__m_bDeadPedDropWeapon) which gets set to 1
+	}
+
+	// Converts the pickup index to an actual handle so it can be used with native functions.
+	static int ConvertIndexToHandle(const int32_t& index)
+	{
+		return index | ((uint16_t)Pickups[index].field_42 << 16);
 	}
 
 	// Creates a new pickup.

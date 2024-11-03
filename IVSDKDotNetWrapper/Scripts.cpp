@@ -34,8 +34,16 @@ namespace IVSDKDotNet
 	// =========================================================================
 	// ================================== Script ===============================
 	// =========================================================================
+	Script::Script(bool internalCtor, Guid id)
+	{
+		m_bInternalCtorWasUsed = internalCtor;
+		ID = id;
+	}
 	Script::Script(Guid id)
 	{
+		AssembliesLocation = eAssembliesLocation::GameRootDirectory;
+		CustomAssembliesPath = String::Empty;
+		ScriptDomain = AppDomain::CurrentDomain;
 		ID = id;
 	}
 	Script::Script()
@@ -191,6 +199,14 @@ namespace IVSDKDotNet
 			return ManagerScript::s_Instance->GetScript(name);
 
 		return nullptr;
+	}
+
+	int Script::GetActiveScriptCount()
+	{
+		if (ManagerScript::s_Instance)
+			return ManagerScript::s_Instance->GetActiveScriptsCount();
+
+		return 0;
 	}
 
 	bool Script::SendScriptCommand(Script^ toScript, String^ command, array<Object^>^ parameters, [OutAttribute] Object^% result)

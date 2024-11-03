@@ -221,7 +221,7 @@ namespace CLR
 						ms->ApplySettings(Settings);
 
 						// Create and set dummy script for manager
-						ms->SetDummyScript(gcnew Script(Guid("00000000-0000-0000-0000-000000000001")));
+						ms->SetDummyScript(gcnew Script(true, Guid("00000000-0000-0000-0000-000000000001")));
 
 						// Load scripts
 						if (!Settings->GetBoolean("DEBUG", "DisableScriptLoadOnStartup", false))

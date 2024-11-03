@@ -3449,7 +3449,16 @@ namespace IVSDKDotNet
 			PICKUP_TYPE_NULL = 1,		// Can't pickup, does not disappear
 			PICKUP_TYPE_REGULAR = 2,	// Can pickup, disappears on pickup
 			PICKUP_TYPE_PIGEON = 3,		// Can't pickup, disappears when shot <- TEST THIS
-			PICKUP_TYPE_WEAPON = 0x16
+			PICKUP_TYPE_DROPPED_WEAPON = 5,
+			/// <summary>
+			/// The usual money drops. Dead peds drop money of this type. Stockade money drops seem to also use this type.
+			/// </summary>
+			PICKUP_TYPE_MONEY = 8,		// Can pickup, disappears on pickup
+			/// <summary>
+			/// Preplaced money? Fixed amount?
+			/// </summary>
+			PICKUP_TYPE_MONEY2 = 19,	// Can pickup, disappears on pickup
+			PICKUP_TYPE_WEAPON = 0x16	// 0x16 = 22 <- Change this
 		};
 
 		public enum class ePickupModel : uint32_t

@@ -665,13 +665,8 @@ namespace Manager
             // Only do stuff here if event comes from IV-SDK .NET KeyWatchDog
             if (sender == keyWatchDogs[0])
             {
-                // Raise local things
-                if (Console != null)
-                    Console.KeyDown(e);
-
-                // Check stuff
-                Checker.CheckSwitchCursorKeyPressed(e);
-                Checker.CheckOpenManagerWindowKeyPressed(e);
+                // Check for key stuff
+                KeyChecker.CheckAll(e);
             }
 
             if (DisableKeyEvents)
@@ -1168,54 +1163,68 @@ namespace Manager
             switch (scriptsToAbort)
             {
                 case ScriptType.All:
-
-                    // IV-SDK .NET scripts
-                    ActiveScripts.ForEach(x =>
                     {
-                        if (x.IsIVSDKDotNetScript)
-                            x.Abort(reason, showMessage);
-                    });
-                    ActiveScripts.RemoveAll(x => x.IsIVSDKDotNetScript);
+                        // IV-SDK .NET scripts
+                        ActiveScripts.ForEach(x =>
+                        {
+                            if (x.IsIVSDKDotNetScript)
+                                x.Abort(reason, showMessage);
+                        });
+                        ActiveScripts.RemoveAll(x =>
+                        {
+                            // Dont remove script from list if it cannot be aborted
+                            if (!x.CanScriptBeAborted(reason, false))
+                                return false;
 
-                    // ScriptHookDotNet scripts
-                    ActiveScripts.ForEach(x =>
-                    {
-                        if (x.IsScriptHookDotNetScript)
-                            x.Abort(reason, showMessage);
-                    });
-                    ActiveScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
+                            return x.IsIVSDKDotNetScript;
+                        });
 
-                    // Get rid of registered textures that couldn't be assigned to any script
-                    DestroyGlobalRegisteredTextures();
+                        // ScriptHookDotNet scripts
+                        ActiveScripts.ForEach(x =>
+                        {
+                            if (x.IsScriptHookDotNetScript)
+                                x.Abort(reason, showMessage);
+                        });
+                        ActiveScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
 
-                    // Clear ScriptHookDotNet Cache
-                    GTA.ContentCache.RemoveAll(true);
+                        // Get rid of registered textures that couldn't be assigned to any script
+                        DestroyGlobalRegisteredTextures();
 
+                        // Clear ScriptHookDotNet Cache
+                        GTA.ContentCache.RemoveAll(true);
+                    }
                     break;
                 case ScriptType.IVSDKDotNet:
-
-                    // IV-SDK .NET scripts
-                    ActiveScripts.ForEach(x =>
                     {
-                        if (x.IsIVSDKDotNetScript)
-                            x.Abort(reason, showMessage);
-                    });
-                    ActiveScripts.RemoveAll(x => x.IsIVSDKDotNetScript);
+                        // IV-SDK .NET scripts
+                        ActiveScripts.ForEach(x =>
+                        {
+                            if (x.IsIVSDKDotNetScript)
+                                x.Abort(reason, showMessage);
+                        });
+                        ActiveScripts.RemoveAll(x =>
+                        {
+                            // Dont remove script from list if it cannot be aborted
+                            if (!x.CanScriptBeAborted(reason, false))
+                                return false;
 
+                            return x.IsIVSDKDotNetScript;
+                        });
+                    }
                     break;
                 case ScriptType.ScriptHookDotNet:
-
-                    // ScriptHookDotNet scripts
-                    ActiveScripts.ForEach(x =>
                     {
-                        if (x.IsScriptHookDotNetScript)
-                            x.Abort(reason, showMessage);
-                    });
-                    ActiveScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
+                        // ScriptHookDotNet scripts
+                        ActiveScripts.ForEach(x =>
+                        {
+                            if (x.IsScriptHookDotNetScript)
+                                x.Abort(reason, showMessage);
+                        });
+                        ActiveScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
 
-                    // Clear ScriptHookDotNet Cache
-                    GTA.ContentCache.RemoveAll(true);
-
+                        // Clear ScriptHookDotNet Cache
+                        GTA.ContentCache.RemoveAll(true);
+                    }
                     break;
             }
 
@@ -1367,34 +1376,70 @@ namespace Manager
 
             string scriptName = target.EntryPoint.FullName;
 
-            // TODO: Maybe add possible solutions based on the error type.
+            // Figure out what kind of exception we got, so we can add a possible solution text to the notification
+            string possibleSolution = null;
+
+            if (ex is MissingFieldException || ex is MissingMemberException || ex is MissingMethodException || ex is TypeLoadException)
+            {
+                possibleSolution = "Possible Solution: Make sure the MOD itself, its DEPENDENCIES and IV-SDK .NET is up-to-date.";
+            }
+            else if (ex is FileNotFoundException || ex is DirectoryNotFoundException)
+            {
+                possibleSolution = "Possible Solution: Make sure the target file/directory is within its desired location, it's not renamed or deleted.";
+            }
+            else if (ex is UnauthorizedAccessException)
+            {
+                possibleSolution = "Possible Solution: Make sure GTA has sufficient permissions for the current directory e.g. not within a program files folder, or any other system protected folder.";
+            }
+            else if (ex is NotImplementedException)
+            {
+                possibleSolution = "Let the mod developer know that something was marked as not implemented yet.";
+            }
 
             // Show and Log the error
             if (target.IsScriptHookDotNetScript)
             {
-                Notification.ShowNotification(
+                NotificationContent content = new NotificationContent(
+                    string.Format("[ScriptHookDotNet] An error occured in {0} {2} {1}. More details in console.", scriptName, eventErrorOccuredIn, isInternalEvent ? "internal event" : ""),
+                    ex.Message,
+                    possibleSolution);
+
+                Notification.ShowNotificationEx(
                     NotificationType.Error,
                     DateTime.UtcNow.AddSeconds(notifySecondsVisible),
-                    string.Format("[ScriptHookDotNet] An error occured in {0} {2} {1}.", scriptName, eventErrorOccuredIn, isInternalEvent ? "internal event" : ""),
-                    ex.Message,
+                    content,
                     string.Format("ERROR_IN_SCRIPT_{0}", scriptName));
 
-                Logger.LogError(string.Format("An error occured while processing {0} event for ScriptHookDotNet script {1}. Aborting script. Details: {2}", eventErrorOccuredIn, scriptName, ex));
+                Logger.LogError(string.Format("An error occured while processing '{0}' event for ScriptHookDotNet script '{1}'. Aborting. Error details available below.", eventErrorOccuredIn, scriptName));
+
+                if (possibleSolution != null)
+                    Logger.LogError(possibleSolution);
+                
+                Logger.LogError(string.Format("Details: {0}", ex));
             }
             else
             {
-                Notification.ShowNotification(
+                NotificationContent content = new NotificationContent(
+                    string.Format("An error occured in {0} {1}. More details in console.", scriptName, eventErrorOccuredIn),
+                    ex.Message,
+                    possibleSolution);
+
+                Notification.ShowNotificationEx(
                     NotificationType.Error,
                     DateTime.UtcNow.AddSeconds(notifySecondsVisible),
-                    string.Format("An error occured in {0} {1}.", scriptName, eventErrorOccuredIn),
-                    ex.Message,
+                    content,
                     string.Format("ERROR_IN_SCRIPT_{0}", scriptName));
 
-                Logger.LogError(string.Format("An error occured while processing '{0}' event for script '{1}'. Aborting script. Details: {2}", eventErrorOccuredIn, scriptName, ex));
+                Logger.LogError(string.Format("An error occured while processing '{0}' event for IV-SDK .NET script '{1}'. Aborting. Error details available below.", eventErrorOccuredIn, scriptName));
+
+                if (possibleSolution != null)
+                    Logger.LogError(possibleSolution);
+
+                Logger.LogError(string.Format("Details: {0}", ex));
             }
 
             // Abort script
-            AbortScriptInternal(AbortReason.Manager, target, true);
+            AbortScriptInternal(AbortReason.Manager, target, true, true);
         }
         private void SetUpKeyWatchDogs()
         {
@@ -1539,29 +1584,14 @@ namespace Manager
             return fs;
         }
 
-        public bool AbortScriptInternal(AbortReason reason, Guid id)
-        {
-            // Try find and abort script
-            FoundScript script = GetFoundScript(id);
-
-            if (script != null)
-            {
-                Logger.Log(string.Format("Aborting script {0}...", script.EntryPoint.FullName));
-                script.Abort(reason, true);
-                GC.Collect();
-                return ActiveScripts.Remove(script);
-            }
-
-            return false;
-        }
-        public bool AbortScriptInternal(AbortReason reason, FoundScript script, bool showMessage)
+        public bool AbortScriptInternal(AbortReason reason, FoundScript script, bool showMessage, bool forceAbort = false)
         {
             if (script != null)
             {
                 if (showMessage)
                     Logger.Log(string.Format("Aborting script {0}...", script.EntryPoint.FullName));
 
-                script.Abort(reason, showMessage);
+                script.Abort(reason, showMessage, forceAbort);
 
                 bool result = ActiveScripts.Remove(script);
                 GC.Collect();
@@ -1569,6 +1599,10 @@ namespace Manager
             }
 
             return false;
+        }
+        public bool AbortScriptInternal(AbortReason reason, Guid id, bool showMessage, bool forceAbort = false)
+        {
+            return AbortScriptInternal(reason, GetFoundScript(id), showMessage, forceAbort);
         }
 
         public Guid StartNewTimerInternal(int interval, Action actionToExecute)
@@ -1758,7 +1792,7 @@ namespace Manager
 
         public override bool AbortScript(Guid id)
         {
-            return AbortScriptInternal(AbortReason.Script, id);
+            return AbortScriptInternal(AbortReason.Script, id, true);
         }
 
         public override Script GetScript(Guid id)

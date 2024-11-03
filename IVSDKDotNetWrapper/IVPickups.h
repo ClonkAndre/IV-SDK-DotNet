@@ -2,11 +2,11 @@
 
 namespace IVSDKDotNet
 {
-	public ref struct IVPickup
+	public value class IVPickup
 	{
 	public:
 		/// <summary>
-		/// I dont know what this is related to.
+		/// Something timer related. But doesn't get used that often.
 		/// </summary>
 		property uint32_t field_0
 		{
@@ -31,12 +31,12 @@ namespace IVSDKDotNet
 			UIntPtr get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePickup, UIntPtr::Zero);
-				return UIntPtr(NativePickup->WorldObject);
+				return UIntPtr(NativePickup->m_pWorldObject);
 			}
 			void set(UIntPtr value)
 			{
 				NULLPTR_CHECK(NativePickup);
-				NativePickup->WorldObject = value.ToUInt32();
+				NativePickup->m_pWorldObject = value.ToUInt32();
 			}
 		}
 		/// <summary>
@@ -65,12 +65,12 @@ namespace IVSDKDotNet
 			uint32_t get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePickup, 0);
-				return NativePickup->RoomKey;
+				return NativePickup->m_nRoomKey;
 			}
 			void set(uint32_t value)
 			{
 				NULLPTR_CHECK(NativePickup);
-				NativePickup->RoomKey = value;
+				NativePickup->m_nRoomKey = value;
 			}
 		}
 		/// <summary>
@@ -82,12 +82,29 @@ namespace IVSDKDotNet
 			int32_t get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePickup, 0);
-				return NativePickup->Blip;
+				return NativePickup->m_nBlip;
 			}
 			void set(int32_t value)
 			{
 				NULLPTR_CHECK(NativePickup);
-				NativePickup->Blip = value;
+				NativePickup->m_nBlip = value;
+			}
+		}
+		/// <summary>
+		/// The total game time in milliseconds when the pickup was last picked up.
+		/// </summary>
+		property int32_t LastPickedUpTime
+		{
+		public:
+			int32_t get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePickup, 0);
+				return NativePickup->m_nLastPickedUpTime;
+			}
+			void set(int32_t value)
+			{
+				NULLPTR_CHECK(NativePickup);
+				NativePickup->m_nLastPickedUpTime = value;
 			}
 		}
 		/// <summary>
@@ -99,12 +116,44 @@ namespace IVSDKDotNet
 			Vector3 get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePickup, Vector3::Zero);
-				return CVectorToVector3(NativePickup->Position);
+				return CVectorToVector3(NativePickup->m_vPosition);
 			}
 			void set(Vector3 value)
 			{
 				NULLPTR_CHECK(NativePickup);
-				NativePickup->Position = Vector3ToCVector(value);
+				NativePickup->m_vPosition = Vector3ToCVector(value);
+			}
+		}
+		/// <summary>
+		/// The index of the model of this pickup.
+		/// </summary>
+		property int16_t ModelIndex
+		{
+			int16_t get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePickup, 0);
+				return NativePickup->m_nModelIndex;
+			}
+			void set(int16_t value)
+			{
+				NULLPTR_CHECK(NativePickup);
+				NativePickup->m_nModelIndex = value;
+			}
+		}
+		/// <summary>
+		/// Some important index.
+		/// </summary>
+		property uint16_t field_42
+		{
+			uint16_t get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativePickup, 0);
+				return NativePickup->field_42;
+			}
+			void set(uint16_t value)
+			{
+				NULLPTR_CHECK(NativePickup);
+				NativePickup->field_42 = value;
 			}
 		}
 		/// <summary>
@@ -115,12 +164,12 @@ namespace IVSDKDotNet
 			uint8_t get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePickup, 0);
-				return NativePickup->Type;
+				return NativePickup->m_nType;
 			}
 			void set(uint8_t value)
 			{
 				NULLPTR_CHECK(NativePickup);
-				NativePickup->Type = value;
+				NativePickup->m_nType = value;
 			}
 		}
 
@@ -147,14 +196,14 @@ namespace IVSDKDotNet
 		/// <summary>
 		/// Contains all registered pickups.
 		/// </summary>
-		static property array<IVPickup^>^ Pickups
+		static property array<IVPickup>^ Pickups
 		{
 		public:
-			array<IVPickup^>^ get()
+			array<IVPickup>^ get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(CPickups::Pickups, nullptr);
 
-				array<IVPickup^>^ arr = gcnew array<IVPickup^>(1500);
+				array<IVPickup>^ arr = gcnew array<IVPickup>(1500);
 
 				for (int i = 0; i < arr->Length; i++)
 				{
@@ -163,27 +212,20 @@ namespace IVSDKDotNet
 					if (!ptr)
 						continue;
 
-					arr[i] = gcnew IVPickup(ptr);
+					arr[i] = IVPickup(ptr);
 				}
 
 				return arr;
 			}
-			void set(array<IVPickup^>^ value)
+			void set(array<IVPickup>^ value)
 			{
-				//NULLPTR_CHECK(value);
-				//NULLPTR_CHECK(CPickups::Pickups);
+				NULLPTR_CHECK(value);
+				NULLPTR_CHECK(CPickups::Pickups);
 
-				//for (int i = 0; i < value->Length; i++)
-				//{
-				//	IVPickup^ obj = value[i];
-
-				//	if (!obj)
-				//	{
-				//		continue;
-				//	}
-
-				//	CPickups::Pickups[i] = obj->NativePickup;
-				//}
+				for (int i = 0; i < value->Length; i++)
+				{
+					CPickups::Pickups[i] = *value[i].NativePickup;
+				}
 			}
 		}
 		/// <summary>
@@ -236,6 +278,13 @@ namespace IVSDKDotNet
 		/// <returns>Always 0</returns>
 		static int Reset();
 		
+		/// <summary>
+		/// Converts the pickup index to an actual handle so it can be used with native functions.
+		/// </summary>
+		/// <param name="index">The index of the pickup in the array of pickups.</param>
+		/// <returns>If successful, the handle is returned. Otherwise, -1.</returns>
+		static int ConvertIndexToHandle(int32_t index);
+
 		/// <summary>
 		/// Creates a new pickup.
 		/// </summary>

@@ -39,6 +39,10 @@ namespace IVSDKDotNet
 	{
 		return CPickups::Reset();
 	}
+	int IVPickups::ConvertIndexToHandle(int32_t index)
+	{
+		return CPickups::ConvertIndexToHandle(index);
+	}
 	void IVPickups::DoPickUpEffects()
 	{
 		CPickups::DoPickUpEffects();

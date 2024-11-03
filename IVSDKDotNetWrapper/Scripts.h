@@ -11,9 +11,10 @@ namespace IVSDKDotNet
 	{
 		// Constructor / Destructor
 	internal:
-		Script(Guid id);
+		Script(bool internalCtor, Guid id);
 
 	public:
+		Script(Guid id);
 		Script();
 		~Script() { }
 
@@ -27,6 +28,186 @@ namespace IVSDKDotNet
 
 		delegate void OnFirstD3D9FrameDelegate(IntPtr devicePtr);
 		delegate void OnImGuiRenderingDelegate(IntPtr devicePtr, ImGuiIV_DrawingContext ctx);
+
+		// Properties
+	public:
+		/// <summary>
+		/// The unique ID of this script.
+		/// </summary>
+		property Guid ID
+		{
+		public:
+			Guid get()
+			{
+				return m_id;
+			}
+		private:
+			void set(Guid value)
+			{
+				if (value == Guid::Empty)
+					throw gcnew Exception("Invalid script ID. Please choose another.");
+				if (value == Guid("00000000-0000-0000-0000-000000000001") && !m_bInternalCtorWasUsed)
+					throw gcnew Exception("Invalid script ID. Please choose another.");
+
+				m_id = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets the current AppDomain.
+		/// </summary>
+		property AppDomain^ ScriptDomain
+		{
+		public:
+			AppDomain^ get()
+			{
+				return m_AppDomain;
+			}
+		internal:
+			void set(AppDomain^ value)
+			{
+				m_AppDomain = value;
+			}
+		}
+
+		/// <summary>
+		/// If you uploaded your Modification to the IV Launchers Workshop, you can set the value of this property to the ID of the Modification in the Workshop.
+		/// </summary>
+		property Guid IVLauncherWorkshopID
+		{
+		public:
+			Guid get()
+			{
+				return m_ivLauncherWorkshopID;
+			}
+			void set(Guid value)
+			{
+				m_ivLauncherWorkshopID = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets where the Assemblies are located for this script. Default: GameRootDirectory
+		/// </summary>
+		property eAssembliesLocation AssembliesLocation
+		{
+		public:
+			eAssembliesLocation get()
+			{
+				return m_AssembliesLocation;
+			}
+			void set(eAssembliesLocation value)
+			{
+				m_AssembliesLocation = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the custom Assemblies path for this Script if you have set the AssembliesLocation to Custom.
+		/// The path is relative to the root directory of GTA IV.
+		/// Example: IVSDKDotNet\scripts\AssembliesForMyEpicScript - The Assemblies for your Script will now be loaded from the AssembliesForMyEpicScript folder.
+		/// </summary>
+		property String^ CustomAssembliesPath
+		{
+		public:
+			String^ get()
+			{
+				return m_CustomAssembliesPath;
+			}
+			void	set(String^ value)
+			{
+				m_CustomAssembliesPath = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the resource folder for this Script where all the files required by this Script are located.
+		/// The folder has to be named the same name as your Script (without extension), and needs to be placed in the scripts folder.
+		/// The string will be null if the folder doesn't exist.
+		/// </summary>
+		property String^ ScriptResourceFolder
+		{
+		public:
+			String^ get()
+			{
+				return m_ScriptResourceFolder;
+			}
+			void	set(String^ value)
+			{
+				m_ScriptResourceFolder = value;
+			}
+		}
+
+		/// <summary>
+		/// The settings file of this script.
+		/// </summary>
+		property SettingsFile^ Settings
+		{
+		public:
+			SettingsFile^ get()
+			{
+				return m_SettingsFile;
+			}
+			void set(SettingsFile^ value)
+			{
+				m_SettingsFile = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets if the KeyDown and KeyUp events should only be raised when the player is actually in-game and not in main menu.
+		/// </summary>
+		property bool OnlyRaiseKeyEventsWhenInGame
+		{
+		public:
+			bool get()
+			{
+				return m_bOnlyInvokeKeyEventsWhenInGame;
+			}
+			void set(bool value)
+			{
+				m_bOnlyInvokeKeyEventsWhenInGame = value;
+			}
+		}
+
+		/// <summary>
+		/// This makes it so the script is not able to be aborted* if all scripts are being aborted, making it act more like an ASI mod.
+		/// <para>It is recommended to leave this set to false, and should only be activated when you have a very specific usecase for it.</para>
+		/// <para>* The script is still able to be aborted when: </para>
+		/// <para>- It creates an exception which the IV-SDK .NET Manager catches.</para>
+		/// <para>- The user aborts the script manually via the IV-SDK .NET Manager.</para>
+		/// </summary>
+		property bool ForceNoAbort
+		{
+		public:
+			bool get()
+			{
+				return m_bForceNoAbort;
+			}
+			void set(bool value)
+			{
+				m_bForceNoAbort = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the interval with which the WaitTick event should get raised. The default is 100ms and it cannot go below 1.
+		/// </summary>
+		property int WaitTickInterval
+		{
+		public:
+			int get()
+			{
+				return m_iWaitTickInterval;
+			}
+			void set(int value)
+			{
+				if (value < 1)
+					return;
+
+				m_iWaitTickInterval = value;
+			}
+		}
 
 		// Events
 	public:
@@ -362,6 +543,12 @@ namespace IVSDKDotNet
 		Script^ GetScript(String^ name);
 
 		/// <summary>
+		/// Gets how many active IV-SDK .NET / ScriptHookDotNet scripts there are.
+		/// </summary>
+		/// <returns>The amount of currently active scripts.</returns>
+		int GetActiveScriptCount();
+
+		/// <summary>
 		/// Allows you to communicate with other scripts.
 		/// </summary>
 		/// <param name="toScript">To which the script the command should be send to.</param>
@@ -389,104 +576,6 @@ namespace IVSDKDotNet
 		/// <returns>If successful, true is returned. Otherwise, false.</returns>
 		bool SendScriptCommand(String^ toScript, String^ command, array<Object^>^ args, [OutAttribute] Object^% result);
 
-		/// <summary>
-		/// The unique ID of this script.
-		/// </summary>
-		property Guid ID
-		{
-			public:		Guid get()				{ return m_id; }
-			private:	void set(Guid value)	{ m_id = value; }
-		}
-
-		/// <summary>
-		/// Gets the current AppDomain.
-		/// </summary>
-		property AppDomain^ ScriptDomain
-		{
-			public:		AppDomain^ get() { return m_AppDomain; }
-			internal:	void set(AppDomain^ value) { m_AppDomain = value; }
-		}
-
-		/// <summary>
-		/// If you uploaded your Modification to the IV Launchers Workshop, you can set the value of this property to the ID of the Modification in the Workshop.
-		/// </summary>
-		property Guid IVLauncherWorkshopID
-		{
-			public:	
-				Guid get()				{ return m_ivLauncherWorkshopID; }
-				void set(Guid value)	{ m_ivLauncherWorkshopID = value; }
-		}
-
-		/// <summary>
-		/// Gets or sets where the Assemblies are located for this script. Default: GameRootDirectory
-		/// </summary>
-		property eAssembliesLocation AssembliesLocation
-		{
-			public:
-				eAssembliesLocation get()			{ return m_AssembliesLocation; }
-				void set(eAssembliesLocation value) { m_AssembliesLocation = value; }
-		}
-
-		/// <summary>
-		/// Gets or sets the custom Assemblies path for this Script if you have set the AssembliesLocation to Custom.
-		/// The path is relative to the root directory of GTA IV.
-		/// Example: IVSDKDotNet\scripts\AssembliesForMyEpicScript - The Assemblies for your Script will now be loaded from the AssembliesForMyEpicScript folder.
-		/// </summary>
-		property String^ CustomAssembliesPath
-		{
-			public:
-				String^ get()				{ return m_CustomAssembliesPath; }
-				void	set(String^ value)	{ m_CustomAssembliesPath = value; }
-		}
-
-		/// <summary>
-		/// Gets or sets the resource folder for this Script where all the files required by this Script are located.
-		/// The folder has to be named the same name as your Script (without extension), and needs to be placed in the scripts folder.
-		/// The string will be null if the folder doesn't exist.
-		/// </summary>
-		property String^ ScriptResourceFolder
-		{
-			public:
-				String^ get()				{ return m_ScriptResourceFolder; }
-				void	set(String^ value)	{ m_ScriptResourceFolder = value; }
-		}
-
-		/// <summary>
-		/// The settings file of this script.
-		/// </summary>
-		property SettingsFile^ Settings
-		{
-			public: 
-				SettingsFile^ get()				{ return m_SettingsFile; }
-				void set(SettingsFile^ value)	{ m_SettingsFile = value; }
-		}
-
-		/// <summary>
-		/// Gets or sets if the KeyDown and KeyUp events should only be raised when the player is actually in-game and not in main menu.
-		/// </summary>
-		property bool OnlyRaiseKeyEventsWhenInGame
-		{
-			public:
-				bool get()				{ return m_bOnlyInvokeKeyEventsWhenInGame; }
-				void set(bool value)	{ m_bOnlyInvokeKeyEventsWhenInGame = value; }
-		}
-
-		/// <summary>
-		/// Gets or sets the interval with which the WaitTick event should get raised. The default is 100ms and it cannot go below 1.
-		/// </summary>
-		property int WaitTickInterval
-		{
-			public:
-				int get() { return m_iWaitTickInterval; }
-				void set(int value)
-				{
-					if (value < 1)
-						return;
-
-					m_iWaitTickInterval = value;
-				}
-		}
-
 	private:
 		Guid m_id;
 		AppDomain^ m_AppDomain;
@@ -495,7 +584,9 @@ namespace IVSDKDotNet
 		String^ m_CustomAssembliesPath;
 		String^ m_ScriptResourceFolder;
 		SettingsFile^ m_SettingsFile;
+		bool m_bInternalCtorWasUsed;
 		bool m_bOnlyInvokeKeyEventsWhenInGame;
+		bool m_bForceNoAbort;
 		int m_iWaitTickInterval = 100;
 	};
 

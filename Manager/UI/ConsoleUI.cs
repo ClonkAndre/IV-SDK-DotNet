@@ -49,6 +49,13 @@ namespace Manager.UI
         #endregion
 
         #region Methods
+        public void ToggleConsole()
+        {
+            if (IsConsoleOpen)
+                Close();
+            else
+                Open();
+        }
         public void Open()
         {
             IsConsoleOpen = true;
@@ -140,7 +147,7 @@ namespace Manager.UI
             RegisterLocalCommand("Autosave", (string[] args) => { Natives.DO_AUTO_SAVE(); });
             RegisterLocalCommand("Save", (string[] args) => { Natives.ACTIVATE_SAVE_MENU(); });
             RegisterLocalCommand("SavePlayerPos", (string[] args) => { SavePlayerPosCommand(); });
-            RegisterLocalCommand("AbortScripts", (string[] args) => { Main.Instance.AbortScripts(ScriptType.All, AbortReason.Manual, true); });
+            RegisterLocalCommand("AbortScripts", (string[] args) => { Main.Instance.AbortScripts(ScriptType.All, AbortReason.Console, true); });
             RegisterLocalCommand("AbortScript", (string[] args) => { AbortScriptCommand(args); });
             RegisterLocalCommand("ReloadScripts", (string[] args) => { Main.Instance.LoadScripts(); });
             RegisterLocalCommand("GetRunningScripts", (string[] args) => { Logger.Log(string.Format("There are currently {0} scripts running.", Main.Instance.ActiveScripts.Count.ToString()), true); });
@@ -504,18 +511,6 @@ namespace Manager.UI
             }
 
             ImGuiIV.End();
-        }
-
-        public void KeyDown(KeyEventArgs e)
-        {
-            // Open/Close Console
-            if (e.KeyCode == Config.ConsoleOpenCloseKey)
-            {
-                if (IsConsoleOpen)
-                    Close();
-                else
-                    Open();
-            }
         }
 
     }

@@ -680,6 +680,9 @@ namespace Manager.UI
 
 #if DEBUG
         private static bool testNotifyIsError;
+        private static string testNotifyTitle;
+        private static string testNotifyDesc;
+        private static string testNotifyAdditionalContent;
         private static void DebugTab()
         {
             /// @begin TabItem
@@ -696,11 +699,19 @@ namespace Manager.UI
                 ImGuiIV.TextUnformatted("Main Thread ID: {0}", Main.Instance.MainThreadID);
                 ImGuiIV.TextUnformatted("Console Log Items: {0}", Logger.GetLogItems().Count);
 
+                ImGuiIV.Spacing();
+                ImGuiIV.SeparatorText("Test Notification and Popup");
                 ImGuiIV.CheckBox("Test notification is error", ref testNotifyIsError);
+
+                ImGuiIV.InputText("TestNotifyTitle", ref testNotifyTitle);
+                ImGuiIV.InputText("TestNotifyDesc", ref testNotifyDesc);
+                ImGuiIV.InputText("TestNotifyAdditionalContent", ref testNotifyAdditionalContent);
+
                 if (ImGuiIV.Button("Show test notification"))
-                {
-                    Main.Instance.Notification.ShowNotification(testNotifyIsError ? NotificationType.Error : NotificationType.Default, DateTime.UtcNow.AddSeconds(5d), "Test notification title", "The description of this notification", null);
-                }
+                    Main.Instance.Notification.ShowNotificationEx(testNotifyIsError ? NotificationType.Error : NotificationType.Default,
+                        DateTime.UtcNow.AddSeconds(5d),
+                        new NotificationContent(testNotifyTitle, testNotifyDesc, testNotifyAdditionalContent),
+                        null);
 
                 if (ImGuiIV.Button("open test popup"))
                 {
@@ -986,7 +997,7 @@ namespace Manager.UI
                             /// @begin Button
                             if (ImGuiIV.Button("Abort this script", new Vector2(150f, 0f)))
                             {
-                                Main.Instance.AbortScriptInternal(AbortReason.Manager, fs, false);
+                                Main.Instance.AbortScriptInternal(AbortReason.Manual, fs, false);
                                 goto SKIP_TO_END;
                             }
                             /// @end Button
@@ -1069,6 +1080,13 @@ namespace Manager.UI
                                     /// @end Text
                                 }
 
+                                if (fs.IsIVSDKDotNetScript)
+                                {
+                                    /// @begin Text
+                                    ImGuiIV.TextUnformatted("No Abort Forced");
+                                    /// @end Text
+                                }
+
                                 /// @begin Text
                                 ImGuiIV.TextUnformatted("Is Ready");
                                 /// @end Text
@@ -1109,6 +1127,13 @@ namespace Manager.UI
                                 {
                                     /// @begin Text
                                     ImGuiIV.TextUnformatted(fs.RegisteredEvents.Count.ToString()); // Registered Events
+                                    /// @end Text
+                                }
+
+                                if (fs.IsIVSDKDotNetScript)
+                                {
+                                    /// @begin Text
+                                    ImGuiIV.TextUnformatted(fs.GetScriptAs<Script>().ForceNoAbort.ToString()); // No Abort Forced
                                     /// @end Text
                                 }
 
@@ -1371,10 +1396,12 @@ SKIP_TO_END:
                 {
                     ImGuiIV.Spacing(2);
 
+                    /// @begin CheckBox
                     ImGuiIV.HelpMarker(string.Format("Sets if the IVSDKDotNet.log file should be created in the main directory of GTA IV or not.{0}" +
                         "If set to false, the Log files will be created in the 'logs' folder within the 'IVSDKDotNet' directory.", Environment.NewLine));
                     ImGuiIV.SameLine();
                     ImGuiIV.CheckBox("CreateLogFilesInMainDirectory", ref Config.CreateLogFilesInMainDirectory);
+                    /// @end CheckBox
 
                     /// @begin Slider
                     ImGuiIV.HelpMarker("Determines how many logs files can be stored inside the 'logs' folder within the 'IVSDKDotNet' directory.");
@@ -1382,6 +1409,23 @@ SKIP_TO_END:
                     ImGuiIV.SetNextItemWidth(200);
                     ImGuiIV.SliderInt("MaxLogsFiles", ref Config.MaxLogsFiles, 0, 50);
                     /// @end Slider
+
+                    /// @begin CheckBox
+                    ImGuiIV.HelpMarker("Sets if the Manager can check for new IV-SDK .NET updates.");
+                    ImGuiIV.SameLine();
+                    ImGuiIV.CheckBox("EnableAutomaticUpdateCheck", ref Config.EnableAutomaticUpdateCheck);
+                    /// @end CheckBox
+
+                    ImGuiIV.Dummy(new Vector2(0f, 4f));
+                }
+                /// @end CollapsingHeader
+
+                /// @begin CollapsingHeader
+                if (ImGuiIV.CollapsingHeader("Keys"))
+                {
+                    Helper.AskToOpenWebPageButton(true, "Click here to find a list of all key names (Links to docs.microsoft.com).", Vector2.Zero, new Uri("https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.keys?view=windowsdesktop-6.0"));
+                    ImGuiIV.TextUnformatted("Recommended modifiers that can be used with all keys: Control, Alt, Shift.");
+                    ImGuiIV.Spacing(2);
 
                     /// @begin Input
                     ImGuiIV.HelpMarker(string.Format("Defines the key that is used to switch the cursor visiblity which is used for script windows, the IV-SDK .NET console and manager window.{0}" +
@@ -1398,7 +1442,19 @@ SKIP_TO_END:
                     ImGuiIV.InputText("OpenManagerWindowKey", ref Config.OpenManagerWindowKey);
                     /// @end Input
 
-                    ImGuiIV.Dummy(new Vector2(0f, 4f));
+                    /// @begin Input
+                    ImGuiIV.HelpMarker("Defines the key that is used to open/close the IV-SDK .NET console.");
+                    ImGuiIV.SameLine();
+                    ImGuiIV.SetNextItemWidth(200);
+                    ImGuiIV.InputText("OpenConsoleKey", ref Config.OpenConsoleKey);
+                    /// @end Input
+
+                    /// @begin Input
+                    ImGuiIV.HelpMarker("Defines the key that is used to reload all scripts.");
+                    ImGuiIV.SameLine();
+                    ImGuiIV.SetNextItemWidth(200);
+                    ImGuiIV.InputText("ReloadScriptsKey", ref Config.ReloadScriptsKey);
+                    /// @end Input
                 }
                 /// @end CollapsingHeader
 
@@ -1406,6 +1462,11 @@ SKIP_TO_END:
                 if (ImGuiIV.CollapsingHeader("Scripts"))
                 {
                     ImGuiIV.Spacing(2);
+
+                    ImGuiIV.HelpMarker(string.Format("If set to true, this makes it so that scripts which have this property set, are not able to be aborted if all scripts are being aborted via the console or manager, making it act more like an ASI mod.{0}" +
+                        "It is however still possible for them to be unloaded, by either the scripts creating an error and the manager catching them, or by the user to reload each script manually via the manager.", Environment.NewLine));
+                    ImGuiIV.SameLine();
+                    ImGuiIV.CheckBox("AllowScriptsToForceNoAbort", ref Config.AllowScriptsToForceNoAbort);
 
                     ImGuiIV.HelpMarker("Sets if all running scripts will pause from executing when the GTA IV window is not currently in focus.");
                     ImGuiIV.SameLine();
@@ -1454,38 +1515,6 @@ SKIP_TO_END:
                     ImGuiIV.HelpMarker("Sets if the IV-SDK .NET Manager and Console windows will use a custom theme instead of the one set above.");
                     ImGuiIV.SameLine();
                     ImGuiIV.CheckBox("UseCustomThemeForManagerAndConsole", ref Config.UseCustomThemeForManagerAndConsole);
-
-                    ImGuiIV.Dummy(new Vector2(0f, 4f));
-                }
-                /// @end CollapsingHeader
-
-                /// @begin CollapsingHeader
-                if (ImGuiIV.CollapsingHeader("Console"))
-                {
-                    ImGuiIV.Spacing(2);
-
-                    string key = Config.ConsoleOpenCloseKey.ToString();
-
-                    if (invalidKey)
-                        ImGuiIV.PushStyleColor(eImGuiCol.Text, Color.Red);
-
-                    ImGuiIV.HelpMarker("Defines the key that is used to open/close the IV-SDK .NET console.");
-                    ImGuiIV.SameLine();
-                    ImGuiIV.SetNextItemWidth(200);
-                    ImGuiIV.InputText("OpenCloseKey", ref key);
-
-                    if (invalidKey)
-                        ImGuiIV.PopStyleColor();
-
-                    if (Enum.TryParse<Keys>(key, out Keys keys))
-                    {
-                        Config.ConsoleOpenCloseKey = keys;
-                        invalidKey = false;
-                    }
-                    else
-                    {
-                        invalidKey = true;
-                    }
 
                     ImGuiIV.Dummy(new Vector2(0f, 4f));
                 }

@@ -347,8 +347,6 @@ namespace IVSDKDotNet
 		return true;
 	}
 
-	// TODO: Make parsing values use the "TryParse" functions instead if "Parse" to prevent possible crashes
-
 #pragma region Boolean
 	bool SettingsFile::GetBoolean(String^ section, String^ key, bool defaultValue)
 	{
@@ -374,7 +372,11 @@ namespace IVSDKDotNet
 		if (String::IsNullOrWhiteSpace(str))
 			return defaultValue;
 
-		return Int32::Parse(str);
+		int result;
+		if (Int32::TryParse(str, result))
+			return result;
+
+		return defaultValue;
 	}
 	bool SettingsFile::SetInteger(String^ section, String^ key, Int32 value)
 	{
@@ -389,7 +391,11 @@ namespace IVSDKDotNet
 		if (String::IsNullOrWhiteSpace(str))
 			return defaultValue;
 
-		return UInt32::Parse(str);
+		UInt32 result;
+		if (UInt32::TryParse(str, result))
+			return result;
+
+		return defaultValue;
 	}
 	bool SettingsFile::SetUInteger(String^ section, String^ key, UInt32 value)
 	{
@@ -403,10 +409,33 @@ namespace IVSDKDotNet
 		String^ str = GetValue(section, key, "");
 		if (String::IsNullOrWhiteSpace(str))
 			return defaultValue;
+		
+		float result;
+		if (float::TryParse(str, NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, result))
+			return result;
 
-		return float::Parse(str, CultureInfo::InvariantCulture);
+		return defaultValue;
 	}
 	bool SettingsFile::SetFloat(String^ section, String^ key, float value)
+	{
+		return SettingsFile::SetValue(section, key, value.ToString(CultureInfo::InvariantCulture));
+	}
+#pragma endregion
+
+#pragma region Double
+	double SettingsFile::GetDouble(String^ section, String^ key, double defaultValue)
+	{
+		String^ str = GetValue(section, key, "");
+		if (String::IsNullOrWhiteSpace(str))
+			return defaultValue;
+
+		double result;
+		if (double::TryParse(str, NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, result))
+			return result;
+
+		return defaultValue;
+	}
+	bool SettingsFile::SetDouble(String^ section, String^ key, double value)
 	{
 		return SettingsFile::SetValue(section, key, value.ToString(CultureInfo::InvariantCulture));
 	}
@@ -422,11 +451,30 @@ namespace IVSDKDotNet
 		array<String^>^ values = str->Split(s_aVectorSeparator, StringSplitOptions::None);
 
 		if (values->Length > 7)
-			return Color::FromArgb(
-				Int32::Parse(values[1]),
-				Int32::Parse(values[3]),
-				Int32::Parse(values[5]),
-				Int32::Parse(values[7]));
+		{
+			bool parsing1Succeeded = false;
+			bool parsing2Succeeded = false;
+			bool parsing3Succeeded = false;
+			bool parsing4Succeeded = false;
+
+			int a = 0;
+			int r = 0;
+			int g = 0;
+			int b = 0;
+
+			// Parsing
+			if (Int32::TryParse(values[1], a))
+				parsing1Succeeded = true;
+			if (Int32::TryParse(values[3], r))
+				parsing2Succeeded = true;
+			if (Int32::TryParse(values[5], g))
+				parsing3Succeeded = true;
+			if (Int32::TryParse(values[7], b))
+				parsing4Succeeded = true;
+
+			if (parsing1Succeeded && parsing2Succeeded && parsing3Succeeded && parsing4Succeeded)
+				return Color::FromArgb(a, r, g, b);
+		}
 
 		return defaultValue;
 	}
@@ -465,11 +513,30 @@ namespace IVSDKDotNet
 		array<String^>^ values = str->Split(s_aVectorSeparator, StringSplitOptions::None);
 
 		if (values->Length > 7)
-			return Quaternion(
-				float::Parse(values[1], s_cInvariantCulture),
-				float::Parse(values[3], s_cInvariantCulture),
-				float::Parse(values[5], s_cInvariantCulture),
-				float::Parse(values[7], s_cInvariantCulture));
+		{
+			bool parsing1Succeeded = false;
+			bool parsing2Succeeded = false;
+			bool parsing3Succeeded = false;
+			bool parsing4Succeeded = false;
+
+			float x = 0.0F;
+			float y = 0.0F;
+			float z = 0.0F;
+			float w = 0.0F;
+
+			// Parsing
+			if (float::TryParse(values[1], NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, x))
+				parsing1Succeeded = true;
+			if (float::TryParse(values[3], NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, y))
+				parsing2Succeeded = true;
+			if (float::TryParse(values[5], NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, z))
+				parsing3Succeeded = true;
+			if (float::TryParse(values[7], NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, w))
+				parsing4Succeeded = true;
+
+			if (parsing1Succeeded && parsing2Succeeded && parsing3Succeeded && parsing4Succeeded)
+				return Quaternion(x, y, z, w);
+		}
 
 		return defaultValue;
 	}
@@ -495,9 +562,22 @@ namespace IVSDKDotNet
 		CultureInfo^ invariantCulture = CultureInfo::InvariantCulture;
 
 		if (values->Length > 3)
-			return Vector2(
-				float::Parse(values[1], s_cInvariantCulture),
-				float::Parse(values[3], s_cInvariantCulture));
+		{
+			bool parsing1Succeeded = false;
+			bool parsing2Succeeded = false;
+
+			float x = 0.0F;
+			float y = 0.0F;
+
+			// Parsing
+			if (float::TryParse(values[1], NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, x))
+				parsing1Succeeded = true;
+			if (float::TryParse(values[3], NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, y))
+				parsing2Succeeded = true;
+
+			if (parsing1Succeeded && parsing2Succeeded)
+				return Vector2(x, y);
+		}
 
 		return defaultValue;
 	}
@@ -519,10 +599,26 @@ namespace IVSDKDotNet
 		array<String^>^ values = str->Split(s_aVectorSeparator, StringSplitOptions::None);
 
 		if (values->Length > 5)
-			return Vector3(
-				float::Parse(values[1], s_cInvariantCulture),
-				float::Parse(values[3], s_cInvariantCulture),
-				float::Parse(values[5], s_cInvariantCulture));
+		{
+			bool parsing1Succeeded = false;
+			bool parsing2Succeeded = false;
+			bool parsing3Succeeded = false;
+
+			float x = 0.0F;
+			float y = 0.0F;
+			float z = 0.0F;
+
+			// Parsing
+			if (float::TryParse(values[1], NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, x))
+				parsing1Succeeded = true;
+			if (float::TryParse(values[3], NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, y))
+				parsing2Succeeded = true;
+			if (float::TryParse(values[5], NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, z))
+				parsing3Succeeded = true;
+
+			if (parsing1Succeeded && parsing2Succeeded && parsing3Succeeded)
+				return Vector3(x, y, z);
+		}
 
 		return defaultValue;
 	}
@@ -545,11 +641,30 @@ namespace IVSDKDotNet
 		array<String^>^ values = str->Split(s_aVectorSeparator, StringSplitOptions::None);
 
 		if (values->Length > 7)
-			return Vector4(
-				float::Parse(values[1], s_cInvariantCulture),
-				float::Parse(values[3], s_cInvariantCulture),
-				float::Parse(values[5], s_cInvariantCulture),
-				float::Parse(values[7], s_cInvariantCulture));
+		{
+			bool parsing1Succeeded = false;
+			bool parsing2Succeeded = false;
+			bool parsing3Succeeded = false;
+			bool parsing4Succeeded = false;
+
+			float x = 0.0F;
+			float y = 0.0F;
+			float z = 0.0F;
+			float w = 0.0F;
+
+			// Parsing
+			if (float::TryParse(values[1], NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, x))
+				parsing1Succeeded = true;
+			if (float::TryParse(values[3], NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, y))
+				parsing2Succeeded = true;
+			if (float::TryParse(values[5], NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, z))
+				parsing3Succeeded = true;
+			if (float::TryParse(values[7], NumberStyles::Float | NumberStyles::AllowThousands, CultureInfo::InvariantCulture, w))
+				parsing4Succeeded = true;
+
+			if (parsing1Succeeded && parsing2Succeeded && parsing3Succeeded && parsing4Succeeded)
+				return Vector4(x, y, z, w);
+		}
 
 		return defaultValue;
 	}
