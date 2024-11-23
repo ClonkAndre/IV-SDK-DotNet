@@ -70,6 +70,7 @@ using namespace IVSDKDotNet::Enums;
 #include "IVMatrix.h"
 
 // For any game related hooking stuff
+#include "NativeHashes.h"
 #include "GameHooks.h"
 
 #include "Attributes.h"
@@ -81,6 +82,8 @@ using namespace IVSDKDotNet::Enums;
 #include "ManagedD3D9.h"
 #include "ImGuiStuff.h"
 
+
+
 // Important stuff for the manager
 #include "ManagerStuff.h"
 
@@ -88,12 +91,10 @@ using namespace IVSDKDotNet::Enums;
 #include "rage.h"
 
 // GTA IV Natives Stuff
-#include "NativeHashes.h"
 #include "NativeInvoke.h"
 #include "Native.h"
 #include "NativeFunction.h"
 #include "NativeHooks.h"
-
 
 
 // Important
@@ -250,9 +251,9 @@ using namespace IVSDKDotNet::Enums;
 #include "IVShaderLib.h"
 #include "IVTimeCycle.h"
 #include "IVPickups.h"
-#include "IVGameConfigReader.h"
 #include "IVFiDevice.h"
 #include "IVFiPackfile.h"
+#include "IVGameConfigReader.h"
 #include "IVAudEngine.h"
 #include "IVPedType.h"
 #include "IVQuadTreeNode.h"
@@ -293,5 +294,6 @@ using namespace IVSDKDotNet::Enums;
 #include "IVRadioTrackManager.h"
 
 #include "IVFrontEnd.h"
+#include "IVEpisodes.h"
 
 #endif //PCH_H

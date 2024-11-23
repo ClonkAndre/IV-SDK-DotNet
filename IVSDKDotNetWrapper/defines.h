@@ -38,7 +38,7 @@
 #define CHECK_NULL_OR_WHITESPACE_STRING(str)					if (String::IsNullOrWhiteSpace(str)) return;
 #define CHECK_NULL_OR_WHITESPACE_STRING_WITH_RETURN(str, ret)	if (String::IsNullOrWhiteSpace(str)) return ret;
 
-
+#define GetManagerScript() IVSDKDotNet::Manager::ManagerScript::GetInstance()
 
 
 // Vector stuff
@@ -130,7 +130,19 @@ static CVector2D Vector2ToCVector2D(Vector2 v)
 	return vec;
 }
 
-
+static Quaternion CQuaternionToQuaternion(CQuaternion v)
+{
+	return Quaternion(v.x, v.y, v.z, v.w);
+}
+static CQuaternion QuaternionToCQuaternion(Quaternion v)
+{
+	CQuaternion quat;
+	quat.x = v.X;
+	quat.y = v.Y;
+	quat.z = v.Z;
+	quat.w = v.W;
+	return quat;
+}
 
 
 // Logging

@@ -18,6 +18,14 @@ namespace IVSDKDotNet
     {
         return CTheScripts::FindNativeAddress(nativeHash);
     }
+    int IVTheScripts::RegisterNativeNoChecks(uint32_t hash, IntPtr funcPtr)
+    {
+        return CTheScripts::RegisterNativeNoChecks(hash, funcPtr.ToPointer());
+    }
+    int IVTheScripts::RegisterNative(uint32_t hash, IntPtr funcPtr)
+    {
+        return CTheScripts::RegisterNative(hash, funcPtr.ToPointer());
+    }
     bool IVTheScripts::IsPlayerOnAMission()
     {
         return CTheScripts::IsPlayerOnAMission();

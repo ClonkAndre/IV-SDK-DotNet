@@ -3458,7 +3458,8 @@ namespace IVSDKDotNet
 			/// Preplaced money? Fixed amount?
 			/// </summary>
 			PICKUP_TYPE_MONEY2 = 19,	// Can pickup, disappears on pickup
-			PICKUP_TYPE_WEAPON = 0x16	// 0x16 = 22 <- Change this
+			PICKUP_TYPE_WEAPON = 22,
+			PICKUP_TYPE_NETWORK = 23
 		};
 
 		public enum class ePickupModel : uint32_t
@@ -4352,7 +4353,9 @@ namespace IVSDKDotNet
 			TxdPool,
 			IplPool,
 			PedTargettingPool,
-			StuntJumpPool
+			StuntJumpPool,
+
+			ScriptStorePool
 		};
 
 		public enum class eStoreType
@@ -7353,6 +7356,41 @@ namespace IVSDKDotNet
 			/// [READONLY OUTPUT FLAG] Status: is hovered by mouse
 			/// </summary>
 			IsHovered = 1 << 27,
+		};
+
+		/// <summary>
+		/// Flags for ImGuiIV_HexEditorState struct
+		/// </summary>
+		[FlagsAttribute]
+		public enum class eImGuiHexEditorHighlightFlags : int
+		{
+			ImGuiHexEditorHighlightFlags_None = 0,
+			ImGuiHexEditorHighlightFlags_Apply = 1 << 0,
+			ImGuiHexEditorHighlightFlags_TextAutomaticContrast = 1 << 1,
+			/// <summary>
+			/// Highlight entire byte space including it's container, has no effect on ascii
+			/// </summary>
+			ImGuiHexEditorHighlightFlags_FullSized = 1 << 2,
+			/// <summary>
+			/// Highlight ascii (doesn't affect single byte highlighting)
+			/// </summary>
+			ImGuiHexEditorHighlightFlags_Ascii = 1 << 3,
+			ImGuiHexEditorHighlightFlags_Border = 1 << 4,
+			ImGuiHexEditorHighlightFlags_OverrideBorderColor = 1 << 5,
+			ImGuiHexEditorHighlightFlags_BorderAutomaticContrast = 1 << 6,
+		};
+
+		/// <summary>
+		/// Flags for ImGuiIV_HexEditorState struct
+		/// </summary>
+		[FlagsAttribute]
+		public enum class eImGuiHexEditorClipboardFlags : int
+		{
+			ImGuiHexEditorClipboardFlags_None = 0,
+			/// <summary>
+			/// Separate resulting hex editor lines with carriage return
+			/// </summary>
+			ImGuiHexEditorClipboardFlags_Multiline = 1 << 0,
 		};
 
 	}

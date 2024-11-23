@@ -4,7 +4,7 @@ static XInputGetState_t originalXInputGetState = NULL;
 
 static DWORD WINAPI HookedXInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState)
 {
-    if (ImGuiStates::s_bDisableControllerInput)
+    if (ImGuiIV::DisableControllerInput)
         return ERROR_DEVICE_NOT_CONNECTED;
 
 	return originalXInputGetState(dwUserIndex, pState);

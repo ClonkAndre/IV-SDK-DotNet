@@ -266,6 +266,14 @@ namespace CLR
 		static void InvokeIngameStartupEvent();
 
 	internal:
+		static bool DoEarlyChecks();
+		static void DoAdditionalChecks();
+		static bool DoEarlyAdditionalAssemblyLoading();
+		static bool InitManager();
+		static void LoadScripts();
+		static void LetUserKnowAboutFailedInitialization();
+		static void PreInitializationShutdown();
+		static void ShutdownMinHook();
 		static void Cleanup();
 
 	private:
@@ -274,10 +282,12 @@ namespace CLR
 		static bool m_bShuttingDown = false;
 		static bool m_bDisableScriptHookDotNetLoading = false;
 		static bool m_bDisableInputs = false;
+		static bool m_bHasMinHookInitialized = false;
 
 		static String^ m_sVersion = "1.8";
 		static String^ m_sLogFileName;
 		static String^ m_sIVSDKDotNetPath;
+		static String^ m_sIVSDKDotNetManagerPath;
 		static String^ m_sIVSDKDotNetBinaryPath;
 		static String^ m_sIVSDKDotNetDataPath;
 		static String^ m_sIVSDKDotNetLogsPath;

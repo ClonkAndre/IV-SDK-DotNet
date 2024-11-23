@@ -18,10 +18,36 @@ namespace IVSDKDotNet
 			}
 		}
 
-	public:
-		// TODO
-		//uint32_t SetPath(String^ path, bool bAbsolute);
-		//uint32_t SetMountPath(String^ path);
 		static bool Mount(String^ path, UIntPtr device, bool bUnk1);
+		static bool Unmount(String^ path);
+
+	public:
+		property uint32_t VFTable
+		{
+			uint32_t get()
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeFiDevice, 0);
+				return NativeFiDevice->m_pVFTable;
+			}
+			void set(uint32_t value)
+			{
+				NULLPTR_CHECK(NativeFiDevice);
+				NativeFiDevice->m_pVFTable = value;
+			}
+		}
+		
+	public:
+		static IVFiDevice^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
+		uint32_t SetPath(String^ path, bool bAbsolute);
+		uint32_t SetMountPath(String^ path);
+
+	internal:
+		IVFiDevice(rage::fiDevice* nativePtr);
+
+	internal:
+		rage::fiDevice* NativeFiDevice;
+
 	};
 }

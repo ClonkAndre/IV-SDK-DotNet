@@ -113,6 +113,19 @@ namespace IVSDKDotNet
 
 	public:
 		static uint32_t FindNativeAddress(uint32_t nativeHash);
+		static int RegisterNativeNoChecks(uint32_t hash, IntPtr funcPtr);
+		static int RegisterNative(uint32_t hash, IntPtr funcPtr);
+
+		/// <summary>
+		/// Gets the name of the current calling script.
+		/// <para>This does not return the name of the current IV-SDK .NET script! This function only works for sco scripts.</para>
+		/// </summary>
+		/// <returns>The name of the calling script. Otherwise 'ERROR!!! Unknown script name ERROR!!!' is returned.</returns>
+		static String^ GetNameOfCurrentScript()
+		{
+			return gcnew String(CTheScripts::GetNameOfCurrentScript());
+		}
+
 		static bool IsPlayerOnAMission();
 		static void GivePedScriptedTask(int handle, IVTask^ task, int unk);
 		static void AddToBuildingSwapArray(IVBuilding^ pBildng, int32_t oldModIndx, int32_t newModIndx);

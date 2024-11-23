@@ -42,24 +42,60 @@ namespace IVSDKDotNet
 			/// </summary>
 			/// <param name="str">The string you want to print to the console.</param>
 			static void Print(String^ str);
+			/// <summary>
+			/// Prints a string to the console with the default colour.
+			/// </summary>
+			/// <param name="str">The string you want to print to the console.</param>
+			/// <param name="args">The objects to format.</param>
+			static void PrintEx(String^ str, ...array<System::Object^>^ args)
+			{
+				Print(String::Format(str, args));
+			}
 
 			/// <summary>
 			/// ONLY AVAILABLE IN DEBUG MODE! Prints a string to the console with the debug colours.
 			/// </summary>
 			/// <param name="str">The string you want to print to the console.</param>
 			static void PrintDebug(String^ str);
+			/// <summary>
+			/// ONLY AVAILABLE IN DEBUG MODE! Prints a string to the console with the debug colours.
+			/// </summary>
+			/// <param name="str">The string you want to print to the console.</param>
+			/// <param name="args">The objects to format.</param>
+			static void PrintDebugEx(String^ str, ...array<System::Object^>^ args)
+			{
+				PrintDebug(String::Format(str, args));
+			}
 
 			/// <summary>
 			/// Prints a warning to the console.
 			/// </summary>
 			/// <param name="str">The string you want to print to the console.</param>
 			static void PrintWarning(String^ str);
+			/// <summary>
+			/// Prints a warning to the console.
+			/// </summary>
+			/// <param name="str">The string you want to print to the console.</param>
+			/// <param name="args">The objects to format.</param>
+			static void PrintWarningEx(String^ str, ...array<System::Object^>^ args)
+			{
+				PrintWarning(String::Format(str, args));
+			}
 
 			/// <summary>
 			/// Prints an error to the console.
 			/// </summary>
 			/// <param name="str">The string you want to print to the console.</param>
 			static void PrintError(String^ str);
+			/// <summary>
+			/// Prints an error to the console.
+			/// </summary>
+			/// <param name="str">The string you want to print to the console.</param>
+			/// <param name="args">The objects to format.</param>
+			static void PrintErrorEx(String^ str, ...array<System::Object^>^ args)
+			{
+				PrintError(String::Format(str, args));
+			}
 
 			/// <summary>
 			/// Registers a new console command that you can execute by its name in the IV-SDK .NET console.
@@ -111,6 +147,21 @@ namespace IVSDKDotNet
 			void set(uint32_t value)
 			{
 				CGame::m_nCurrentEpisode = value;
+			}
+		}
+		/// <summary>
+		/// Gets or sets the forced episode.
+		/// </summary>
+		static property uint32_t ForcedEpisode
+		{
+		public:
+			uint32_t get()
+			{
+				return CGame::m_nForcedEpisode;
+			}
+			void set(uint32_t value)
+			{
+				CGame::m_nForcedEpisode = value;
 			}
 		}
 		/// <summary>
@@ -207,6 +258,11 @@ namespace IVSDKDotNet
 		/// <returns>True if initialization was successful? Otherwise, false.</returns>
 		static bool Initialise(String^ sGameDat);
 
+		static bool IsGameRestarting()
+		{
+			return CGame::IsGameRestarting();
+		}
+
 		/// <summary>
 		/// Gets if the GTA IV main window is currently in focus.
 		/// </summary>
@@ -255,6 +311,11 @@ namespace IVSDKDotNet
 		/// </summary>
 		/// <returns>The rectangle of the radar.</returns>
 		static RectangleF GetRadarRectangle();
+
+		static void Idk(int episode, int a2, char a3, char a4)
+		{
+			CGame::Idk(episode, a2, a3, a4);
+		}
 
 	};
 }

@@ -36,12 +36,16 @@ namespace IVSDKDotNet
 			virtual bool RegisterConsoleCommand(Guid fromScript, String^ name, Action<array<String^>^>^ actionToExecute) abstract;
 			virtual bool ExecuteConsoleCommand(String^ name) abstract;
 
+			virtual String^ GetLastConsoleCommand() abstract;
+			virtual void ResetLastConsoleCommand() abstract;
+
 			// Phone
 			virtual bool RegisterPhoneNumber(Guid forScript, String^ number, Action^ dialedAction) abstract;
 			virtual bool UnregisterPhoneNumber(Guid fromScript, String^ number) abstract;
 
 			// Game
 			virtual bool IsGameInFocus() abstract;
+			virtual bool IsUsingController() abstract;
 
 			// Script
 			virtual void RaiseTick()														abstract;
@@ -65,12 +69,31 @@ namespace IVSDKDotNet
 			virtual Script^ GetScript(String^ name)				abstract;
 			virtual bool IsScriptRunning(Guid id)				abstract;
 			virtual bool IsScriptRunning(String^ name)			abstract;
+			virtual bool IsIVSDKDotNetScript(Guid id)			abstract;
+			virtual bool IsIVSDKDotNetScript(String^ name)		abstract;
 			virtual String^ GetScriptName(Guid id)				abstract;
 			virtual String^ GetScriptFullPath(Guid id)			abstract;
 			virtual int GetActiveScriptsCount()					abstract;
 
 			virtual bool SendScriptCommand(Guid sender, Guid toScript, String^ command, array<Object^>^ parameters, [OutAttribute] Object^% result) abstract;
 			virtual bool SendScriptCommand(Guid sender, String^ toScript, String^ command, array<Object^>^ parameters, [OutAttribute] Object^% result) abstract;
+
+			// Plugin
+			virtual void LoadPlugins() abstract;
+			
+			// Thread
+			virtual void WaitInScript(Guid id, int milliseconds) abstract;
+
+			virtual void DispatchEvent(Action^ a) abstract;
+
+			generic <typename T>
+			virtual Object^ DispatchEventWithReturn(Func<T>^ a) abstract;
+
+			virtual void SetInvokeNextNativeCallDirectly() abstract;
+			virtual void DispatchNativeCall(uint32_t hash, UIntPtr contextPointer) abstract;
+
+			virtual int GetMainThreadID() abstract;
+			virtual int GetCurrentThreadID() abstract;
 
 			// Task
 			virtual Guid StartNewTask(Guid forScript, Func<Object^>^ actionToExecute, Action<Object^>^ continueWithAction)	abstract;
@@ -104,8 +127,7 @@ namespace IVSDKDotNet
 			virtual bool SHDN_NativeCallLoggingEnabled() abstract;
 			virtual bool SHDN_IsScriptRunning(Guid id) abstract;
 
-			// Other
-			virtual int GetMainThreadID() abstract;
+			virtual void SHDN_ShowMessage(String^ str, int time) abstract;
 
 		public:
 			ManagerScript();
@@ -114,12 +136,21 @@ namespace IVSDKDotNet
 			{
 				return s_Instance;
 			}
+			static bool HasInstance()
+			{
+				return s_Instance != nullptr;
+			}
+
 			Script^ GetDummyScript()
 			{
 				return m_pDummyScript;
 			}
 
 		internal:
+			static void SetInstance(ManagerScript^ instance)
+			{
+				s_Instance = instance;
+			}
 			void SetDummyScript(Script^ s)
 			{
 				m_pDummyScript = s;
@@ -138,7 +169,17 @@ namespace IVSDKDotNet
 		{
 		public:
 			delegate void OnFirstD3D9FrameDelegate(IntPtr devicePtr);
-			delegate void OnImGuiRenderingDelegate(IntPtr devicePtr, ImGuiIV_DrawingContext ctx);
+
+			delegate void OnImGuiGlobalRenderingDelegate(IntPtr devicePtr, ImGuiIV_DrawingContext ctx);
+			delegate void OnImGuiManagerRenderingDelegate(IntPtr devicePtr);
+			
+
+			delegate void OnScriptAbortDelegate(Guid id);
+			delegate void OnScriptLoadDelegate(Guid id);
+
+			delegate void OnScriptsAbortDelegate(array<Guid>^ ids);
+			delegate void OnBeforeScriptsReloadDelegate(array<Guid>^ ids);
+			delegate void OnAfterScriptsAbortDelegate();
 
 		public:
 			/// <summary>
@@ -192,6 +233,43 @@ namespace IVSDKDotNet
 				}
 			}
 
+			/// <summary>
+			/// Gets or sets the resource folder for this Plugin where all the files required by this Plugin are located.
+			/// The folder has to be named the same name as your Plugin (without extension), and needs to be placed in the Plugins folder.
+			/// The string will be null if the folder doesn't exist.
+			/// </summary>
+			property String^ PluginResourceFolder
+			{
+			public:
+				String^ get()
+				{
+					return m_PluginResourceFolder;
+				}
+				void set(String^ value)
+				{
+					m_PluginResourceFolder = value;
+				}
+			}
+
+			/// <summary>
+			/// This makes it so the plugin is not able to be aborted*.
+			/// <para>It is recommended to leave this set to false, and should only be activated when you have a very specific usecase for it.</para>
+			/// <para>* The plugin is still able to be aborted when: </para>
+			/// <para>- It creates an exception which the IV-SDK .NET Manager catches.</para>
+			/// </summary>
+			property bool ForceNoAbort
+			{
+			public:
+				bool get()
+				{
+					return m_bForceNoAbort;
+				}
+				void set(bool value)
+				{
+					m_bForceNoAbort = value;
+				}
+			}
+
 		public:
 			ManagerPlugin(String^ displayName, String^ author);
 
@@ -206,6 +284,46 @@ namespace IVSDKDotNet
 			}
 
 			/// <summary>
+			/// Gets raised every frame once in-game (CGame.Process).
+			/// <para>It is save to call native functions in this event.</para>
+			/// </summary>
+			event EventHandler^ Tick;
+			void RaiseTick()
+			{
+				Tick(this, EventArgs::Empty);
+			}
+
+			/// <summary>
+			/// Gets raised when game is loading or when switching from one episode to another.
+			/// Can be used for addon files that don't interfere with game files.
+			/// </summary>
+			event EventHandler^ GameLoad;
+			void RaiseGameLoad()
+			{
+				GameLoad(this, EventArgs::Empty);
+			}
+
+			/// <summary>
+			/// Gets raised before GameLoad when game is loading or when switching from one episode to another.
+			/// Can be used for files that need to overwrite base game files.
+			/// </summary>
+			event EventHandler^ GameLoadPriority;
+			void RaiseGameLoadPriority()
+			{
+				GameLoadPriority(this, EventArgs::Empty);
+			}
+
+			/// <summary>
+			/// Gets raised when game is loading, switching from one episode to another or when loading the same save game again.
+			/// Can be used for any rage.fiDevice stuff.
+			/// </summary>
+			event EventHandler^ MountDevice;
+			void RaiseMountDevice()
+			{
+				MountDevice(this, EventArgs::Empty);
+			}
+
+			/// <summary>
 			/// Gets raised on the very first Direct3D9 Frame. You can use this to create Textures or Fonts.
 			/// </summary>
 			event OnFirstD3D9FrameDelegate^ OnFirstD3D9Frame;
@@ -216,19 +334,85 @@ namespace IVSDKDotNet
 
 			/// <summary>
 			/// Gets raised every frame and allows you to draw stuff on the screen via the ImGuiIV_DrawingContext struct, or draw custom script windows using ImGui via the ImGuiIV wrapper class.
+			/// </summary>
+			event OnImGuiGlobalRenderingDelegate^ OnImGuiGlobalRendering;
+			void RaiseOnImGuiGlobalRendering(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
+			{
+				OnImGuiGlobalRendering(devicePtr, ctx);
+			}
+
+			/// <summary>
+			/// Gets raised every frame and allows you to draw stuff on the screen via the ImGuiIV_DrawingContext struct, or draw custom script windows using ImGui via the ImGuiIV wrapper class.
 			/// You are not forced to begin a new window first to add content to with this event, as its already getting called from within a ImGui window.
 			/// So, you can instantly start using ImGui and use UI Elements such as the Button, Slider etc. These components will show up in the corresponding collapsing header within the IV-SDK .NET Manger Plugins tab.
 			/// </summary>
-			event OnImGuiRenderingDelegate^ OnImGuiRendering;
-			void RaiseOnImGuiRendering(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
+			event OnImGuiManagerRenderingDelegate^ OnImGuiManagerRendering;
+			void RaiseOnImGuiManagerRendering(IntPtr devicePtr)
 			{
-				OnImGuiRendering(devicePtr, ctx);
+				OnImGuiManagerRendering(devicePtr);
+			}
+
+			/// <summary>
+			/// Gets raised before the IV-SDK .NET Manager is about to shutdown.
+			/// </summary>
+			event EventHandler^ OnShutdown;
+			void RaiseOnShutdown(System::Object^ sender, EventArgs^ args)
+			{
+				OnShutdown(sender, args);
+			}
+
+			/// <summary>
+			/// Gets raised after a single script was aborted.
+			/// </summary>
+			event OnScriptAbortDelegate^ OnScriptAbort;
+			void RaiseOnScriptAbort(Guid id)
+			{
+				OnScriptAbort(id);
+			}
+
+			/// <summary>
+			/// Gets raised before the script initialize event is getting called.
+			/// </summary>
+			event OnScriptLoadDelegate^ OnScriptLoad;
+			void RaiseOnScriptLoad(Guid id)
+			{
+				OnScriptLoad(id);
+			}
+
+			/// <summary>
+			/// Gets raised when the Manager is about to abort all scripts.
+			/// </summary>
+			event OnBeforeScriptsReloadDelegate^ OnBeforeScriptsAbort;
+			void RaiseOnBeforeScriptsAbort(array<Guid>^ ids)
+			{
+				OnBeforeScriptsAbort(ids);
+			}
+
+			/// <summary>
+			/// Gets raised when the Manager aborted all scripts.
+			/// </summary>
+			event OnAfterScriptsAbortDelegate^ OnAfterScriptsAbort;
+			void RaiseOnAfterScriptsAbort()
+			{
+				OnAfterScriptsAbort();
+			}
+
+		public:
+			/// <summary>
+			/// Gives you quick access to the IV-SDK .NET Manager.
+			/// </summary>
+			/// <returns>The IV-SDK .NET Manager instance. This should never return null, but it's not wrong to always check it before trying to access any members of this class.</returns>
+			ManagerScript^ GetManagerInstance()
+			{
+				return ManagerScript::GetInstance();
 			}
 
 		private:
 			Guid m_id;
 			String^ m_sDisplayName;
 			String^ m_sAuthor;
+			String^ m_PluginResourceFolder;
+			bool m_bForceNoAbort;
 		};
 
 	}

@@ -65,13 +65,26 @@ array<String^>^ Logger::GetLogItemsAsString()
 
 void Logger::Initialize()
 {
+    if (IsInitialized())
+        return;
+
 	m_LogItems = gcnew List<tLogItem>();
+}
+void Logger::Shutdown()
+{
+    if (m_LogItems)
+    {
+        m_LogItems->Clear();
+        m_LogItems = nullptr;
+    }
 }
 void Logger::ForceCreateLogFile()
 {
+    if (!IsInitialized())
+        return;
     if (m_LogItems == nullptr)
         return;
-
+    
     array<String^>^ lines = gcnew array<String^>(m_LogItems->Count);
 
     for (int i = 0; i < lines->Length; i++)
@@ -82,6 +95,8 @@ void Logger::ForceCreateLogFile()
 
 void Logger::Log(eConsoleLogStyle style, String^ str, bool alsoShowInConsole)
 {
+    if (!IsInitialized())
+        return;
     if (str == nullptr)
         return;
 

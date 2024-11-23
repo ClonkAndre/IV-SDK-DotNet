@@ -154,6 +154,11 @@ namespace IVSDKDotNet
 				NULLPTR_CHECK_WITH_RETURN(CStuntJumpManager::mp_poolStuntJumps, nullptr);
 				return gcnew IVPool(CStuntJumpManager::mp_poolStuntJumps, type);
 			}
+			case ePool::ScriptStorePool:
+			{
+				NULLPTR_CHECK_WITH_RETURN(CPools::ms_pScriptStorePool, nullptr);
+				return gcnew IVPool(CPools::ms_pScriptStorePool, type);
+			}
 		}
 
 		return nullptr;

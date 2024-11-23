@@ -3,12 +3,12 @@
 
 namespace IVSDKDotNet
 {
-	void IVCDStream::AddImage(String^ sPath, uint8_t unk1, int32_t unkNeg1)
+	int IVCDStream::AddImage(String^ sPath, uint8_t unk1, int32_t unkNeg1)
 	{
 		if (String::IsNullOrWhiteSpace(sPath))
-			return;
+			return 0;
 
 		msclr::interop::marshal_context ctx;
-		CdStreamAddImage((char*)ctx.marshal_as<const char*>(sPath), unk1, unkNeg1);
+		return CdStreamAddImage((char*)ctx.marshal_as<const char*>(sPath), unk1, unkNeg1);
 	}
 }

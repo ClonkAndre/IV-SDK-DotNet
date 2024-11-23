@@ -105,9 +105,11 @@ namespace plugin
 #include "CShaderLib.h"
 #include "CTimeCycle.h"
 #include "CPickups.h"
-#include "CGameConfigReader.h"
+
 #include "fiDevice.h"
 #include "fiPackfile.h"
+#include "CGameConfigReader.h"
+
 #include "audEngine.h"
 #include "CPedType.h"
 #include "CQuadTreeNode.h"
@@ -133,5 +135,6 @@ namespace plugin
 #include "CStuntJumpManager.h"
 #include "CAERadioTrackManager.h"
 #include "CFrontEnd.h"
+#include "CEpisodes.h"
 
 #endif
