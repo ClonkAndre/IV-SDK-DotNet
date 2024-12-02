@@ -87,7 +87,6 @@
     <Link>
       <AdditionalDependencies>dinput8.lib;dxguid.lib;libMinHook.x86_DBG.lib;..\IVSDKDotNet\Hooking.Patterns_DBG.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>/LTCG %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -128,13 +127,17 @@
     <ClInclude Include="GameHooks.h" />
     <ClInclude Include="ImGui\ImGuiIncludes.h" />
     <ClInclude Include="ImGui\imgui_extensions.h" />
+    <ClInclude Include="ImGui\imgui_hex.h" />
     <ClInclude Include="IVControlledByInfo.h" />
     <ClInclude Include="IVDrawRadioHudTextDC.h" />
+    <ClInclude Include="IVEpisodes.h" />
     <ClInclude Include="IVPedIntelligence.h" />
     <ClInclude Include="IVPedIntelligenceNY.h" />
     <ClInclude Include="IVPedTasks.h" />
     <ClInclude Include="IVPhoneInfo.h" />
     <ClInclude Include="IVStore.h" />
+    <ClInclude Include="ManagedD3D9.h" />
+    <ClInclude Include="ManagerStuff.h" />
     <ClInclude Include="MemoryAccess.h" />
     <ClInclude Include="Attributes.h" />
     <ClInclude Include="DirectInputHook.h" />
@@ -318,13 +321,19 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Preview|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ImGui\imgui_hex.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="IVControlledByInfo.cpp" />
     <ClCompile Include="IVDrawRadioHudTextDC.cpp" />
+    <ClCompile Include="IVEpisodes.cpp" />
     <ClCompile Include="IVPedIntelligence.cpp" />
     <ClCompile Include="IVPedIntelligenceNY.cpp" />
     <ClCompile Include="IVPedTasks.cpp" />
     <ClCompile Include="IVPhoneInfo.cpp" />
     <ClCompile Include="IVStore.cpp" />
+    <ClCompile Include="ManagedD3D9.cpp" />
     <ClCompile Include="MemoryAccess.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="CLRBridge.cpp" />

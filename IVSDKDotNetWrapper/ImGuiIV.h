@@ -1845,6 +1845,656 @@ namespace IVSDKDotNet
 		bool m_bIsValid;
 	};
 
+	public value struct ImGuiIV_HexEditorHighlightRange
+	{
+	public:
+		property int From
+		{
+			int get()
+			{
+				return m_iFrom;
+			}
+		}
+		property int To
+		{
+			int get()
+			{
+				return m_iTo;
+			}
+		}
+		property eImGuiHexEditorHighlightFlags HighlightFlags
+		{
+			eImGuiHexEditorHighlightFlags get()
+			{
+				return m_eFlags;
+			}
+		}
+
+	internal:
+		ImGuiIV_HexEditorHighlightRange(int from, int to, eImGuiHexEditorHighlightFlags flags)
+		{
+			m_iFrom = from;
+			m_iTo = to;
+			m_eFlags = flags;
+		}
+
+	private:
+		int m_iFrom;
+		int m_iTo;
+		eImGuiHexEditorHighlightFlags m_eFlags;
+
+	};
+	public ref class ImGuiIV_HexEditorState : public IDisposable
+	{
+	public:
+		/// <summary>
+		/// Native Pointer to the ImGuiHexEditorState structure.
+		/// </summary>
+		property IntPtr ImGuiHexEditorStatePtr
+		{
+		public:
+			IntPtr get()
+			{
+				return IntPtr(NativeHexEditorState);
+			}
+		}
+
+		/// <summary>
+		/// Gets if this class contains valid data.
+		/// </summary>
+		property bool IsValid
+		{
+		public:
+			bool get()
+			{
+				return m_bIsValid;
+			}
+		}
+
+		property IntPtr Bytes
+		{
+			IntPtr get()
+			{
+				if (!IsValid)
+					return IntPtr::Zero;
+
+				return IntPtr(NativeHexEditorState->Bytes);
+			}
+			void set(IntPtr value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->Bytes = value.ToPointer();
+			}
+		}
+		property int MaxBytes
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return NativeHexEditorState->MaxBytes;
+			}
+			void set(int value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->MaxBytes = value;
+			}
+		}
+		property int BytesPerLine
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return NativeHexEditorState->BytesPerLine;
+			}
+			void set(int value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->BytesPerLine = value;
+			}
+		}
+		property bool ShowPrintable
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return NativeHexEditorState->ShowPrintable;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->ShowPrintable = value;
+			}
+		}
+		property bool LowercaseBytes
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return NativeHexEditorState->LowercaseBytes;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->LowercaseBytes = value;
+			}
+		}
+		property bool RenderZeroesDisabled
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return NativeHexEditorState->RenderZeroesDisabled;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->RenderZeroesDisabled = value;
+			}
+		}
+		property bool ShowAddress
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return NativeHexEditorState->ShowAddress;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->ShowAddress = value;
+			}
+		}
+		property int AddressChars
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return NativeHexEditorState->AddressChars;
+			}
+			void set(int value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->AddressChars = value;
+			}
+		}
+		property bool ShowAscii
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return NativeHexEditorState->ShowAscii;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->ShowAscii = value;
+			}
+		}
+		property bool ReadOnly
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return NativeHexEditorState->ReadOnly;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->ReadOnly = value;
+			}
+		}
+		property int Separators
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return NativeHexEditorState->Separators;
+			}
+			void set(int value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->Separators = value;
+			}
+		}
+		property IntPtr UserData
+		{
+			IntPtr get()
+			{
+				if (!IsValid)
+					return IntPtr::Zero;
+
+				return IntPtr(NativeHexEditorState->UserData);
+			}
+			void set(IntPtr value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->UserData = value.ToPointer();
+			}
+		}
+		property array<ImGuiIV_HexEditorHighlightRange>^ HighlightRanges
+		{
+		public:
+			array<ImGuiIV_HexEditorHighlightRange>^ get()
+			{
+				if (!IsValid)
+					return nullptr;
+
+				array<ImGuiIV_HexEditorHighlightRange>^ arr = gcnew array<ImGuiIV_HexEditorHighlightRange>(NativeHexEditorState->HighlightRanges.Size);
+
+				for (int i = 0; i < arr->Length; i++)
+				{
+					ImGuiHexEditorHighlightRange range = NativeHexEditorState->HighlightRanges[i];
+					arr[i] = ImGuiIV_HexEditorHighlightRange(range.From, range.To, (eImGuiHexEditorHighlightFlags)range.Flags);
+				}
+
+				return arr;
+			}
+		}
+		property bool EnableClipboard
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return NativeHexEditorState->EnableClipboard;
+			}
+			void set(bool value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->EnableClipboard = value;
+			}
+		}
+		property eImGuiHexEditorClipboardFlags ClipboardFlags
+		{
+			eImGuiHexEditorClipboardFlags get()
+			{
+				if (!IsValid)
+					return eImGuiHexEditorClipboardFlags::ImGuiHexEditorClipboardFlags_None;
+
+				return (eImGuiHexEditorClipboardFlags)NativeHexEditorState->ClipboardFlags;
+			}
+			void set(eImGuiHexEditorClipboardFlags value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->ClipboardFlags = (ImGuiHexEditorClipboardFlags)value;
+			}
+		}
+
+		property int SelectStartByte
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return NativeHexEditorState->SelectStartByte;
+			}
+			void set(int value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->SelectStartByte = value;
+			}
+		}
+		property int SelectStartSubByte
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return NativeHexEditorState->SelectStartSubByte;
+			}
+			void set(int value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->SelectStartSubByte = value;
+			}
+		}
+		property int SelectEndByte
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return NativeHexEditorState->SelectEndByte;
+			}
+			void set(int value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->SelectEndByte = value;
+			}
+		}
+		property int SelectEndSubByte
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return NativeHexEditorState->SelectEndSubByte;
+			}
+			void set(int value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->SelectEndSubByte = value;
+			}
+		}
+		property int LastSelectedByte
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return NativeHexEditorState->LastSelectedByte;
+			}
+			void set(int value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->LastSelectedByte = value;
+			}
+		}
+		property int SelectDragByte
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return NativeHexEditorState->SelectDragByte;
+			}
+			void set(int value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->SelectDragByte = value;
+			}
+		}
+		property int SelectDragSubByte
+		{
+			int get()
+			{
+				if (!IsValid)
+					return 0;
+
+				return NativeHexEditorState->SelectDragSubByte;
+			}
+			void set(int value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->SelectDragSubByte = value;
+			}
+		}
+		property float SelectCursorAnimationTime
+		{
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return NativeHexEditorState->SelectCursorAnimationTime;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->SelectCursorAnimationTime = value;
+			}
+		}
+
+		property eImGuiHexEditorHighlightFlags SelectionHighlightFlags
+		{
+			eImGuiHexEditorHighlightFlags get()
+			{
+				if (!IsValid)
+					return eImGuiHexEditorHighlightFlags::ImGuiHexEditorHighlightFlags_None;
+
+				return (eImGuiHexEditorHighlightFlags)NativeHexEditorState->SelectionHighlightFlags;
+			}
+			void set(eImGuiHexEditorHighlightFlags value)
+			{
+				if (!IsValid)
+					return;
+
+				NativeHexEditorState->SelectionHighlightFlags = (ImGuiHexEditorHighlightFlags)value;
+			}
+		}
+
+	public:
+		/// <summary>
+		/// Allocates and returns a new hex editor state which HAS to be deleted once you're done using it.
+		/// </summary>
+		/// <returns>A new instance of the ImGuiIV_HexEditorState class.</returns>
+		static ImGuiIV_HexEditorState^ AllocateNew()
+		{
+			return gcnew ImGuiIV_HexEditorState(new ImGuiHexEditorState(), true);
+		}
+
+		/// <summary>
+		/// Deletes the allocated hex editor state and frees its memory.
+		/// </summary>
+		void Delete()
+		{
+			if (!m_bIsValid)
+				return;
+
+			delete NativeHexEditorState;
+			NativeHexEditorState = nullptr;
+			m_bIsValid = false;
+		}
+
+	internal:
+		ImGuiIV_HexEditorState(ImGuiHexEditorState* ptr, bool isValid)
+		{
+			NativeHexEditorState = ptr;
+			m_bIsValid = isValid;
+		}
+		~ImGuiIV_HexEditorState()
+		{
+			if (m_bIsDisposed)
+				return;
+
+			// Call finalizer
+			this->!ImGuiIV_HexEditorState();
+
+			m_bIsDisposed = true;
+		}
+		!ImGuiIV_HexEditorState()
+		{
+			// Free unmanaged data
+			Delete();
+		}
+
+	internal:
+		ImGuiHexEditorState* NativeHexEditorState;
+		bool m_bIsValid;
+		bool m_bIsDisposed;
+	};
+
+	public ref class ImTexture
+	{
+	public:
+		/// <summary>
+		/// Gets if this texture is still valid.
+		/// </summary>
+		property bool IsValid
+		{
+		public:
+			bool get()
+			{
+				return m_bIsValid;
+			}
+		private:
+			void set(bool value)
+			{
+				m_bIsValid = value;
+			}
+		}
+
+	public:
+		/// <summary>
+		/// Tries to release this texture.
+		/// </summary>
+		/// <returns>true if successful. Otherwise false.</returns>
+		bool Release()
+		{
+			if (!IsValid)
+				return false;
+
+			bool result = ManagedD3D9::ReleaseTexture(m_pTexture);
+			IsValid = false;
+
+			return result;
+		}
+
+		/// <summary>
+		/// Gets the pointer to the texture which can be passed to some ImGuiIV functions.
+		/// </summary>
+		/// <returns>The texture pointer.</returns>
+		IntPtr GetTexture()
+		{
+			if (!IsValid)
+				return IntPtr::Zero;
+
+			return m_pTexture;
+		}
+		/// <summary>
+		/// Gets the complete size of this texture.
+		/// </summary>
+		/// <returns>The size of this texture.</returns>
+		Size GetSize()
+		{
+			if (!IsValid)
+				return Size::Empty;
+
+			return m_sSize;
+		}
+
+		/// <summary>
+		/// Gets the aspect ratio of this texture.
+		/// </summary>
+		/// <returns>The aspect ratio of this texture.</returns>
+		float GetAspectRatio()
+		{
+			if (!IsValid)
+				return 0.0F;
+
+			return (float)(m_sSize.Width / m_sSize.Height);
+		}
+		/// <summary>
+		/// Gets the width of this texture.
+		/// </summary>
+		/// <returns>The width of this texture.</returns>
+		int GetWidth()
+		{
+			if (!IsValid)
+				return 0;
+
+			return m_sSize.Width;
+		}
+		/// <summary>
+		/// Gets the height of this texture.
+		/// </summary>
+		/// <returns>The height of this texture.</returns>
+		int GetHeight()
+		{
+			if (!IsValid)
+				return 0;
+
+			return m_sSize.Height;
+		}
+
+	public:
+		// Explicit operator
+		//static explicit operator IntPtr(ImTexture^ t)
+		//{
+		//	return t->GetTexture();
+		//}
+
+		// Implicit operator
+		static operator IntPtr(ImTexture^ t)
+		{
+			return t->GetTexture();
+		}
+
+	internal:
+		ImTexture(IntPtr texturePointer, Size textureSize)
+		{
+			m_pTexture = texturePointer;
+			m_sSize = textureSize;
+			IsValid = true;
+		}
+
+	internal:
+		bool m_bIsValid;
+		IntPtr m_pTexture;
+		Size m_sSize;
+	};
+
 	public ref class ImGuiIV
 	{
 	internal:
@@ -1856,6 +2506,56 @@ namespace IVSDKDotNet
 		static array<String^>^ FontNameSplitArray = gcnew array<String^>(1) { "," };
 
 	public:
+
+		/// <summary>
+		/// Gets if ImGui was initialized.
+		/// </summary>
+		static property bool WasImGuiInitialized
+		{
+		public:
+			bool get()
+			{
+				return m_bWasImGuiInitialized;
+			}
+		internal:
+			void set(bool value)
+			{
+				m_bWasImGuiInitialized = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets if drawing is allowed now.
+		/// </summary>
+		static property bool CanDraw
+		{
+		public:
+			bool get()
+			{
+				return m_bCanDraw;
+			}
+		internal:
+			void set(bool value)
+			{
+				m_bCanDraw = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets if controller input should be disabled.
+		/// </summary>
+		static property bool DisableControllerInput
+		{
+		public:
+			bool get()
+			{
+				return m_bDisableControllerInput;
+			}
+			void set(bool value)
+			{
+				m_bDisableControllerInput = value;
+			}
+		}
 
 		/// <summary>
 		/// Gets or sets if the cursor is currently forced to be drawn on screen.
@@ -1937,148 +2637,88 @@ namespace IVSDKDotNet
 		// Texture
 		static bool CreateTextureFromFile(String^ fileName, [OutAttribute] IntPtr% texturePtr, [OutAttribute] int% textureWidth, [OutAttribute] int% textureHeight, [OutAttribute] eResult% result)
 		{
-			if (ImGui::GetCurrentContext() == nullptr)
+			bool success = ManagedD3D9::CreateTextureFromFile(fileName, texturePtr, textureWidth, textureHeight, result);
+
+			if (success)
 			{
-				result = eResult::ImGuiNotInitialized;
-				texturePtr = IntPtr::Zero;
-				textureWidth = 0;
-				textureHeight = 0;
-				return false;
-			}
-			if (String::IsNullOrWhiteSpace(fileName))
-			{
-				result = eResult::InvalidName;
-				texturePtr = IntPtr::Zero;
-				textureWidth = 0;
-				textureHeight = 0;
-				return false;
+				// Register texture to script
+				Assembly^ callingAssembly = Assembly::GetCallingAssembly();
+				if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
+					IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""), texturePtr);
 			}
 
-			msclr::interop::marshal_context ctx;
-
-			// Try create texture
-			PDIRECT3DTEXTURE9 texture;
-			HRESULT hr = D3DXCreateTextureFromFileExA(rage::g_pDirect3DDevice, ctx.marshal_as<const char*>(fileName), D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &texture);
-			
-			if (hr != S_OK)
-			{
-				WRITE_TO_DEBUG_OUTPUT(String::Format("Failed to create texture from file {0}! HRESULT: {1}", Path::GetFileName(fileName), hr));
-				result = (eResult)hr;
-				texturePtr = IntPtr::Zero;
-				textureWidth = 0;
-				textureHeight = 0;
-				return false;
-			}
-
-			// Keeping track of the amount of references
-			texture->AddRef();
-
-			// Get the texture surface description
-			D3DSURFACE_DESC imageDesc;
-			texture->GetLevelDesc(0, &imageDesc);
-
-			// Set stuff
-			result = eResult::OK;
-			texturePtr = IntPtr(texture);
-			textureWidth = imageDesc.Width;
-			textureHeight = imageDesc.Height;
-
-			// Register texture to script
-			Assembly^ callingAssembly = Assembly::GetCallingAssembly();
-			if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
-				IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""), texturePtr);
-
-			return true;
+			return success;
 		}
+		static bool CreateTextureFromFile(String^ fileName, [OutAttribute] ImTexture^% texture, [OutAttribute] eResult% result)
+		{
+			IntPtr texturePtr;
+			int textureWidth;
+			int textureHeight;
+			bool success = ManagedD3D9::CreateTextureFromFile(fileName, texturePtr, textureWidth, textureHeight, result);
+
+			if (success)
+			{
+				// Register texture to script
+				Assembly^ callingAssembly = Assembly::GetCallingAssembly();
+				if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
+					IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""), texturePtr);
+			
+				texture = gcnew ImTexture(texturePtr, Size(textureWidth, textureHeight));
+			}
+			else
+			{
+				texture = nullptr;
+			}
+
+			return success;
+		}
+
 		static bool CreateTextureFromMemory(array<System::Byte>^ data, [OutAttribute] IntPtr% texturePtr, [OutAttribute] int% textureWidth, [OutAttribute] int% textureHeight, [OutAttribute] eResult% result)
 		{
-			if (ImGui::GetCurrentContext() == nullptr)
+			bool success = ManagedD3D9::CreateTextureFromMemory(data, texturePtr, textureWidth, textureHeight, result);
+
+			if (success)
 			{
-				result = eResult::ImGuiNotInitialized;
-				texturePtr = IntPtr::Zero;
-				textureWidth = 0;
-				textureHeight = 0;
-				return false;
-			}
-			if (data == nullptr)
-			{
-				result = eResult::InvalidData;
-				texturePtr = IntPtr::Zero;
-				textureWidth = 0;
-				textureHeight = 0;
-				return false;
+				// Register texture to script
+				Assembly^ callingAssembly = Assembly::GetCallingAssembly();
+				if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
+					IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""), texturePtr);
 			}
 
-			// Pin managed array
-			pin_ptr<System::Byte> pinnedData = &data[0];
-			unsigned char* pby = pinnedData;
-			void* dataPtr = reinterpret_cast<void*>(pby);
-
-			msclr::interop::marshal_context ctx;
-			
-			// Try create texture
-			PDIRECT3DTEXTURE9 texture;
-			HRESULT hr = D3DXCreateTextureFromFileInMemoryEx(rage::g_pDirect3DDevice, dataPtr, data->Length, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &texture);
-
-			if (hr != S_OK)
-			{
-				WRITE_TO_DEBUG_OUTPUT(String::Format("Failed to create texture from memory! HRESULT: {0}", hr));
-				result = (eResult)hr;
-				texturePtr = IntPtr::Zero;
-				textureWidth = 0;
-				textureHeight = 0;
-				return false;
-			}
-			
-			// Keeping track of the amount of references
-			texture->AddRef();
-
-			// Get the texture surface description
-			D3DSURFACE_DESC imageDesc;
-			texture->GetLevelDesc(0, &imageDesc);
-			
-			// Set stuff
-			result = eResult::OK;
-			texturePtr = IntPtr(texture);
-			textureWidth = imageDesc.Width;
-			textureHeight = imageDesc.Height;
-			
-			// Register texture to script
-			Assembly^ callingAssembly = Assembly::GetCallingAssembly();
-			if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
-				IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""), texturePtr);
-			
-			return true;
+			return success;
 		}
+		static bool CreateTextureFromMemory(array<System::Byte>^ data, [OutAttribute] ImTexture^% texture, [OutAttribute] eResult% result)
+		{
+			IntPtr texturePtr;
+			int textureWidth;
+			int textureHeight;
+			bool success = ManagedD3D9::CreateTextureFromMemory(data, texturePtr, textureWidth, textureHeight, result);
+
+			if (success)
+			{
+				// Register texture to script
+				Assembly^ callingAssembly = Assembly::GetCallingAssembly();
+				if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
+					IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""), texturePtr);
+			
+				texture = gcnew ImTexture(texturePtr, Size(textureWidth, textureHeight));
+			}
+			else
+			{
+				texture = nullptr;
+			}
+
+			return success;
+		}
+		
 		static bool ReleaseTexture(IntPtr% texturePtr)
 		{
-			if (texturePtr == IntPtr::Zero)
-				return false;
-
-			PDIRECT3DTEXTURE9 texture = (PDIRECT3DTEXTURE9)texturePtr.ToPointer();
-
-			if (texture)
-			{
-				texture->Release();
-
-				texturePtr = IntPtr::Zero;
-				return true;
-			}
-
-			return false;
+			return ManagedD3D9::ReleaseTexture(texturePtr);
 		}
 
 		static bool IsTextureValid(IntPtr texturePtr)
 		{
-			PDIRECT3DTEXTURE9 texture = (PDIRECT3DTEXTURE9)texturePtr.ToPointer();
-
-			if (!texture)
-				return false;
-
-			// Check reference count
-			texture->AddRef();
-
-			return texture->Release() > 0;
+			return ManagedD3D9::IsTextureValid(texturePtr);
 		}
 
 		// Font
@@ -5247,7 +5887,40 @@ namespace IVSDKDotNet
 			ImGui::EndTimeline(drawCurrentFrame, currentFrame, maxFrames, drawLines, lineCount, drawValues);
 		}
 
+		//-------------------------------------------------------------------------
+		// [SECTION] Extensions: Hex Editor - https://github.com/Teselka/imgui_hex_editor
+		//-------------------------------------------------------------------------
+		static bool BeginHexEditor(String^ id, ImGuiIV_HexEditorState^ state, Vector2 size, eImGuiChildFlags childFlags, eImGuiWindowFlags windowFlags)
+		{
+			if (String::IsNullOrWhiteSpace(id))
+				return false;
+			if (!state)
+				return false;
+
+			msclr::interop::marshal_context ctx;
+			return ImGui::BeginHexEditor(ctx.marshal_as<const char*>(id), state->NativeHexEditorState, Vector2ToImVec2(size), (ImGuiChildFlags)childFlags, (ImGuiWindowFlags)windowFlags);
+		}
+		static bool BeginHexEditor(String^ id, ImGuiIV_HexEditorState^ state, Vector2 size, eImGuiChildFlags childFlags)
+		{
+			return BeginHexEditor(id, state, size, childFlags, eImGuiWindowFlags::None);
+		}
+		static bool BeginHexEditor(String^ id, ImGuiIV_HexEditorState^ state, Vector2 size)
+		{
+			return BeginHexEditor(id, state, size, eImGuiChildFlags::None, eImGuiWindowFlags::None);
+		}
+		static bool BeginHexEditor(String^ id, ImGuiIV_HexEditorState^ state)
+		{
+			return BeginHexEditor(id, state, Vector2::Zero, eImGuiChildFlags::None, eImGuiWindowFlags::None);
+		}
+		static void EndHexEditor()
+		{
+			ImGui::EndHexEditor();
+		}
+
 	private:
+		static bool m_bWasImGuiInitialized;
+		static bool m_bCanDraw;
+		static bool m_bDisableControllerInput;
 		static bool m_bForceCursor;
 		static int m_iActiveScriptWindows;
 	};
@@ -5258,7 +5931,7 @@ class ImGuiDraw
 public:
 	static bool OnWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		if (ImGuiIV::ActiveScriptWindows > 0)
+		if (ImGuiIV::ActiveScriptWindows > 0 || ImGuiIV::ForceCursor)
 		{
 			if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
 				return true;
@@ -5287,7 +5960,7 @@ public:
 		InitializeImGui(d3d9Device);
 
 		// ImGui is not initialized, return.
-		if (!ImGuiStates::s_bIsImGuiInitialized)
+		if (!ImGuiIV::WasImGuiInitialized)
 			return;
 
 		IntPtr d3d9DevicePointer = IntPtr(d3d9Device);
@@ -5328,12 +6001,12 @@ public:
 
 		if (ImGuiIV::DoesAnyWindowHasThisAdditionalFlag("DisableControllerInput"))
 		{
-			ImGuiStates::s_bDisableControllerInput = true;
+			ImGuiIV::DisableControllerInput = true;
 			EnableControllerNavigation(io);
 		}
 		else
 		{
-			ImGuiStates::s_bDisableControllerInput = false;
+			ImGuiIV::DisableControllerInput = false;
 			DisableControllerNavigation(io);
 		}
 
@@ -5415,11 +6088,11 @@ public:
 
 	static void UninitializeImGui()
 	{
-		if (!ImGuiStates::s_bIsImGuiInitialized)
+		if (!ImGuiIV::WasImGuiInitialized)
 			return;
 
 		// Set ImGui status as uninitialized
-		ImGuiStates::SetImGuiStatusAsWasUninitialized();
+		//ImGuiStates::SetImGuiStatusAsWasUninitialized();
 
 		// Shutdown ImGui stuff
 		ImGui_ImplWin32_Shutdown();
@@ -5430,10 +6103,15 @@ public:
 private:
 	static void InitializeImGui(IDirect3DDevice9* d3d9Device)
 	{
-		if (ImGuiStates::s_bIsImGuiInitialized)
+		if (!d3d9Device)
+		{
+			Logger::LogDebug("[ImGuiIV] Could not initialize ImGui as the device passed into the init func was nullptr!");
 			return;
-		if (ImGuiStates::s_bStopTryingToInitializeImGui)
+		}
+		if (ImGuiIV::WasImGuiInitialized)
 			return;
+
+		Logger::LogDebug("[ImGuiIV] Beginning to initialize ImGui...");
 
 		D3DDEVICE_CREATION_PARAMETERS creationParams;
 		d3d9Device->GetCreationParameters(&creationParams);
@@ -5457,7 +6135,10 @@ private:
 		msclr::interop::marshal_context ctx;
 		io.Fonts->AddFontFromFileTTF(ctx.marshal_as<const char*>(fontFile), 15.5F);
 		
-		ImGuiStates::s_bIsImGuiInitialized = true;
+		// Set flag
+		ImGuiIV::WasImGuiInitialized = true;
+
+		Logger::LogDebug("[ImGuiIV] Finished initializing ImGui.");
 	}
 	static void DoDockspace()
 	{

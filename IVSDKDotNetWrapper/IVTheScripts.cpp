@@ -18,6 +18,14 @@ namespace IVSDKDotNet
     {
         return CTheScripts::FindNativeAddress(nativeHash);
     }
+    int IVTheScripts::RegisterNativeNoChecks(uint32_t hash, IntPtr funcPtr)
+    {
+        return CTheScripts::RegisterNativeNoChecks(hash, funcPtr.ToPointer());
+    }
+    int IVTheScripts::RegisterNative(uint32_t hash, IntPtr funcPtr)
+    {
+        return CTheScripts::RegisterNative(hash, funcPtr.ToPointer());
+    }
     bool IVTheScripts::IsPlayerOnAMission()
     {
         return CTheScripts::IsPlayerOnAMission();
@@ -144,8 +152,6 @@ namespace IVSDKDotNet
             msclr::interop::marshal_context ctx;
 
             uint32_t* globalAddr = &CTheScripts::m_aGlobalVariables[index];
-
-            MessageBox::Show(String::Format("The length of the string to store is: {0}", value->Length));
 
             char* str = (char*)globalAddr;
             char* newStr = (char*)ctx.marshal_as<const char*>(value);

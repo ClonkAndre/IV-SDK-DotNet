@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Numerics;
+using System.Threading;
 
 using Newtonsoft.Json;
 
@@ -15,11 +17,13 @@ using IVSDKDotNet;
 using IVSDKDotNet.Attributes;
 using IVSDKDotNet.Enums;
 using IVSDKDotNet.Manager;
+using IVSDKDotNet.Native;
 
 using Manager.Classes;
 using Manager.Classes.Json;
 using Manager.Managers;
 using Manager.UI;
+using Manager.Threading;
 
 namespace Manager
 {
@@ -29,7 +33,9 @@ namespace Manager
         internal static Main Instance;
 
         // Lists
-        public Queue<Action> ActionQueue;
+        public ConcurrentQueue<Action> ActionQueue;
+
+        public Dictionary<int, NetThread> GlobalThreads;
 
         public List<FoundScript> ActiveScripts;
         public List<AdvancedTask> ActiveTasks;
@@ -52,26 +58,32 @@ namespace Manager
         // Hooks
         private KeyWatchDog[] keyWatchDogs;
 
+        // Threading
+        private SynchronizationContext mainThreadContext;
+
         // Debug
         public bool DisableKeyEvents;
         public bool ThrowOnError;
         public bool DoNotResetImGuiStyle;
+        public bool AllowWriteToDebugOutput = true;
 
         // Other
         public Version CurrentWrapperVersion;
         public UpdateChecker UpdateChecker;
         public WebClient downloadClient;
         public Process GTAIVProcess;
-        public DateTime TimeSinceLastScriptReload;
+        public DateTime TimeSinceLastScriptLoad;
         private Guid processCheckerTimerID;
 
         public bool FirstFrame = true;
         public bool IsGTAIVWindowInFocus;
         public bool OnWindowFocusChangedEventCalled;
         public bool WasBoundPhoneNumbersProcessed;
+        public bool IsPlayerUsingController;
         private int lastLogLineCount;
 
         public int MainThreadID;
+        public int PadThreadID;
 
         private readonly object activeScriptsLockObj = new object();
 
@@ -197,7 +209,9 @@ namespace Manager
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
             // Lists
-            ActionQueue =                   new Queue<Action>();
+            ActionQueue =                   new ConcurrentQueue<Action>();
+
+            GlobalThreads =                 new Dictionary<int, NetThread>();
 
             ActiveScripts =                 new List<FoundScript>();
             ActiveTasks =                   new List<AdvancedTask>();
@@ -235,7 +249,7 @@ namespace Manager
             SHDNStuff.Init();
 
             // Init Reflection
-            if (Reflection.Initialize())
+            if (Reflection.Init())
                 Logger.LogDebug("Initialized Reflection class.");
             else
                 Logger.LogDebug("Failed to initialize Reflection class!");
@@ -244,7 +258,7 @@ namespace Manager
             processCheckerTimerID = StartNewTimerInternal(1000, () =>
             {
 
-                if (!Reflection.IsCallOnWindowFocusChangedAvailable())
+                if (!Reflection.LocalRAGE.IsRaiseOnWindowFocusChangedAvailable())
                 {
                     AbortTaskOrTimer(processCheckerTimerID);
                     return;
@@ -257,7 +271,7 @@ namespace Manager
                 {
                     if (!OnWindowFocusChangedEventCalled)
                     {
-                        Reflection.CallOnWindowFocusChanged(true);
+                        Reflection.LocalRAGE.RaiseOnWindowFocusChanged(true);
                         OnWindowFocusChangedEventCalled = true;
                     }
                 }
@@ -265,7 +279,7 @@ namespace Manager
                 {
                     if (OnWindowFocusChangedEventCalled)
                     {
-                        Reflection.CallOnWindowFocusChanged(false);
+                        Reflection.LocalRAGE.RaiseOnWindowFocusChanged(false);
                         OnWindowFocusChangedEventCalled = false;
                     }
                 }
@@ -316,11 +330,15 @@ namespace Manager
             if (Config.PauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
-            // Get ID of this thread
-            MainThreadID = System.Threading.Thread.CurrentThread.ManagedThreadId;
+            // Get the thread context for the current thread
+            if (mainThreadContext == null)
+                mainThreadContext = SynchronizationContext.Current;
 
-            // Cleanup ScriptHookDotNet cache
-            SHDNStuff.ProcessCache();
+            // Get ID of this thread
+            MainThreadID = GetCurrentThreadID();
+
+            // Draw ScriptHookDotNet message
+            SHDNStuff.DrawMessage();
 
             // Load ScriptHookDotNet scripts on first frame
             if (!SHDNStuff.WereScriptHookDotNetScriptsLoadedThisSession)
@@ -334,12 +352,55 @@ namespace Manager
                 keyWatchDogs[1].Process();
 
             // Process stuff from queue
-            if (ActionQueue.Count != 0)
-                ActionQueue.Dequeue()?.Invoke();
+            if (ActionQueue.TryDequeue(out Action a))
+                a?.Invoke();
+
+            // Cleanup ScriptHookDotNet cache
+            SHDNStuff.ProcessCache();
 
             Secrittzzz.Process();
 
-            // Raise all IV-SDK .NET script Tick events
+
+            // - - - - Custom Thread Test - - - -
+            //if (ManagerUI.scriptThreads != null)
+            //{
+            //    for (int i = 0; i < ManagerUI.scriptThreads.Length; i++)
+            //    {
+            //        ManagerUI.scriptThreads[i].TickNowWithState();
+            //    }
+            //}
+            //for (int i = remote->RunningThreadCount - 1; i >= 0; i--)
+            //{
+            //    while (remote->RunThreadTick(i))
+            //    {
+            //        ProcessRemoteEvents();
+            //    }
+            //}
+
+            // - - - - Native Calling Test - - - -
+            //uint playerId = NativeCaller.Call<uint>(IVSDKDotNet.Native.eNativeHash.NATIVE_GET_PLAYER_ID);
+            //int playerIndex = NativeCaller.Call<int>(IVSDKDotNet.Native.eNativeHash.NATIVE_CONVERT_INT_TO_PLAYERINDEX, (NativeArg)playerId);
+
+            //NativeArg playerChar = new NativeArg(true, typeof(int));
+            //NativeCaller.Call(IVSDKDotNet.Native.eNativeHash.NATIVE_GET_PLAYER_CHAR, (NativeArg)playerIndex, playerChar);
+
+            //NativeArg playerCoordX = new NativeArg(true, typeof(float));
+            //NativeArg playerCoordY = new NativeArg(true, typeof(float));
+            //NativeArg playerCoordZ = new NativeArg(true, typeof(float));
+            //NativeCaller.Call(IVSDKDotNet.Native.eNativeHash.NATIVE_GET_CHAR_COORDINATES, playerChar.Reuse(), playerCoordX, playerCoordY, playerCoordZ);
+
+            //Vector3 vec = new Vector3(playerCoordX, playerCoordY, playerCoordZ);
+            //NativeCaller.Call(IVSDKDotNet.Native.eNativeHash.NATIVE_DRAW_CHECKPOINT, (NativeArg)vec, (NativeArg)1f, (NativeArg)255, (NativeArg)255, (NativeArg)255);
+
+            //NativeArgument arg1 = new NativeArgument(true, typeof(int));
+            //NativeCaller.Call((uint)IVSDKDotNet.Native.eNativeHash.NATIVE_GET_MOUSE_WHEEL, arg1);
+            //SHDN_ShowMessage(arg1.GetValue<int>().ToString(), 4000);
+
+
+            // Raise all plugin Tick events
+            ThePluginManager.RaiseTick();
+
+            // Raise all script Tick events
             ActiveScripts.ForEach(fs =>
             {
                 try
@@ -393,6 +454,10 @@ namespace Manager
         }
         public override void RaiseGameLoad()
         {
+            // Raise all plugin GameLoad events
+            ThePluginManager.RaiseGameLoad();
+
+            // Raise all script GameLoad events
             ActiveScripts.ForEach(fs =>
             {
                 try
@@ -407,6 +472,10 @@ namespace Manager
         }
         public override void RaiseGameLoadPriority()
         {
+            // Raise all plugin GameLoadPriority events
+            ThePluginManager.RaiseGameLoadPriority();
+
+            // Raise all script GameLoadPriority events
             ActiveScripts.ForEach(fs =>
             {
                 try
@@ -421,6 +490,10 @@ namespace Manager
         }
         public override void RaiseMountDevice()
         {
+            // Raise all plugin MountDevice events
+            ThePluginManager.RaiseMountDevice();
+
+            // Raise all script MountDevice events
             ActiveScripts.ForEach(fs =>
             {
                 try
@@ -436,13 +509,16 @@ namespace Manager
         public override void RaiseDrawing()
         {
             // Save log file if content changed
-            int currentLogLinesCount = Logger.GetLogItems().Count;
-            if (lastLogLineCount != currentLogLinesCount)
+            if (Logger.IsInitialized())
             {
-                lastLogLineCount = currentLogLinesCount;
+                int currentLogLinesCount = Logger.GetLogItems().Count;
+                if (lastLogLineCount != currentLogLinesCount)
+                {
+                    lastLogLineCount = currentLogLinesCount;
 
-                // Something changed, save log file
-                SaveLogFile();
+                    // Something changed, save log file
+                    SaveLogFile();
+                }
             }
 
             if (Config.PauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
@@ -497,6 +573,9 @@ namespace Manager
         }
         public override void RaiseProcessPad(UIntPtr padPtr)
         {
+            // Get ID of this thread
+            PadThreadID = GetCurrentThreadID();
+
             // Update the remote server
             ConnectionManager.Update();
 
@@ -506,10 +585,15 @@ namespace Manager
             // Do stuff on first frame
             if (FirstFrame)
             {
-                UpdateChecker.CheckForUpdates(true);
+                if (Config.EnableAutomaticUpdateCheck)
+                    UpdateChecker.CheckForUpdates(true);
+
                 GetSupporters();
                 FirstFrame = false;
             }
+
+            // Check if controller is being used
+            IsPlayerUsingController = Natives.IS_USING_CONTROLLER();
 
             // Check for key presses for IV-SDK .NET scripts
             if (keyWatchDogs != null)
@@ -530,6 +614,9 @@ namespace Manager
         }
         public override void RaiseOnD3D9Frame(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
         {
+            if (!ImGuiIV.WasImGuiInitialized || !ImGuiIV.CanDraw)
+                return;
+
             DateTime dtNow = DateTime.UtcNow;
 
             // Execute Delayed Actions if there are any
@@ -568,8 +655,11 @@ namespace Manager
                 }
             }
 
-            // Reset ImGui style to default for script windows
+            // Reset ImGui style to default for script/plugin windows
             ResetImGuiStyle();
+
+            // Raise all plugin OnImGuiGlobalRendering events
+            ThePluginManager.RaiseOnImGuiGlobalRenderingEvent(devicePtr, ctx);
 
             // Raise all script OnImGuiRendering events
             ActiveScripts.ForEach(fs =>
@@ -626,6 +716,9 @@ namespace Manager
         }
         public override void RaiseOnBeforeNewImGuiFrame(IntPtr devicePtr)
         {
+            if (!ImGuiIV.WasImGuiInitialized || !ImGuiIV.CanDraw)
+                return;
+
             // Create fonts that wait to be created and added
             if (SHDNStuff.FontsToBeCreated.Count != 0)
             {
@@ -663,13 +756,8 @@ namespace Manager
             // Only do stuff here if event comes from IV-SDK .NET KeyWatchDog
             if (sender == keyWatchDogs[0])
             {
-                // Raise local things
-                if (Console != null)
-                    Console.KeyDown(e);
-
-                // Check stuff
-                Checker.CheckSwitchCursorKeyPressed(e);
-                Checker.CheckOpenManagerWindowKeyPressed(e);
+                // Check for key stuff
+                KeyChecker.CheckAll(e);
             }
 
             if (DisableKeyEvents)
@@ -759,8 +847,6 @@ namespace Manager
             // Load ScriptHookDotNet scripts
             if (SHDNStuff.WereScriptHookDotNetScriptsLoadedThisSession)
                 LoadSHDNScripts();
-
-            TimeSinceLastScriptReload = DateTime.Now;
         }
         public void LoadIVSDKDotNetScripts()
         {
@@ -781,6 +867,8 @@ namespace Manager
 
             // Log
             Logger.Log(string.Format("Finished loading {0} IV-SDK .NET script(s).", ActiveScripts.Count(x => x.IsIVSDKDotNetScript)));
+
+            TimeSinceLastScriptLoad = DateTime.Now;
         }
         public void LoadSHDNScripts()
         {
@@ -808,6 +896,8 @@ namespace Manager
 
             // Log
             Logger.Log(string.Format("Finished loading {0} ScriptHookDotNet script(s).", ActiveScripts.Count(x => x.IsScriptHookDotNetScript)));
+
+            TimeSinceLastScriptLoad = DateTime.Now;
         }
 
         public void LoadScript(string name)
@@ -979,10 +1069,17 @@ namespace Manager
 
                     // Create new instance of type for assembly
                     Script script = (Script)assembly.CreateInstance(scriptType.FullName);
-
+                    
                     if (script == null)
                     {
                         Logger.LogWarning(string.Format("An unknown error occured while trying to create new instance of IV-SDK .NET script '{0}'.", fileName));
+                        return false;
+                    }
+
+                    // Check if script ID is already assigned to another script
+                    if (GetFoundScript(script.ID) != null)
+                    {
+                        HandleScriptIdConflict(ScriptType.IVSDKDotNet, script, scriptType.FullName);
                         return false;
                     }
 
@@ -1013,6 +1110,9 @@ namespace Manager
 
                     // Add script to ActiveScripts list.
                     ActiveScripts.Add(foundScript);
+
+                    // Let plugins know
+                    ThePluginManager.RaiseOnScriptLoad(foundScript.ID);
 
                     // Raise Initialize
                     try
@@ -1166,54 +1266,105 @@ namespace Manager
             switch (scriptsToAbort)
             {
                 case ScriptType.All:
-
-                    // IV-SDK .NET scripts
-                    ActiveScripts.ForEach(x =>
                     {
-                        if (x.IsIVSDKDotNetScript)
-                            x.Abort(reason, showMessage);
-                    });
-                    ActiveScripts.RemoveAll(x => x.IsIVSDKDotNetScript);
+                        FoundScript[] arr = ActiveScripts.Where(x => x.CanScriptBeAborted(reason, false)).ToArray();
 
-                    // ScriptHookDotNet scripts
-                    ActiveScripts.ForEach(x =>
-                    {
-                        if (x.IsScriptHookDotNetScript)
-                            x.Abort(reason, showMessage);
-                    });
-                    ActiveScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
+                        // Let plugins know
+                        ThePluginManager.RaiseOnBeforeScriptsAbort(arr.Select(x => x.ID).ToArray());
 
-                    // Get rid of registered textures that couldn't be assigned to any script
-                    DestroyGlobalRegisteredTextures();
+                        for (int i = 0; i < arr.Length; i++)
+                            arr[i].Abort(reason, showMessage);
 
-                    // Clear ScriptHookDotNet Cache
-                    GTA.ContentCache.RemoveAll(true);
+                        ActiveScripts.Clear();
 
+                        // Let plugins know
+                        ThePluginManager.RaiseOnAfterScriptsAbort();
+
+                        //// IV-SDK .NET scripts
+                        //ActiveScripts.ForEach(x =>
+                        //{
+                        //    if (x.IsIVSDKDotNetScript)
+                        //        x.Abort(reason, showMessage);
+                        //});
+                        //ActiveScripts.RemoveAll(x =>
+                        //{
+                        //    // Dont remove script from list if it cannot be aborted
+                        //    if (!x.CanScriptBeAborted(reason, false))
+                        //        return false;
+
+                        //    return x.IsIVSDKDotNetScript;
+                        //});
+
+                        //// ScriptHookDotNet scripts
+                        //ActiveScripts.ForEach(x =>
+                        //{
+                        //    if (x.IsScriptHookDotNetScript)
+                        //        x.Abort(reason, showMessage);
+                        //});
+                        //ActiveScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
+
+                        // Get rid of registered textures that couldn't be assigned to any script
+                        DestroyGlobalRegisteredTextures();
+
+                        // Clear ScriptHookDotNet Cache
+                        GTA.ContentCache.RemoveAll(true);
+                    }
                     break;
                 case ScriptType.IVSDKDotNet:
-
-                    // IV-SDK .NET scripts
-                    ActiveScripts.ForEach(x =>
                     {
-                        if (x.IsIVSDKDotNetScript)
-                            x.Abort(reason, showMessage);
-                    });
-                    ActiveScripts.RemoveAll(x => x.IsIVSDKDotNetScript);
+                        FoundScript[] arr = ActiveScripts.Where(x => x.CanScriptBeAborted(reason, false)).ToArray();
 
+                        // Let plugins know
+                        ThePluginManager.RaiseOnBeforeScriptsAbort(arr.Select(x => x.ID).ToArray());
+
+                        for (int i = 0; i < arr.Length; i++)
+                            arr[i].Abort(reason, showMessage);
+
+                        //// IV-SDK .NET scripts
+                        //ActiveScripts.ForEach(x =>
+                        //{
+                        //    if (x.IsIVSDKDotNetScript)
+                        //        x.Abort(reason, showMessage);
+                        //});
+
+                        ActiveScripts.RemoveAll(x =>
+                        {
+                            // Dont remove script from list if it cannot be aborted
+                            if (!x.CanScriptBeAborted(reason, false))
+                                return false;
+
+                            return x.IsIVSDKDotNetScript;
+                        });
+
+                        // Let plugins know
+                        ThePluginManager.RaiseOnAfterScriptsAbort();
+                    }
                     break;
                 case ScriptType.ScriptHookDotNet:
-
-                    // ScriptHookDotNet scripts
-                    ActiveScripts.ForEach(x =>
                     {
-                        if (x.IsScriptHookDotNetScript)
-                            x.Abort(reason, showMessage);
-                    });
-                    ActiveScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
+                        FoundScript[] arr = ActiveScripts.Where(x => x.IsScriptHookDotNetScript).ToArray();
 
-                    // Clear ScriptHookDotNet Cache
-                    GTA.ContentCache.RemoveAll(true);
+                        // Let plugins know
+                        ThePluginManager.RaiseOnBeforeScriptsAbort(arr.Select(x => x.ID).ToArray());
 
+                        for (int i = 0; i < arr.Length; i++)
+                            arr[i].Abort(reason, showMessage);
+
+                        //// ScriptHookDotNet scripts
+                        //ActiveScripts.ForEach(x =>
+                        //{
+                        //    if (x.IsScriptHookDotNetScript)
+                        //        x.Abort(reason, showMessage);
+                        //});
+
+                        ActiveScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
+
+                        // Let plugins know
+                        ThePluginManager.RaiseOnAfterScriptsAbort();
+
+                        // Clear ScriptHookDotNet Cache
+                        GTA.ContentCache.RemoveAll(true);
+                    }
                     break;
             }
 
@@ -1245,7 +1396,7 @@ namespace Manager
         }
 
         // ImGui
-        private void ResetImGuiStyle()
+        public void ResetImGuiStyle()
         {
             if (DoNotResetImGuiStyle)
                 return;
@@ -1365,32 +1516,110 @@ namespace Manager
 
             string scriptName = target.EntryPoint.FullName;
 
+            // Figure out what kind of exception we got, so we can add a possible solution text to the notification
+            string possibleSolution = null;
+
+            if (ex is MissingFieldException || ex is MissingMemberException || ex is MissingMethodException || ex is TypeLoadException)
+            {
+                possibleSolution = "Possible Solution: Make sure the MOD itself, its DEPENDENCIES and IV-SDK .NET is up-to-date.";
+            }
+            else if (ex is FileNotFoundException || ex is DirectoryNotFoundException)
+            {
+                possibleSolution = "Possible Solution: Make sure the target file/directory is within its desired location, it's not renamed or deleted.";
+            }
+            else if (ex is UnauthorizedAccessException)
+            {
+                possibleSolution = "Possible Solution: Make sure GTA has sufficient permissions for the current directory e.g. not within a program files folder, or any other system protected folder.";
+            }
+            else if (ex is NotImplementedException)
+            {
+                possibleSolution = "Let the mod developer know that something was marked as not implemented yet.";
+            }
+
             // Show and Log the error
             if (target.IsScriptHookDotNetScript)
             {
-                Notification.ShowNotification(
+                NotificationContent content = new NotificationContent(
+                    string.Format("[ScriptHookDotNet] An error occured in {0} {2} {1}. More details in console.", scriptName, eventErrorOccuredIn, isInternalEvent ? "internal event" : ""),
+                    ex.Message,
+                    possibleSolution);
+
+                Notification.ShowNotificationEx(
                     NotificationType.Error,
                     DateTime.UtcNow.AddSeconds(notifySecondsVisible),
-                    string.Format("[ScriptHookDotNet] An error occured in {0} {2} {1}.", scriptName, eventErrorOccuredIn, isInternalEvent ? "internal event" : ""),
-                    ex.Message,
+                    content,
                     string.Format("ERROR_IN_SCRIPT_{0}", scriptName));
 
-                Logger.LogError(string.Format("An error occured while processing {0} event for ScriptHookDotNet script {1}. Aborting script. Details: {2}", eventErrorOccuredIn, scriptName, ex));
+                Logger.LogError(string.Format("An error occured while processing '{0}' event for ScriptHookDotNet script '{1}'. Aborting. Error details available below.", eventErrorOccuredIn, scriptName));
+
+                if (possibleSolution != null)
+                    Logger.LogError(possibleSolution);
+                
+                Logger.LogError(string.Format("Details: {0}", ex));
             }
             else
             {
-                Notification.ShowNotification(
+                NotificationContent content = new NotificationContent(
+                    string.Format("An error occured in {0} {1}. More details in console.", scriptName, eventErrorOccuredIn),
+                    ex.Message,
+                    possibleSolution);
+
+                Notification.ShowNotificationEx(
                     NotificationType.Error,
                     DateTime.UtcNow.AddSeconds(notifySecondsVisible),
-                    string.Format("An error occured in {0} {1}.", scriptName, eventErrorOccuredIn),
-                    ex.Message,
+                    content,
                     string.Format("ERROR_IN_SCRIPT_{0}", scriptName));
 
-                Logger.LogError(string.Format("An error occured while processing '{0}' event for script '{1}'. Aborting script. Details: {2}", eventErrorOccuredIn, scriptName, ex));
+                Logger.LogError(string.Format("An error occured while processing '{0}' event for IV-SDK .NET script '{1}'. Aborting. Error details available below.", eventErrorOccuredIn, scriptName));
+
+                if (possibleSolution != null)
+                    Logger.LogError(possibleSolution);
+
+                Logger.LogError(string.Format("Details: {0}", ex));
             }
 
             // Abort script
-            AbortScriptInternal(AbortReason.Manager, target, true);
+            AbortScriptInternal(AbortReason.Manager, target, true, true);
+        }
+        public void HandleScriptIdConflict(ScriptType scriptType, object script, string fullName)
+        {
+            if (script == null)
+                return;
+
+            // Dispose script
+            switch (scriptType)
+            {
+                case ScriptType.IVSDKDotNet:
+
+                    ((Script)script).Dispose();
+
+                    // Log to console
+                    Logger.LogErrorEx("Could not load IV-SDK .NET script '{0}' because its ID conflicts with the ID of another loaded script.", fullName);
+
+                    break;
+                case ScriptType.ScriptHookDotNet:
+
+                    ((GTA.Script)script).Dispose();
+
+                    // Log to console
+                    Logger.LogErrorEx("Could not load ScriptHookDotNet script '{0}' because its ID conflicts with the ID of another loaded script.", fullName);
+
+                    break;
+            }
+
+            Logger.LogError("Possible Solution: Reload the scripts to get rid of the ID conflict. Or let the mod developer know if this issue keeps occuring.");
+
+            // Show notification
+            NotificationContent content = new NotificationContent(
+                string.Format("Could not load IV-SDK .NET script '{0}'!", fullName),
+                "The ID of this script conflicts with another ID of an already loaded script.",
+                "Possible Solution: Reload the scripts to get rid of the ID conflict. Or let the mod developer know if this issue keeps occuring.");
+            
+            Notification.ShowNotificationEx(
+                NotificationType.Error,
+                DateTime.UtcNow.AddSeconds(8d),
+                content,
+                null);
         }
         private void SetUpKeyWatchDogs()
         {
@@ -1535,29 +1764,14 @@ namespace Manager
             return fs;
         }
 
-        public bool AbortScriptInternal(AbortReason reason, Guid id)
-        {
-            // Try find and abort script
-            FoundScript script = GetFoundScript(id);
-
-            if (script != null)
-            {
-                Logger.Log(string.Format("Aborting script {0}...", script.EntryPoint.FullName));
-                script.Abort(reason, true);
-                GC.Collect();
-                return ActiveScripts.Remove(script);
-            }
-
-            return false;
-        }
-        public bool AbortScriptInternal(AbortReason reason, FoundScript script, bool showMessage)
+        public bool AbortScriptInternal(AbortReason reason, FoundScript script, bool showMessage, bool forceAbort = false)
         {
             if (script != null)
             {
                 if (showMessage)
                     Logger.Log(string.Format("Aborting script {0}...", script.EntryPoint.FullName));
 
-                script.Abort(reason, showMessage);
+                script.Abort(reason, showMessage, forceAbort);
 
                 bool result = ActiveScripts.Remove(script);
                 GC.Collect();
@@ -1565,6 +1779,10 @@ namespace Manager
             }
 
             return false;
+        }
+        public bool AbortScriptInternal(AbortReason reason, Guid id, bool showMessage, bool forceAbort = false)
+        {
+            return AbortScriptInternal(reason, GetFoundScript(id), showMessage, forceAbort);
         }
 
         public Guid StartNewTimerInternal(int interval, Action actionToExecute)
@@ -1594,6 +1812,38 @@ namespace Manager
             return Guid.Empty;
         }
 
+        // Thread
+        public int GetCurrentThreadIdInternal()
+        {
+            return System.Threading.Thread.CurrentThread.ManagedThreadId;
+        }
+
+        /// <summary>
+        /// Creates a new script thread, adds it to the global threads list and returns the ID of the new thread.
+        /// </summary>
+        /// <param name="fs">The script this thread should be created for.</param>
+        /// <param name="launchThread">Sets if the thread should be launched after it got created.</param>
+        /// <returns>The ID of the new thread. -1 if given script is null.</returns>
+        public int CreateScriptThread(FoundScript fs, bool launchThread = false)
+        {
+            if (fs == null)
+                return -1;
+
+            // Create thread
+            ScriptThread thread = new ScriptThread(fs);
+
+            // Add this thread to the global list
+            GlobalThreads.Add(thread.ThreadId, thread);
+
+            Helper.WriteToDebugOutput(Priority.Default, "Added new script thread {0} to global threads list for script {1}.", thread.ThreadId, fs.FileName);
+
+            if (launchThread)
+                thread.Launch();
+
+            // Return ID of the newly created thread
+            return thread.ThreadId;
+        }
+
         #endregion
 
         #region Overrides
@@ -1603,6 +1853,9 @@ namespace Manager
         {
             try
             {
+                // Tell all plugins that the manager cleans up
+                ThePluginManager.RaiseOnShutdown();
+
                 // Log
                 Logger.LogDebug("Manager is starting its cleanup process...");
 
@@ -1615,6 +1868,9 @@ namespace Manager
 
                 // Abort all currently running scripts
                 AbortScripts(ScriptType.All, AbortReason.Manager, false);
+
+                // Abort all currently running plugins
+                ThePluginManager.UnloadPlugins(AbortReason.Manager, false);
 
                 // Stop all active task
                 if (ActiveTasks.Count != 0)
@@ -1701,10 +1957,6 @@ namespace Manager
             // Start the server if allowed
             if (Config.AllowRemoteConnections)
                 ConnectionManager.Start(false);
-
-            // Load plugins if allowed
-            if (Config.AllowPluginLoading)
-                ThePluginManager.LoadPlugins();
         }
         #endregion
 
@@ -1714,9 +1966,47 @@ namespace Manager
             LoadScriptsInternal();
         }
 
+        public override void RegisterEvent(string scriptOrPluginName, Delegate source, Delegate target)
+        {
+            if (target == null)
+                return;
+
+            // A new instance of the script/plugin class is created before the FoundScript/FoundPlugin class is created.
+            // And as events usually get subscribed to in the constructor, the GetFoundScript/GetFoundPlugin function will return null as
+            // the FoundScript/FoundPlugin will get added to the list.
+
+            // Try get target script
+            FoundScript fs = GetFoundScript(scriptOrPluginName);
+
+            if (fs != null)
+            {
+                if (fs.RegisteredEvents != null)
+                {
+                    fs.RegisteredEvents.Add(new RegisteredEvent(source, target));
+                    Logger.LogDebug(string.Format("Registered event to {0} script.", scriptOrPluginName));
+                }
+
+                return;
+            }
+
+            // Try get target plugin
+            FoundPlugin fp = ThePluginManager.GetFoundPlugin(scriptOrPluginName);
+
+            if (fp != null)
+            {
+                if (fp.RegisteredEvents != null)
+                {
+                    fp.RegisteredEvents.Add(new RegisteredEvent(source, target));
+                    Logger.LogDebug(string.Format("Registered event to {0} plugin.", scriptOrPluginName));
+                }
+
+                return;
+            }
+        }
+
         public override bool AbortScript(Guid id)
         {
-            return AbortScriptInternal(AbortReason.Script, id);
+            return AbortScriptInternal(AbortReason.Script, id, true);
         }
 
         public override Script GetScript(Guid id)
@@ -1745,6 +2035,26 @@ namespace Manager
 
             return false;
         }
+
+        public override bool IsIVSDKDotNetScript(Guid id)
+        {
+            FoundScript script = GetFoundScript(id);
+
+            if (script != null)
+                return script.IsIVSDKDotNetScript;
+
+            return false;
+        }
+	    public override bool IsIVSDKDotNetScript(string name)
+        {
+            FoundScript script = GetFoundScript(name);
+
+            if (script != null)
+                return script.IsIVSDKDotNetScript;
+
+            return false;
+        }
+
         public override string GetScriptName(Guid id)
         {
             FoundScript foundScript = GetFoundScript(id);
@@ -1892,6 +2202,15 @@ namespace Manager
         }
         #endregion
 
+        #region Plugin
+        public override void LoadPlugins()
+        {
+            // Load plugins if allowed
+            if (Config.AllowPluginLoading)
+                ThePluginManager.LoadPlugins();
+        }
+        #endregion
+
         #region Direct3D9 Stuff
 
         // Texture stuff
@@ -1964,6 +2283,15 @@ namespace Manager
         {
             return Console.ExecuteCommand(name);
         }
+
+        public override string GetLastConsoleCommand()
+        {
+            return Console.GetLastConsoleCommand();
+        }
+        public override void ResetLastConsoleCommand()
+        {
+            Console.ResetLastConsoleCommand();
+        }
         #endregion
 
         #region Phone
@@ -1999,6 +2327,131 @@ namespace Manager
         public override bool IsGameInFocus()
         {
             return IsGTAIVWindowInFocus;
+        }
+        public override bool IsUsingController()
+        {
+            return IsPlayerUsingController;
+        }
+        #endregion
+
+        #region Thread
+
+        // THIS WHOLE SECTION IS A TODO THING
+
+        public override void WaitInScript(Guid id, int milliseconds)
+        {
+            if (id != Guid.Empty)
+            {
+                FoundScript fs = GetFoundScript(id);
+
+                Helper.WriteToDebugOutput(Priority.Default, "Script with ID {0} (Was found: {2}) wants to wait for {1} milliseconds.", id, milliseconds, fs != null);
+
+                if (fs != null)
+                    fs.Wait(milliseconds);
+            }
+            else
+            {
+                // Try to wait in the current thread
+                if (GlobalThreads.TryGetValue(GetCurrentThreadID(), out NetThread thread))
+                    thread.Wait(milliseconds);
+            }
+        }
+        public override void DispatchEvent(Action a)
+        {
+            int threadId = GetCurrentThreadID();
+
+            // Find the thread this event should be dispatched on
+            if (GlobalThreads.TryGetValue(threadId, out NetThread thread))
+            {
+                Helper.WriteToDebugOutput(Priority.Default, "Dispatching an event to thread {0}", threadId);
+                thread.GetDispatcher().Dispatch(a);
+            }
+            else
+            {
+                Helper.WriteToDebugOutput(Priority.Default, "Could not dispatch an event to thread {0} as it was not found within the global threads list!", threadId);
+            }
+        }
+        public override object DispatchEventWithReturn<T>(Func<T> a)
+        {
+            int threadId = GetCurrentThreadID();
+
+            // Find the thread this event should be dispatched on
+            if (GlobalThreads.TryGetValue(threadId, out NetThread thread))
+            {
+                Helper.WriteToDebugOutput(Priority.Default, "Dispatching a return event to thread {0}", threadId);
+                return thread.GetDispatcher().DispatchWithReturn(a).Result;
+            }
+            else
+            {
+                Helper.WriteToDebugOutput(Priority.Default, "Could not dispatch a return event to thread {0} as it was not found within the global threads list!", threadId);
+            }
+
+            return null;
+        }
+
+        // Dispatches the native call to the main thread to be invoked there
+        // If the current thread is already the main thread, the native will get invoked directly
+        public override void DispatchNativeCall(uint hash, UIntPtr contextPointer)
+        {
+            int threadId = GetCurrentThreadID();
+            int currentNativeThreadId = (int)Win32.GetCurrentThreadId();
+
+            if (threadId != GetMainThreadID())
+            {
+                // Send work on main thread
+                if (mainThreadContext != null)
+                {
+                    Helper.WriteToDebugOutput(Priority.Default, "Dispatching a native call ({0} - {1}) which was called from thread {2} ({3}) on the main thread.", (eNativeHash)hash, hash, threadId, currentNativeThreadId);
+
+                    mainThreadContext.Send(_ =>
+                    {
+                        IVNativeInvoke.Invoke(hash, contextPointer);
+                    }, null);
+                }
+            }
+            else
+            {
+                Helper.WriteToDebugOutput(Priority.Default, "Invoking a native call ({0} - {1}) directly on the thread ({2}) it was called from.", (eNativeHash)hash, hash, threadId);
+
+                IVNativeInvoke.Invoke(hash, contextPointer);
+            }
+
+            return;
+
+            // Find the thread this native call should be dispatched on
+            if (GlobalThreads.TryGetValue(threadId, out NetThread thread))
+            {
+                Helper.WriteToDebugOutput(Priority.Default, "Dispatching a native call ({0} - {1}) to thread {2}", (eNativeHash)hash, hash, threadId);
+
+                thread.GetDispatcher().Dispatch(() =>
+                {
+                    IVNativeInvoke.Invoke(hash, contextPointer);
+                });
+            }
+            else
+            {
+                if (threadId == GetMainThreadID() || threadId == PadThreadID)
+                {
+                    Helper.WriteToDebugOutput(Priority.Default, "Invoking a native call ({0} - {1}) directly on the current thread where it was called.", (eNativeHash)hash, hash);
+                    IVNativeInvoke.Invoke(hash, contextPointer);
+                }
+                else
+                {
+                    Helper.WriteToDebugOutput(Priority.Default, "Dispatching a native call ({0} - {1}) to main thread", (eNativeHash)hash, hash);
+
+                    Helper.WriteToDebugOutput(Priority.Default, "Current Thread ID: {0}, Main Thread ID: {1}, Pad Thread ID: {2}", threadId, GetMainThreadID(), PadThreadID);
+                    ActionQueue.Enqueue(() => IVNativeInvoke.Invoke(hash, contextPointer));
+                }
+            }
+        }
+
+        public override int GetMainThreadID()
+        {
+            return MainThreadID;
+        }
+        public override int GetCurrentThreadID()
+        {
+            return GetCurrentThreadIdInternal();
         }
         #endregion
 
@@ -2153,12 +2606,11 @@ namespace Manager
 
             return false;
         }
-        #endregion
 
-        #region Other
-        public override int GetMainThreadID()
+        public override void SHDN_ShowMessage(string str, int time)
         {
-            return MainThreadID;
+            SHDNStuff.SetMessageToShow(str);
+            SHDNStuff.SetMessageTime(time);
         }
         #endregion
 

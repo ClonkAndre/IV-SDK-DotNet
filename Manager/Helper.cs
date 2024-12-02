@@ -117,6 +117,8 @@ namespace Manager
         public static void WriteToDebugOutput(Priority priority, string str, params object[] args)
         {
 #if DEBUG
+            if (!Main.Instance.AllowWriteToDebugOutput)
+                return;
             if (Debugger.IsAttached)
                 Debugger.Log((int)priority, "IV-SDK .NET", string.Format(str + "\n", args));
 #endif

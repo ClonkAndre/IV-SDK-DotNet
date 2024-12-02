@@ -23,6 +23,7 @@ namespace Manager.UI
         #region Variables
         private Dictionary<string, Action<string[]>> localCommands;
         private string[] autoCompleteCommands;
+        private string lastConsoleCommand;
 
         // Suggestions Popup
         private bool popupOpen;
@@ -49,6 +50,13 @@ namespace Manager.UI
         #endregion
 
         #region Methods
+        public void ToggleConsole()
+        {
+            if (IsConsoleOpen)
+                Close();
+            else
+                Open();
+        }
         public void Open()
         {
             IsConsoleOpen = true;
@@ -63,6 +71,11 @@ namespace Manager.UI
         public void Clear()
         {
             Logger.ClearLogItems();
+        }
+
+        public void ResetLastConsoleCommand()
+        {
+            lastConsoleCommand = null;
         }
         #endregion
 
@@ -105,6 +118,8 @@ namespace Manager.UI
             string[] args = Regex.Split(name, @"\s+");
             string command = args[0].ToLower();
 
+            lastConsoleCommand = command;
+
             // Skip first console command argument (which is the command name and we do not care about that we want the actual arguments)
             args = args.Skip(1).ToArray();
 
@@ -129,6 +144,11 @@ namespace Manager.UI
 
             return true;
         }
+
+        public string GetLastConsoleCommand()
+        {
+            return lastConsoleCommand;
+        }
         #endregion
 
         #region Commands
@@ -140,7 +160,7 @@ namespace Manager.UI
             RegisterLocalCommand("Autosave", (string[] args) => { Natives.DO_AUTO_SAVE(); });
             RegisterLocalCommand("Save", (string[] args) => { Natives.ACTIVATE_SAVE_MENU(); });
             RegisterLocalCommand("SavePlayerPos", (string[] args) => { SavePlayerPosCommand(); });
-            RegisterLocalCommand("AbortScripts", (string[] args) => { Main.Instance.AbortScripts(ScriptType.All, AbortReason.Manual, true); });
+            RegisterLocalCommand("AbortScripts", (string[] args) => { Main.Instance.AbortScripts(ScriptType.All, AbortReason.Console, true); });
             RegisterLocalCommand("AbortScript", (string[] args) => { AbortScriptCommand(args); });
             RegisterLocalCommand("ReloadScripts", (string[] args) => { Main.Instance.LoadScripts(); });
             RegisterLocalCommand("GetRunningScripts", (string[] args) => { Logger.Log(string.Format("There are currently {0} scripts running.", Main.Instance.ActiveScripts.Count.ToString()), true); });
@@ -504,18 +524,6 @@ namespace Manager.UI
             }
 
             ImGuiIV.End();
-        }
-
-        public void KeyDown(KeyEventArgs e)
-        {
-            // Open/Close Console
-            if (e.KeyCode == Config.ConsoleOpenCloseKey)
-            {
-                if (IsConsoleOpen)
-                    Close();
-                else
-                    Open();
-            }
         }
 
     }

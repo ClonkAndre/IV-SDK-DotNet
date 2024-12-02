@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 using IVSDKDotNet;
@@ -19,6 +20,9 @@ namespace Manager.Classes
 
         // Types
         public Type EntryPoint;
+
+        // List
+        public List<RegisteredEvent> RegisteredEvents;
 
         // Dear ImGui
         //public List<IntPtr> Textures;
@@ -48,6 +52,9 @@ namespace Manager.Classes
             ThePluginInstance = pluginInstance;
             EntryPoint = entryPoint;
 
+            // Lists
+            //RegisteredEvents = new List<RegisteredEvent>(8);
+
             Running = true;
         }
         #endregion
@@ -57,7 +64,37 @@ namespace Manager.Classes
         {
             ThePluginInstance.RaiseUninitialize();
         }
-        public void RaiseOnImGuiRendering(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
+
+        public void RaiseTick()
+        {
+            if (!IsReady())
+                return;
+
+            ThePluginInstance.RaiseTick();
+        }
+        public void RaiseGameLoad()
+        {
+            if (!IsReady())
+                return;
+
+            ThePluginInstance.RaiseGameLoad();
+        }
+        public void RaiseGameLoadPriority()
+        {
+            if (!IsReady())
+                return;
+
+            ThePluginInstance.RaiseGameLoadPriority();
+        }
+        public void RaiseMountDevice()
+        {
+            if (!IsReady())
+                return;
+
+            ThePluginInstance.RaiseMountDevice();
+        }
+
+        public void RaiseOnImGuiGlobalRendering(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
         {
             if (!IsReady())
                 return;
@@ -70,7 +107,52 @@ namespace Manager.Classes
                 HasOnFirstD3D9FrameEventBeenRaised = true;
             }
 
-            ThePluginInstance.RaiseOnImGuiRendering(devicePtr, ctx);
+            ThePluginInstance.RaiseOnImGuiGlobalRendering(devicePtr, ctx);
+        }
+        public void RaiseOnImGuiManagerRendering(IntPtr devicePtr)
+        {
+            if (!IsReady())
+                return;
+
+            ThePluginInstance.RaiseOnImGuiManagerRendering(devicePtr);
+        }
+
+        public void RaiseOnShutdown()
+        {
+            if (!IsReady())
+                return;
+
+            ThePluginInstance.RaiseOnShutdown(this, EventArgs.Empty);
+        }
+
+        public void RaiseOnScriptAbort(Guid scriptID)
+        {
+            if (!IsReady())
+                return;
+
+            ThePluginInstance.RaiseOnScriptAbort(scriptID);
+        }
+        public void RaiseOnScriptLoad(Guid scriptID)
+        {
+            if (!IsReady())
+                return;
+
+            ThePluginInstance.RaiseOnScriptLoad(scriptID);
+        }
+
+        public void RaiseOnBeforeScriptsAbort(Guid[] scriptIDs)
+        {
+            if (!IsReady())
+                return;
+
+            ThePluginInstance.RaiseOnBeforeScriptsAbort(scriptIDs);
+        }
+        public void RaiseOnAfterScriptsAbort()
+        {
+            if (!IsReady())
+                return;
+
+            ThePluginInstance.RaiseOnAfterScriptsAbort();
         }
         #endregion
 
@@ -123,6 +205,20 @@ namespace Manager.Classes
         public bool IsReady()
         {
             return Running;
+        }
+
+        public bool CanPluginBeAborted(AbortReason reason, bool forceAbort)
+        {
+            if (!forceAbort)
+            {
+                if (!ThePluginInstance.ForceNoAbort)
+                    return true;
+
+                // Only allow abort when manager wants to
+                return reason == AbortReason.Manager;
+            }
+
+            return true;
         }
         #endregion
     }

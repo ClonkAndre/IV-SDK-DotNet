@@ -367,4 +367,21 @@ namespace IVSDKDotNet
 		At = Vector3(cx, cy, cz);
 	}
 
+	Vector3 IVMatrix::GetPosition()
+	{
+		return Pos;
+	}
+	Vector3 IVMatrix::GetRight()
+	{
+		return Right;
+	}
+	Vector3 IVMatrix::GetForward()
+	{
+		return Up;
+	}
+	Vector3 IVMatrix::GetUp()
+	{
+		return At;
+	}
+
 }

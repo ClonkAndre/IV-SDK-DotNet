@@ -1,7 +1,5 @@
 #pragma once
 
-using namespace System::Runtime::InteropServices;
-
 namespace IVSDKDotNet 
 {
 	public ref class MemoryAccess

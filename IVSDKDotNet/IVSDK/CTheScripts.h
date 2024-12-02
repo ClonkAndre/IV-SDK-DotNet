@@ -14,6 +14,7 @@ public:
 
 	static inline auto& m_aGlobalVariables = AddressSetter::GetRef<uint32_t*>(0x1449AEC, 0x1394FC0); // m_aGlobalVariables[65535]?
 	static inline auto& m_pCurrentThread = AddressSetter::GetRef<uint32_t>(0x1449AE0, 0x1394FB4);
+
 	static uint32_t FindNativeAddress(uint32_t nativeHash)
 	{
 		__try
@@ -36,6 +37,20 @@ public:
 			return 0;
 		}
 	}
+	static int RegisterNativeNoChecks(uint32_t hash, LPVOID funcPtr)
+	{
+		return ((int (__stdcall*)(uint32_t, LPVOID))(AddressSetter::Get(0x1A7720, 0x226B40)))(hash, funcPtr);
+	}
+	static int RegisterNative(uint32_t hash, LPVOID funcPtr)
+	{
+		return ((int(__cdecl*)(uint32_t, LPVOID))(AddressSetter::Get(0x1A6200, 0x225620)))(hash, funcPtr);
+	}
+
+	static const char* GetNameOfCurrentScript()
+	{
+		return ((const char* (__cdecl*)())(AddressSetter::Get(0x404240, 0x4AE820)))();
+	}
+
 	static bool IsPlayerOnAMission()
 	{
 		return ((bool(__cdecl*)())(AddressSetter::Get(0x403E00, 0x4AE3E0)))();

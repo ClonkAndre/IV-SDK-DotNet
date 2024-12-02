@@ -76,6 +76,7 @@
     public enum Priority
     {
         Default,
+        Medium,
         High
     }
     public enum AbortReason
@@ -88,6 +89,7 @@
         /// The script was aborted manually by a user.
         /// </summary>
         Manual,
+
         /// <summary>
         /// The script was aborted by another script (Or by the same script).
         /// </summary>
@@ -95,7 +97,11 @@
         /// <summary>
         /// The script was aborted because the manager wanted to.
         /// </summary>
-        Manager
+        Manager,
+        /// <summary>
+        /// The script was aborted by the console (Manual).
+        /// </summary>
+        Console
     }
     public enum NotificationType
     {

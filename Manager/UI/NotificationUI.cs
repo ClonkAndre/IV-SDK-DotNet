@@ -9,6 +9,24 @@ using Manager.Classes;
 
 namespace Manager.UI
 {
+    public struct NotificationContent
+    {
+        #region Variables
+        public string Title;
+        public string Description;
+        public string AdditionalContent;
+        #endregion
+
+        #region Constructor
+        public NotificationContent(string title, string desc, string additionalContent)
+        {
+            Title = title;
+            Description = desc;
+            AdditionalContent = additionalContent;
+        }
+        #endregion
+    }
+
     public class NotificationUI
     {
 
@@ -23,22 +41,24 @@ namespace Manager.UI
             public NotificationType Type;
             public string Title;
             public string Description;
+            public string AdditionalContent;
             public string Tag;
 
+            public bool CanBeRemoved;
+
             // Animation stuff
-            public bool FadeOut;
             public bool FadeIn;
             public float Alpha;
             #endregion
 
             #region Constructor
-            public NotificationItem(NotificationType type, string title, string description, string tag)
+            public NotificationItem(NotificationType type, string title, string description, string additionalContent, string tag)
             {
                 Type = type;
                 Title = title;
                 Description = description;
+                AdditionalContent = additionalContent;
                 Tag = tag;
-                FadeOut = false;
                 FadeIn = true;
             }
             #endregion
@@ -53,6 +73,35 @@ namespace Manager.UI
         #endregion
 
         #region Functions
+        public bool ShowNotificationEx(NotificationType type, DateTime showTime, NotificationContent content, string tag)
+        {
+            if (!Config.ShowNotifications)
+                return false;
+
+            if (!string.IsNullOrEmpty(tag))
+            {
+                if (DoesNotificationExistsWithTag(tag))
+                    return false;
+            }
+
+            if (string.IsNullOrEmpty(content.Title))
+                return false;
+
+            // Add notification to list
+            NotificationItem item = new NotificationItem(type, content.Title, content.Description, content.AdditionalContent, tag);
+            items.Add(item);
+
+            // Start delayed action to remove the notification item
+            Main.Instance.StartDelayedAction(Guid.NewGuid(), "Removing notification", showTime, (DelayedAction dA, object obj) =>
+            {
+                if (CLR.CLRBridge.IsShuttingDown)
+                    return;
+
+                ((NotificationItem)obj).CanBeRemoved = true;
+            }, item);
+
+            return true;
+        }
         public bool ShowNotification(NotificationType type, DateTime showTime, string title, string description, string tag)
         {
             if (!Config.ShowNotifications)
@@ -64,8 +113,11 @@ namespace Manager.UI
                     return false;
             }
 
+            if (string.IsNullOrEmpty(title))
+                return false;
+
             // Add notification to list
-            NotificationItem item = new NotificationItem(type, title, description, tag);
+            NotificationItem item = new NotificationItem(type, title, description, null, tag);
             items.Add(item);
 
             // Start delayed action to remove the notification item
@@ -74,7 +126,7 @@ namespace Manager.UI
                 if (CLR.CLRBridge.IsShuttingDown)
                     return;
 
-                ((NotificationItem)obj).FadeOut = true;
+                ((NotificationItem)obj).CanBeRemoved = true;
             }, item);
 
             return true;
@@ -121,7 +173,7 @@ namespace Manager.UI
         #region Constructor
         internal NotificationUI()
         {
-            items = new List<NotificationItem>();
+            items = new List<NotificationItem>(4);
         }
         #endregion
 
@@ -133,24 +185,13 @@ namespace Manager.UI
             {
                 NotificationItem item = items[i];
 
-                // Fading
-                if (item.FadeOut)
+                if (item.CanBeRemoved)
                 {
-                    if (!(item.Alpha <= 0.0f))
-                    {
-                        if (IVPlayerInfo.FindThePlayerPed() != UIntPtr.Zero)
-                            item.Alpha -= 1.8f * IVTimer.TimeStep;
-                        else
-                            item.Alpha -= 0.8f * IVTimer.TimeStep;
-                    }
-
-                    if (item.Alpha <= 0.0f)
-                    {
-                        item.FadeOut = false;
-                        items.RemoveAt(i);
-                        continue;
-                    }
+                    items.RemoveAt(i);
+                    continue;
                 }
+
+                // Fading
                 if (item.FadeIn)
                 {
                     if (!(item.Alpha >= 0.9f))
@@ -178,18 +219,29 @@ namespace Manager.UI
 
                 ImGuiIV.SetNextWindowBgAlpha(item.Alpha);
 
-                // Notification
-                ImGuiIV.Begin(string.Format("##IVSDKDotNetNotification_{0}", i), ref open, eImGuiWindowFlags.NoDecoration | eImGuiWindowFlags.NoInputs | eImGuiWindowFlags.NoNavFocus | eImGuiWindowFlags.NoFocusOnAppearing, eImGuiWindowFlagsEx.NoMouseEnable);
-                
-                ImGuiIV.Text(item.Title);
-                ImGuiIV.Separator();
-                ImGuiIV.Spacing();
-                ImGuiIV.Text(item.Description);
-                ImGuiIV.Dummy();
+                // Begin Notification UI
+                {
+                    ImGuiIV.Begin(string.Format("##IVSDKDotNetNotification_{0}", i), ref open, eImGuiWindowFlags.NoDecoration | eImGuiWindowFlags.NoInputs | eImGuiWindowFlags.NoNavFocus | eImGuiWindowFlags.NoFocusOnAppearing, eImGuiWindowFlagsEx.NoMouseEnable);
 
-                ImGuiIV.SetWindowPos(new Vector2(38f, 30f + i * (ImGuiIV.GetWindowSize().Y + 8f)));
+                    // Title
+                    ImGuiIV.Text(item.Title);
 
-                ImGuiIV.End();
+                    ImGuiIV.Separator();
+                    ImGuiIV.Spacing();
+
+                    // Description
+                    ImGuiIV.Text(item.Description);
+
+                    // Additional Content
+                    if (!string.IsNullOrEmpty(item.AdditionalContent))
+                        ImGuiIV.Text(item.AdditionalContent);
+
+                    ImGuiIV.Dummy();
+
+                    ImGuiIV.SetWindowPos(new Vector2(38f, 30f + i * (ImGuiIV.GetWindowSize().Y + 8f)));
+
+                    ImGuiIV.End();
+                }
 
                 ImGuiIV.PopStyleVar();
                 ImGuiIV.PopStyleColor(3);

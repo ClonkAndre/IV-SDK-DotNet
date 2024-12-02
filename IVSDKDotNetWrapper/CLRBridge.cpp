@@ -52,7 +52,7 @@ namespace CLR
 		IVSDKDotNetLogsPath =		IVSDKDotNetPath + "\\logs";
 		IVSDKDotNetPluginsPath =	IVSDKDotNetPath + "\\plugins";
 		IVSDKDotNetScriptsPath =	IVSDKDotNetPath + "\\scripts";
-		String^ managerScriptPath = IVSDKDotNetPath + "\\IVSDKDotNet.Manager.dll";
+		m_sIVSDKDotNetManagerPath = IVSDKDotNetPath + "\\IVSDKDotNet.Manager.dll";
 
 		// Set current log file name
 		DateTime dtNow = DateTime::Now;
@@ -89,21 +89,11 @@ namespace CLR
 		else
 			Logger::LogWarning("Could not load IV-SDK .NET config.ini! Using default settings.");
 
-		// Do checks
-		if (!File::Exists(managerScriptPath))
+		// Do early checks
+		if (!DoEarlyChecks())
 		{
-			Logger::LogError("Could not initialize IV-SDK .NET because the IVSDKDotNet.Manager.dll file was not found inside the IVSDKDotNet directory!", false);
-			goto ERR;
-		}
-		if (!File::Exists(IVSDKDotNetDataPath + "\\public-sans.regular.ttf"))
-		{
-			Logger::LogError("Could not initialize IV-SDK .NET because the public-sans.regular.ttf file was not found inside the IVSDKDotNet->Data directory!", false);
-			goto ERR;
-		}
-		if (!File::Exists(IVSDKDotNetBinaryPath + "\\Newtonsoft.Json.dll"))
-		{
-			Logger::LogError("Could not initialize IV-SDK .NET because the Newtonsoft.Json.dll file was not found inside the IVSDKDotNet->bin directory!", false);
-			goto ERR;
+			LetUserKnowAboutFailedInitialization();
+			return;
 		}
 
 		// Initialize Memory Access stuff
@@ -111,7 +101,7 @@ namespace CLR
 
 		// Get the GTA IV Process
 		TheGTAProcess = Process::GetCurrentProcess();
-		
+
 		// Wait till process has a MainWindowHandle and for g_pDirect3DDevice to return a valid pointer
 		while (TheGTAProcess->MainWindowHandle == IntPtr::Zero)
 			Sleep(100);
@@ -122,7 +112,15 @@ namespace CLR
 		MH_STATUS minHookStatus = MH_Initialize();
 
 		if (minHookStatus != MH_STATUS::MH_OK)
+		{
 			Logger::LogError(String::Format("[MinHook] Failed to initialize! Details: {0}", gcnew String(MH_StatusToString(minHookStatus))));
+			LetUserKnowAboutFailedInitialization();
+			return;
+		}
+		else if (minHookStatus == MH_STATUS::MH_OK)
+		{
+			m_bHasMinHookInitialized = true;
+		}
 
 		// Hook stuff
 		if (DXHook::Initialize())
@@ -141,130 +139,54 @@ namespace CLR
 		minHookStatus = MH_EnableHook(MH_ALL_HOOKS);
 
 		if (minHookStatus != MH_STATUS::MH_OK)
+		{
 			Logger::LogError(String::Format("[MinHook] Failed to enable Hooks! Details: {0}", gcnew String(MH_StatusToString(minHookStatus))));
+			LetUserKnowAboutFailedInitialization();
+			return;
+		}
 
+		// Do additional checks
+		DoAdditionalChecks();
+
+		// Do early assembly loading
+		if (!DoEarlyAdditionalAssemblyLoading())
+		{
+			LetUserKnowAboutFailedInitialization();
+			return;
+		}
+
+		// Load and initialize the manager
+		if (!InitManager())
+		{
+			LetUserKnowAboutFailedInitialization();
+			return;
+		}
+	
 		// Schleep a bit
 		Sleep(1100);
 
-		// Do late checks
-		if (Settings->GetBoolean("Scripts", "LoadScriptHookDotNetScripts", true))
-		{
-			if (File::Exists("ScriptHookDotNet.dll") || File::Exists("ScriptHookDotNet.asi"))
-			{
-				String^ msg = String::Format("Incompability detected!{0}{0}"
-					+ "Please remove the old ScriptHookDotNet if you want to use the ScriptHookDotNet mod loader from IV-SDK .NET!{0}{0}"
-					+ "The files that would need to be removed: ScriptHookDotNet.dll and ScriptHookDotNet.asi{0}{0}"
-					+ "- Why am i seeing this message?{0}"
-					+ "You are seeing this message because the 'LoadScriptHookDotNetScripts' option in the IV-SDK .NET config file is enabled, which enables the experimental ScriptHookDotNet mod loader of IV-SDK .NET. For more information about this, open the Console and type in 'wiki' to get to the IV-SDK .NET GitHub Wiki page.{0}{0}"
-					+ "Would you like to close the game now and remove the old ScriptHookDotNet?", Environment::NewLine);
+		// Set drawing allowed now
+		ImGuiIV::CanDraw = true;
 
-				switch (MessageBox::Show(msg,
-					"IV-SDK .NET",
-					MessageBoxButtons::YesNo,
-					MessageBoxIcon::Warning,
-					MessageBoxDefaultButton::Button1,
-					MessageBoxOptions::DefaultDesktopOnly))
-				{
-					case DialogResult::Yes:
-						Environment::Exit(0);
-						break;
-					case DialogResult::No:
-						DisableScriptHookDotNetLoading = true;
-						MessageBox::Show("Disabled the IV-SDK .NET ScriptHookDotNet mod loader to avoid conflicts.", "IV-SDK .NET", MessageBoxButtons::OK, MessageBoxIcon::Warning, MessageBoxDefaultButton::Button1, MessageBoxOptions::DefaultDesktopOnly);
-						break;
-				}
-			}
-		}
+		// Load scripts
+		LoadScripts();
 
-		// Do early assembly loading
-		try
-		{
-			// Load Newtonsoft.Json assembly
-			Assembly::UnsafeLoadFrom(IVSDKDotNetBinaryPath + "\\Newtonsoft.Json.dll");
-			Logger::LogDebug("Early loaded the Newtonsoft.Json.dll assembly.");
-		}
-		catch (Exception^ ex)
-		{
-			Logger::LogError(String::Format("An exception occured while trying to early load some assemblies. Details: {0}", ex->ToString()));
+		//// Do additional checks
+		//DoAdditionalChecks();
 
-#if _DEBUG
-			if (Debugger::IsAttached)
-				throw;
-#endif // _DEBUG
+		//// Do early assembly loading
+		//if (!DoEarlyAdditionalAssemblyLoading())
+		//{
+		//	LetUserKnowAboutFailedInitialization();
+		//	return;
+		//}
 
-			goto ERR;
-		}
-
-		// Load manager script
-		try
-		{
-			// Load the manager assembly
-			Assembly^ assembly = Assembly::UnsafeLoadFrom(managerScriptPath);
-
-			// Get types from assembly
-			array<Type^>^ containedTypes = assembly->GetTypes();
-			for (int i = 0; i < containedTypes->Length; i++)
-			{
-				Type^ containedType = containedTypes[i];
-
-				if (containedType->IsSubclassOf(ManagerScript::typeid))
-				{
-					// Create new instance of type for assembly
-					ManagerScript^ ms = (ManagerScript^)assembly->CreateInstance(containedType->FullName);
-
-					if (ms)
-					{
-						// Set static instance
-						ManagerScript::s_Instance = ms;
-
-						// Apply Settings
-						ms->ApplySettings(Settings);
-
-						// Create and set dummy script for manager
-						ms->SetDummyScript(gcnew Script(Guid("00000000-0000-0000-0000-000000000001")));
-
-						// Load scripts
-						if (!Settings->GetBoolean("DEBUG", "DisableScriptLoadOnStartup", false))
-							ms->LoadScripts();
-
-						return;
-					}
-
-					// This line of code should never be reached
-					Logger::LogError("'ms' is nullptr in CLR::CLRBridge::Initialize!");
-				}
-			}
-
-		}
-		catch (ReflectionTypeLoadException^ ex)
-		{
-			array<Exception^>^ exs = ex->LoaderExceptions;
-			for (int i = 0; i < exs->Length; i++)
-			{
-				Exception^ e = exs[i];
-				Logger::LogError(String::Format("A ReflectionTypeLoadException occured while trying to load the IV-SDK .NET Manager. Details: {0}", e->ToString()), false);
-			}
-
-#if _DEBUG
-			if (Debugger::IsAttached)
-				throw;
-#endif // _DEBUG
-		}
-		catch (Exception^ ex)
-		{
-			Logger::LogError(String::Format("An exception occured while trying to load the IV-SDK .NET Manager. Details: {0}", ex->ToString()));
-		
-#if _DEBUG
-			if (Debugger::IsAttached)
-				throw;
-#endif // _DEBUG
-		}
-
-
-ERR:
-		CLRBridge::IsBridgeDisabled = true;
-		Logger::ForceCreateLogFile();
-		MessageBox::Show("IV-SDK .NET got disabled due to errors while trying to load it. Check the 'IVSDKDotNet.log' file, to find out what went wrong.", "IV-SDK .NET", MessageBoxButtons::OK, MessageBoxIcon::Warning);
+		//// Load and initialize the manager
+		//if (!InitManager())
+		//{
+		//	LetUserKnowAboutFailedInitialization();
+		//	return;
+		//}
 	}
 
 	void CLRBridge::InvokeTickEvents()
@@ -336,7 +258,7 @@ ERR:
 		if (ManagerScript::s_Instance)
 		{
 			// Disable inputs if ImGui wants text input
-			if (DisableInputs && !Native::Natives::IS_USING_CONTROLLER())
+			if (DisableInputs && !ManagerScript::GetInstance()->IsUsingController())
 			{
 				CPad* pad = reinterpret_cast<CPad*>(padPtr);
 
@@ -419,6 +341,226 @@ ERR:
 			ManagerScript::s_Instance->RaiseIngameStartup();
 	}
 
+	bool CLRBridge::DoEarlyChecks()
+	{
+		if (!File::Exists(m_sIVSDKDotNetManagerPath))
+		{
+			Logger::LogError("Could not initialize IV-SDK .NET because the IVSDKDotNet.Manager.dll file was not found inside the IVSDKDotNet directory!", false);
+			return false;
+		}
+		if (!File::Exists(IVSDKDotNetDataPath + "\\public-sans.regular.ttf"))
+		{
+			Logger::LogError("Could not initialize IV-SDK .NET because the public-sans.regular.ttf file was not found inside the IVSDKDotNet->Data directory!", false);
+			return false;
+		}
+		if (!File::Exists(IVSDKDotNetBinaryPath + "\\Newtonsoft.Json.dll"))
+		{
+			Logger::LogError("Could not initialize IV-SDK .NET because the Newtonsoft.Json.dll file was not found inside the IVSDKDotNet->bin directory!", false);
+			return false;
+		}
+
+		return true;
+	}
+	void CLRBridge::DoAdditionalChecks()
+	{
+		if (Settings->GetBoolean("Scripts", "LoadScriptHookDotNetScripts", true))
+		{
+			if (File::Exists("ScriptHookDotNet.dll") || File::Exists("ScriptHookDotNet.asi"))
+			{
+				String^ msg = String::Format("Incompability detected!{0}{0}"
+					+ "Please remove the old ScriptHookDotNet if you want to use the ScriptHookDotNet mod loader from IV-SDK .NET!{0}{0}"
+					+ "The files that would need to be removed: ScriptHookDotNet.dll and ScriptHookDotNet.asi{0}{0}"
+					+ "- Why am i seeing this message?{0}"
+					+ "You are seeing this message because the 'LoadScriptHookDotNetScripts' option in the IV-SDK .NET config file is enabled, which enables the experimental ScriptHookDotNet mod loader of IV-SDK .NET. For more information about this, open the Console and type in 'wiki' to get to the IV-SDK .NET GitHub Wiki page.{0}{0}"
+					+ "Would you like to close the game now and remove the old ScriptHookDotNet?", Environment::NewLine);
+
+				switch (MessageBox::Show(msg,
+					"IV-SDK .NET",
+					MessageBoxButtons::YesNo,
+					MessageBoxIcon::Warning,
+					MessageBoxDefaultButton::Button1,
+					MessageBoxOptions::DefaultDesktopOnly))
+				{
+					case DialogResult::Yes:
+						Environment::Exit(0);
+						break;
+					case DialogResult::No:
+						DisableScriptHookDotNetLoading = true;
+						MessageBox::Show("Disabled the IV-SDK .NET ScriptHookDotNet mod loader to avoid conflicts.", "IV-SDK .NET", MessageBoxButtons::OK, MessageBoxIcon::Warning, MessageBoxDefaultButton::Button1, MessageBoxOptions::DefaultDesktopOnly);
+						break;
+				}
+			}
+		}
+	}
+	bool CLRBridge::DoEarlyAdditionalAssemblyLoading()
+	{
+		try
+		{
+			// Load Newtonsoft.Json assembly
+			Assembly::UnsafeLoadFrom(IVSDKDotNetBinaryPath + "\\Newtonsoft.Json.dll");
+			Logger::LogDebug("Early loaded the Newtonsoft.Json.dll assembly.");
+
+			return true;
+		}
+		catch (Exception^ ex)
+		{
+			Logger::LogError(String::Format("An exception occured while trying to early load some additional assemblies. Details: {0}", ex->ToString()));
+
+#if _DEBUG
+			if (Debugger::IsAttached)
+				throw;
+#endif // _DEBUG
+		}
+
+		return false;
+	}
+	bool CLRBridge::InitManager()
+	{
+		try
+		{
+			// Load the manager assembly
+			Assembly^ assembly = Assembly::UnsafeLoadFrom(m_sIVSDKDotNetManagerPath);
+
+			if (!assembly)
+			{
+				Logger::LogError("Failed to load the manager assembly!");
+				return false;
+			}
+
+			// Get types from assembly
+			array<Type^>^ containedTypes = assembly->GetTypes();
+			for (int i = 0; i < containedTypes->Length; i++)
+			{
+				Type^ containedType = containedTypes[i];
+
+				if (!containedType->IsSubclassOf(ManagerScript::typeid))
+					continue;
+
+				// Create new instance of type for assembly
+				ManagerScript^ ms = (ManagerScript^)assembly->CreateInstance(containedType->FullName);
+
+				if (!ms)
+				{
+					Logger::LogError("Failed to create new instance of ManagerScript!");
+					LetUserKnowAboutFailedInitialization();
+					return false;
+				}
+
+				// Set static instance
+				ManagerScript::SetInstance(ms);
+
+				// Apply Settings
+				ms->ApplySettings(Settings);
+
+				// Create and set dummy script for manager
+				ms->SetDummyScript(gcnew Script(true, Guid("00000000-0000-0000-0000-000000000001")));
+
+				// Load plugins
+				if (!Settings->GetBoolean("DEBUG", "DisablePluginsLoadOnStartup", false))
+					ms->LoadPlugins();
+
+				return true;
+			}
+		}
+		catch (ReflectionTypeLoadException^ ex)
+		{
+			array<Exception^>^ exs = ex->LoaderExceptions;
+			for (int i = 0; i < exs->Length; i++)
+			{
+				Exception^ e = exs[i];
+				Logger::LogError(String::Format("A ReflectionTypeLoadException occured while trying to load the IV-SDK .NET Manager. Details: {0}", e), false);
+			}
+
+#if _DEBUG
+			if (Debugger::IsAttached)
+				throw;
+#endif // _DEBUG
+		}
+		catch (Exception^ ex)
+		{
+			Logger::LogError(String::Format("An exception occured while trying to load the IV-SDK .NET Manager. Details: {0}", ex));
+
+#if _DEBUG
+			if (Debugger::IsAttached)
+				throw;
+#endif // _DEBUG
+		}
+
+		return false;
+	}
+	void CLRBridge::LoadScripts()
+	{
+		try
+		{
+			if (Settings->GetBoolean("DEBUG", "DisableScriptLoadOnStartup", false))
+				return;
+
+			ManagerScript::GetInstance()->LoadScripts();
+		}
+		catch (ReflectionTypeLoadException^ ex)
+		{
+			array<Exception^>^ exs = ex->LoaderExceptions;
+			for (int i = 0; i < exs->Length; i++)
+			{
+				Exception^ e = exs[i];
+				Logger::LogError(String::Format("A ReflectionTypeLoadException occured while trying to automatically load all scripts. Details: {0}", e), false);
+			}
+
+#if _DEBUG
+			if (Debugger::IsAttached)
+				throw;
+#endif // _DEBUG
+		}
+		catch (Exception^ ex)
+		{
+			Logger::LogError(String::Format("An exception occured while trying to automatically load all scripts. Details: {0}", ex));
+
+#if _DEBUG
+			if (Debugger::IsAttached)
+				throw;
+#endif // _DEBUG
+		}
+	}
+	void CLRBridge::LetUserKnowAboutFailedInitialization()
+	{
+		PreInitializationShutdown();
+		MessageBox::Show("IV-SDK .NET got disabled due to errors while trying to load it. Check the 'IVSDKDotNet.log' file, to find out what went wrong.", "IV-SDK .NET", MessageBoxButtons::OK, MessageBoxIcon::Warning);
+	}
+	void CLRBridge::PreInitializationShutdown()
+	{
+		IsBridgeDisabled = true;
+
+		// MinHook
+		ShutdownMinHook();
+
+		// Logger
+		Logger::ForceCreateLogFile();
+		Logger::Shutdown();
+
+		// Other
+		if (Settings)
+		{
+			Settings->Clear();
+			Settings = nullptr;
+		}
+	}
+	void CLRBridge::ShutdownMinHook()
+	{
+		if (m_bHasMinHookInitialized)
+		{
+			MH_STATUS minHookStatus = MH_DisableHook(MH_ALL_HOOKS);
+
+			if (minHookStatus != MH_STATUS::MH_OK)
+				Logger::LogError(String::Format("[MinHook] Failed to disable Hooks! Details: {0}", gcnew String(MH_StatusToString(minHookStatus))), false);
+
+			minHookStatus = MH_Uninitialize();
+
+			if (minHookStatus != MH_STATUS::MH_OK)
+				Logger::LogError(String::Format("[MinHook] Failed to uninitialize! Details: {0}", gcnew String(MH_StatusToString(minHookStatus))), false);
+
+			m_bHasMinHookInitialized = false;
+		}
+	}
 	void CLRBridge::Cleanup()
 	{
 		// Return if already shutting down
@@ -431,26 +573,26 @@ ERR:
 		Logger::Log("Application is closing, starting cleanup process...");
 
 		// Start cleanup in manager script
-		if (ManagerScript::s_Instance)
-			ManagerScript::s_Instance->Cleanup();
+		if (ManagerScript::HasInstance())
+			ManagerScript::GetInstance()->Cleanup();
 
 		// MinHook
-		MH_STATUS minHookStatus = MH_DisableHook(MH_ALL_HOOKS);
-
-		if (minHookStatus != MH_STATUS::MH_OK)
-			Logger::LogError(String::Format("[MinHook] Failed to disable Hooks! Details: {0}", gcnew String(MH_StatusToString(minHookStatus))), false);
-
-		minHookStatus = MH_Uninitialize();
-
-		if (minHookStatus != MH_STATUS::MH_OK)
-			Logger::LogError(String::Format("[MinHook] Failed to uninitialize! Details: {0}", gcnew String(MH_StatusToString(minHookStatus))), false);
+		ShutdownMinHook();
 
 		// ImGui
 		ImGuiDraw::UninitializeImGui();
 
-		// Log
+		// Other
+		if (Settings)
+		{
+			Settings->Clear();
+			Settings = nullptr;
+		}
+
+		// Logger
 		Logger::Log("Cleanup process finished!");
 		Logger::ForceCreateLogFile();
+		Logger::Shutdown();
 
 		CanTerminate = true;
 	}

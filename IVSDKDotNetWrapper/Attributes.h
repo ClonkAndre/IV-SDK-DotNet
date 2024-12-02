@@ -41,6 +41,34 @@ namespace IVSDKDotNet
 		};
 
 		[AttributeUsageAttribute(AttributeTargets::Field)]
+		public ref class SpeedAttribute : Attribute
+		{
+		public:
+			float Speed;
+
+		public:
+			SpeedAttribute(float speed)
+			{
+				Speed = speed;
+			}
+		};
+
+		[AttributeUsageAttribute(AttributeTargets::Field)]
+		public ref class RangeAttribute : Attribute
+		{
+		public:
+			float Minimum;
+			float Maximum;
+
+		public:
+			RangeAttribute(float min, float max)
+			{
+				Minimum = min;
+				Maximum = max;
+			}
+		};
+
+		[AttributeUsageAttribute(AttributeTargets::Field)]
 		public ref class HelpMarkerAttribute : Attribute
 		{
 		public:

@@ -88,6 +88,15 @@ public:
 	/// </summary>
 	/// <param name="str">The message to log.</param>
 	static void Log(String^ str);
+	/// <summary>
+	/// Logs a formatted message to the IVSDKDotNet.log file, and in the IV-SDK .NET Console without a specific style.
+	/// </summary>
+	/// <param name="str">The message to log.</param>
+	/// <param name="args">The objects to format.</param>
+	static void LogEx(String^ str, ...array<System::Object^>^ args)
+	{
+		Log(String::Format(str, args), true);
+	}
 
 	/// <summary>
 	/// Only available in debug builds! Logs a message to the IVSDKDotNet.log file and also shows it in the IV-SDK .NET Console (if set) with the "Debug" style.
@@ -100,6 +109,15 @@ public:
 	/// </summary>
 	/// <param name="str">The message to log.</param>
 	static void LogDebug(String^ str);
+	/// <summary>
+	/// Only available in debug builds! Logs a formatted message to the IVSDKDotNet.log file, and in the IV-SDK .NET Console with the "Debug" style.
+	/// </summary>
+	/// <param name="str">The message to log.</param>
+	/// <param name="args">The objects to format.</param>
+	static void LogDebugEx(String^ str, ...array<System::Object^>^ args)
+	{
+		LogDebug(String::Format(str, args), true);
+	}
 
 	/// <summary>
 	/// Logs a message to the IVSDKDotNet.log file and also shows it in the IV-SDK .NET Console (if set) with the "Warning" style.
@@ -112,6 +130,15 @@ public:
 	/// </summary>
 	/// <param name="str">The message to log.</param>
 	static void LogWarning(String^ str);
+	/// <summary>
+	/// Logs a formatted message to the IVSDKDotNet.log file, and in the IV-SDK .NET Console with the "Warning" style.
+	/// </summary>
+	/// <param name="str">The message to log.</param>
+	/// <param name="args">The objects to format.</param>
+	static void LogWarningEx(String^ str, ...array<System::Object^>^ args)
+	{
+		LogWarning(String::Format(str, args), true);
+	}
 
 	/// <summary>
 	/// Logs a message to the IVSDKDotNet.log file and also shows it in the IV-SDK .NET Console (if set) with the "Error" style.
@@ -124,13 +151,28 @@ public:
 	/// </summary>
 	/// <param name="str">The message to log.</param>
 	static void LogError(String^ str);
+	/// <summary>
+	/// Logs a formatted message to the IVSDKDotNet.log file, and in the IV-SDK .NET Console with the "Error" style.
+	/// </summary>
+	/// <param name="str">The message to log.</param>
+	/// <param name="args">The objects to format.</param>
+	static void LogErrorEx(String^ str, ...array<System::Object^>^ args)
+	{
+		LogError(String::Format(str, args), true);
+	}
 
 	static void ClearLogItems();
 	static List<tLogItem>^ GetLogItems();
 	static array<String^>^ GetLogItemsAsString();
 
+	static bool IsInitialized()
+	{
+		return m_LogItems != nullptr;
+	}
+
 internal:
 	static void Initialize();
+	static void Shutdown();
 	static void ForceCreateLogFile();
 
 private:

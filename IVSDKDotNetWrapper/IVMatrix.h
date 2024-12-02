@@ -295,6 +295,12 @@ namespace IVSDKDotNet
 		void Dot3x3(IVMatrix^ m);
 
 	public:
+		Vector3 GetPosition();
+		Vector3 GetRight();
+		Vector3 GetForward();
+		Vector3 GetUp();
+
+	public:
 		IVMatrix();
 		IVMatrix(Vector3 right, Vector3 up, Vector3 at, Vector3 pos);
 		!IVMatrix();

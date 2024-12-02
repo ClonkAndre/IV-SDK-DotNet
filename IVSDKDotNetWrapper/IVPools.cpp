@@ -89,5 +89,9 @@ namespace IVSDKDotNet
 	{
 		return IVPool::GetFromType(ePool::StuntJumpPool);
 	}
+	IVPool^ IVPools::GetScriptStorePool()
+	{
+		return IVPool::GetFromType(ePool::ScriptStorePool);
+	}
 
 }

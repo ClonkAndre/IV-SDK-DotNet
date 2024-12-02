@@ -26,5 +26,6 @@ namespace IVSDKDotNet
 		static IVPool^ GetIplPool();
 		static IVPool^ GetPedTargettingPool();
 		static IVPool^ GetStuntJumpPool();
+		static IVPool^ GetScriptStorePool();
 	};
 }

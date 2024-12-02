@@ -1,11 +1,7 @@
 #pragma once
 
-#include "EventArgs.h"
-
 namespace IVSDKDotNet
 {
-
-	ref class ResultTask;
 
 	/// <summary>
 	///	Marks the class as a IV-SDK .NET Script.
@@ -15,9 +11,11 @@ namespace IVSDKDotNet
 	{
 		// Constructor / Destructor
 	internal:
-		Script(Guid id);
+		Script(bool internalCtor, Guid id);
 
 	public:
+		Script(Guid id, bool useThreadedTick);
+		Script(Guid id);
 		Script();
 		~Script() { }
 
@@ -32,6 +30,221 @@ namespace IVSDKDotNet
 		delegate void OnFirstD3D9FrameDelegate(IntPtr devicePtr);
 		delegate void OnImGuiRenderingDelegate(IntPtr devicePtr, ImGuiIV_DrawingContext ctx);
 
+		// Properties
+	public:
+		/// <summary>
+		/// The unique ID of this script. This can only be set on the scripts constructor overload.
+		/// </summary>
+		property Guid ID
+		{
+		public:
+			Guid get()
+			{
+				return m_id;
+			}
+		private:
+			void set(Guid value)
+			{
+				if (value == Guid::Empty)
+					throw gcnew Exception("Invalid script ID. Please choose another.");
+				if (value == Guid("00000000-0000-0000-0000-000000000001") && !m_bInternalCtorWasUsed)
+					throw gcnew Exception("Invalid script ID. Please choose another.");
+
+				m_id = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets the current AppDomain.
+		/// </summary>
+		property AppDomain^ ScriptDomain
+		{
+		public:
+			AppDomain^ get()
+			{
+				return m_AppDomain;
+			}
+		internal:
+			void set(AppDomain^ value)
+			{
+				m_AppDomain = value;
+			}
+		}
+
+		/// <summary>
+		/// If you uploaded your Modification to the IV Launchers Workshop, you can set the value of this property to the ID of the Modification in the Workshop.
+		/// </summary>
+		property Guid IVLauncherWorkshopID
+		{
+		public:
+			Guid get()
+			{
+				return m_ivLauncherWorkshopID;
+			}
+			void set(Guid value)
+			{
+				m_ivLauncherWorkshopID = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets where the Assemblies are located for this script. Default: GameRootDirectory
+		/// </summary>
+		property eAssembliesLocation AssembliesLocation
+		{
+		public:
+			eAssembliesLocation get()
+			{
+				return m_AssembliesLocation;
+			}
+			void set(eAssembliesLocation value)
+			{
+				m_AssembliesLocation = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the custom Assemblies path for this Script if you have set the AssembliesLocation to Custom.
+		/// The path is relative to the root directory of GTA IV.
+		/// Example: IVSDKDotNet\scripts\AssembliesForMyEpicScript - The Assemblies for your Script will now be loaded from the AssembliesForMyEpicScript folder.
+		/// </summary>
+		property String^ CustomAssembliesPath
+		{
+		public:
+			String^ get()
+			{
+				return m_CustomAssembliesPath;
+			}
+			void	set(String^ value)
+			{
+				m_CustomAssembliesPath = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the resource folder for this Script where all the files required by this Script are located.
+		/// The folder has to be named the same name as your Script (without extension), and needs to be placed in the scripts folder.
+		/// The string will be null if the folder doesn't exist.
+		/// </summary>
+		property String^ ScriptResourceFolder
+		{
+		public:
+			String^ get()
+			{
+				return m_ScriptResourceFolder;
+			}
+			void	set(String^ value)
+			{
+				m_ScriptResourceFolder = value;
+			}
+		}
+
+		/// <summary>
+		/// The settings file of this script.
+		/// </summary>
+		property SettingsFile^ Settings
+		{
+		public:
+			SettingsFile^ get()
+			{
+				return m_SettingsFile;
+			}
+			void set(SettingsFile^ value)
+			{
+				m_SettingsFile = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets if the KeyDown and KeyUp events should only be raised when the player is actually in-game and not in main menu.
+		/// </summary>
+		property bool OnlyRaiseKeyEventsWhenInGame
+		{
+		public:
+			bool get()
+			{
+				return m_bOnlyInvokeKeyEventsWhenInGame;
+			}
+			void set(bool value)
+			{
+				m_bOnlyInvokeKeyEventsWhenInGame = value;
+			}
+		}
+
+		/// <summary>
+		/// This makes it so the script is not able to be aborted* if all scripts are being aborted, making it act more like an ASI mod.
+		/// <para>It is recommended to leave this set to false, and should only be activated when you have a very specific usecase for it.</para>
+		/// <para>* The script is still able to be aborted when: </para>
+		/// <para>- It creates an exception which the IV-SDK .NET Manager catches.</para>
+		/// <para>- The user aborts the script manually via the IV-SDK .NET Manager.</para>
+		/// </summary>
+		property bool ForceNoAbort
+		{
+		public:
+			bool get()
+			{
+				return m_bForceNoAbort;
+			}
+			void set(bool value)
+			{
+				m_bForceNoAbort = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets if the settings file of this script should be saved when this script unloads.
+		/// <para>When set to true, this will save the settings file of this script after the Uninitialized event was called.</para>
+		/// </summary>
+		property bool SaveSettingsOnUnload
+		{
+		public:
+			bool get()
+			{
+				return m_bSaveSettingsOnUnload;
+			}
+			void set(bool value)
+			{
+				m_bSaveSettingsOnUnload = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets if the Tick event of this script should be threaded. This can only be set on the scripts constructor overload.
+		/// <para>This will let you create while loops with wait calls without blocking the main thread.</para>
+		/// </summary>
+		property bool UseThreadedTick
+		{
+		public:
+			bool get()
+			{
+				return m_bUseThreadedTick;
+			}
+		private:
+			void set(bool value)
+			{
+				m_bUseThreadedTick = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the interval with which the WaitTick event should get raised. The default is 100ms and it cannot go below 1.
+		/// </summary>
+		property int WaitTickInterval
+		{
+		public:
+			int get()
+			{
+				return m_iWaitTickInterval;
+			}
+			void set(int value)
+			{
+				if (value < 1)
+					return;
+
+				m_iWaitTickInterval = value;
+			}
+		}
+
 		// Events
 	public:
 		/// <summary>
@@ -43,7 +256,7 @@ namespace IVSDKDotNet
 		{
 			Initialized(this, EventArgs::Empty);
 		}
-
+		
 		/// <summary>
 		/// Gets raised when the script is about to be unloaded so you can free some previously created stuff in here.
 		/// </summary>
@@ -54,8 +267,8 @@ namespace IVSDKDotNet
 		}
 
 		/// <summary>
-		/// Gets raised every frame when in-game (CGame.Process).
-		/// This event uses the CTheScripts.SetDummyThread/RestorePreviousThread method that means that any natives calls in this event will work just fine.
+		/// Gets raised every frame once in-game (CGame.Process).
+		/// <para>It is save to call native functions in this event.</para>
 		/// </summary>
 		event EventHandler^ Tick;
 		void RaiseTick()
@@ -365,6 +578,12 @@ namespace IVSDKDotNet
 		Script^ GetScript(String^ name);
 
 		/// <summary>
+		/// Gets how many active IV-SDK .NET / ScriptHookDotNet scripts there are.
+		/// </summary>
+		/// <returns>The amount of currently active scripts.</returns>
+		int GetActiveScriptCount();
+
+		/// <summary>
 		/// Allows you to communicate with other scripts.
 		/// </summary>
 		/// <param name="toScript">To which the script the command should be send to.</param>
@@ -392,104 +611,6 @@ namespace IVSDKDotNet
 		/// <returns>If successful, true is returned. Otherwise, false.</returns>
 		bool SendScriptCommand(String^ toScript, String^ command, array<Object^>^ args, [OutAttribute] Object^% result);
 
-		/// <summary>
-		/// The unique ID of this script.
-		/// </summary>
-		property Guid ID
-		{
-			public:		Guid get()				{ return m_id; }
-			private:	void set(Guid value)	{ m_id = value; }
-		}
-
-		/// <summary>
-		/// Gets the current AppDomain.
-		/// </summary>
-		property AppDomain^ ScriptDomain
-		{
-			public:		AppDomain^ get() { return m_AppDomain; }
-			internal:	void set(AppDomain^ value) { m_AppDomain = value; }
-		}
-
-		/// <summary>
-		/// If you uploaded your Modification to the IV Launchers Workshop, you can set the value of this property to the ID of the Modification in the Workshop.
-		/// </summary>
-		property Guid IVLauncherWorkshopID
-		{
-			public:	
-				Guid get()				{ return m_ivLauncherWorkshopID; }
-				void set(Guid value)	{ m_ivLauncherWorkshopID = value; }
-		}
-
-		/// <summary>
-		/// Gets or sets where the Assemblies are located for this script. Default: GameRootDirectory
-		/// </summary>
-		property eAssembliesLocation AssembliesLocation
-		{
-			public:
-				eAssembliesLocation get()			{ return m_AssembliesLocation; }
-				void set(eAssembliesLocation value) { m_AssembliesLocation = value; }
-		}
-
-		/// <summary>
-		/// Gets or sets the custom Assemblies path for this Script if you have set the AssembliesLocation to Custom.
-		/// The path is relative to the root directory of GTA IV.
-		/// Example: IVSDKDotNet\scripts\AssembliesForMyEpicScript - The Assemblies for your Script will now be loaded from the AssembliesForMyEpicScript folder.
-		/// </summary>
-		property String^ CustomAssembliesPath
-		{
-			public:
-				String^ get()				{ return m_CustomAssembliesPath; }
-				void	set(String^ value)	{ m_CustomAssembliesPath = value; }
-		}
-
-		/// <summary>
-		/// Gets or sets the resource folder for this Script where all the files required by this Script are located.
-		/// The folder has to be named the same name as your Script (without extension), and needs to be placed in the scripts folder.
-		/// The string will be null if the folder doesn't exist.
-		/// </summary>
-		property String^ ScriptResourceFolder
-		{
-			public:
-				String^ get()				{ return m_ScriptResourceFolder; }
-				void	set(String^ value)	{ m_ScriptResourceFolder = value; }
-		}
-
-		/// <summary>
-		/// The settings file of this script.
-		/// </summary>
-		property SettingsFile^ Settings
-		{
-			public: 
-				SettingsFile^ get()				{ return m_SettingsFile; }
-				void set(SettingsFile^ value)	{ m_SettingsFile = value; }
-		}
-
-		/// <summary>
-		/// Gets or sets if the KeyDown and KeyUp events should only be raised when the player is actually in-game and not in main menu.
-		/// </summary>
-		property bool OnlyRaiseKeyEventsWhenInGame
-		{
-			public:
-				bool get()				{ return m_bOnlyInvokeKeyEventsWhenInGame; }
-				void set(bool value)	{ m_bOnlyInvokeKeyEventsWhenInGame = value; }
-		}
-
-		/// <summary>
-		/// Gets or sets the interval with which the WaitTick event should get raised. The default is 100ms and it cannot go below 1.
-		/// </summary>
-		property int WaitTickInterval
-		{
-			public:
-				int get() { return m_iWaitTickInterval; }
-				void set(int value)
-				{
-					if (value < 1)
-						return;
-
-					m_iWaitTickInterval = value;
-				}
-		}
-
 	private:
 		Guid m_id;
 		AppDomain^ m_AppDomain;
@@ -498,233 +619,13 @@ namespace IVSDKDotNet
 		String^ m_CustomAssembliesPath;
 		String^ m_ScriptResourceFolder;
 		SettingsFile^ m_SettingsFile;
+		bool m_bInternalCtorWasUsed;
 		bool m_bOnlyInvokeKeyEventsWhenInGame;
+		bool m_bForceNoAbort;
+		bool m_bSaveSettingsOnUnload;
+		bool m_bUseThreadedTick;
 		int m_iWaitTickInterval = 100;
 	};
-
-	/// <summary> Internal-only IV-SDK .NET Manager stuff. </summary>
-	namespace Manager
-	{
-
-		/// <summary>
-		/// Only used for the IV-SDK .NET Manager.
-		/// There can only be one instance of this class.
-		/// </summary>
-		public ref class ManagerScript abstract
-		{
-		public:
-			bool SwitchImGuiForceCursorProperty;
-
-		public:
-
-			// General stuff
-			virtual void ApplySettings(SettingsFile^ settings)	abstract;
-			virtual void Cleanup()								abstract;
-
-			// Console
-			virtual void OpenConsole()						abstract;
-			virtual void CloseConsole()						abstract;
-			virtual void ClearConsole()						abstract;
-
-			virtual bool IsConsoleOpen()					abstract;
-
-			virtual bool RegisterConsoleCommand(Guid fromScript, String^ name, Action<array<String^>^>^ actionToExecute) abstract;
-			virtual bool ExecuteConsoleCommand(String^ name) abstract;
-
-			// Phone
-			virtual bool RegisterPhoneNumber(Guid forScript, String^ number, Action^ dialedAction) abstract;
-			virtual bool UnregisterPhoneNumber(Guid fromScript, String^ number) abstract;
-
-			// Game
-			virtual bool IsGameInFocus() abstract;
-
-			// Script
-			virtual void RaiseTick()														abstract;
-			virtual void RaiseGameLoad()													abstract;
-			virtual void RaiseGameLoadPriority()											abstract;
-			virtual void RaiseMountDevice()													abstract;
-			virtual void RaiseDrawing()														abstract;
-			virtual void RaiseProcessCamera()												abstract;
-			virtual void RaiseProcessAutomobile(UIntPtr vehPtr)								abstract;
-			virtual void RaiseProcessPad(UIntPtr padPtr)									abstract;
-			virtual void RaiseIngameStartup()												abstract;
-			virtual void RaiseOnD3D9Frame(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)		abstract;
-			virtual void RaiseOnBeforeNewImGuiFrame(IntPtr devicePtr)						abstract;
-
-			virtual void LoadScripts()							abstract;
-			virtual bool AbortScript(Guid id)					abstract;
-
-			virtual Script^	GetScript(Guid id)					abstract;
-			virtual Script^	GetScript(String^ name)				abstract;
-			virtual bool IsScriptRunning(Guid id)				abstract;
-			virtual bool IsScriptRunning(String^ name)			abstract;
-			virtual String^	GetScriptName(Guid id)				abstract;
-			virtual String^ GetScriptFullPath(Guid id)			abstract;
-			virtual int GetActiveScriptsCount()					abstract;
-
-			virtual bool SendScriptCommand(Guid sender, Guid toScript, String^ command, array<Object^>^ parameters, [OutAttribute] Object^% result) abstract;
-			virtual bool SendScriptCommand(Guid sender, String^ toScript, String^ command, array<Object^>^ parameters, [OutAttribute] Object^% result) abstract;
-
-			// Task
-			virtual Guid StartNewTask(Guid forScript, Func<Object^>^ actionToExecute, Action<Object^>^ continueWithAction)	abstract;
-			virtual Guid StartNewTimer(Guid forScript, int interval, Action^ actionToExecute)								abstract;
-
-			virtual void WaitInTask(Guid id, int waitTimeInMilliseconds)						abstract;
-			virtual void AbortTaskOrTimer(Guid id)												abstract;
-			virtual void ChangeTimerState(Guid id, bool pause)									abstract;
-			virtual void ChangeTimerInterval(Guid id, int interval)								abstract;
-
-			// Direct3D9 Stuff
-			virtual void Direct3D9_RegisterScriptTexture(String^ forScript, IntPtr ptr)			abstract;
-			//virtual void Direct3D9_UnregisterScriptTexture(String^ forScript, IntPtr ptr)		abstract;
-
-			// Helper
-			virtual String^ Helper_ConvertObjectToJsonString(Object^ obj, bool useFormatting) abstract;
-			virtual Object^ Helper_ConvertJsonStringToObject(String^ str, Type^ targetType) abstract;
-
-			// ScriptHookDotNet
-			virtual int SHDN_LateInitializeScript(String^ name, Object^ script, [OutAttribute] String^% assemblyFullPath) abstract;
-
-			virtual Object^ SHDN_GetScriptByName(String^ name) abstract;
-			virtual Object^ SHDN_GetScriptByGUID(Guid id) abstract;
-
-			virtual Object^ SHDN_GetCurrentScript(int iEvent) abstract;
-			virtual void SHDN_SetCurrentScript(int iEvent, Object^ script) abstract;
-
-			virtual void SHDN_AddFont(Object^ obj) abstract;
-
-			virtual bool SHDN_VerboseLoggingEnabled() abstract;
-			virtual bool SHDN_NativeCallLoggingEnabled() abstract;
-			virtual bool SHDN_IsScriptRunning(Guid id) abstract;
-
-			// Other
-			virtual int GetMainThreadID() abstract;
-
-		public:
-			ManagerScript();
-
-			static ManagerScript^ GetInstance()
-			{
-				return s_Instance;
-			}
-			Script^ GetDummyScript()
-			{
-				return m_pDummyScript;
-			}
-
-		internal:
-			void SetDummyScript(Script^ s)
-			{
-				m_pDummyScript = s;
-			}
-
-		internal:
-			static ManagerScript^ s_Instance;
-			Script^ m_pDummyScript;
-
-		};
-
-		/// <summary>
-		/// Represents a plugin for the IV-SDK .NET Manager.
-		/// </summary>
-		public ref class ManagerPlugin
-		{
-		public:
-			delegate void OnFirstD3D9FrameDelegate(IntPtr devicePtr);
-			delegate void OnImGuiRenderingDelegate(IntPtr devicePtr, ImGuiIV_DrawingContext ctx);
-
-		public:
-			/// <summary>
-			/// The unique ID of this plugin.
-			/// </summary>
-			property Guid ID
-			{
-			public:
-				Guid get()
-				{
-					return m_id;
-				}
-			private:
-				void set(Guid value)
-				{
-					m_id = value;
-				}
-			}
-
-			/// <summary>
-			/// Gets the display name of this plugin which will show in the IV-SDK .NET Manager Plugins tab.
-			/// </summary>
-			property String^ DisplayName
-			{
-			public:
-				String^ get()
-				{
-					return m_sDisplayName;
-				}
-			private:
-				void set(String^ value)
-				{
-					m_sDisplayName = value;
-				}
-			}
-
-			/// <summary>
-			/// Gets the author of this plugin which will show in the IV-SDK .NET Manager Plugins tab.
-			/// </summary>
-			property String^ Author
-			{
-			public:
-				String^ get()
-				{
-					return m_sAuthor;
-				}
-			private:
-				void set(String^ value)
-				{
-					m_sAuthor = value;
-				}
-			}
-
-		public:
-			ManagerPlugin(String^ displayName, String^ author);
-
-		public:
-			/// <summary>
-			/// Gets raised when the plugin is about to be unloaded so you can free some previously created stuff in here.
-			/// </summary>
-			event EventHandler^ Uninitialize;
-			void RaiseUninitialize()
-			{
-				Uninitialize(this, EventArgs::Empty);
-			}
-
-			/// <summary>
-			/// Gets raised on the very first Direct3D9 Frame. You can use this to create Textures or Fonts.
-			/// </summary>
-			event OnFirstD3D9FrameDelegate^ OnFirstD3D9Frame;
-			void RaiseOnFirstD3D9Frame(IntPtr devicePtr)
-			{
-				OnFirstD3D9Frame(devicePtr);
-			}
-
-			/// <summary>
-			/// Gets raised every frame and allows you to draw stuff on the screen via the ImGuiIV_DrawingContext struct, or draw custom script windows using ImGui via the ImGuiIV wrapper class.
-			/// You are not forced to begin a new window first to add content to with this event, as its already getting called from within a ImGui window.
-			/// So, you can instantly start using ImGui and use UI Elements such as the Button, Slider etc. These components will show up in the corresponding collapsing header within the IV-SDK .NET Manger Plugins tab.
-			/// </summary>
-			event OnImGuiRenderingDelegate^ OnImGuiRendering;
-			void RaiseOnImGuiRendering(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
-			{
-				OnImGuiRendering(devicePtr, ctx);
-			}
-
-		private:
-			Guid m_id;
-			String^ m_sDisplayName;
-			String^ m_sAuthor;
-		};
-
-	}
 
 }
 

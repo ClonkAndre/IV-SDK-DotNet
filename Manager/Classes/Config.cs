@@ -1,6 +1,4 @@
-﻿using System.Windows.Forms;
-
-using IVSDKDotNet;
+﻿using IVSDKDotNet;
 
 namespace Manager.Classes
 {
@@ -13,11 +11,16 @@ namespace Manager.Classes
         // Main
         public static bool CreateLogFilesInMainDirectory;
         public static int MaxLogsFiles;
+        public static bool EnableAutomaticUpdateCheck;
 
+        // Keys
         public static string SwitchCursorKey;
         public static string OpenManagerWindowKey;
+        public static string OpenConsoleKey;
+        public static string ReloadScriptsKey;
 
         // Scripts
+        public static bool AllowScriptsToForceNoAbort;
         public static bool PauseScriptExecutionWhenNotInFocus;
         public static bool DoNotLoadLegacyScripts;
         public static bool ReloadScriptsOnReload;
@@ -32,9 +35,6 @@ namespace Manager.Classes
         // Style
         public static string ImGuiStyle;
         public static bool UseCustomThemeForManagerAndConsole;
-
-        // Console
-        public static Keys ConsoleOpenCloseKey;
 
         // API
         public static bool AllowRemoteConnections;
@@ -54,11 +54,16 @@ namespace Manager.Classes
             // Section: Main
             CreateLogFilesInMainDirectory = settings.GetBoolean("Main", "CreateLogFilesInMainDirectory", true);
             MaxLogsFiles =                  settings.GetInteger("Main", "MaxLogsFiles", 5);
+            EnableAutomaticUpdateCheck =    settings.GetBoolean("Main", "EnableAutomaticUpdateCheck", true);
 
-            SwitchCursorKey =       settings.GetValue("Main", "SwitchCursorKey", "Control+F8");
-            OpenManagerWindowKey =  settings.GetValue("Main", "OpenManagerWindowKey", "Control+F10");
+            // Section: Keys
+            SwitchCursorKey =           settings.GetValue("Keys", "SwitchCursorKey", "Control+F8");
+            OpenManagerWindowKey =      settings.GetValue("Keys", "OpenManagerWindowKey", "Control+F10");
+            OpenConsoleKey =            settings.GetValue("Keys", "OpenConsoleKey", "F4");
+            ReloadScriptsKey =          settings.GetValue("Keys", "ReloadScriptsKey", "Control+F11");
 
             // Section: Scripts
+            AllowScriptsToForceNoAbort =            settings.GetBoolean("Scripts", "AllowScriptsToForceNoAbort", true);
             PauseScriptExecutionWhenNotInFocus =    settings.GetBoolean("Scripts", "PauseExecutionWhenNotInFocus", true);
             DoNotLoadLegacyScripts =                settings.GetBoolean("Scripts", "DoNotLoadLegacyScripts", false);
             ReloadScriptsOnReload =                 settings.GetBoolean("Scripts", "ReloadScriptsOnReload", false);
@@ -73,9 +78,6 @@ namespace Manager.Classes
             // Section: Style
             ImGuiStyle =                            settings.GetValue("Style", "ImGuiStyle", "dark");
             UseCustomThemeForManagerAndConsole =    settings.GetBoolean("Style", "UseCustomThemeForManagerAndConsole", true);
-
-            // Section: Console
-            ConsoleOpenCloseKey = settings.GetKey("Console", "OpenCloseKey", Keys.F4);
 
             // Section: API
             AllowRemoteConnections =            settings.GetBoolean("API", "AllowConnections", false);
@@ -94,11 +96,16 @@ namespace Manager.Classes
             // Section: Main
             theSettingsFile.SetBoolean("Main", "CreateLogFilesInMainDirectory", CreateLogFilesInMainDirectory);
             theSettingsFile.SetInteger("Main", "MaxLogsFiles", MaxLogsFiles);
+            theSettingsFile.SetBoolean("Main", "EnableAutomaticUpdateCheck", EnableAutomaticUpdateCheck);
 
-            theSettingsFile.SetValue("Main", "SwitchCursorKey", SwitchCursorKey);
-            theSettingsFile.SetValue("Main", "OpenManagerWindowKey", OpenManagerWindowKey);
+            // Section: Keys
+            theSettingsFile.SetValue("Keys", "SwitchCursorKey", SwitchCursorKey);
+            theSettingsFile.SetValue("Keys", "OpenManagerWindowKey", OpenManagerWindowKey);
+            theSettingsFile.SetValue("Keys", "OpenConsoleKey", OpenConsoleKey);
+            theSettingsFile.SetValue("Keys", "ReloadScriptsKey", ReloadScriptsKey);
 
             // Section: Scripts
+            theSettingsFile.SetBoolean("Scripts", "AllowScriptsToForceNoAbort", AllowScriptsToForceNoAbort);
             theSettingsFile.SetBoolean("Scripts", "PauseExecutionWhenNotInFocus", PauseScriptExecutionWhenNotInFocus);
             theSettingsFile.SetBoolean("Scripts", "DoNotLoadLegacyScripts", DoNotLoadLegacyScripts);
             theSettingsFile.SetBoolean("Scripts", "ReloadScriptsOnReload", ReloadScriptsOnReload);
@@ -113,9 +120,6 @@ namespace Manager.Classes
             // Section: Style
             theSettingsFile.SetValue("Style", "ImGuiStyle", ImGuiStyle);
             theSettingsFile.SetBoolean("Style", "UseCustomThemeForManagerAndConsole", UseCustomThemeForManagerAndConsole);
-            
-            // Section: Console
-            theSettingsFile.SetKey("Console", "OpenCloseKey", ConsoleOpenCloseKey);
 
             // Section: API
             theSettingsFile.SetBoolean("API", "AllowConnections", AllowRemoteConnections);
@@ -135,10 +139,14 @@ namespace Manager.Classes
             CreateLogFilesInMainDirectory = true;
             MaxLogsFiles = 5;
 
+            // Section: Keys
             SwitchCursorKey = "Control+F8";
             OpenManagerWindowKey = "Control+F10";
+            OpenConsoleKey = "F4";
+            ReloadScriptsKey = "Control+F11";
 
             // Section: Scripts
+            AllowScriptsToForceNoAbort = true;
             PauseScriptExecutionWhenNotInFocus = true;
             DoNotLoadLegacyScripts = false;
             ReloadScriptsOnReload = false;
@@ -153,9 +161,6 @@ namespace Manager.Classes
             // Section: Style
             ImGuiStyle = "dark";
             UseCustomThemeForManagerAndConsole = true;
-
-            // Section: Console
-            ConsoleOpenCloseKey = Keys.F4;
 
             // Section: API
             AllowRemoteConnections = false;

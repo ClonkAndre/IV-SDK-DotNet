@@ -15,20 +15,12 @@
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
 
-//typedef HRESULT(__stdcall D3D9DeviceEndSceneT)(IDirect3DDevice9*);
-//typedef HRESULT(__stdcall D3D9DeviceResetT)(IDirect3DDevice9*, D3DPRESENT_PARAMETERS*);
-
 // DirectInput
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
-//typedef HRESULT(__stdcall DInput8DeviceGetDeviceStateT)(IDirectInputDevice8*, DWORD, LPVOID);
-//typedef HRESULT(__stdcall DInput8DeviceGetDeviceDataT)(IDirectInputDevice8*, DWORD, LPDIDEVICEOBJECTDATA, LPDWORD, DWORD);
-//typedef HRESULT(__stdcall DInput8DeviceAcquireT)(IDirectInputDevice8*);
-
 // XInput
 #include <XInput.h>
-//typedef DWORD(WINAPI* XInputGetState_t)(DWORD, XINPUT_STATE*);
 
 // MinHook
 #include "MinHook.h"
@@ -59,6 +51,7 @@ using namespace System::Reflection;
 using namespace System::Windows::Forms;
 using namespace System::Numerics;
 using namespace System::Runtime::CompilerServices;
+using namespace System::Runtime::InteropServices;
 using namespace System::Text;
 
 // Enums
@@ -77,9 +70,8 @@ using namespace IVSDKDotNet::Enums;
 #include "IVMatrix.h"
 
 // For any game related hooking stuff
+#include "NativeHashes.h"
 #include "GameHooks.h"
-
-
 
 #include "Attributes.h"
 
@@ -87,18 +79,22 @@ using namespace IVSDKDotNet::Enums;
 #include "Helper.h"
 
 // ImGuiIV
+#include "ManagedD3D9.h"
 #include "ImGuiStuff.h"
+
+
+
+// Important stuff for the manager
+#include "ManagerStuff.h"
 
 #include "MemoryAccess.h"
 #include "rage.h"
 
 // GTA IV Natives Stuff
-#include "NativeHashes.h"
 #include "NativeInvoke.h"
 #include "Native.h"
 #include "NativeFunction.h"
 #include "NativeHooks.h"
-
 
 
 // Important
@@ -255,9 +251,9 @@ using namespace IVSDKDotNet::Enums;
 #include "IVShaderLib.h"
 #include "IVTimeCycle.h"
 #include "IVPickups.h"
-#include "IVGameConfigReader.h"
 #include "IVFiDevice.h"
 #include "IVFiPackfile.h"
+#include "IVGameConfigReader.h"
 #include "IVAudEngine.h"
 #include "IVPedType.h"
 #include "IVQuadTreeNode.h"
@@ -298,5 +294,6 @@ using namespace IVSDKDotNet::Enums;
 #include "IVRadioTrackManager.h"
 
 #include "IVFrontEnd.h"
+#include "IVEpisodes.h"
 
 #endif //PCH_H

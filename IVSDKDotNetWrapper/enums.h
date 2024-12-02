@@ -3446,9 +3446,20 @@ namespace IVSDKDotNet
 		public enum class ePickupType
 		{
 			PICKUP_TYPE_NONE = 0,
-			PICKUP_TYPE_NULL = 1,//Can't pickup, does not disappear
-			PICKUP_TYPE_REGULAR = 2,//Can pickup, disappears on pickup
-			PICKUP_TYPE_WEAPON = 0x16
+			PICKUP_TYPE_NULL = 1,		// Can't pickup, does not disappear
+			PICKUP_TYPE_REGULAR = 2,	// Can pickup, disappears on pickup
+			PICKUP_TYPE_PIGEON = 3,		// Can't pickup, disappears when shot <- TEST THIS
+			PICKUP_TYPE_DROPPED_WEAPON = 5,
+			/// <summary>
+			/// The usual money drops. Dead peds drop money of this type. Stockade money drops seem to also use this type.
+			/// </summary>
+			PICKUP_TYPE_MONEY = 8,		// Can pickup, disappears on pickup
+			/// <summary>
+			/// Preplaced money? Fixed amount?
+			/// </summary>
+			PICKUP_TYPE_MONEY2 = 19,	// Can pickup, disappears on pickup
+			PICKUP_TYPE_WEAPON = 22,
+			PICKUP_TYPE_NETWORK = 23
 		};
 
 		public enum class ePickupModel : uint32_t
@@ -4320,6 +4331,16 @@ namespace IVSDKDotNet
 			INPUT_VEH_MOVE_RIGHT_2,
 		};
 
+		public enum class eAudPlayerRadioStates
+		{
+			PLAYER_RADIO_OFF,
+			PLAYER_RADIO_STARTING,
+			PLAYER_RADIO_PLAYING,
+			PLAYER_RADIO_FROZEN,
+			PLAYER_RADIO_STOPPING,
+			PLAYER_RADIO_RETUNING
+		};
+
 		public enum class ePool
 		{
 			PedPool,
@@ -4342,7 +4363,9 @@ namespace IVSDKDotNet
 			TxdPool,
 			IplPool,
 			PedTargettingPool,
-			StuntJumpPool
+			StuntJumpPool,
+
+			ScriptStorePool
 		};
 
 		public enum class eStoreType
@@ -7343,6 +7366,41 @@ namespace IVSDKDotNet
 			/// [READONLY OUTPUT FLAG] Status: is hovered by mouse
 			/// </summary>
 			IsHovered = 1 << 27,
+		};
+
+		/// <summary>
+		/// Flags for ImGuiIV_HexEditorState struct
+		/// </summary>
+		[FlagsAttribute]
+		public enum class eImGuiHexEditorHighlightFlags : int
+		{
+			ImGuiHexEditorHighlightFlags_None = 0,
+			ImGuiHexEditorHighlightFlags_Apply = 1 << 0,
+			ImGuiHexEditorHighlightFlags_TextAutomaticContrast = 1 << 1,
+			/// <summary>
+			/// Highlight entire byte space including it's container, has no effect on ascii
+			/// </summary>
+			ImGuiHexEditorHighlightFlags_FullSized = 1 << 2,
+			/// <summary>
+			/// Highlight ascii (doesn't affect single byte highlighting)
+			/// </summary>
+			ImGuiHexEditorHighlightFlags_Ascii = 1 << 3,
+			ImGuiHexEditorHighlightFlags_Border = 1 << 4,
+			ImGuiHexEditorHighlightFlags_OverrideBorderColor = 1 << 5,
+			ImGuiHexEditorHighlightFlags_BorderAutomaticContrast = 1 << 6,
+		};
+
+		/// <summary>
+		/// Flags for ImGuiIV_HexEditorState struct
+		/// </summary>
+		[FlagsAttribute]
+		public enum class eImGuiHexEditorClipboardFlags : int
+		{
+			ImGuiHexEditorClipboardFlags_None = 0,
+			/// <summary>
+			/// Separate resulting hex editor lines with carriage return
+			/// </summary>
+			ImGuiHexEditorClipboardFlags_Multiline = 1 << 0,
 		};
 
 	}

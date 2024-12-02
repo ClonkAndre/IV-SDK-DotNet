@@ -20,6 +20,8 @@ struct IplDef;
 class CQuadTreeNode;
 class CPedTargetting;
 
+class CScriptStore;
+
 class CPools
 {
 public:
@@ -43,4 +45,6 @@ public:
 	static inline auto& ms_pTxdPool = AddressSetter::GetRef<CPool<TxdDef>*>(0xDD52D4, 0xE291E0);
 	static inline auto& ms_pIplPool = AddressSetter::GetRef<CPool<IplDef>*>(0x128FF98, 0xF6E468);
 	static inline auto& ms_pPedTargettingPool = AddressSetter::GetRef<CPool<CPedTargetting>*>(0x1311134, 0x12859EC);
+
+	static inline auto& ms_pScriptStorePool = AddressSetter::GetRef<CPool<CScriptStore>*>(0x12C46E4, 0x1271104);
 };

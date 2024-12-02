@@ -410,5 +410,8 @@
     <ClInclude Include="Hooking.Patterns.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IVSDK\CEpisodes.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

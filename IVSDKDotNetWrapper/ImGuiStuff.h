@@ -1,27 +1,6 @@
 #pragma once
 #include "pch.h"
 
-namespace ImGuiStates
-{
-	// Initialized State
-	static bool s_bIsImGuiInitialized;
-	static bool s_bWasImGuiInitializedSuccessfully;
-	static bool s_bWasImGuiUnitialized;
-
-	static bool s_bStopTryingToInitializeImGui;
-
-	// Sets s_bIsImGuiInitialized to false, s_bWasImGuiUnitialized to true and s_bStopTryingToInitializeImGui to true.
-	static void SetImGuiStatusAsWasUninitialized()
-	{
-		s_bIsImGuiInitialized = false;
-		s_bWasImGuiUnitialized = true;
-		s_bStopTryingToInitializeImGui = true;
-	}
-
-	// Input State
-	static bool s_bDisableControllerInput;
-}
-
 namespace IVSDKDotNet
 {
 	public value struct ImGuiIV_DrawingContext
@@ -52,6 +31,29 @@ namespace IVSDKDotNet
 			bool get()
 			{
 				return m_bIsValid;
+			}
+		}
+
+		/// <summary>
+		/// Anti-alias fringe is scaled by this value, this helps to keep things sharp while zooming at vertex buffer content.
+		/// This can be used to create a simple glowing effect (Not the best way to do it tho).
+		/// </summary>
+		property float FringeScale
+		{
+		public:
+			float get()
+			{
+				if (!IsValid)
+					return 0.0F;
+
+				return canvasDrawList->_FringeScale;
+			}
+			void set(float value)
+			{
+				if (!IsValid)
+					return;
+
+				canvasDrawList->_FringeScale = value;
 			}
 		}
 
