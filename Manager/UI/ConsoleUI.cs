@@ -23,6 +23,7 @@ namespace Manager.UI
         #region Variables
         private Dictionary<string, Action<string[]>> localCommands;
         private string[] autoCompleteCommands;
+        private string lastConsoleCommand;
 
         // Suggestions Popup
         private bool popupOpen;
@@ -71,6 +72,11 @@ namespace Manager.UI
         {
             Logger.ClearLogItems();
         }
+
+        public void ResetLastConsoleCommand()
+        {
+            lastConsoleCommand = null;
+        }
         #endregion
 
         #region Functions
@@ -112,6 +118,8 @@ namespace Manager.UI
             string[] args = Regex.Split(name, @"\s+");
             string command = args[0].ToLower();
 
+            lastConsoleCommand = command;
+
             // Skip first console command argument (which is the command name and we do not care about that we want the actual arguments)
             args = args.Skip(1).ToArray();
 
@@ -135,6 +143,11 @@ namespace Manager.UI
             });
 
             return true;
+        }
+
+        public string GetLastConsoleCommand()
+        {
+            return lastConsoleCommand;
         }
         #endregion
 

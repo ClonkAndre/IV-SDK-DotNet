@@ -4331,6 +4331,16 @@ namespace IVSDKDotNet
 			INPUT_VEH_MOVE_RIGHT_2,
 		};
 
+		public enum class eAudPlayerRadioStates
+		{
+			PLAYER_RADIO_OFF,
+			PLAYER_RADIO_STARTING,
+			PLAYER_RADIO_PLAYING,
+			PLAYER_RADIO_FROZEN,
+			PLAYER_RADIO_STOPPING,
+			PLAYER_RADIO_RETUNING
+		};
+
 		public enum class ePool
 		{
 			PedPool,

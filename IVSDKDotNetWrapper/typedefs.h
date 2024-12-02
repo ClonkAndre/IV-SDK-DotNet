@@ -20,3 +20,5 @@ typedef int(__cdecl GetTrafficLightStateT)(bool, int);
 
 typedef bool(__cdecl RegisterNativeT)(uint32_t, LPVOID);
 typedef bool(__stdcall RegisterNativeNoChecksT)(uint32_t, LPVOID);
+
+typedef bool(__cdecl IsNetworkGameRunningT)();

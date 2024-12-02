@@ -11,6 +11,7 @@ namespace IVSDKDotNet
 		public ref class Hooks
 		{
 		public: // Delegates
+			delegate void VoidDelegate();
 			delegate bool DefaultHookDelegate();
 
 			delegate bool SingleStringDelegate(String^ str);
@@ -142,18 +143,19 @@ namespace IVSDKDotNet
 			static void DoHooking();
 
 		private:
-			static void NATIVE_PRINTSTRING(IVNativeCallContext* pNativeContext);
-			static void NATIVE_PRINTINT(IVNativeCallContext* pNativeContext);
-			static void NATIVE_PRINTFLOAT(IVNativeCallContext* pNativeContext);
+			static void NATIVE_PRINTSTRING(CNativeCallContext* pNativeContext);
+			static void NATIVE_PRINTINT(CNativeCallContext* pNativeContext);
+			static void NATIVE_PRINTFLOAT(CNativeCallContext* pNativeContext);
 
-			static void NATIVE_SHOW_SIGNIN_UI(IVNativeCallContext* pNativeContext);
-			static void NATIVE_NETWORK_SHOW_FRIEND_PROFILE_UI(IVNativeCallContext* pNativeContext);
+			static void NATIVE_SHOW_SIGNIN_UI(CNativeCallContext* pNativeContext);
+			static void NATIVE_NETWORK_SHOW_FRIEND_PROFILE_UI(CNativeCallContext* pNativeContext);
 
-			static void NATIVE_AWARD_ACHIEVEMENT(IVNativeCallContext* pNativeContext);
-			static void NATIVE_ENABLE_CHASE_AUDIO(IVNativeCallContext* pNativeContext);
+			static void NATIVE_AWARD_ACHIEVEMENT(CNativeCallContext* pNativeContext);
+			static void NATIVE_ENABLE_CHASE_AUDIO(CNativeCallContext* pNativeContext);
 
-			static bool NATIVE_IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE(IVNativeCallContext* pNativeContext);
-			static bool NATIVE_IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE(IVNativeCallContext* pNativeContext);
+			static bool NATIVE_IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE(CNativeCallContext* pNativeContext);
+			static bool NATIVE_IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE(CNativeCallContext* pNativeContext);
+
 		};
 
 	}

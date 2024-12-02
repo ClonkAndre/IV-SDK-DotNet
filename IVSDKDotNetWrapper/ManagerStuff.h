@@ -89,7 +89,6 @@ namespace IVSDKDotNet
 			generic <typename T>
 			virtual Object^ DispatchEventWithReturn(Func<T>^ a) abstract;
 
-			virtual void SetInvokeNextNativeCallDirectly() abstract;
 			virtual void DispatchNativeCall(uint32_t hash, UIntPtr contextPointer) abstract;
 
 			virtual int GetMainThreadID() abstract;

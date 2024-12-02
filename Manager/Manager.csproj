@@ -79,16 +79,22 @@
     <Compile Include="Classes\Json\RunningScriptInfo.cs" />
     <Compile Include="Classes\Json\Script\ScriptDependencyInfo.cs" />
     <Compile Include="Classes\Json\Script\ScriptConfig.cs" />
+    <Compile Include="Classes\NativeCaller.cs" />
     <Compile Include="Classes\Reflection.cs" />
     <Compile Include="Classes\RegisteredEvent.cs" />
     <Compile Include="Classes\Secrittzzz.cs" />
     <Compile Include="Classes\SHDNStuff.cs" />
+    <Compile Include="Classes\Win32.cs" />
+    <Compile Include="Extensions\IntPtrExtensions.cs" />
     <Compile Include="Managers\PluginManager.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Threading\Dispatcher.cs" />
+    <Compile Include="Threading\NetThread.cs" />
+    <Compile Include="Threading\ScriptThread.cs" />
     <Compile Include="UI\ManagerUI.cs" />
     <Compile Include="UI\ConsoleUI.cs" />
     <Compile Include="Enums.cs" />

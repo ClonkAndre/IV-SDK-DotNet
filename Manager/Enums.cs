@@ -76,6 +76,7 @@
     public enum Priority
     {
         Default,
+        Medium,
         High
     }
     public enum AbortReason

@@ -7,6 +7,10 @@ public:
 	static inline uint32_t& m_nForcedEpisode = AddressSetter::GetRef<uint32_t>(0xCF8048, 0xD2D758);
 	static inline uint32_t& m_nCurrentEpisodeMenu = AddressSetter::GetRef<uint32_t>(0xCF8078, 0xD2D788); // used for switching hudcolor in each episode's menu screen and for loading the right episode when you hit play
 	
+	// 1080: 10FC650 (0xCFC650)
+	// 1070: 10C7F80 (0xCC7F80)
+	static inline uint32_t& m_nMenuState = AddressSetter::GetRef<uint32_t>(0xCC7F80, 0xCFC650);
+
 	static bool Initialise(const char* sGameDat)
 	{
 		return ((bool(__cdecl*)(const char*))(AddressSetter::Get(0x4ADA50, 0x770660)))(sGameDat);

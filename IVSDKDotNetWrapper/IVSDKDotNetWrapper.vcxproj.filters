@@ -627,6 +627,12 @@
     <ClInclude Include="ManagedD3D9.h">
       <Filter>Header Files\D3D9</Filter>
     </ClInclude>
+    <ClInclude Include="ImGui\imgui_hex.h">
+      <Filter>Header Files\ImGuiIV\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="IVEpisodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MemoryAccess.cpp">
@@ -1141,6 +1147,12 @@
     </ClCompile>
     <ClCompile Include="ManagedD3D9.cpp">
       <Filter>Source Files\D3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_hex.cpp">
+      <Filter>Source Files\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="IVEpisodes.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

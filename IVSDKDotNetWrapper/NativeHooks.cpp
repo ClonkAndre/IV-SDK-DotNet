@@ -105,21 +105,21 @@ namespace IVSDKDotNet
 			Hooks::AddHook(gcnew Hooks::InstalledHook(eNativeHash::NATIVE_IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE, (DWORD)NATIVE_IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE));
 		}
 
-		void NativeHookFunctions::NATIVE_PRINTSTRING(IVNativeCallContext* pNativeContext)
+		void NativeHookFunctions::NATIVE_PRINTSTRING(CNativeCallContext* pNativeContext)
 		{
 			char* result = pNativeContext->GetArgument<char*>(0);
 
 			// Raise event
 			Hooks::RaisePrintStringHook(gcnew String(result));
 		}
-		void NativeHookFunctions::NATIVE_PRINTINT(IVNativeCallContext* pNativeContext)
+		void NativeHookFunctions::NATIVE_PRINTINT(CNativeCallContext* pNativeContext)
 		{
 			int result = pNativeContext->GetArgument<int>(0);
 
 			// Raise event
 			Hooks::RaisePrintIntHook(result);
 		}
-		void NativeHookFunctions::NATIVE_PRINTFLOAT(IVNativeCallContext* pNativeContext)
+		void NativeHookFunctions::NATIVE_PRINTFLOAT(CNativeCallContext* pNativeContext)
 		{
 			float result = pNativeContext->GetArgument<float>(0);
 
@@ -127,7 +127,7 @@ namespace IVSDKDotNet
 			Hooks::RaisePrintFloatHook(result);
 		}
 
-		void NativeHookFunctions::NATIVE_SHOW_SIGNIN_UI(IVNativeCallContext* pNativeContext)
+		void NativeHookFunctions::NATIVE_SHOW_SIGNIN_UI(CNativeCallContext* pNativeContext)
 		{
 			// Raise event
 			bool shouldReturn = Hooks::RaiseShowSignInUIHook();
@@ -149,7 +149,7 @@ namespace IVSDKDotNet
 			// Hook
 			hook->Hook();
 		}
-		void NativeHookFunctions::NATIVE_NETWORK_SHOW_FRIEND_PROFILE_UI(IVNativeCallContext* pNativeContext)
+		void NativeHookFunctions::NATIVE_NETWORK_SHOW_FRIEND_PROFILE_UI(CNativeCallContext* pNativeContext)
 		{
 			char* result = pNativeContext->GetArgument<char*>(0);
 			String^ str = gcnew String(result);
@@ -175,7 +175,7 @@ namespace IVSDKDotNet
 			hook->Hook();
 		}
 
-		void NativeHookFunctions::NATIVE_AWARD_ACHIEVEMENT(IVNativeCallContext* pNativeContext)
+		void NativeHookFunctions::NATIVE_AWARD_ACHIEVEMENT(CNativeCallContext* pNativeContext)
 		{
 			int result = pNativeContext->GetArgument<int>(0);
 
@@ -199,7 +199,7 @@ namespace IVSDKDotNet
 			// Hook
 			hook->Hook();
 		}
-		void NativeHookFunctions::NATIVE_ENABLE_CHASE_AUDIO(IVNativeCallContext* pNativeContext)
+		void NativeHookFunctions::NATIVE_ENABLE_CHASE_AUDIO(CNativeCallContext* pNativeContext)
 		{
 			bool result = pNativeContext->GetArgument<bool>(0);
 
@@ -224,7 +224,7 @@ namespace IVSDKDotNet
 			hook->Hook();
 		}
 
-		bool NativeHookFunctions::NATIVE_IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE(IVNativeCallContext* pNativeContext)
+		bool NativeHookFunctions::NATIVE_IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE(CNativeCallContext* pNativeContext)
 		{
 			// Raise event
 			bool shouldReturn = Hooks::RaiseIsWorldPointWithinBrainActivationRangeHook();
@@ -241,15 +241,18 @@ namespace IVSDKDotNet
 			if (!hook)
 				return false;
 
-			hook->Unhook();
+			//hook->Unhook();
 
 			// Call orginal native
-			return Natives::IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE();
+			//return Natives::IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE();
+			//((int(__cdecl*)(CNativeCallContext*))(hook->TrampolinePtr))(pNativeContext);
 
 			// Hook
-			hook->Hook();
+			//hook->Hook();
+
+			return true;
 		}
-		bool NativeHookFunctions::NATIVE_IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE(IVNativeCallContext* pNativeContext)
+		bool NativeHookFunctions::NATIVE_IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE(CNativeCallContext* pNativeContext)
 		{
 			int arg1 = pNativeContext->GetArgument<int>(0);
 
@@ -268,13 +271,16 @@ namespace IVSDKDotNet
 			if (!hook)
 				return false;
 
-			hook->Unhook();
+			//hook->Unhook();
 
 			// Call orginal native
-			return Natives::IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE(arg1);
+			//return Natives::IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE(arg1);
+			//((int(__cdecl*)(CNativeCallContext*))(hook->TrampolinePtr))(pNativeContext);
 
 			// Hook
-			hook->Hook();
+			//hook->Hook();
+
+			return true;
 		}
 
 	}

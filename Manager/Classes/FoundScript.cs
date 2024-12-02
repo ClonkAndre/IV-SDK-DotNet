@@ -46,6 +46,9 @@ namespace Manager.Classes
         // Manager
         public bool PublicFieldsWindowOpen;
 
+        // Thread
+        public int TickThread;
+
         // Other
         public bool Running;
         public bool InitEventCalled;
@@ -121,6 +124,11 @@ namespace Manager.Classes
             //RegisteredEvents = new List<RegisteredEvent>(8);
             Textures = new List<IntPtr>(8);
 
+            // Create thread for script if it should use threaded tick
+            TickThread = -1;
+            //if (GetScriptAs<Script>().UseThreadedTick)
+            //    TickThread = Main.Instance.CreateScriptThread(this);
+
             Running = true;
         }
         
@@ -131,6 +139,7 @@ namespace Manager.Classes
             FullPath = fullPath;
             TheAssembly = theAssembly;
             EntryPoint = entryPoint;
+            TickThread = -1;
         }
         #endregion
 
@@ -152,6 +161,7 @@ namespace Manager.Classes
             if (IsScriptHookDotNetScript)
                 return;
 
+            // Raise uninitialized event
             GetScriptAs<Script>().RaiseUninitialize();
         }
 
@@ -170,38 +180,16 @@ namespace Manager.Classes
             // Raise tick
             if (IsScriptHookDotNetScript)
             {
+                //// Create thread for script if not created yet
+                //if (TickThread == -1)
+                //    TickThread = Main.Instance.CreateScriptThread(this, true);
+
                 if (Natives.IS_PAUSE_MENU_ACTIVE())
                     return;
 
-                GTA.Script script = GetScriptAs<GTA.Script>();
+                //Main.Instance.GlobalThreads[TickThread].TickNowWithState();
 
-                SHDNStuff.SetCurrentScript(GTA.ScriptEvent.Tick, script);
-
-                // Invoke Tick event
-                try
-                {
-                    script.DoTick();
-                }
-                catch (Exception ex)
-                {
-                    Main.Instance.HandleScriptException(this, 8d, "Tick", ex);
-                }
-
-                // Process action queue
-                try
-                {
-                    if (script.ActionQueue.Count != 0)
-                    {
-                        GTA.ScriptAction a = script.ActionQueue.Dequeue();
-                        a.Act?.Invoke();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Main.Instance.HandleScriptException(this, 8d, "ActionQueueProcessor", ex);
-                }
-
-                SHDNStuff.SetCurrentScript(GTA.ScriptEvent.Tick, null);
+                GetScriptAs<GTA.Script>().DoTick();
             }
             else
             {
@@ -225,6 +213,45 @@ namespace Manager.Classes
                 script.RaiseWaitTick();
             }
         }
+        //public void RaiseThreadedTick()
+        //{
+        //    if (!IsScriptReady())
+        //        return;
+
+        //    // Raise tick
+        //    if (IsScriptHookDotNetScript)
+        //    {
+        //        GTA.Script script = GetScriptAs<GTA.Script>();
+
+        //        SHDNStuff.SetCurrentScript(GTA.ScriptEvent.Tick, script);
+
+        //        // Invoke Tick event
+        //        try
+        //        {
+        //            script.DoTick();
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Main.Instance.HandleScriptException(this, 8d, "Tick", ex);
+        //        }
+
+        //        // Process action queue
+        //        try
+        //        {
+        //            if (script.ActionQueue.Count != 0)
+        //            {
+        //                GTA.ScriptAction a = script.ActionQueue.Dequeue();
+        //                a.Act?.Invoke();
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Main.Instance.HandleScriptException(this, 8d, "ActionQueueProcessor", ex);
+        //        }
+
+        //        SHDNStuff.SetCurrentScript(GTA.ScriptEvent.Tick, null);
+        //    }
+        //}
         public void RaiseGameLoad()
         {
             if (IsScriptHookDotNetScript)
@@ -475,6 +502,10 @@ namespace Manager.Classes
             // Reset some stuff
             PublicFieldsWindowOpen = false;
 
+            // Stop thread
+            if (TickThread != -1)
+                Main.Instance.GlobalThreads[TickThread].Abort();
+
             // Stop active script tasks
             Main.Instance.AbortScriptTasks(ID);
 
@@ -483,6 +514,9 @@ namespace Manager.Classes
 
             // Raise Uninitialize event
             RaiseUninitialize();
+
+            // Save script settings file
+            SaveSettingsFile();
 
             // Remove all registered event subscriptions
             RemoveEventSubscriptions();
@@ -517,6 +551,9 @@ namespace Manager.Classes
                 }
             }
 
+            // Let plugins know
+            Main.Instance.ThePluginManager.RaiseOnScriptAbort(ID);
+
             // Cleanup other script things
             if (IsScriptHookDotNetScript)
                 GetScriptAs<GTA.Script>().Dispose();
@@ -530,6 +567,15 @@ namespace Manager.Classes
         public void Stop()
         {
             Running = false;
+        }
+
+        public void Wait(int milliseconds)
+        {
+            if (!IsScriptReady())
+                return;
+
+            if (TickThread != -1)
+                Main.Instance.GlobalThreads[TickThread].Wait(milliseconds);
         }
 
         private void GetPublicFields()
@@ -624,6 +670,32 @@ namespace Manager.Classes
         //        }
         //    }
         //}
+
+        private void SaveSettingsFile()
+        {
+            if (IsIVSDKDotNetScript)
+            {
+                Script s = GetScriptAs<Script>();
+
+                if (s.SaveSettingsOnUnload)
+                {
+                    SettingsFile settings = s.Settings;
+
+                    if (settings != null)
+                        settings.Save();
+                }
+
+                return;
+            }
+
+            if (IsScriptHookDotNetScript)
+            {
+                GTA.SettingsFile settings = GetScriptAs<GTA.Script>().pSettings;
+
+                if (settings != null)
+                    settings.Save();
+            }
+        }
 
         private void RemoveEventSubscriptions()
         {

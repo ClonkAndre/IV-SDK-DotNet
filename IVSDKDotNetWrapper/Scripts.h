@@ -14,6 +14,7 @@ namespace IVSDKDotNet
 		Script(bool internalCtor, Guid id);
 
 	public:
+		Script(Guid id, bool useThreadedTick);
 		Script(Guid id);
 		Script();
 		~Script() { }
@@ -32,7 +33,7 @@ namespace IVSDKDotNet
 		// Properties
 	public:
 		/// <summary>
-		/// The unique ID of this script.
+		/// The unique ID of this script. This can only be set on the scripts constructor overload.
 		/// </summary>
 		property Guid ID
 		{
@@ -191,6 +192,41 @@ namespace IVSDKDotNet
 		}
 
 		/// <summary>
+		/// Gets or sets if the settings file of this script should be saved when this script unloads.
+		/// <para>When set to true, this will save the settings file of this script after the Uninitialized event was called.</para>
+		/// </summary>
+		property bool SaveSettingsOnUnload
+		{
+		public:
+			bool get()
+			{
+				return m_bSaveSettingsOnUnload;
+			}
+			void set(bool value)
+			{
+				m_bSaveSettingsOnUnload = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets if the Tick event of this script should be threaded. This can only be set on the scripts constructor overload.
+		/// <para>This will let you create while loops with wait calls without blocking the main thread.</para>
+		/// </summary>
+		property bool UseThreadedTick
+		{
+		public:
+			bool get()
+			{
+				return m_bUseThreadedTick;
+			}
+		private:
+			void set(bool value)
+			{
+				m_bUseThreadedTick = value;
+			}
+		}
+
+		/// <summary>
 		/// Gets or sets the interval with which the WaitTick event should get raised. The default is 100ms and it cannot go below 1.
 		/// </summary>
 		property int WaitTickInterval
@@ -231,8 +267,8 @@ namespace IVSDKDotNet
 		}
 
 		/// <summary>
-		/// Gets raised every frame when in-game (CGame.Process).
-		/// This event uses the CTheScripts.SetDummyThread/RestorePreviousThread method that means that any natives calls in this event will work just fine.
+		/// Gets raised every frame once in-game (CGame.Process).
+		/// <para>It is save to call native functions in this event.</para>
 		/// </summary>
 		event EventHandler^ Tick;
 		void RaiseTick()
@@ -330,7 +366,6 @@ namespace IVSDKDotNet
 		/// Gets raised when a key was released.
 		/// </summary>
 		event KeyEventHandler^ KeyUp;
-
 		void RaiseKeyUp(KeyEventArgs^ args)
 		{
 			KeyUp(this, args);
@@ -587,6 +622,8 @@ namespace IVSDKDotNet
 		bool m_bInternalCtorWasUsed;
 		bool m_bOnlyInvokeKeyEventsWhenInGame;
 		bool m_bForceNoAbort;
+		bool m_bSaveSettingsOnUnload;
+		bool m_bUseThreadedTick;
 		int m_iWaitTickInterval = 100;
 	};
 

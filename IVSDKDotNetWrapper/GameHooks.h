@@ -54,6 +54,8 @@ namespace IVSDKDotNet
 			delegate HookCallback<int> GetTrafficLightStateDelegate(bool a1, int timeOffsetMilliseconds);
 			delegate HookCallback<bool> RegisterNativeDelegate(uint32_t% hash, IntPtr% funcPtr);
 
+			delegate HookCallback<bool> IsNetworkGameRunningDelegate();
+
 		public:
 			static event AddSceneLightDelegate^ OnAddSceneLight;
 			static event RenderCoronaDelegate^ OnRenderCorona;
@@ -62,6 +64,8 @@ namespace IVSDKDotNet
 
 			static event RegisterNativeDelegate^ OnRegisterNative;
 			static event RegisterNativeDelegate^ OnRegisterNativeNoChecks;
+
+			static event IsNetworkGameRunningDelegate^ OnIsNetworkGameRunning;
 
 		internal:
 			static HookCallback<int> RaiseOnAddSceneLight(uint32_t a1, uint32_t nLightType, uint32_t nFlags, CVector* vDir, CVector* vTanDir, CVector* vPos, CVector* vColor, float fIntensity, int32_t texHash, int32_t txdSlot, float fRange, float fInnerConeAngle, float fOuterConeAngle, float fVolIntensity, float fVolSizeScale, int32_t interiorId, uint32_t a15, uint32_t nID)
@@ -119,60 +123,15 @@ namespace IVSDKDotNet
 				return OnRegisterNativeNoChecks(hash, funcPtr);
 			}
 
+			static HookCallback<bool> RaiseOnIsNetworkGameRunning()
+			{
+				return OnIsNetworkGameRunning();
+			}
+
 		};
 
 	}
 }
-
-//class CDebug
-//{
-//public:
-//	class CNativeCallContext2
-//	{
-//	public:
-//		void* m_pReturn;							// 00-04
-//		uint32_t m_nArgCount;						// 04-08
-//		void* m_pArgs;								// 08-0C
-//		uint32_t m_nDataCount;						// 0C-10
-//		CVector* m_pOriginalData[4];			    // 10-20
-//		CQuaternion m_TemporaryData[4];		        // 20-60
-//
-//	public:
-//		template<typename T>
-//		inline T GetArgument(size_t idx)
-//		{
-//			uintptr_t* arguments = (uintptr_t*)m_pArgs;
-//
-//			if (!arguments)
-//				return 0;
-//			if (!&arguments[idx])
-//				return 0;
-//			if (!arguments[idx])
-//				return 0;
-//
-//			return *(T*)&arguments[idx];
-//		}
-//
-//		template<typename T>
-//		inline void SetResult(size_t idx, T value)
-//		{
-//			uintptr_t* returnValues = (uintptr_t*)m_pReturn;
-//
-//			*(T*)&returnValues[idx] = value;
-//		}
-//	};
-//
-//public:
-//	static int __stdcall CREATE_WIDGET_GROUP(CNativeCallContext2* nativeCallContext)
-//	{
-//		char* name = nativeCallContext->GetArgument<char*>(0);
-//
-//		WRITE_TO_DEBUG_OUTPUT(gcnew String(name));
-//
-//		return 0;
-//	}
-//
-//};
 
 class UnmanagedGameHooks
 {
@@ -251,8 +210,7 @@ public:
 		// RegisterNative func hook
 		if (!originalRegisterNative)
 		{
-			// TODO: Get 1070 address!
-			mhStatus = MH_CreateHook((LPVOID*)AddressSetter::Get(0x0, 0x225620), &RegisterNativeHook, (void**)&originalRegisterNative);
+			mhStatus = MH_CreateHook((LPVOID*)AddressSetter::Get(0x1A6200, 0x225620), &RegisterNativeHook, (void**)&originalRegisterNative);
 
 			if (mhStatus != MH_OK)
 			{
@@ -266,8 +224,7 @@ public:
 		// RegisterNativeNoChecks func hook
 		if (!originalRegisterNativeNoChecks)
 		{
-			// TODO: Get 1070 address!
-			mhStatus = MH_CreateHook((LPVOID*)AddressSetter::Get(0x0, 0x226B40), &RegisterNativeNoChecksHook, (void**)&originalRegisterNativeNoChecks);
+			mhStatus = MH_CreateHook((LPVOID*)AddressSetter::Get(0x1A7720, 0x226B40), &RegisterNativeNoChecksHook, (void**)&originalRegisterNativeNoChecks);
 
 			if (mhStatus != MH_OK)
 			{
@@ -276,6 +233,22 @@ public:
 			}
 
 			Logger::LogDebug("[GameHooks] Hooked RegisterNativeNoChecks func.");
+		}
+
+		// IsNetworkGameRunning func hook
+		if (!originalIsNetworkGameRunning)
+		{
+			auto scan = hook::pattern(std::string_view("53 8A 1D ? ? ? ? 84 DB 74"));
+
+			assert(!scan.empty());
+
+			mhStatus = MH_CreateHook((LPVOID*)scan.get_first(0), &IsNetworkGameRunning, (void**)&originalIsNetworkGameRunning);
+
+			if (mhStatus != MH_OK)
+			{
+				Logger::LogError(String::Format("[GameHooks] Could not hook IsNetworkGameRunning func! Details: {0}", gcnew String(MH_StatusToString(mhStatus))));
+				return false;
+			}
 		}
 
 		return true;
@@ -290,6 +263,8 @@ private:
 
 	static inline RegisterNativeT* originalRegisterNative;
 	static inline RegisterNativeNoChecksT* originalRegisterNativeNoChecks;
+
+	static inline IsNetworkGameRunningT* originalIsNetworkGameRunning;
 
 private:
 	static inline int __cdecl AddSceneLightHook(uint32_t a1, uint32_t nLightType, uint32_t nFlags, CVector* vDir, CVector* vTanDir, CVector* vPos, CVector* vColor, float fIntensity, int32_t texHash, int32_t txdSlot, float fRange, float fInnerConeAngle, float fOuterConeAngle, float fVolIntensity, float fVolSizeScale, int32_t interiorId, uint32_t a15, uint32_t nID)
@@ -369,16 +344,23 @@ private:
 		hash = managedHash;
 		funcPtr = managedFuncPtr.ToPointer();
 
-		//if (hash == (uint32_t)IVSDKDotNet::Native::eNativeHash::NATIVE_CREATE_WIDGET_GROUP)
-		//{
-		//	funcPtr = &CDebug::CREATE_WIDGET_GROUP;
-		//}
-
 		// Check if call should be intercepted
 		if (callback.InterceptCall)
 			return callback.CustomReturnValue;
 
 		return originalRegisterNativeNoChecks(hash, funcPtr);
+	}
+
+	static inline bool __cdecl IsNetworkGameRunning()
+	{
+		// Raise managed event
+		IVSDKDotNet::Hooking::HookCallback<bool> callback = IVSDKDotNet::Hooking::GameHooks::RaiseOnIsNetworkGameRunning();
+
+		if (callback.InterceptCall)
+			return callback.CustomReturnValue;
+
+		// Call original function if allowed to
+		return originalIsNetworkGameRunning();
 	}
 
 };

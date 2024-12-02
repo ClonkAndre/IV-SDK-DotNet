@@ -5740,6 +5740,8 @@ namespace IVSDKDotNet
 
 			static int GET_CAM_STATE(Camera cam) { return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_GET_CAM_STATE, cam); }
 
+			static int FIND_NETWORK_KILLER_OF_PLAYER(Player playerId) { return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_FIND_NETWORK_KILLER_OF_PLAYER, playerId); }
+
 		};
 	}
 }

@@ -173,6 +173,7 @@
     <ClInclude Include="IVSDK\CdStream.h" />
     <ClInclude Include="IVSDK\CDynamicEntity.h" />
     <ClInclude Include="IVSDK\CEntity.h" />
+    <ClInclude Include="IVSDK\CEpisodes.h" />
     <ClInclude Include="IVSDK\CExplosion.h" />
     <ClInclude Include="IVSDK\CFileLoader.h" />
     <ClInclude Include="IVSDK\CFileMgr.h" />

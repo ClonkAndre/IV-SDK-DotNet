@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Windows.Forms;
 
 using IVSDKDotNet;
 using IVSDKDotNet.Attributes;
@@ -82,6 +81,19 @@ namespace Manager.UI
                     ImGuiIV.BeginDisabled();
                 }
 
+                // Get other attributes
+                float speed = 1f;
+                float min = 0f;
+                float max = 0f;
+
+                if (GetAttribute(info, out SpeedAttribute speedAttribute))
+                    speed = speedAttribute.Speed;
+                if (GetAttribute(info, out RangeAttribute rangeAttribute))
+                {
+                    min = rangeAttribute.Minimum;
+                    max = rangeAttribute.Maximum;
+                }
+
                 switch (fieldType)
                 {
                     case SupportedPublicFields._byte:
@@ -90,7 +102,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
                                 info.SetValue(foundScript.TheScriptObject, Convert.ToByte(value));
                         }
                         break;
@@ -100,7 +112,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
                                 info.SetValue(foundScript.TheScriptObject, Convert.ToSByte(value));
                         }
                         break;
@@ -110,7 +122,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
                                 info.SetValue(foundScript.TheScriptObject, Convert.ToInt16(value));
                         }
                         break;
@@ -120,7 +132,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
                                 info.SetValue(foundScript.TheScriptObject, Convert.ToUInt16(value));
                         }
                         break;
@@ -130,7 +142,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
                                 info.SetValue(foundScript.TheScriptObject, value);
                         }
                         break;
@@ -140,7 +152,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
                                 info.SetValue(foundScript.TheScriptObject, Convert.ToUInt32(value));
                         }
                         break;
@@ -150,7 +162,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
                                 info.SetValue(foundScript.TheScriptObject, Convert.ToInt64(value));
                         }
                         break;
@@ -160,7 +172,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value))
+                            if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
                                 info.SetValue(foundScript.TheScriptObject, Convert.ToUInt64(value));
                         }
                         break;
@@ -170,7 +182,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value))
+                            if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value, speed, min, max))
                                 info.SetValue(foundScript.TheScriptObject, Convert.ToSingle(value));
                         }
                         break;
@@ -180,7 +192,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value))
+                            if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value, speed, min, max))
                                 info.SetValue(foundScript.TheScriptObject, Convert.ToDouble(value));
                         }
                         break;
@@ -190,7 +202,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value))
+                            if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value, speed, min, max))
                                 info.SetValue(foundScript.TheScriptObject, Convert.ToDecimal(value));
                         }
                         break;
@@ -221,7 +233,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr))
+                            if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr, speed))
                                 info.SetValue(foundScript.TheScriptObject, new Vector2(arr[0], arr[1]));
                         }
                         break;
@@ -232,7 +244,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragFloat3(string.Format("##{0}", info.Name), ref arr))
+                            if (ImGuiIV.DragFloat3(string.Format("##{0}", info.Name), ref arr, speed))
                                 info.SetValue(foundScript.TheScriptObject, new Vector3(arr[0], arr[1], arr[2]));
                         }
                         break;
@@ -243,7 +255,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragFloat4(string.Format("##{0}", info.Name), ref arr))
+                            if (ImGuiIV.DragFloat4(string.Format("##{0}", info.Name), ref arr, speed))
                                 info.SetValue(foundScript.TheScriptObject, new Vector4(arr[0], arr[1], arr[2], arr[3]));
                         }
                         break;
@@ -254,7 +266,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragFloat4(string.Format("##{0}", info.Name), ref arr))
+                            if (ImGuiIV.DragFloat4(string.Format("##{0}", info.Name), ref arr, speed))
                                 info.SetValue(foundScript.TheScriptObject, new Quaternion(arr[0], arr[1], arr[2], arr[3]));
                         }
                         break;
@@ -276,7 +288,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragInt2(string.Format("##{0}", info.Name), ref arr))
+                            if (ImGuiIV.DragInt2(string.Format("##{0}", info.Name), ref arr, speed))
                                 info.SetValue(foundScript.TheScriptObject, new Size(arr[0], arr[1]));
                         }
                         break;
@@ -287,7 +299,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr))
+                            if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr, speed))
                                 info.SetValue(foundScript.TheScriptObject, new SizeF(arr[0], arr[1]));
                         }
                         break;
@@ -298,7 +310,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragInt2(string.Format("##{0}", info.Name), ref arr))
+                            if (ImGuiIV.DragInt2(string.Format("##{0}", info.Name), ref arr, speed))
                                 info.SetValue(foundScript.TheScriptObject, new Point(arr[0], arr[1]));
                         }
                         break;
@@ -309,7 +321,7 @@ namespace Manager.UI
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
-                            if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr))
+                            if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr, speed))
                                 info.SetValue(foundScript.TheScriptObject, new PointF(arr[0], arr[1]));
                         }
                         break;
@@ -683,6 +695,11 @@ namespace Manager.UI
         private static string testNotifyTitle;
         private static string testNotifyDesc;
         private static string testNotifyAdditionalContent;
+        private static string shdnMessageContent;
+        private static int shdnMessageTimeMS;
+        public static Threading.ScriptThread[] scriptThreads;
+        public delegate void TestThreadMethodDelegate();
+        public static TestThreadMethodDelegate d;
         private static void DebugTab()
         {
             /// @begin TabItem
@@ -690,14 +707,23 @@ namespace Manager.UI
             {
                 /// @separator
 
+                // Threads
+                if (ImGuiIV.TreeNode("Threads"))
+                {
+
+                    ImGuiIV.TreePop();
+                }
+
                 // General Debug
                 ImGuiIV.Spacing();
                 ImGuiIV.SeparatorText("General Debug");
                 ImGuiIV.CheckBox("Disable Key Events", ref Main.Instance.DisableKeyEvents);
                 ImGuiIV.CheckBox("Throw On Error", ref Main.Instance.ThrowOnError);
                 ImGuiIV.CheckBox("Do Not Reset ImGui Style", ref Main.Instance.DoNotResetImGuiStyle);
+                ImGuiIV.CheckBox("Allow Write To Debug Output", ref Main.Instance.AllowWriteToDebugOutput);
                 ImGuiIV.TextUnformatted("Main Thread ID: {0}", Main.Instance.MainThreadID);
                 ImGuiIV.TextUnformatted("Console Log Items: {0}", Logger.GetLogItems().Count);
+                ImGuiIV.TextUnformatted("Last Console Command: {0}", Main.Instance.Console.GetLastConsoleCommand());
 
                 ImGuiIV.Spacing();
                 ImGuiIV.SeparatorText("Test Notification and Popup");
@@ -728,6 +754,14 @@ namespace Manager.UI
                 ImGuiIV.BeginDisabled();
                 ImGuiIV.CheckBox("WereScriptHookDotNetScriptsLoadedThisSession", ref SHDNStuff.WereScriptHookDotNetScriptsLoadedThisSession);
                 ImGuiIV.EndDisabled();
+
+                ImGuiIV.Spacing();
+                ImGuiIV.TextDisabled("Message");
+                ImGuiIV.InputText("shdnMessageContent", ref shdnMessageContent);
+                ImGuiIV.DragInt("shdnMessageTimeMS", ref shdnMessageTimeMS);
+
+                if (ImGuiIV.Button("Set message"))
+                    Main.Instance.SHDN_ShowMessage(shdnMessageContent, shdnMessageTimeMS);
 
                 ImGuiIV.Spacing();
                 ImGuiIV.TextDisabled("Current Running Scripts");
@@ -798,10 +832,72 @@ namespace Manager.UI
                     ImGuiIV.TextUnformatted("Phone State: {0}", (ePhoneState)thePhoneInfo.State);
                 }
 
+                ImGuiIV.Spacing();
+                ImGuiIV.SeparatorText("Threading test");
+
+                if (scriptThreads == null)
+                {
+                    if (ImGuiIV.Button("Create test threads"))
+                    {
+                        //scriptThreads = new Threading.ScriptThread[2];
+                        //scriptThreads[0] = new Threading.ScriptThread(ScriptTestThreadLoop);
+                        //scriptThreads[1] = new Threading.ScriptThread(ScriptTestThreadLoop2);
+                    }
+                }
+                else
+                {
+                    if (ImGuiIV.Button("Launch threads"))
+                    {
+                        for (int i = 0; i < scriptThreads.Length; i++)
+                        {
+                            scriptThreads[i].Launch();
+                        }
+                    }
+                    if (ImGuiIV.Button("Abort threads"))
+                    {
+                        for (int i = 0; i < scriptThreads.Length; i++)
+                        {
+                            scriptThreads[i].Abort();
+                            scriptThreads[i] = null;
+                        }
+                        scriptThreads = null;
+                    }
+                }
+
                 /// @separator
                 ImGuiIV.EndTabItem();
             }
             /// @end TabItem
+        }
+        private static void ScriptTestThreadLoop()
+        {
+            //while (!ImGuiIV.IsKeyDown(eImGuiKey.ImGuiKey_H))
+            //{
+            //    IVSDKDotNet.Native.Natives.PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", "press H to continue", 10, true);
+            //    scriptThread.Wait(1);
+            //}
+
+            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_H, false))
+            {
+                IVSDKDotNet.Native.Natives.PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", "Hello and welcome", 3000, true);
+                scriptThreads[0].Wait(3000);
+                IVSDKDotNet.Native.Natives.PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", "this is a little test", 3000, true);
+                scriptThreads[0].Wait(3000);
+                IVSDKDotNet.Native.Natives.PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", "and it really works!", 3000, true);
+                scriptThreads[0].Wait(3000);
+            }
+        }
+        private static void ScriptTestThreadLoop2()
+        {
+            while (true)
+            {
+                int index = IVSDKDotNet.Native.Natives.CONVERT_INT_TO_PLAYERINDEX(IVSDKDotNet.Native.Natives.GET_PLAYER_ID());
+                IVSDKDotNet.Native.Natives.GET_PLAYER_CHAR(index, out int ped);
+                IVSDKDotNet.Native.Natives.GET_CHAR_COORDINATES(ped, out Vector3 pos);
+
+                IVSDKDotNet.Native.Natives.DRAW_CHECKPOINT(pos, 1f, Color.Red);
+                scriptThreads[1].Wait(1);
+            }
         }
 #endif
 
@@ -826,14 +922,14 @@ namespace Manager.UI
 
                 /// @begin Text
                 // Time since last script reload
-                TimeSpan timeSinceLastScriptReload = DateTime.Now - Main.Instance.TimeSinceLastScriptReload;
+                TimeSpan timeSinceLastScriptLoad = DateTime.Now - Main.Instance.TimeSinceLastScriptLoad;
 
-                if (timeSinceLastScriptReload.TotalSeconds < 59d)
-                    ImGuiIV.TextUnformatted("Last Script Reload Occured: {0} Second(s) ago ({1})", (int)timeSinceLastScriptReload.TotalSeconds, Main.Instance.TimeSinceLastScriptReload);
-                else if (timeSinceLastScriptReload.TotalMinutes < 61d)
-                    ImGuiIV.TextUnformatted("Last Script Reload Occured: {0} Minute(s) ago ({1})", (int)timeSinceLastScriptReload.TotalMinutes, Main.Instance.TimeSinceLastScriptReload);
+                if (timeSinceLastScriptLoad.TotalSeconds < 59d)
+                    ImGuiIV.TextUnformatted("Last Script Load Occured: {0} Second(s) ago ({1})", (int)timeSinceLastScriptLoad.TotalSeconds, Main.Instance.TimeSinceLastScriptLoad);
+                else if (timeSinceLastScriptLoad.TotalMinutes < 61d)
+                    ImGuiIV.TextUnformatted("Last Script Load Occured: {0} Minute(s) ago ({1})", (int)timeSinceLastScriptLoad.TotalMinutes, Main.Instance.TimeSinceLastScriptLoad);
                 else
-                    ImGuiIV.TextUnformatted("Last Script Reload Occured: {0} Hour(s) ago ({1})", (int)timeSinceLastScriptReload.TotalHours, Main.Instance.TimeSinceLastScriptReload);
+                    ImGuiIV.TextUnformatted("Last Script Load Occured: {0} Hour(s) ago ({1})", (int)timeSinceLastScriptLoad.TotalHours, Main.Instance.TimeSinceLastScriptLoad);
                 /// @end Text
 
                 /// @begin Separator
@@ -1073,6 +1169,10 @@ namespace Manager.UI
                                 ImGuiIV.TextUnformatted("Active Tasks");
                                 /// @end Text
 
+                                /// @begin Text
+                                ImGuiIV.TextUnformatted("Uses Threaded Tick");
+                                /// @end Text
+
                                 if (fs.RegisteredEvents != null)
                                 {
                                     /// @begin Text
@@ -1121,6 +1221,10 @@ namespace Manager.UI
 
                                 /// @begin Text
                                 ImGuiIV.TextUnformatted(Main.Instance.ActiveTasks.Count(x => x.OwnerID == fs.ID).ToString()); // Active Tasks
+                                /// @end Text
+
+                                /// @begin Text
+                                ImGuiIV.TextUnformatted((fs.TickThread != -1).ToString()); // Uses Threaded Tick
                                 /// @end Text
 
                                 if (fs.RegisteredEvents != null)
@@ -1268,7 +1372,19 @@ SKIP_TO_END:
                 /// @end Separator
 
                 /// @begin Text
-                ImGuiIV.TextUnformatted(string.Format("Active plugins: {0}", Main.Instance.ThePluginManager.ActivePlugins.Count));
+                ImGuiIV.TextUnformatted(string.Format("Active Plugins: {0}", Main.Instance.ThePluginManager.ActivePlugins.Count));
+                /// @end Text
+
+                /// @begin Text
+                // Time since last plugin reload
+                TimeSpan timeSinceLastPluginLoad = DateTime.Now - Main.Instance.ThePluginManager.TimeSinceLastPluginLoad;
+
+                if (timeSinceLastPluginLoad.TotalSeconds < 59d)
+                    ImGuiIV.TextUnformatted("Last Plugin Load Occured: {0} Second(s) ago ({1})", (int)timeSinceLastPluginLoad.TotalSeconds, Main.Instance.TimeSinceLastScriptLoad);
+                else if (timeSinceLastPluginLoad.TotalMinutes < 61d)
+                    ImGuiIV.TextUnformatted("Last Plugin Load Occured: {0} Minute(s) ago ({1})", (int)timeSinceLastPluginLoad.TotalMinutes, Main.Instance.TimeSinceLastScriptLoad);
+                else
+                    ImGuiIV.TextUnformatted("Last Plugin Load Occured: {0} Hour(s) ago ({1})", (int)timeSinceLastPluginLoad.TotalHours, Main.Instance.TimeSinceLastScriptLoad);
                 /// @end Text
 
                 /// @begin Separator
@@ -1306,7 +1422,7 @@ SKIP_TO_END:
                 else
                 {
                     /// @begin Text
-                    ImGuiIV.TextDisabled("Tip: Right-click on a plugin to open up a popup which gives you some control over the plugin.");
+                    ImGuiIV.TextDisabled("Tip: Right-click on a Plugin to open up a popup which gives you some control over the Plugin.");
                     /// @end Text
 
                     ImGuiIV.Spacing(2);
@@ -1322,32 +1438,46 @@ SKIP_TO_END:
                         if (ImGuiIV.CollapsingHeader(string.Format("{0} by {1}##IVSDKDotNetManagerPlugin", plugin.ThePluginInstance.DisplayName, plugin.ThePluginInstance.Author)))
                         {
                             // Allow plugin to draw their own stuff within this CollapsingHeader
-                            Main.Instance.ThePluginManager.RaiseOnImGuiRenderingEvent(plugin, devicePtr, ctx);
+                            Main.Instance.ThePluginManager.RaiseOnImGuiManagerRenderingEvent(plugin, devicePtr);
                         }
                         /// @end CollapsingHeader
 
                         /// @begin Popup
                         // When CollapsingHeader was right-clicked, a popup will appear.
-                        if (ImGuiIV.BeginPopupContextItem())
+                        if (ImGuiIV.BeginPopupContextItem(string.Format("##PluginContextItem{0}", plugin.ID), eImGuiPopupFlags.MouseButtonRight))
                         {
-                            if (ImGuiIV.Selectable("Unload this plugin"))
+                            if (ImGuiIV.Selectable("Unload this Plugin"))
                             {
-                                Main.Instance.ThePluginManager.UnloadPlugin(AbortReason.Manual, plugin, true);
-                            }
-                            if (ImGuiIV.Selectable("Reload this plugin"))
-                            {
-                                string fullPath = plugin.FullPath;
-                                string actualName = plugin.EntryPoint.FullName;
-                                if (Main.Instance.ThePluginManager.UnloadPlugin(AbortReason.Manual, plugin, true))
+                                if (plugin.CanPluginBeAborted(AbortReason.Manual, false))
                                 {
-                                    if (!Main.Instance.ThePluginManager.LoadAssembly(fullPath))
+                                    Main.Instance.ThePluginManager.UnloadPlugin(AbortReason.Manual, plugin, true);
+                                }
+                                else
+                                {
+                                    Main.Instance.Notification.ShowNotification(NotificationType.Info, DateTime.UtcNow.AddSeconds(5d), string.Format("Plugin {0} cannot be unloaded.", plugin.EntryPoint.FullName), "The Plugin set to never allow unloads except if it creates an error.", "PLUGIN_CANNOT_BE_ABORTED");
+                                }
+                            }
+                            if (ImGuiIV.Selectable("Reload this Plugin"))
+                            {
+                                if (plugin.CanPluginBeAborted(AbortReason.Manual, false))
+                                {
+                                    string fullPath = plugin.FullPath;
+                                    string actualName = plugin.EntryPoint.FullName;
+                                    if (Main.Instance.ThePluginManager.UnloadPlugin(AbortReason.Manual, plugin, true))
                                     {
-                                        Logger.LogWarning(string.Format("Failed to reload plugin '{0}'!", actualName));
+                                        if (!Main.Instance.ThePluginManager.LoadAssembly(fullPath))
+                                        {
+                                            Logger.LogWarning(string.Format("Failed to reload Plugin '{0}'!", actualName));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Logger.LogWarning(string.Format("Failed to unload Plugin '{0}'!", actualName));
                                     }
                                 }
                                 else
                                 {
-                                    Logger.LogWarning(string.Format("Failed to unload plugin '{0}'!", actualName));
+                                    Main.Instance.Notification.ShowNotification(NotificationType.Info, DateTime.UtcNow.AddSeconds(5d), string.Format("Plugin {0} cannot be reloaded.", plugin.EntryPoint.FullName), "The Plugin set to never allow unloads except if it creates an error.", "PLUGIN_CANNOT_BE_ABORTED");
                                 }
                             }
                             if (ImGuiIV.Selectable("Close popup"))
@@ -1611,7 +1741,8 @@ SKIP_TO_END:
                     /// @end Button
 
                     /// @begin Button
-                    Helper.AskToOpenWebPageButton(false, "Check out cool projects made by using IV-SDK .NET", Vector2.Zero, new Uri("https://github.com/topics/iv-sdk-net"));
+                    //Helper.AskToOpenWebPageButton(false, "Check out cool projects made by using IV-SDK .NET", Vector2.Zero, new Uri("https://github.com/topics/iv-sdk-net"));
+                    Helper.AskToOpenWebPageButton(false, "Check out cool projects made with IV-SDK .NET", Vector2.Zero, new Uri("https://github.com/topics/iv-sdk-net"));
                     /// @end Button
 
                     /// @separator
