@@ -194,24 +194,24 @@ namespace CLR
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance)
-			ManagerScript::s_Instance->RaiseTick();
+		if (ManagerScript::HasInstance())
+			ManagerScript::GetInstance()->RaiseTick();
 	}
 	void CLRBridge::InvokeGameLoadEvents()
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance)
-			ManagerScript::s_Instance->RaiseGameLoad();
+		if (ManagerScript::HasInstance())
+			ManagerScript::GetInstance()->RaiseGameLoad();
 	}
 	void CLRBridge::InvokeGameLoadPriorityEvents()
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance)
-			ManagerScript::s_Instance->RaiseGameLoadPriority();
+		if (ManagerScript::HasInstance())
+			ManagerScript::GetInstance()->RaiseGameLoadPriority();
 
 		// Initialize native function hooks
 		Native::Hooks::Initialize();
@@ -223,71 +223,59 @@ namespace CLR
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 		
-		if (ManagerScript::s_Instance)
-			ManagerScript::s_Instance->RaiseMountDevice();
+		if (ManagerScript::HasInstance())
+			ManagerScript::GetInstance()->RaiseMountDevice();
 	}
 	void CLRBridge::InvokeDrawingEvents()
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance)
-			ManagerScript::s_Instance->RaiseDrawing();
+		if (ManagerScript::HasInstance())
+			ManagerScript::GetInstance()->RaiseDrawing();
 	}
 	void CLRBridge::InvokeProcessCameraEvents()
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance)
-			ManagerScript::s_Instance->RaiseProcessCamera();
+		if (ManagerScript::HasInstance())
+			ManagerScript::GetInstance()->RaiseProcessCamera();
 	}
 	void CLRBridge::InvokeProcessAutomobileEvents(uint32_t* vehPtr)
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance)
-			ManagerScript::s_Instance->RaiseProcessAutomobile(UIntPtr(vehPtr));
+		if (ManagerScript::HasInstance())
+			ManagerScript::GetInstance()->RaiseProcessAutomobile(UIntPtr(vehPtr));
 	}
 	void CLRBridge::InvokeProcessPadEvents(uint32_t* padPtr)
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
+		if (!ManagerScript::HasInstance())
+			return;
 
-		if (ManagerScript::s_Instance)
+		// Disable inputs if ImGui wants text input
+		if ((ImGuiIV::DisableMouseInput || ImGuiIV::DisableKeyboardInput) && !ManagerScript::GetInstance()->IsUsingController())
 		{
-			// Disable inputs if ImGui wants text input
-			if (DisableInputs && !ManagerScript::GetInstance()->IsUsingController())
+			CPad* pad = reinterpret_cast<CPad*>(padPtr);
+
+			for (int i = 0; i < 187; i++)
 			{
-				CPad* pad = reinterpret_cast<CPad*>(padPtr);
+				tPadValues* values = &pad->m_aValues[i];
+				IVSDKDotNet::Enums::ePadControls control = (IVSDKDotNet::Enums::ePadControls)i;
 
-				for (int i = 0; i < 187; i++)
+				if (ImGuiIV::DisableMouseInput)
 				{
-					tPadValues* values = &pad->m_aValues[i];
-					IVSDKDotNet::Enums::ePadControls control = (IVSDKDotNet::Enums::ePadControls)i;
-
-					uint8_t newCurrentValue = 0;
-					uint8_t newLastValue = 0;
-
 					switch (control)
 					{
 						// All of these have to be set to 128, otherwise they can produce some ugly results
-
-						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_LEFT:
-						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_RIGHT:
-						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_UP:
-						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_DOWN:
-
 						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_LEFT:
 						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_RIGHT:
 						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_UP:
 						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_DOWN:
-
-						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_LEFT:
-						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_RIGHT:
-						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_UP:
-						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_DOWN:
 
 						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_GUN_LEFT:
 						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_GUN_RIGHT:
@@ -306,39 +294,96 @@ namespace CLR
 
 						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_AXIS_UD:
 						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_AXIS_LR:
+							values->m_nCurrentValue = 128;
+							values->m_nLastValue = 128;
+							break;
+
+						// Do nothing with these
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_LEFT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_RIGHT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_UP:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_DOWN:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_LEFT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_RIGHT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_UP:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_DOWN:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_LEFT_2:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_RIGHT_2:
+							break;
+					}
+				}
+				if (ImGuiIV::DisableKeyboardInput)
+				{
+					switch (control)
+					{
+						// All of these have to be set to 128, otherwise they can produce some ugly results
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_LEFT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_RIGHT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_UP:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_DOWN:
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_LEFT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_RIGHT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_UP:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_DOWN:
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_GUN_LEFT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_GUN_RIGHT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_GUN_UP:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_GUN_DOWN:
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_AXIS_X:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_AXIS_Y:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_RIGHT_AXIS_X:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_RIGHT_AXIS_Y:
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_KEY_STUNTJUMP:
+
+						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_AXIS_UD:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_FRONTEND_AXIS_LR:
 
 						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_LEFT_2:
 						case IVSDKDotNet::Enums::ePadControls::INPUT_VEH_MOVE_RIGHT_2:
+							values->m_nCurrentValue = 128;
+							values->m_nLastValue = 128;
+							break;
 
-							newCurrentValue = 128;
-							newLastValue = 128;
+						// Do nothing with these
+						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_LEFT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_RIGHT:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_UP:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_DOWN:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOUSE_UD:
+						case IVSDKDotNet::Enums::ePadControls::INPUT_MOUSE_LR:
+							break;
 
+						// Set all the other stuff to 0
+						default:
+							values->m_nCurrentValue = 0;
+							values->m_nLastValue = 0;
 							break;
 					}
-
-					values->m_nCurrentValue = newCurrentValue;
-					values->m_nLastValue = newLastValue;
 				}
 			}
-
-			// ManagerScript things
-			if (ManagerScript::s_Instance->SwitchImGuiForceCursorProperty)
-			{
-				ImGuiIV::ForceCursor = !ImGuiIV::ForceCursor;
-				ManagerScript::s_Instance->SwitchImGuiForceCursorProperty = false;
-			}
-
-			// Raise event for all subscribers
-			ManagerScript::s_Instance->RaiseProcessPad(UIntPtr(padPtr));
 		}
+
+		// ManagerScript things
+		if (ManagerScript::GetInstance()->SwitchImGuiForceCursorProperty)
+		{
+			ImGuiIV::ForceCursor = !ImGuiIV::ForceCursor;
+			ManagerScript::GetInstance()->SwitchImGuiForceCursorProperty = false;
+		}
+
+		// Raise event for all subscribers
+		ManagerScript::GetInstance()->RaiseProcessPad(UIntPtr(padPtr));
 	}
 	void CLRBridge::InvokeIngameStartupEvent()
 	{
 		if (CLRBridge::IsBridgeDisabled)
 			return;
 
-		if (ManagerScript::s_Instance)
-			ManagerScript::s_Instance->RaiseIngameStartup();
+		if (ManagerScript::HasInstance())
+			ManagerScript::GetInstance()->RaiseIngameStartup();
 	}
 
 	bool CLRBridge::DoEarlyChecks()

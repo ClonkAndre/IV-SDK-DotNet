@@ -633,6 +633,12 @@
     <ClInclude Include="IVEpisodes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ImGui\imspinner.h">
+      <Filter>Header Files\ImGuiIV\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_knobs.h">
+      <Filter>Header Files\ImGuiIV\ImGui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MemoryAccess.cpp">
@@ -1153,6 +1159,12 @@
     </ClCompile>
     <ClCompile Include="IVEpisodes.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_knobs.cpp">
+      <Filter>Source Files\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiIV.cpp">
+      <Filter>Source Files\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

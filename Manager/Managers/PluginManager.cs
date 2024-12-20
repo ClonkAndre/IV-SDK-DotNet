@@ -203,7 +203,7 @@ namespace Manager.Managers
             UnloadPlugins(AbortReason.Manager, false);
 
             // Load IV-SDK .NET Manager plugins
-            string[] pluginFiles = Directory.GetFiles(CLR.CLRBridge.IVSDKDotNetPluginsPath, "*.plug.dll", SearchOption.TopDirectoryOnly);
+            string[] pluginFiles = Directory.GetFiles(CLR.CLRBridge.IVSDKDotNetPluginsPath, "*.plug.dll", SearchOption.TopDirectoryOnly).OrderBy(x => Path.GetFileName(x)).ToArray();
 
             for (int i = 0; i < pluginFiles.Length; i++)
                 LoadAssembly(pluginFiles[i]);

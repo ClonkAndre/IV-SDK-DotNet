@@ -1,4 +1,4 @@
-#include "pch.h"
+#pragma once
 
 // Modified ImGui code to make it work with GTA IV from the InGameTimecycEditor Mod for GTA IV made by akifle47.
 // https://github.com/akifle47/InGameTimecycEditor
@@ -2556,6 +2556,36 @@ namespace IVSDKDotNet
 				m_bDisableControllerInput = value;
 			}
 		}
+		/// <summary>
+		/// Gets or sets if mouse input should be disabled.
+		/// </summary>
+		static property bool DisableMouseInput
+		{
+		public:
+			bool get()
+			{
+				return m_bDisableMouseInput;
+			}
+			void set(bool value)
+			{
+				m_bDisableMouseInput = value;
+			}
+		}
+		/// <summary>
+		/// Gets or sets if keyboard input should be disabled.
+		/// </summary>
+		static property bool DisableKeyboardInput
+		{
+		public:
+			bool get()
+			{
+				return m_bDisableKeyboardInput;
+			}
+			void set(bool value)
+			{
+				m_bDisableKeyboardInput = value;
+			}
+		}
 
 		/// <summary>
 		/// Gets or sets if the cursor is currently forced to be drawn on screen.
@@ -2923,6 +2953,7 @@ namespace IVSDKDotNet
 				return false;
 
 			ImGuiContext* ctx = ImGui::GetCurrentContext();
+
 			for (int i = 0; i < ctx->Windows.Size; i++)
 			{
 				ImGuiWindow* window = ctx->Windows[i];
@@ -2957,6 +2988,51 @@ namespace IVSDKDotNet
 			}
 
 			return false;
+		}
+		static int CountWindowsWhichHaveThisAdditionalFlag(String^ flag)
+		{
+			if (ImGui::GetCurrentContext() == nullptr)
+				return 0;
+
+			int count = 0;
+			ImGuiContext* ctx = ImGui::GetCurrentContext();
+
+			for (int i = 0; i < ctx->Windows.Size; i++)
+			{
+				ImGuiWindow* window = ctx->Windows[i];
+
+				// Skip if this window is the fallback window (Debug##Default)
+				if (window->IsFallbackWindow)
+					continue;
+				// Skip if this window is the dockspace host
+				if (window->Flags & ImGuiWindowFlags_DockNodeHost)
+					continue;
+				// Skip if this window is the dockspace window
+				if (window->ID == DockspaceWindowID)
+					continue;
+#if _DEBUG
+				// Skip if this window is the debug window
+				if (window->ID == IVSDKDotNetWrapperDebugWindowID)
+					continue;
+#endif // _DEBUG
+
+				// Get if window is active and a top-level window
+				bool isTopLevel = (window->Flags & (ImGuiWindowFlags_ChildWindow | ImGuiWindowFlags_Popup | ImGuiWindowFlags_Tooltip)) == 0;
+
+				if (!(isTopLevel && window->Active && !window->Collapsed && !window->Hidden))
+					continue;
+
+				ImGuiStorage* windowStorage = &window->StateStorage;
+
+				// Check if window has this additional flag
+				msclr::interop::marshal_context ctx;
+				if (windowStorage->GetBool(ImGui::GetIDWithSeed(ctx.marshal_as<const char*>("eImGuiWindowFlagsEx_" + flag), nullptr, 0)))
+				{
+					count++;
+				}
+			}
+
+			return count;
 		}
 		static int GetActiveWindowCount()
 		{
@@ -3728,6 +3804,10 @@ namespace IVSDKDotNet
 		static void ResetMouseDragDelta(eImGuiMouseButton button)
 		{
 			ImGui::ResetMouseDragDelta((ImGuiMouseButton)(int)button);
+		}
+		static void TeleportMousePos(Vector2 pos)
+		{
+			ImGui::TeleportMousePos(Vector2ToImVec2(pos));
 		}
 
 		static eImGuiMouseCursor GetMouseCursor()
@@ -5824,7 +5904,7 @@ namespace IVSDKDotNet
 		}
 
 		//-------------------------------------------------------------------------
-		// [SECTION] Extensions: Timeline
+		// [SECTION] Extension: Timeline
 		//-------------------------------------------------------------------------
 		static bool BeginTimeline(String^ label, Vector2 size, eImGuiChildFlags childFlags, eImGuiWindowFlags windowFlags)
 		{
@@ -5888,7 +5968,7 @@ namespace IVSDKDotNet
 		}
 
 		//-------------------------------------------------------------------------
-		// [SECTION] Extensions: Hex Editor - https://github.com/Teselka/imgui_hex_editor
+		// [SECTION] Extension: Hex Editor - https://github.com/Teselka/imgui_hex_editor
 		//-------------------------------------------------------------------------
 		static bool BeginHexEditor(String^ id, ImGuiIV_HexEditorState^ state, Vector2 size, eImGuiChildFlags childFlags, eImGuiWindowFlags windowFlags)
 		{
@@ -5917,279 +5997,508 @@ namespace IVSDKDotNet
 			ImGui::EndHexEditor();
 		}
 
+		//-------------------------------------------------------------------------
+		// [SECTION] Extension: Knobs - https://github.com/altschuler/imgui-knobs
+		//-------------------------------------------------------------------------
+		static bool Knob(String^ label, float% value, float min, float max, float speed, String^ format, eImGuiKnobVariant variant, float size, eImGuiKnobFlags flags, int steps, float angleMin, float angleMax)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return false;
+
+			float v = value;
+
+			msclr::interop::marshal_context ctx;
+			bool result = ImGuiKnobs::Knob(ctx.marshal_as<const char*>(label), &v, min, max, speed, ctx.marshal_as<const char*>(format), (ImGuiKnobVariant)variant, size, (ImGuiKnobFlags)flags, steps, angleMin, angleMax);
+
+			value = v;
+			return result;
+		}
+		static bool Knob(String^ label, float% value, float min, float max, float speed, String^ format, eImGuiKnobVariant variant, float size, eImGuiKnobFlags flags, int steps)
+		{
+			return Knob(label, value, min, max, speed, format, variant, size, flags, steps, -1.0F, -1.0F);
+		}
+		static bool Knob(String^ label, float% value, float min, float max, float speed, String^ format, eImGuiKnobVariant variant, float size, eImGuiKnobFlags flags)
+		{
+			return Knob(label, value, min, max, speed, format, variant, size, flags, 10, -1.0F, -1.0F);
+		}
+		static bool Knob(String^ label, float% value, float min, float max, float speed, String^ format, eImGuiKnobVariant variant, float size)
+		{
+			return Knob(label, value, min, max, speed, format, variant, size, eImGuiKnobFlags::None, 10, -1.0F, -1.0F);
+		}
+		static bool Knob(String^ label, float% value, float min, float max, float speed, String^ format, eImGuiKnobVariant variant)
+		{
+			return Knob(label, value, min, max, speed, format, variant, 0.0F, eImGuiKnobFlags::None, 10, -1.0F, -1.0F);
+		}
+		static bool Knob(String^ label, float% value, float min, float max, float speed, String^ format)
+		{
+			return Knob(label, value, min, max, speed, format, eImGuiKnobVariant::Tick, 0.0F, eImGuiKnobFlags::None, 10, -1.0F, -1.0F);
+		}
+		static bool Knob(String^ label, float% value, float min, float max, float speed)
+		{
+			return Knob(label, value, min, max, speed, "%.3f", eImGuiKnobVariant::Tick, 0.0F, eImGuiKnobFlags::None, 10, -1.0F, -1.0F);
+		}
+		static bool Knob(String^ label, float% value, float min, float max)
+		{
+			return Knob(label, value, min, max, 0.0F, "%.3f", eImGuiKnobVariant::Tick, 0.0F, eImGuiKnobFlags::None, 10, -1.0F, -1.0F);
+		}
+
+		static bool KnobInt(String^ label, int% value, int min, int max, float speed, String^ format, eImGuiKnobVariant variant, float size, eImGuiKnobFlags flags, int steps, float angleMin, float angleMax)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return false;
+
+			int v = value;
+
+			msclr::interop::marshal_context ctx;
+			bool result = ImGuiKnobs::KnobInt(ctx.marshal_as<const char*>(label), &v, min, max, speed, ctx.marshal_as<const char*>(format), (ImGuiKnobVariant)variant, size, (ImGuiKnobFlags)flags, steps, angleMin, angleMax);
+
+			value = v;
+			return result;
+		}
+		static bool KnobInt(String^ label, int% value, int min, int max, float speed, String^ format, eImGuiKnobVariant variant, float size, eImGuiKnobFlags flags, int steps)
+		{
+			return KnobInt(label, value, min, max, speed, format, variant, size, flags, steps, -1.0F, -1.0F);
+		}
+		static bool KnobInt(String^ label, int% value, int min, int max, float speed, String^ format, eImGuiKnobVariant variant, float size, eImGuiKnobFlags flags)
+		{
+			return KnobInt(label, value, min, max, speed, format, variant, size, flags, 10, -1.0F, -1.0F);
+		}
+		static bool KnobInt(String^ label, int% value, int min, int max, float speed, String^ format, eImGuiKnobVariant variant, float size)
+		{
+			return KnobInt(label, value, min, max, speed, format, variant, size, eImGuiKnobFlags::None, 10, -1.0F, -1.0F);
+		}
+		static bool KnobInt(String^ label, int% value, int min, int max, float speed, String^ format, eImGuiKnobVariant variant)
+		{
+			return KnobInt(label, value, min, max, speed, format, variant, 0.0F, eImGuiKnobFlags::None, 10, -1.0F, -1.0F);
+		}
+		static bool KnobInt(String^ label, int% value, int min, int max, float speed, String^ format)
+		{
+			return KnobInt(label, value, min, max, speed, format, eImGuiKnobVariant::Tick, 0.0F, eImGuiKnobFlags::None, 10, -1.0F, -1.0F);
+		}
+		static bool KnobInt(String^ label, int% value, int min, int max, float speed)
+		{
+			return KnobInt(label, value, min, max, speed, "%i", eImGuiKnobVariant::Tick, 0.0F, eImGuiKnobFlags::None, 10, -1.0F, -1.0F);
+		}
+		static bool KnobInt(String^ label, int% value, int min, int max)
+		{
+			return KnobInt(label, value, min, max, 0.0F, "%i", eImGuiKnobVariant::Tick, 0.0F, eImGuiKnobFlags::None, 10, -1.0F, -1.0F);
+		}
+
+		//-------------------------------------------------------------------------
+		// [SECTION] Extension: Spinner - https://github.com/dalerank/imspinner
+		//-------------------------------------------------------------------------
+		static void SpinnerBounceDots(String^ label, float radius, float thickness, Color color, float speed, size_t dots, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerBounceDots(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, dots, mode);
+		}
+		static void SpinnerFadeDots(String^ label, float radius, float thickness, Color color, float speed, int It, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerFadeDots(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, It, mode);
+		}
+		static void SpinnerScaleDots(String^ label, float radius, float thickness, Color color, float speed, int It)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerScaleDots(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, It);
+		}
+		static void SpinnerMovingDots(String^ label, float radius, float thickness, Color color, float speed, size_t dots)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerMovingDots(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, dots);
+		}
+		static void SpinnerRotateDots(String^ label, float radius, float thickness, Color color, float speed, int dots, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerRotateDots(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, dots, mode);
+		}
+		static void SpinnerTwinAng(String^ label, float radius1, float radius2, float thickness, Color color1, Color color2, float speed, float angle, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerTwinAng(ctx.marshal_as<const char*>(label), radius1, radius2, thickness, ColorToImU32(color1), ColorToImU32(color2), speed, angle, mode);
+		}
+		static void SpinnerClock(String^ label, float radius, float thickness, Color color, Color bg, float speed)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerClock(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), ColorToImU32(bg), speed);
+		}
+		static void SpinnerIngYang(String^ label, float radius, float thickness, bool reverse, float yang_delta_r, Color color1, Color color2, float speed, float angle)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerIngYang(ctx.marshal_as<const char*>(label), radius, thickness, reverse, yang_delta_r, ColorToImU32(color1), ColorToImU32(color2), speed, angle);
+		}
+		static void SpinnerBarChartSine(String^ label, float radius, float thickness, Color color, float speed, int bars, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerBarChartSine(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, bars, mode);
+		}
+		static void SpinnerTwinAng180(String^ label, float radius1, float radius2, float thickness, Color color1, Color color2, float speed, float angle, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerTwinAng180(ctx.marshal_as<const char*>(label), radius1, radius2, thickness, ColorToImU32(color1), ColorToImU32(color2), speed, angle, mode);
+		}
+		static void SpinnerIncDots(String^ label, float radius, float thickness, Color color, float speed, size_t dots)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerIncDots(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, dots);
+		}
+		static void SpinnerDots(String^ label, float% nextDot, float radius, float thickness, Color color, float speed, size_t dots, float minth, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			float nd = nextDot;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerDots(ctx.marshal_as<const char*>(label), &nd, radius, thickness, ColorToImU32(color), speed, dots, minth, mode);
+
+			nextDot = nd;
+		}
+		static void SpinnerIncScaleDots(String^ label, float radius, float thickness, Color color, float speed, size_t dots, float angle, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerIncScaleDots(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, dots, angle, mode);
+		}
+		static void SpinnerAng(String^ label, float radius, float thickness, Color color, Color bg, float speed, float angle, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerAng(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), ColorToImU32(bg), speed, angle, mode);
+		}
+		static void SpinnerFadeBars(String^ label, float w, Color color, float speed, size_t bars, bool scale)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerFadeBars(ctx.marshal_as<const char*>(label), w, ColorToImU32(color), speed, bars, scale);
+		}
+		static void SpinnerPulsar(String^ label, float radius, float thickness, Color bg, float speed, bool sequence, float angle, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerPulsar(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(bg), speed, sequence, angle, mode);
+		}
+		static void SpinnerBarChartRainbow(String^ label, float radius, float thickness, Color bg, float speed, int bars, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerBarChartRainbow(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(bg), speed, bars, mode);
+		}
+		static void SpinnerBarsRotateFade(String^ label, float rMin, float rMax, float thickness, Color color, float speed, size_t bars)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerBarsRotateFade(ctx.marshal_as<const char*>(label), rMin, rMax, thickness, ColorToImU32(color), speed, bars);
+		}
+		static void SpinnerBarsScaleMiddle(String^ label, float w, Color color, float speed, size_t bars)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerBarsScaleMiddle(ctx.marshal_as<const char*>(label), w, ColorToImU32(color), speed, bars);
+		}
+		static void SpinnerAngTwin(String^ label, float radius1, float radius2, float thickness, Color color, Color bg, float speed, float angle, size_t arcs, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerAngTwin(ctx.marshal_as<const char*>(label), radius1, radius2, thickness, ColorToImU32(color), ColorToImU32(bg), speed, angle, arcs, mode);
+		}
+		static void SpinnerTwinPulsar(String^ label, float radius, float thickness, Color color, float speed, int rings, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerTwinPulsar(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, rings, mode);
+		}
+		static void SpinnerBlocks(String^ label, float radius, float thickness, Color color, Color bg, float speed)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerBlocks(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(bg), ColorToImU32(color), speed);
+		}
+		static void SpinnerTwinBall(String^ label, float radius1, float radius2, float thickness, float b_thickness, Color ball, Color bg, float speed, size_t balls)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerTwinBall(ctx.marshal_as<const char*>(label), radius1, radius2, thickness, b_thickness, ColorToImU32(ball), ColorToImU32(bg), speed, balls);
+		}
+		static void SpinnerAngTriple(String^ label, float radius1, float radius2, float radius3, float thickness, Color c1, Color c2, Color c3, float speed, float angle)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerAngTriple(ctx.marshal_as<const char*>(label), radius1, radius2, radius3, thickness, ColorToImU32(c1), ColorToImU32(c2), ColorToImU32(c3), speed, angle);
+		}
+		static void SpinnerIncFullDots(String^ label, float radius, float thickness, Color color, float speed, size_t dots)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerIncFullDots(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, dots);
+		}
+		static void SpinnerGooeyBalls(String^ label, float radius, Color color, float speed, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerGooeyBalls(ctx.marshal_as<const char*>(label), radius, ColorToImU32(color), speed, mode);
+		}
+		static void SpinnerRotateGooeyBalls(String^ label, float radius, float thickness, Color color, float speed, int balls, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerRotateGooeyBalls(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, balls, mode);
+		}
+		static void SpinnerMoonLine(String^ label, float radius, float thickness, Color color, Color bg, float speed, float angle)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerMoonLine(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), ColorToImU32(bg), speed, angle);
+		}
+		static void SpinnerArcRotation(String^ label, float radius, float thickness, Color color, float speed, size_t arcs, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerArcRotation(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, arcs, mode);
+		}
+		static void SpinnerFluid(String^ label, float radius, Color color, float speed, int bars)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerFluid(ctx.marshal_as<const char*>(label), radius, ColorToImU32(color), speed, bars);
+		}
+		static void SpinnerArcFade(String^ label, float radius, float thickness, Color color, float speed, size_t arcs, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerArcFade(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, arcs, mode);
+		}
+		static void SpinnerFilling(String^ label, float radius, float thickness, Color color1, Color color2, float speed)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerFilling(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color1), ColorToImU32(color2), speed);
+		}
+		static void SpinnerTopup(String^ label, float radius1, float radius2, Color color, Color fg, Color bg, float speed)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerTopup(ctx.marshal_as<const char*>(label), radius1, radius2, ColorToImU32(color), ColorToImU32(fg), ColorToImU32(bg), speed);
+		}
+		static void SpinnerFadePulsar(String^ label, float radius, Color color, float speed, int rings, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerFadePulsar(ctx.marshal_as<const char*>(label), radius, ColorToImU32(color), speed, rings, mode);
+		}
+		static void SpinnerDoubleFadePulsar(String^ label, float radius, Color color, float speed)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerDoubleFadePulsar(ctx.marshal_as<const char*>(label), radius, ColorToImU32(color), speed);
+		}
+		static void SpinnerFilledArcFade(String^ label, float radius, Color color, float speed, size_t arcs, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerFilledArcFade(ctx.marshal_as<const char*>(label), radius, ColorToImU32(color), speed, arcs, mode);
+		}
+		static void SpinnerFilledArcColor(String^ label, float radius, Color color, Color bg, float speed, size_t arcs)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerFilledArcColor(ctx.marshal_as<const char*>(label), radius, ColorToImU32(color), ColorToImU32(bg), speed, arcs);
+		}
+		static void SpinnerCircleDrop(String^ label, float radius, float thickness, float thickness_drop, Color color, Color bg, float speed, float angle)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerCircleDrop(ctx.marshal_as<const char*>(label), radius, thickness, thickness_drop, ColorToImU32(color), ColorToImU32(bg), speed, angle);
+		}
+		static void SpinnerSurroundedIndicator(String^ label, float radius, float thickness, Color color, Color bg, float speed)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerSurroundedIndicator(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), ColorToImU32(bg), speed);
+		}
+		static void SpinnerTrianglesSelector(String^ label, float radius, float thickness, Color color, Color bg, float speed, size_t bars)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerTrianglesSelector(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), ColorToImU32(bg), speed, bars);
+		}
+		static void SpinnerFlowingGradient(String^ label, float radius, float thickness, Color color, Color bg, float speed, float angle)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerFlowingGradient(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), ColorToImU32(bg), speed, angle);
+		}
+		static void SpinnerRotateSegments(String^ label, float radius, float thickness, Color color, float speed, size_t arcs, size_t layers, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerRotateSegments(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, arcs, layers, mode);
+		}
+		static void SpinnerLemniscate(String^ label, float radius, float thickness, Color color, float speed, float angle)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerLemniscate(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, angle);
+		}
+		static void SpinnerRotateGear(String^ label, float radius, float thickness, Color color, float speed, size_t pins)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerRotateGear(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, pins);
+		}
+		static void SpinnerRotatedAtom(String^ label, float radius, float thickness, Color color, float speed, int elipses, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerRotatedAtom(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, elipses, mode);
+		}
+		static void SpinnerAtom(String^ label, float radius, float thickness, Color color, float speed, int elipses)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerAtom(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, elipses);
+		}
+		static void SpinnerRainbowBalls(String^ label, float radius, float thickness, Color color, float speed, int balls, int mode)
+		{
+			if (String::IsNullOrWhiteSpace(label))
+				return;
+
+			msclr::interop::marshal_context ctx;
+			ImSpinner::SpinnerRainbowBalls(ctx.marshal_as<const char*>(label), radius, thickness, ColorToImU32(color), speed, balls, mode);
+		}
+
 	private:
 		static bool m_bWasImGuiInitialized;
 		static bool m_bCanDraw;
 		static bool m_bDisableControllerInput;
+		static bool m_bDisableMouseInput;
+		static bool m_bDisableKeyboardInput;
 		static bool m_bForceCursor;
 		static int m_iActiveScriptWindows;
 	};
 
 }
+
 class ImGuiDraw
 {
 public:
-	static bool OnWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-	{
-		if (ImGuiIV::ActiveScriptWindows > 0 || ImGuiIV::ForceCursor)
-		{
-			if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-				return true;
-		}
-		else
-		{
-			// Only handle key inputs so the "IsKeyXXX" functions work even if no ImGui window is visible
-			ImGui_ImplWin32_WndProcKeyOnlyHandler(hWnd, msg, wParam, lParam);
-		}
+	static bool OnWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-		return false;
-	}
+	static void EnableControllerNavigation(ImGuiIO& io);
+	static void DisableControllerNavigation(ImGuiIO& io);
 
-	static void EnableControllerNavigation(ImGuiIO& io)
-	{
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-	}
-	static void DisableControllerNavigation(ImGuiIO& io)
-	{
-		io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
-	}
+	static void OnBeforeD3D9DeviceEndScene(IDirect3DDevice9* d3d9Device);
 
-	static void OnBeforeD3D9DeviceEndScene(IDirect3DDevice9* d3d9Device)
-	{
-		// Initialize ImGui if not initialized yet
-		InitializeImGui(d3d9Device);
+	static void OnBeforeD3D9DeviceReset(IDirect3DDevice9* d3d9Device);
+	static void OnAfterD3D9DeviceReset();
 
-		// ImGui is not initialized, return.
-		if (!ImGuiIV::WasImGuiInitialized)
-			return;
-
-		IntPtr d3d9DevicePointer = IntPtr(d3d9Device);
-
-		// Get ImGuiIO
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-		// Get the main Viewport of ImGui
-		ImGuiViewport* vp = ImGui::GetMainViewport();
-
-		// Invoke on before ImGui new frame event
-		if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
-			IVSDKDotNet::Manager::ManagerScript::s_Instance->RaiseOnBeforeNewImGuiFrame(d3d9DevicePointer);
-
-		// Rebuild the font atlas if not built yet
-		if (!io.Fonts->IsBuilt())
-		{
-			//if (io.Fonts->Build())
-				ImGui_ImplDX9_CreateFontsTexture();
-		}
-
-		// Create new ImGui Frame
-		ImGui_ImplDX9_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		// Do ImGui stuff in here
-
-		DoDockspace();
-
-		// Script/Internal Drawing
-		if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
-		{
-			ImDrawList* drawList = ImGui::GetBackgroundDrawList();
-			IVSDKDotNet::Manager::ManagerScript::s_Instance->RaiseOnD3D9Frame(d3d9DevicePointer, ImGuiIV_DrawingContext(drawList, true));
-		}
-
-		if (ImGuiIV::DoesAnyWindowHasThisAdditionalFlag("DisableControllerInput"))
-		{
-			ImGuiIV::DisableControllerInput = true;
-			EnableControllerNavigation(io);
-		}
-		else
-		{
-			ImGuiIV::DisableControllerInput = false;
-			DisableControllerNavigation(io);
-		}
-
-		// Get the amount of active windows
-		ImGuiIV::ActiveScriptWindows = ImGuiIV::GetActiveWindowCount();
-
-#if _DEBUG
-		static bool debugWindowOpened = false;
-
-		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_F9, false))
-			debugWindowOpened = !debugWindowOpened;
-
-		if (debugWindowOpened)
-		{
-			ImGuiContext* ctx = ImGui::GetCurrentContext();
-
-			ImGui::ShowDebugLogWindow(&debugWindowOpened);
-
-			ImGui::Begin("IV-SDK .NET Wrapper Debug", &debugWindowOpened, ImGuiWindowFlags_AlwaysAutoResize);
-
-			// Store ID of the debug window so we can exclude this window in certain functions if we have to
-			ImGuiIV::IVSDKDotNetWrapperDebugWindowID = ImGui::GetCurrentWindowRead()->ID;
-
-			// Dear ImGui Input
-			ImGui::SeparatorText("Dear ImGui");
-			ImGui::BeginDisabled();
-			ImGui::Checkbox("Wants Mouse Input", &io.WantCaptureMouse);
-			ImGui::Checkbox("Wants Keyboard Input", &io.WantCaptureKeyboard);
-			ImGui::Checkbox("Wants Text Input", &io.WantTextInput);
-			ImGui::EndDisabled();
-
-			ImGui::SeparatorText("Opened Windows");
-			ImGui::Text("Script Window Count: %s", std::to_string(ImGuiIV::ActiveScriptWindows).c_str());
-			ImGui::Text("All Window Count: %s", std::to_string(ctx->Windows.Size).c_str());
-
-			ImGui::SetWindowPos(ImVec2(10.0F, vp->Size.y - (ImGui::GetWindowSize().y + 250.0F)), ImGuiCond_FirstUseEver);
-			ImGui::End();
-		}
-#endif // _DEBUG
-
-		// Do ImGui stuff in here
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		// Disable inputs for ImGui if there are any active script windows or if the cursor should be forced to be shown on screen.
-		if (ImGuiIV::ActiveScriptWindows > 0 || ImGuiIV::ForceCursor)
-		{
-			// Draw a mouse cursor on screen
-			io.MouseDrawCursor = true;
-
-			// Disable inputs
-			CLR::CLRBridge::DisableInputs = true;
-		}
-		else
-		{
-			// Reset all
-			io.MouseDrawCursor = false;
-			CLR::CLRBridge::DisableInputs = false;
-		}
-
-		// End ImGui Frame and draw
-		ImGui::EndFrame();
-		ImGui::Render();
-		ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-	}
-
-	static void OnBeforeD3D9DeviceReset(IDirect3DDevice9* d3d9Device)
-	{
-		// Initialize ImGui if not initialized yet
-		InitializeImGui(d3d9Device);
-
-		// Invalidate device objects for ImGui
-		ImGui_ImplDX9_InvalidateDeviceObjects();
-	}
-	static void OnAfterD3D9DeviceReset()
-	{
-		// Create device objects for ImGui
-		ImGui_ImplDX9_CreateDeviceObjects();
-	}
-
-	static void UninitializeImGui()
-	{
-		if (!ImGuiIV::WasImGuiInitialized)
-			return;
-
-		// Set ImGui status as uninitialized
-		//ImGuiStates::SetImGuiStatusAsWasUninitialized();
-
-		// Shutdown ImGui stuff
-		ImGui_ImplWin32_Shutdown();
-		ImGui_ImplDX9_Shutdown();
-		ImGui::DestroyContext();
-	}
+	static void UninitializeImGui();
 
 private:
-	static void InitializeImGui(IDirect3DDevice9* d3d9Device)
-	{
-		if (!d3d9Device)
-		{
-			Logger::LogDebug("[ImGuiIV] Could not initialize ImGui as the device passed into the init func was nullptr!");
-			return;
-		}
-		if (ImGuiIV::WasImGuiInitialized)
-			return;
+	static void InitializeImGui(IDirect3DDevice9* d3d9Device);
+	static void DoDockspace();
 
-		Logger::LogDebug("[ImGuiIV] Beginning to initialize ImGui...");
-
-		D3DDEVICE_CREATION_PARAMETERS creationParams;
-		d3d9Device->GetCreationParameters(&creationParams);
-
-		// Setup ImGui stuff
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.IniFilename = NULL;
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Controller Navigation
-
-		// Initialize the win32 backend
-		ImGui_ImplWin32_Init(creationParams.hFocusWindow);
-
-		// Initialize the dx9 backend
-		ImGui_ImplDX9_Init(d3d9Device);
-
-		// Add font
-		String^ fontFile = CLR::CLRBridge::IVSDKDotNetDataPath + "\\public-sans.regular.ttf";
-		msclr::interop::marshal_context ctx;
-		io.Fonts->AddFontFromFileTTF(ctx.marshal_as<const char*>(fontFile), 15.5F);
-		
-		// Set flag
-		ImGuiIV::WasImGuiInitialized = true;
-
-		Logger::LogDebug("[ImGuiIV] Finished initializing ImGui.");
-	}
-	static void DoDockspace()
-	{
-		static bool opt_fullscreen = true;
-		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode;
-
-		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-		// because it would be confusing to have two docking targets within each others.
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
-		if (opt_fullscreen)
-		{
-			const ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImGui::SetNextWindowPos(viewport->WorkPos);
-			ImGui::SetNextWindowSize(viewport->WorkSize);
-			ImGui::SetNextWindowViewport(viewport->ID);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-		}
-		else
-		{
-			dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
-		}
-
-		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
-		// and handle the pass-thru hole, so we ask Begin() to not render a background.
-		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-			window_flags |= ImGuiWindowFlags_NoBackground;
-
-		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-		// all active windows docked into it will lose their parent and become undocked.
-		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
-		ImGui::Begin("IVSDKDotNetMainDockSpace", nullptr, window_flags);
-
-		// Store ID of the dockspace window so we can exclude this window in certain functions if we have to
-		ImGuiIV::DockspaceWindowID = ImGui::GetCurrentWindowRead()->ID;
-
-		if (opt_fullscreen)
-			ImGui::PopStyleVar(2);
-
-		// Submit the DockSpace
-		ImGuiIO& io = ImGui::GetIO();
-		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-		{
-			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-		}
-
-		ImGui::End();
-	}
+private:
+	static inline bool m_bDidResetInputStates;
 };
