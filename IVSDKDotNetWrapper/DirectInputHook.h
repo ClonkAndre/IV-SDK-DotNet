@@ -10,14 +10,14 @@ static HRESULT __stdcall DInput8DeviceGetDeviceStateHook(IDirectInputDevice8* de
 {
 	HRESULT hr = g_sDInput8DeviceGetDeviceStateOriginal(device, cbData, lpvData);
 	
-	if ((cbData == sizeof(DIMOUSESTATE) || cbData == sizeof(DIMOUSESTATE2)) && CLR::CLRBridge::DisableInputs)
+	if ((cbData == sizeof(DIMOUSESTATE) || cbData == sizeof(DIMOUSESTATE2)) && ImGuiIV::DisableMouseInput)
 		device->Unacquire();
 
 	return hr;
 }
 static HRESULT __stdcall DInput8DeviceAcquireHook(IDirectInputDevice8* device)
 {
-	if (CLR::CLRBridge::DisableInputs)
+	if (ImGuiIV::DisableMouseInput)
 		return DI_OK;
 
 	return g_sDInput8DeviceAcquireOriginal(device);

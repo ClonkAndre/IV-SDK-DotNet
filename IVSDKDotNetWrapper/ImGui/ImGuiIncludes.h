@@ -10,3 +10,5 @@
 #include "imgui_impl_dx9_shader.h"
 #include "imgui_extensions.h"
 #include "imgui_hex.h"
+#include "imgui_knobs.h"
+#include "imspinner.h"

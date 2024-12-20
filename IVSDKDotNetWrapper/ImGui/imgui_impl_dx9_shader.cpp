@@ -300,6 +300,12 @@ bool ImGui_ImplDX9_CreateFontsTexture()
         pixels = (unsigned char*)dst_start;
     }
 #endif
+    
+    // If texture already exists then we release it first
+    if (bd->FontTexture)
+    {
+        bd->FontTexture->Release();
+    }
 
     // Upload texture to graphics system
     bd->FontTexture = nullptr;

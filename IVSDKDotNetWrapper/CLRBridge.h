@@ -83,23 +83,6 @@ namespace CLR
 		}
 
 		/// <summary>
-		/// Will get set to true when any ImGui window is open and it wants text input.
-		/// </summary>
-		static property bool DisableInputs
-		{
-		public:
-			bool get()
-			{
-				return m_bDisableInputs;
-			}
-		internal:
-			void set(bool value)
-			{
-				m_bDisableInputs = value;
-			}
-		}
-
-		/// <summary>
 		/// Gets the current version of IV-SDK .NET
 		/// </summary>
 		static property String^ Version
@@ -281,10 +264,9 @@ namespace CLR
 		static bool m_bCanTerminate = false;
 		static bool m_bShuttingDown = false;
 		static bool m_bDisableScriptHookDotNetLoading = false;
-		static bool m_bDisableInputs = false;
 		static bool m_bHasMinHookInitialized = false;
 
-		static String^ m_sVersion = "1.8";
+		static String^ m_sVersion = "1.8.1";
 		static String^ m_sLogFileName;
 		static String^ m_sIVSDKDotNetPath;
 		static String^ m_sIVSDKDotNetManagerPath;

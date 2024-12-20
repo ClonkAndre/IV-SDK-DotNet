@@ -860,7 +860,7 @@ namespace Manager
             AbortScripts(ScriptType.IVSDKDotNet, AbortReason.Manager, false);
 
             // Load IV-SDK .NET scripts
-            string[] scriptFiles = Directory.GetFiles(CLR.CLRBridge.IVSDKDotNetScriptsPath, "*.ivsdk.dll", SearchOption.TopDirectoryOnly);
+            string[] scriptFiles = Directory.GetFiles(CLR.CLRBridge.IVSDKDotNetScriptsPath, "*.ivsdk.dll", SearchOption.TopDirectoryOnly).OrderBy(x => Path.GetFileName(x)).ToArray();
 
             for (int i = 0; i < scriptFiles.Length; i++)
                 LoadAssembly(scriptFiles[i]);
@@ -889,7 +889,7 @@ namespace Manager
             AbortScripts(ScriptType.ScriptHookDotNet, AbortReason.Manager, false);
 
             // Load ScriptHookDotNet scripts
-            string[] scriptFiles = Directory.GetFiles(shdnScriptsPath, "*.net.dll", SearchOption.TopDirectoryOnly);
+            string[] scriptFiles = Directory.GetFiles(shdnScriptsPath, "*.net.dll", SearchOption.TopDirectoryOnly).OrderBy(x => Path.GetFileName(x)).ToArray();
 
             for (int i = 0; i < scriptFiles.Length; i++)
                 LoadAssembly(scriptFiles[i]);

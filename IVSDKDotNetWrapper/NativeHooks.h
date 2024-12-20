@@ -153,9 +153,6 @@ namespace IVSDKDotNet
 			static void NATIVE_AWARD_ACHIEVEMENT(CNativeCallContext* pNativeContext);
 			static void NATIVE_ENABLE_CHASE_AUDIO(CNativeCallContext* pNativeContext);
 
-			static bool NATIVE_IS_WORLD_POINT_WITHIN_BRAIN_ACTIVATION_RANGE(CNativeCallContext* pNativeContext);
-			static bool NATIVE_IS_OBJECT_WITHIN_BRAIN_ACTIVATION_RANGE(CNativeCallContext* pNativeContext);
-
 		};
 
 	}

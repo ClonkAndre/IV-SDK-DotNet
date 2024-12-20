@@ -6664,6 +6664,7 @@ namespace IVSDKDotNet
 		public enum class eImGuiWindowFlagsEx : uint32_t
 		{
 			None = 0,
+
 			/// <summary>
 			/// This makes the window not being able to enable the mouse cursor.
 			/// </summary>
@@ -6673,6 +6674,15 @@ namespace IVSDKDotNet
 			/// Useful for when you want to navigate through your ImGui window with a controller.
 			/// </summary>
 			DisableControllerInput = 1 << 1,
+
+			/// <summary>
+			/// When set, this tries to keep the mouse input active.
+			/// </summary>
+			DoNotDisableMouseInput = 1 << 2,
+			/// <summary>
+			/// When set, this tries to keep the keyboard input active.
+			/// </summary>
+			DoNotDisableKeyboardInput = 1 << 3,
 		};
 
 		/// <summary>
@@ -7401,6 +7411,35 @@ namespace IVSDKDotNet
 			/// Separate resulting hex editor lines with carriage return
 			/// </summary>
 			ImGuiHexEditorClipboardFlags_Multiline = 1 << 0,
+		};
+
+		/// <summary>
+		/// Flags for ImGuiIV.Knob()
+		/// </summary>
+		[FlagsAttribute]
+		public enum class eImGuiKnobFlags
+		{
+			None = 0,
+			NoTitle = 1 << 0,
+			NoInput = 1 << 1,
+			ValueTooltip = 1 << 2,
+			DragHorizontal = 1 << 3,
+			DragVertical = 1 << 4,
+		};
+
+		/// <summary>
+		/// Flags for ImGuiIV.Knob()
+		/// </summary>
+		[FlagsAttribute]
+		public enum class eImGuiKnobVariant
+		{
+			Tick = 1 << 0,
+			Dot = 1 << 1,
+			Wiper = 1 << 2,
+			WiperOnly = 1 << 3,
+			WiperDot = 1 << 4,
+			Stepped = 1 << 5,
+			Space = 1 << 6,
 		};
 
 	}
