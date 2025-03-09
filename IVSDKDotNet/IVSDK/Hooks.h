@@ -286,7 +286,7 @@ namespace plugin
 	{
 		void GetTexture(CSprite2d(__stdcall* funcPtr)(char*))
 		{
-			injector::MakeJMP(AddressSetter::Get(0x21DA10, 0xD300), funcPtr);
+			injector::MakeJMP(AddressSetter::Get("Hooks", "GetTexture"), funcPtr);
 		}
 	}
 };

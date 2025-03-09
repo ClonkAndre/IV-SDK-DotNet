@@ -36,32 +36,32 @@ enum eLineOfSightFlags
 class CWorld
 {
 public:
-	static inline CPlayerInfo** Players = (CPlayerInfo**)AddressSetter::Get(0xDA7008, 0xD00498); // Players[32]
-	static inline int32_t& PlayerInFocus = AddressSetter::GetRef<int32_t>(0xB1CC68, 0xB2E0B4);
+	static inline CPlayerInfo** Players = (CPlayerInfo**)AddressSetter::Get("CWorld", "Players"); // Players[32]
+	static inline int32_t& PlayerInFocus = AddressSetter::GetRef<int32_t>("CWorld", "PlayerInFocus");
 
 	static void Add(CEntity* entity, bool bUnk)
 	{
-		((void(__cdecl*)(CEntity*, bool))(AddressSetter::Get(0x417350, 0x3CC640)))(entity, bUnk);
+		((void(__cdecl*)(CEntity*, bool))(AddressSetter::Get("CWorld", "Add")))(entity, bUnk);
 	}
 	
 	static void Remove(CEntity* entity, bool bUnk)
 	{
-		((void(__cdecl*)(CEntity*, bool))(AddressSetter::Get(0x4173C0, 0x3CC6B0)))(entity, bUnk);
+		((void(__cdecl*)(CEntity*, bool))(AddressSetter::Get("CWorld", "Remove")))(entity, bUnk);
 	}
 
 	static void RemoveFallenPeds()
 	{
-		((void(__cdecl*)())(AddressSetter::Get(0x419270, 0x3CE740)))();
+		((void(__cdecl*)())(AddressSetter::Get("CWorld", "RemoveFallenPeds")))();
 	}
 
 	static void RemoveFallenCars()
 	{
-		((void(__cdecl*)())(AddressSetter::Get(0x4194F0, 0x3CE9C0)))();
+		((void(__cdecl*)())(AddressSetter::Get("CWorld", "RemoveFallenCars")))();
 	}
 
 	static void RemoveFallenObjects()
 	{
-		((void(__cdecl*)())(AddressSetter::Get(0x419750, 0x3CEC20)))();
+		((void(__cdecl*)())(AddressSetter::Get("CWorld", "RemoveFallenObjects")))();
 	}
 
 	static bool ProcessLineOfSight(CVector* source, CVector* target, uint32_t* pUnk, tLineOfSightResults* pResults, uint32_t nFlags, uint32_t nUnk1, uint32_t nUnk2, uint32_t nSeeThroughShootThrough, uint32_t nUnk4)
@@ -69,6 +69,6 @@ public:
 		// zmenu uses CWorld::ProcessLineOfSight(v, v2, 0, &ret, 142, 1, 0, 2, 4)
 		// see/shoot 1 -> do see through check
 		// see/shoot 2 -> do shoot through check
-		return ((uint32_t(__cdecl*)(CVector*, CVector*, uint32_t*, tLineOfSightResults*, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t))(AddressSetter::Get(0x596D80, 0x52A400)))(source, target, pUnk, pResults, nFlags, nUnk1, nUnk2, nSeeThroughShootThrough, nUnk4);
+		return ((uint32_t(__cdecl*)(CVector*, CVector*, uint32_t*, tLineOfSightResults*, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t))(AddressSetter::Get("CWorld", "ProcessLineOfSight")))(source, target, pUnk, pResults, nFlags, nUnk1, nUnk2, nSeeThroughShootThrough, nUnk4);
 	}
 };

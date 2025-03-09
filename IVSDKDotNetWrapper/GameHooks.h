@@ -55,6 +55,7 @@ namespace IVSDKDotNet
 			delegate HookCallback<bool> RegisterNativeDelegate(uint32_t% hash, IntPtr% funcPtr);
 
 			delegate HookCallback<bool> IsNetworkGameRunningDelegate();
+			delegate HookCallback<bool> IsThisMachineTheServerDelegate();
 
 		public:
 			static event AddSceneLightDelegate^ OnAddSceneLight;
@@ -66,6 +67,7 @@ namespace IVSDKDotNet
 			static event RegisterNativeDelegate^ OnRegisterNativeNoChecks;
 
 			static event IsNetworkGameRunningDelegate^ OnIsNetworkGameRunning;
+			static event IsThisMachineTheServerDelegate^ OnIsThisMachineTheServer;
 
 		internal:
 			static HookCallback<int> RaiseOnAddSceneLight(uint32_t a1, uint32_t nLightType, uint32_t nFlags, CVector* vDir, CVector* vTanDir, CVector* vPos, CVector* vColor, float fIntensity, int32_t texHash, int32_t txdSlot, float fRange, float fInnerConeAngle, float fOuterConeAngle, float fVolIntensity, float fVolSizeScale, int32_t interiorId, uint32_t a15, uint32_t nID)
@@ -127,6 +129,10 @@ namespace IVSDKDotNet
 			{
 				return OnIsNetworkGameRunning();
 			}
+			static HookCallback<bool> RaiseOnIsThisMachineTheServer()
+			{
+				return OnIsThisMachineTheServer();
+			}
 
 		};
 
@@ -136,135 +142,81 @@ namespace IVSDKDotNet
 class UnmanagedGameHooks
 {
 public:
-	static bool Initialize()
+	static void Initialize()
 	{
-		originalAddSceneLight = nullptr;
-		originalRenderCorona = nullptr;
+		TryCreateHook("UnmanagedGameHooks", "AddSceneLight",			&AddSceneLightHook,				(void**)&originalAddSceneLight);
+		TryCreateHook("UnmanagedGameHooks", "RenderCorona",				&RenderCoronaHook,				(void**)&originalRenderCorona);
+		TryCreateHook("UnmanagedGameHooks", "GetTrafficLightState1",	&GetTrafficLightState1,			(void**)&originalGetTrafficLightState1);
+		TryCreateHook("UnmanagedGameHooks", "GetTrafficLightState2",	&GetTrafficLightState2,			(void**)&originalGetTrafficLightState2);
+		TryCreateHook("UnmanagedGameHooks", "RegisterNative",			&RegisterNativeHook,			(void**)&originalRegisterNative);
+		TryCreateHook("UnmanagedGameHooks", "RegisterNativeNoChecks",	&RegisterNativeNoChecksHook,	(void**)&originalRegisterNativeNoChecks);
+		TryCreateHook("UnmanagedGameHooks", "IsNetworkGameRunning",		&IsNetworkGameRunning,			(void**)&originalIsNetworkGameRunning);
+		TryCreateHook("UnmanagedGameHooks", "IsThisMachineTheServer",	&IsThisMachineTheServer,		(void**)&originalIsThisMachineTheServer);
 
+		//// AddExplosion func hook
+		//if (!originalAddExplosion)
+		//{
+		//	auto scan = hook::pattern(std::string_view("55 8B EC 83 E4 F0 83 EC 64 53 56 57 BB"));
+
+		//	assert(!scan.empty());
+
+		//	mhStatus = MH_CreateHook((LPVOID*)scan.get_first(0), &AddExplosionHook, (void**)&originalAddExplosion);
+
+		//	if (mhStatus != MH_OK)
+		//	{
+		//		Logger::LogError(String::Format("[GameHooks] Could not hook AddExplosion func! Details: {0}", gcnew String(MH_StatusToString(mhStatus))));
+		//		return false;
+		//	}
+		//}
+
+		Logger::LogDebug("[GameHooks] Done!");
+	}
+
+private:
+	static bool TryCreateHook(const std::string& section, const std::string& key, LPVOID detour, LPVOID* ppOriginal)
+	{
 		MH_STATUS mhStatus;
 
-		// AddSceneLight func hook
-		if (!originalAddSceneLight)
+		// Figure out if config is a pattern or a regular memory address
+		if (AddressSetter::IsConfigPattern(section, key))
 		{
-			mhStatus = MH_CreateHook((LPVOID*)AddressSetter::Get(0x4C59F0, 0x62DF00), &AddSceneLightHook, (void**)&originalAddSceneLight);
-
-			if (mhStatus != MH_OK)
-			{
-				Logger::LogError(String::Format("[GameHooks] Could not hook AddSceneLight func! Details: {0}", gcnew String(MH_StatusToString(mhStatus))));
-				return false;
-			}
-
-			Logger::LogDebug("[GameHooks] Hooked AddSceneLight func.");
-		}
-
-		// RenderCorona func hook
-		if (!originalRenderCorona)
-		{
-			mhStatus = MH_CreateHook((LPVOID*)AddressSetter::Get(0x3E1970, 0x66F7B0), &RenderCoronaHook, (void**)&originalRenderCorona);
-
-			if (mhStatus != MH_OK)
-			{
-				Logger::LogError(String::Format("[GameHooks] Could not hook RenderCorona func! Details: {0}", gcnew String(MH_StatusToString(mhStatus))));
-				return false;
-			}
-
-			Logger::LogDebug("[GameHooks] Hooked RenderCorona func.");
-		}
-
-		// GetTrafficLightState1 func hook
-		if (!originalGetTrafficLightState1)
-		{
-			// First patterns test (Works for 1070 and 1080 other versions are yet to be tested)
-			// 80 7C 24 04 00 8B 44 24 08 74 28      (FUNC: 80 7C 24 04 00 8B 44 24 08 74) // 1070: 0x88C6F0
-			auto scan = hook::pattern(std::string_view("80 7C 24 04 00 8B 44 24 08 74 28"));
+			auto scan = hook::pattern(AddressSetter::GetConfigString(section, key));
 
 			assert(!scan.empty());
 
-			mhStatus = MH_CreateHook((LPVOID*)scan.get_first(0), &GetTrafficLightState1, (void**)&originalGetTrafficLightState1);
+			mhStatus = MH_CreateHook((LPVOID*)scan.get_first(0), detour, ppOriginal);
 
-			if (mhStatus != MH_OK)
-			{
-				Logger::LogError(String::Format("[GameHooks] Could not hook GetTrafficLightState1 func! Details: {0}", gcnew String(MH_StatusToString(mhStatus))));
-				return false;
-			}
 		}
-
-		// GetTrafficLightState2 func hook
-		if (!originalGetTrafficLightState2)
+		else
 		{
-			// First patterns test (Works for 1070 and 1080 other versions are yet to be tested)
-			// 80 7C 24 04 00 74 2F      (FUNC: 80 7C 24 04 00 74 2F) // 1070: 0x88C750
-			auto scan = hook::pattern(std::string_view("80 7C 24 04 00 74 2F"));
-
-			assert(!scan.empty());
-
-			mhStatus = MH_CreateHook((LPVOID*)scan.get_first(0), &GetTrafficLightState2, (void**)&originalGetTrafficLightState2);
-
-			if (mhStatus != MH_OK)
-			{
-				Logger::LogError(String::Format("[GameHooks] Could not hook GetTrafficLightState2 func! Details: {0}", gcnew String(MH_StatusToString(mhStatus))));
-				return false;
-			}
+			mhStatus = MH_CreateHook((LPVOID*)AddressSetter::Get(section, key), detour, ppOriginal);
 		}
 
-		// RegisterNative func hook
-		if (!originalRegisterNative)
+		// Validate
+		if (mhStatus != MH_OK)
 		{
-			mhStatus = MH_CreateHook((LPVOID*)AddressSetter::Get(0x1A6200, 0x225620), &RegisterNativeHook, (void**)&originalRegisterNative);
-
-			if (mhStatus != MH_OK)
-			{
-				Logger::LogError(String::Format("[GameHooks] Could not hook RegisterNative func! Details: {0}", gcnew String(MH_StatusToString(mhStatus))));
-				return false;
-			}
-
-			Logger::LogDebug("[GameHooks] Hooked RegisterNative func.");
+			Logger::LogError(String::Format("[GameHooks] Could not hook {0} func! Details: {1}", gcnew String(key.c_str()), gcnew String(MH_StatusToString(mhStatus))));
+			return false;
 		}
 
-		// RegisterNativeNoChecks func hook
-		if (!originalRegisterNativeNoChecks)
-		{
-			mhStatus = MH_CreateHook((LPVOID*)AddressSetter::Get(0x1A7720, 0x226B40), &RegisterNativeNoChecksHook, (void**)&originalRegisterNativeNoChecks);
-
-			if (mhStatus != MH_OK)
-			{
-				Logger::LogError(String::Format("[GameHooks] Could not hook RegisterNativeNoChecks func! Details: {0}", gcnew String(MH_StatusToString(mhStatus))));
-				return false;
-			}
-
-			Logger::LogDebug("[GameHooks] Hooked RegisterNativeNoChecks func.");
-		}
-
-		// IsNetworkGameRunning func hook
-		if (!originalIsNetworkGameRunning)
-		{
-			auto scan = hook::pattern(std::string_view("53 8A 1D ? ? ? ? 84 DB 74"));
-
-			assert(!scan.empty());
-
-			mhStatus = MH_CreateHook((LPVOID*)scan.get_first(0), &IsNetworkGameRunning, (void**)&originalIsNetworkGameRunning);
-
-			if (mhStatus != MH_OK)
-			{
-				Logger::LogError(String::Format("[GameHooks] Could not hook IsNetworkGameRunning func! Details: {0}", gcnew String(MH_StatusToString(mhStatus))));
-				return false;
-			}
-		}
-
+		Logger::LogDebug(String::Format("[GameHooks] Hooked {0} func.", gcnew String(key.c_str())));
 		return true;
 	}
 
 private:
-	static inline AddSceneLightT* originalAddSceneLight;
-	static inline RenderCoronaT* originalRenderCorona;
+	static inline AddSceneLightT* originalAddSceneLight = nullptr;
+	static inline RenderCoronaT* originalRenderCorona = nullptr;
 
-	static inline GetTrafficLightStateT* originalGetTrafficLightState1;
-	static inline GetTrafficLightStateT* originalGetTrafficLightState2;
+	static inline GetTrafficLightStateT* originalGetTrafficLightState1 = nullptr;
+	static inline GetTrafficLightStateT* originalGetTrafficLightState2 = nullptr;
 
-	static inline RegisterNativeT* originalRegisterNative;
-	static inline RegisterNativeNoChecksT* originalRegisterNativeNoChecks;
+	static inline RegisterNativeT* originalRegisterNative = nullptr;
+	static inline RegisterNativeNoChecksT* originalRegisterNativeNoChecks = nullptr;
 
-	static inline IsNetworkGameRunningT* originalIsNetworkGameRunning;
+	static inline IsNetworkGameRunningT* originalIsNetworkGameRunning = nullptr;
+	static inline IsThisMachineTheServerT* originalIsThisMachineTheServer = nullptr;
+
+	//static inline AddExplosionT* originalAddExplosion;
 
 private:
 	static inline int __cdecl AddSceneLightHook(uint32_t a1, uint32_t nLightType, uint32_t nFlags, CVector* vDir, CVector* vTanDir, CVector* vPos, CVector* vColor, float fIntensity, int32_t texHash, int32_t txdSlot, float fRange, float fInnerConeAngle, float fOuterConeAngle, float fVolIntensity, float fVolSizeScale, int32_t interiorId, uint32_t a15, uint32_t nID)
@@ -362,5 +314,22 @@ private:
 		// Call original function if allowed to
 		return originalIsNetworkGameRunning();
 	}
+	static inline bool __cdecl IsThisMachineTheServer()
+	{
+		// Raise managed event
+		IVSDKDotNet::Hooking::HookCallback<bool> callback = IVSDKDotNet::Hooking::GameHooks::RaiseOnIsThisMachineTheServer();
+
+		if (callback.InterceptCall)
+			return callback.CustomReturnValue;
+
+		// Call original function if allowed to
+		return originalIsThisMachineTheServer();
+	}
+
+	//static inline bool __cdecl AddExplosionHook(int a1, int a2, int a3, int a4, int a5, char a6, int a7, int a8, float a9, int a10, int a11, int a12, int a13, int a14, char a15, char a16, int a17, char a18, int a19)
+	//{
+	//	a18 = 1; // Always set to 1 to prevent crashes when manually specifying that the current session is a network game
+	//	return originalAddExplosion(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19);
+	//}
 
 };

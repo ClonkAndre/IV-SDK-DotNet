@@ -5,6 +5,19 @@ namespace IVSDKDotNet
 	public ref class IVTask
 	{
 	public:
+		IVTask^ Clone()
+		{
+			if (!NativeBaseTask)
+				return nullptr;
+
+			CTask* task = NativeBaseTask->Clone();
+			
+			if (task)
+				return gcnew IVTask(task);
+
+			return nullptr;
+		}
+
 		/// <summary>
 		/// Gets if this is a simple, or a complex task.
 		/// </summary>

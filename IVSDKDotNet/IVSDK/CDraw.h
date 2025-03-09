@@ -111,10 +111,10 @@ public:
 
 	float CalculateAspectRatio(bool bUnk) // bUnk = 1 forces it to 1.777... if m_bForceHudWidescreen byte is non-zero
 	{
-		return ((float(__thiscall*)(CDraw*, bool))(AddressSetter::Get(0x3B4110, 0x49BA00)))(this, bUnk);
+		return ((float(__thiscall*)(CDraw*, bool))(AddressSetter::Get("CDraw", "CalculateAspectRatio")))(this, bUnk);
 	}
 };
 VALIDATE_OFFSET(CDraw, m_pRenderPhases, 0x38);
 VALIDATE_OFFSET(CDraw, m_bForceHudWidescreen, 0x453);
 
-static CDraw& Scene = AddressSetter::GetRef<CDraw>(0xCF47E0, 0xDF8280); // scene? renderer? rw to rage wrapper? some core rage rendering class? just called it CDraw, Scene & GlobalScene for now
+static CDraw& Scene = AddressSetter::GetRef<CDraw>("CDraw", "Scene"); // scene? renderer? rw to rage wrapper? some core rage rendering class? just called it CDraw, Scene & GlobalScene for now

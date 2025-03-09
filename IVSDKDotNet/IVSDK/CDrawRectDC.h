@@ -6,7 +6,7 @@ public:
 	// also works in main menu
 	CDrawRectDC(CRect* rect, CRGBA color)
 	{
-		((void(__thiscall*)(CDrawRectDC*, CRect*, CRGBA))(AddressSetter::Get(0x3C1110, 0x461780)))(this, rect, color);
+		((void(__thiscall*)(CDrawRectDC*, CRect*, CRGBA))(AddressSetter::Get("CDrawRectDC", "CDrawRectDC")))(this, rect, color);
 	}
 };
 VALIDATE_SIZE(CDrawRectDC, 0x1C);

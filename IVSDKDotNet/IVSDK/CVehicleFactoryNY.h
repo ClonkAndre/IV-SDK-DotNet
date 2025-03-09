@@ -17,4 +17,4 @@ public:
 
 };
 
-static CVehicleFactoryNY*& VehicleFactory = AddressSetter::GetRef<CVehicleFactoryNY*>(0x11F5514, 0xE52DE8);
+static CVehicleFactoryNY*& VehicleFactory = AddressSetter::GetRef<CVehicleFactoryNY*>("CVehicleFactory", "VehicleFactory");

@@ -129,8 +129,7 @@ namespace CLR
 			Logger::LogDebug("[DirectInputHook] Done!");
 		if (XInputHook::Initialize())
 			Logger::LogDebug("[XInputHook] Done!");
-		if (UnmanagedGameHooks::Initialize())
-			Logger::LogDebug("[GameHooks] Done!");
+		UnmanagedGameHooks::Initialize();
 
 		// FindWindow(L"grcWindow", L"GTAIV")
 		originalWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr((HWND)TheGTAProcess->MainWindowHandle.ToPointer(), GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WndProcHook)));

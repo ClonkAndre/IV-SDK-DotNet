@@ -15,7 +15,7 @@ namespace rage
 		// this doesn't actually seem to load textures? it always creates a dummy one, maybe there's another function that does that
 		grcTexturePC(char* sName, uint32_t* pUnk = nullptr)
 		{
-			((void(__stdcall*)(grcTexturePC*, char*, uint32_t*))(AddressSetter::Get(0x22AF70, 0x220A0)))(this, sName, pUnk);
+			((void(__stdcall*)(grcTexturePC*, char*, uint32_t*))(AddressSetter::Get("grcTexturePC", "grcTexturePC")))(this, sName, pUnk);
 		}
 	};
 	VALIDATE_SIZE(grcTexturePC, 0x50);

@@ -44,65 +44,65 @@ VALIDATE_OFFSET(sRadarTrace, m_pProperties, 0x5C);
 class CRadar
 {
 public:
-	static inline auto RadarTrace = (sRadarTrace**)AddressSetter::Get(0xD9ED50, 0xDE83A0); // RadarTrace[1500]
-	static inline auto& m_pRadarRingBack = AddressSetter::GetRef<CSprite2d>(0xB1C9B0, 0xB35F50);
-	static inline auto& m_pRadarRingFront = AddressSetter::GetRef<CSprite2d>(0xB1C9B4, 0xB35F54);
-	static inline auto RadarBlipSprites = (CSprite2d**)AddressSetter::Get(0xD9EB20, 0xDE8170); // RadarBlipSprites[128]
-	static inline auto& iNumCreatedBlipSprites = AddressSetter::GetRef<int>(0xD9ED48, 0xDE8398);
-	static inline auto& fRange = AddressSetter::GetRef<float>(0xD9ED40, 0xDE8390);
-	static inline auto& vec2DRadarOrigin = AddressSetter::GetRef<CVector2D>(0xCC831C, 0xCFC9EC);
+	static inline auto RadarTrace = (sRadarTrace**)AddressSetter::Get("CRadar", "RadarTrace"); // RadarTrace[1500]
+	static inline auto& m_pRadarRingBack = AddressSetter::GetRef<CSprite2d>("CRadar", "m_pRadarRingBack");
+	static inline auto& m_pRadarRingFront = AddressSetter::GetRef<CSprite2d>("CRadar", "m_pRadarRingFront");
+	static inline auto RadarBlipSprites = (CSprite2d**)AddressSetter::Get("CRadar", "RadarBlipSprites"); // RadarBlipSprites[128]
+	static inline auto& iNumCreatedBlipSprites = AddressSetter::GetRef<int>("CRadar", "iNumCreatedBlipSprites");
+	static inline auto& fRange = AddressSetter::GetRef<float>("CRadar", "fRange");
+	static inline auto& vec2DRadarOrigin = AddressSetter::GetRef<CVector2D>("CRadar", "vec2DRadarOrigin");
 
-	static inline auto& iCentreBlip = AddressSetter::GetRef<int32_t>(0xB1C984, 0xB35F24);
-	static inline auto& iNorthBlip = AddressSetter::GetRef<int32_t>(0xB1C98C, 0xB35F2C);
-	static inline auto& iSimpleBlip = AddressSetter::GetRef<int32_t>(0xB1C97C, 0xB35F1C);
-	static inline auto& iBlipHovering = AddressSetter::GetRef<int32_t>(0xB1C974, 0xB35F14);
+	static inline auto& iCentreBlip = AddressSetter::GetRef<int32_t>("CRadar", "iCentreBlip");
+	static inline auto& iNorthBlip = AddressSetter::GetRef<int32_t>("CRadar", "iNorthBlip");
+	static inline auto& iSimpleBlip = AddressSetter::GetRef<int32_t>("CRadar", "iSimpleBlip");
+	static inline auto& iBlipHovering = AddressSetter::GetRef<int32_t>("CRadar", "iBlipHovering");
 
 	static void DrawBlips()
 	{
-		((void(__cdecl*)())(AddressSetter::Get(0x412170, 0x472D30)))();
+		((void(__cdecl*)())(AddressSetter::Get("CRadar", "DrawBlips")))();
 	}
 	static void DrawBlipNames()
 	{
-		((void(__cdecl*)())(AddressSetter::Get(0x40D7F0, 0x46E340)))();
+		((void(__cdecl*)())(AddressSetter::Get("CRadar", "DrawBlipNames")))();
 	}
 	static void DrawFrameFront()
 	{
-		((void(__cdecl*)())(AddressSetter::Get(0x40BB20, 0x46C670)))();
+		((void(__cdecl*)())(AddressSetter::Get("CRadar", "DrawFrameFront")))();
 	}
 	static void DrawFrameBack()
 	{
-		((void(__cdecl*)())(AddressSetter::Get(0x40A380, 0x46AEE0)))();
+		((void(__cdecl*)())(AddressSetter::Get("CRadar", "DrawFrameBack")))();
 	}
 	static void DrawRoute(bool bMenu)
 	{
-		((void(__cdecl*)(bool))(AddressSetter::Get(0x46F490, 0x4920D0)))(bMenu);
+		((void(__cdecl*)(bool))(AddressSetter::Get("CRadar", "DrawRoute")))(bMenu);
 	}
 	static int32_t ConvertUniqueBlipToActualBlip(int32_t Index)
 	{
-		return ((int32_t(__cdecl*)(int32_t))(AddressSetter::Get(0x40AA80, 0x46B5E0)))(Index);
+		return ((int32_t(__cdecl*)(int32_t))(AddressSetter::Get("CRadar", "ConvertUniqueBlipToActualBlip")))(Index);
 	}
 	static int32_t CreateBlip(bool unk, int32_t BlpType, CVector* vecPosition, int32_t DispFlag, char* pScriptName)
 	{
-		return ((int32_t(__cdecl*)(bool, int32_t, CVector*, int32_t, char*))(AddressSetter::Get(0x412750, 0x473310)))(unk, BlpType, vecPosition, DispFlag, pScriptName);
+		return ((int32_t(__cdecl*)(bool, int32_t, CVector*, int32_t, char*))(AddressSetter::Get("CRadar", "CreateBlip")))(unk, BlpType, vecPosition, DispFlag, pScriptName);
 	}
 	static void SetBlipParameter(int paramId, int32_t Index, int value)
 	{
-		((void(__cdecl*)(int, int32_t, int))(AddressSetter::Get(0x410DC0, 0x471980)))(paramId, Index, value);
+		((void(__cdecl*)(int, int32_t, int))(AddressSetter::Get("CRadar", "SetBlipParameter")))(paramId, Index, value);
 	}
 	// 0 - scale
 	// 16 - rotation
 	static void SetBlipParameter(int paramId, int32_t Index, float value)
 	{
-		((void(__cdecl*)(int, int32_t, float))(AddressSetter::Get(0x40E720, 0x46F270)))(paramId, Index, value);
+		((void(__cdecl*)(int, int32_t, float))(AddressSetter::Get("CRadar", "SetBlipParameter_2")))(paramId, Index, value);
 	}
 	static bool RemoveBlip(int32_t Index, bool isScriptHandle)
 	{
-		return ((bool(__cdecl*)(int32_t, bool))(AddressSetter::Get(0x40E620, 0x46F170)))(Index, isScriptHandle);
+		return ((bool(__cdecl*)(int32_t, bool))(AddressSetter::Get("CRadar", "RemoveBlip")))(Index, isScriptHandle);
 	}
 	static bool IsBlipIdInUse(int32_t Index)
 	{
-		return ((bool(__cdecl*)(int32_t))(AddressSetter::Get(0x40E600, 0x46F150)))(Index);
+		return ((bool(__cdecl*)(int32_t))(AddressSetter::Get("CRadar", "IsBlipIdInUse")))(Index);
 	}
 };
 
-auto RadarBlipSpriteFilenames = (const char**)AddressSetter::Get(0xC844F8, 0xC91690); // RadarBlipSpriteFilenames[130]
+auto RadarBlipSpriteFilenames = (const char**)AddressSetter::Get("CRadar", "RadarBlipSpriteFilenames"); // RadarBlipSpriteFilenames[130]

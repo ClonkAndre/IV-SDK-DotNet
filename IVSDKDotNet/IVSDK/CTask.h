@@ -7,6 +7,10 @@ public:
 	}
 	void operator delete(void*, size_t, uint32_t) {};
 
+	CTask* Clone()
+	{
+		return ((CTask*(__thiscall*)(CTask*))(*(void***)this)[1])(this);
+	}
 	bool IsSimple()
 	{
 		return ((bool(__thiscall*)(CTask*))(*(void***)this)[2])(this);

@@ -13,20 +13,20 @@ public:
 
 	CPool(int size, char* name, int entrySize)
 	{
-		((void(__thiscall*)(CPool*, int, char*, int))(AddressSetter::Get(0x872F10, 0x3F3DB0)))(this, size, name, entrySize);
+		((void(__thiscall*)(CPool*, int, char*, int))(AddressSetter::Get("CPool", "CPool")))(this, size, name, entrySize);
 	}
 
 	T* GetAt(uint32_t nHandle)
 	{
-		return ((T*(__thiscall*)(CPool*, uint32_t))(AddressSetter::Get(0x26700, 0x92E00)))(this, nHandle);
+		return ((T*(__thiscall*)(CPool*, uint32_t))(AddressSetter::Get("CPool", "GetAt")))(this, nHandle);
 	}
 	uint32_t GetIndex(T* pObject)
 	{
-		return ((uint32_t(__thiscall*)(CPool*, void*))(AddressSetter::Get(0x47230, 0xAFF10)))(this, pObject);
+		return ((uint32_t(__thiscall*)(CPool*, void*))(AddressSetter::Get("CPool", "GetIndex")))(this, pObject);
 	}
 	void* New()
 	{
-		return ((void*(__thiscall*)(CPool*))(AddressSetter::Get(0x39CB0, 0x9F3A0)))(this);
+		return ((void*(__thiscall*)(CPool*))(AddressSetter::Get("CPool", "New")))(this);
 	}
 
 	// helper functions

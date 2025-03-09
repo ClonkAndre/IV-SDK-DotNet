@@ -10,70 +10,73 @@ struct building_swap_struct
 class CTheScripts
 {
 public:
-	static inline auto BuildingSwapArray = (building_swap_struct*)AddressSetter::Get(0xD801E0, 0xDFD080); // BuildingSwapArray[25]
+	static inline auto BuildingSwapArray = (building_swap_struct*)AddressSetter::Get("CTheScripts", "BuildingSwapArray"); // BuildingSwapArray[25]
 
-	static inline auto& m_aGlobalVariables = AddressSetter::GetRef<uint32_t*>(0x1449AEC, 0x1394FC0); // m_aGlobalVariables[65535]?
-	static inline auto& m_pCurrentThread = AddressSetter::GetRef<uint32_t>(0x1449AE0, 0x1394FB4);
+	static inline auto& m_aGlobalVariables = AddressSetter::GetRef<uint32_t*>("CTheScripts", "m_aGlobalVariables"); // m_aGlobalVariables[65535]?
+	static inline auto& m_pCurrentThread = AddressSetter::GetRef<uint32_t>("CTheScripts", "m_pCurrentThread");
 
 	static uint32_t FindNativeAddress(uint32_t nativeHash)
 	{
-		__try
+		uint32_t funcPtr = AddressSetter::Get("CTheScripts", "FindNativeAddress");
+		
+		uint32_t nativePtr;
+		_asm
 		{
-			uint32_t funcPtr = AddressSetter::Get(0x1A76D0, 0x226AF0);
-			uint32_t nativePtr;
-			_asm
-			{
-				push esi
-				mov esi, nativeHash
-				call funcPtr
-				pop esi
-				mov nativePtr, eax
-			}
+			push esi
+			mov esi, nativeHash
+			call funcPtr
+			pop esi
+			mov nativePtr, eax
+		}
 
-			return nativePtr;
-		}
-		__except (EXCEPTION_EXECUTE_HANDLER)
-		{
-			return 0;
-		}
+		return nativePtr;
+
+		//__try
+		//{
+
+		//}
+		//__except (EXCEPTION_EXECUTE_HANDLER)
+		//{
+		//	return 0;
+		//}
 	}
 	static int RegisterNativeNoChecks(uint32_t hash, LPVOID funcPtr)
 	{
-		return ((int (__stdcall*)(uint32_t, LPVOID))(AddressSetter::Get(0x1A7720, 0x226B40)))(hash, funcPtr);
+		return ((int (__stdcall*)(uint32_t, LPVOID))(AddressSetter::Get("CTheScripts", "RegisterNativeNoChecks")))(hash, funcPtr);
 	}
 	static int RegisterNative(uint32_t hash, LPVOID funcPtr)
 	{
-		return ((int(__cdecl*)(uint32_t, LPVOID))(AddressSetter::Get(0x1A6200, 0x225620)))(hash, funcPtr);
+		return ((int(__cdecl*)(uint32_t, LPVOID))(AddressSetter::Get("CTheScripts", "RegisterNative")))(hash, funcPtr);
 	}
 
 	static const char* GetNameOfCurrentScript()
 	{
-		return ((const char* (__cdecl*)())(AddressSetter::Get(0x404240, 0x4AE820)))();
+		return ((const char* (__cdecl*)())(AddressSetter::Get("CTheScripts", "GetNameOfCurrentScript")))();
 	}
 
 	static bool IsPlayerOnAMission()
 	{
-		return ((bool(__cdecl*)())(AddressSetter::Get(0x403E00, 0x4AE3E0)))();
+		return ((bool(__cdecl*)())(AddressSetter::Get("CTheScripts", "IsPlayerOnAMission")))();
 	}
 	static void GivePedScriptedTask(int handle, CTask* task, int unk)
 	{
-		((void(__cdecl*)(int, CTask*, int))(AddressSetter::Get(0x4067A0, 0x4B0DF0)))(handle, task, unk);
+		((void(__cdecl*)(int, CTask*, int))(AddressSetter::Get("CTheScripts", "GivePedScriptedTask")))(handle, task, unk);
 	}
 	static void AddToBuildingSwapArray(CBuilding* pBildng, int32_t OldModIndx, int32_t NewModIndx)
 	{
-		((void(__cdecl*)(CBuilding*, int32_t, int32_t))(AddressSetter::Get(0x404490, 0x4AEA70)))(pBildng, OldModIndx, NewModIndx);
+		((void(__cdecl*)(CBuilding*, int32_t, int32_t))(AddressSetter::Get("CTheScripts", "AddToBuildingSwapArray")))(pBildng, OldModIndx, NewModIndx);
 	}
 	static void UndoBuildingSwaps()
 	{
-		return ((void(__cdecl*)())(AddressSetter::Get(0x4045D0, 0x4AEBB0)))();
+		return ((void(__cdecl*)())(AddressSetter::Get("CTheScripts", "UndoBuildingSwaps")))();
 	}
 	static void Save()
 	{
-		return ((void(__cdecl*)())(AddressSetter::Get(0x406530, 0x4B0B80)))();
+		return ((void(__cdecl*)())(AddressSetter::Get("CTheScripts", "Save")))();
 	}
 	static void Load()
 	{
-		return ((void(__cdecl*)())(AddressSetter::Get(0x409AF0, 0x4B40F0)))();
+		return ((void(__cdecl*)())(AddressSetter::Get("CTheScripts", "Load")))();
 	}
 };
 

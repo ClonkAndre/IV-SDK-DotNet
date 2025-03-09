@@ -99,12 +99,12 @@ public:
 
 	void SetAnimGroup(char* group)
 	{
-		((void(__thiscall*)(CBaseModelInfo*, char*))(AddressSetter::Get(0x58F3F0, 0x63D400)))(this, group);
+		((void(__thiscall*)(CBaseModelInfo*, char*))(AddressSetter::Get("CBaseModelInfo", "SetAnimGroup")))(this, group);
 	}
 
 	void SetTexDictionary(char* txd)
 	{
-		((void(__thiscall*)(CBaseModelInfo*, char*))(AddressSetter::Get(0x58EE30, 0x63CE40)))(this, txd);
+		((void(__thiscall*)(CBaseModelInfo*, char*))(AddressSetter::Get("CBaseModelInfo", "SetTexDictionary")))(this, txd);
 	}
 };
 VALIDATE_SIZE(CBaseModelInfo, 0x60);
@@ -198,25 +198,25 @@ public:
 	// sets center of mass and mass in the phBound based on the center of mass param and fMass off handling
 	void SetHandlingParams(tHandlingData* pHandling, CVector* pCenterOfMass)
 	{
-		((void(__thiscall*)(CBaseModelInfo*, tHandlingData*, CVector*))(AddressSetter::Get(0x7E7D70, 0x6477B0)))(this, pHandling, pCenterOfMass);
+		((void(__thiscall*)(CBaseModelInfo*, tHandlingData*, CVector*))(AddressSetter::Get("CVehicleModelInfo", "SetHandlingParams")))(this, pHandling, pCenterOfMass);
 	}
 
 	static int GetNumberOfSeats(int modelIndex)
 	{
-		return ((int(__cdecl*)(int))(AddressSetter::Get(0x7E6A60, 0x6464A0)))(modelIndex);
+		return ((int(__cdecl*)(int))(AddressSetter::Get("CVehicleModelInfo", "GetNumberOfSeats")))(modelIndex);
 	}
 	
 	void ChooseVehicleColour(uint8_t* color1, uint8_t* color2, uint8_t* color3, uint8_t* color4, int startingColor)
 	{
-		((void(__thiscall*)(CVehicleModelInfo*, uint8_t*, uint8_t*, uint8_t*, uint8_t*, int))(AddressSetter::Get(0x7E6930, 0x646370)))(this, color1, color2, color3, color4, startingColor);
+		((void(__thiscall*)(CVehicleModelInfo*, uint8_t*, uint8_t*, uint8_t*, uint8_t*, int))(AddressSetter::Get("CVehicleModelInfo", "ChooseVehicleColour")))(this, color1, color2, color3, color4, startingColor);
 	}
 
 	void SetSecondaryAnimGroup(char* group)
 	{
-		((void(__thiscall*)(CVehicleModelInfo*, char*))(AddressSetter::Get(0x7EAC80, 0x64A6C0)))(this, group);
+		((void(__thiscall*)(CVehicleModelInfo*, char*))(AddressSetter::Get("CVehicleModelInfo", "SetSecondaryAnimGroup")))(this, group);
 	}
 
-	static inline CRGBA* ms_vehicleColourTable = (CRGBA*)AddressSetter::Get(0x12D65A8, 0x1001BE0); // ms_vehicleColourTable[196]
+	static inline CRGBA* ms_vehicleColourTable = (CRGBA*)AddressSetter::Get("CVehicleModelInfo", "ms_vehicleColourTable"); // ms_vehicleColourTable[196]
 };
 VALIDATE_SIZE(CVehicleModelInfo, 0x3D0);
 VALIDATE_OFFSET(CVehicleModelInfo, m_nHandlingId, 0x8C);
@@ -230,26 +230,26 @@ VALIDATE_OFFSET(CVehicleModelInfo, m_nAnimIndex2, 0xC0);
 class CModelInfo
 {
 public:
-	static inline CBaseModelInfo** ms_modelInfoPtrs = (CBaseModelInfo**)AddressSetter::Get(0x11F73B0, 0xE2C168); // ms_modelInfoPtrs[31000]
+	static inline CBaseModelInfo** ms_modelInfoPtrs = (CBaseModelInfo**)AddressSetter::Get("CModelInfo", "ms_modelInfoPtrs"); // ms_modelInfoPtrs[31000]
 
 	static CBaseModelInfo* GetModelInfo(uint32_t hashKey, int* index)
 	{
-		return ((CBaseModelInfo*(__cdecl*)(uint32_t, int*))(AddressSetter::Get(0x58AAE0, 0x4DD2D0)))(hashKey, index);
+		return ((CBaseModelInfo*(__cdecl*)(uint32_t, int*))(AddressSetter::Get("CModelInfo", "GetModelInfo")))(hashKey, index);
 	}
 	static CPedModelInfo* AddPedModel(char* modelName)
 	{
-		return ((CPedModelInfo*(__cdecl*)(char*))(AddressSetter::Get(0x58AE90, 0x4DD680)))(modelName);
+		return ((CPedModelInfo*(__cdecl*)(char*))(AddressSetter::Get("CModelInfo", "AddPedModel")))(modelName);
 	}
 	static CVehicleModelInfo* AddVehicleModel(char* modelName)
 	{
-		return ((CVehicleModelInfo*(__cdecl*)(char*))(AddressSetter::Get(0x58AE20, 0x4DD610)))(modelName);
+		return ((CVehicleModelInfo*(__cdecl*)(char*))(AddressSetter::Get("CModelInfo", "AddVehicleModel")))(modelName);
 	}
 	static CBaseModelInfo* AddAtomicModel(char* modelName)
 	{
-		return ((CBaseModelInfo*(__cdecl*)(char*))(AddressSetter::Get(0x58AC60, 0x4DD450)))(modelName);
+		return ((CBaseModelInfo*(__cdecl*)(char*))(AddressSetter::Get("CModelInfo", "AddAtomicModel")))(modelName);
 	}
 	static void Initialise()
 	{
-		return ((void(__cdecl*)())(AddressSetter::Get(0x58AFF0, 0x4DD7B0)))();
+		return ((void(__cdecl*)())(AddressSetter::Get("CModelInfo", "Initialise")))();
 	}
 };

@@ -116,15 +116,15 @@ class CTimeCycle
 public:
 	TimeCycleParams mParams[11][9]; // 11 = Number of hours, 9 = Number of weathers
 
-	static inline CTimeCycle* sTheTimeCycle = (CTimeCycle*)AddressSetter::Get(0xDF6080, 0xFF1150);
-	static inline char*& sTimecycleModifierPath = AddressSetter::GetRef<char*>(0x48A651, 0x63AD31); // platform:/data
+	static inline CTimeCycle* sTheTimeCycle = (CTimeCycle*)AddressSetter::Get("CTimeCycle", "sTheTimeCycle");
+	static inline char*& sTimecycleModifierPath = AddressSetter::GetRef<char*>("CTimeCycle", "sTimecycleModifierPath"); // platform:/data
 
 	static void Initialise()
 	{
-		return ((void(__cdecl*)())(AddressSetter::Get(0x48AD70, 0x63B450)))();
+		return ((void(__cdecl*)())(AddressSetter::Get("CTimeCycle", "Initialise")))();
 	}
 	static void InitModifiers()
 	{
-		return ((void(__cdecl*)())(AddressSetter::Get(0x48A650, 0x63AD30)))();
+		return ((void(__cdecl*)())(AddressSetter::Get("CTimeCycle", "InitModifiers")))();
 	}
 };

@@ -14,4 +14,4 @@ public:
 };
 // VALIDATE_OFFSET(audRadioAudioEntity, m_nCurrentRadioStation, 0x78);
 
-audRadioAudioEntity& RadioAudioEntity = AddressSetter::GetRef<audRadioAudioEntity>(0xDA3700, 0xD71F48);
+audRadioAudioEntity& RadioAudioEntity = AddressSetter::GetRef<audRadioAudioEntity>("audRadioAudioEntity", "RadioAudioEntity");

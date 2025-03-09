@@ -48,15 +48,15 @@ public:
 	
 	static bool IsPlayerActive(int id)
 	{
-		return ((bool(__cdecl*)(int))(AddressSetter::Get(0x75E230, 0x70B010)))(id);
+		return ((bool(__cdecl*)(int))(AddressSetter::Get("CPlayerInfo", "IsPlayerActive")))(id);
 	}
 	static CPlayerInfo* GetPlayerInfo(uint32_t nPlayerId)
 	{
-		return ((CPlayerInfo*(__cdecl*)(uint32_t))(AddressSetter::Get(0x417F20, 0x3CD210)))(nPlayerId);
+		return ((CPlayerInfo*(__cdecl*)(uint32_t))(AddressSetter::Get("CPlayerInfo", "GetPlayerInfo")))(nPlayerId);
 	}
 	void KillPlayerOutsideWorld()
 	{
-		((void(__thiscall*)(CPlayerInfo*))(AddressSetter::Get(0x478F7D, 0x4B59D0)))(this);
+		((void(__thiscall*)(CPlayerInfo*))(AddressSetter::Get("CPlayerInfo", "KillPlayerOutsideWorld")))(this);
 	}
 };
 VALIDATE_SIZE(CPlayerInfo, 0x5C0);
@@ -75,15 +75,15 @@ VALIDATE_OFFSET(CPlayerInfo, m_nControlFlags, 0x4BC);
 
 inline CVector& FindPlayerCentreOfWorld(CVector* v)
 {
-	return ((CVector&(__cdecl*)(CVector*))(AddressSetter::Get(0x418100, 0x3CD3F0)))(v);
+	return ((CVector&(__cdecl*)(CVector*))(AddressSetter::Get("CPlayerInfo", "FindPlayerCentreOfWorld")))(v);
 }
 
 inline CPed* FindPlayerPed()
 {
-	return ((CPed*(__cdecl*)())(AddressSetter::Get(0x417F40, 0x3CD230)))();
+	return ((CPed*(__cdecl*)())(AddressSetter::Get("CPlayerInfo", "FindPlayerPed")))();
 }
 
 inline CVehicle* FindPlayerVehicle()
 {
-	return ((CVehicle*(__cdecl*)())(AddressSetter::Get(0x478890, 0x4B52F0)))();
+	return ((CVehicle*(__cdecl*)())(AddressSetter::Get("CPlayerInfo", "FindPlayerVehicle")))();
 }

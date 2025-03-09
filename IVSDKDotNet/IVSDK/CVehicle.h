@@ -601,50 +601,50 @@ public:
 
 	void SetRemap(int id)
 	{
-		((void(__thiscall*)(CVehicle*, int))(AddressSetter::Get(0x5C7580, 0x4F14F0)))(this, id);
+		((void(__thiscall*)(CVehicle*, int))(AddressSetter::Get("CVehicle", "SetRemap")))(this, id);
 	}
 	int GetRemapIndex()
 	{
-		return ((int(__thiscall*)(CVehicle*))(AddressSetter::Get(0x5C7560, 0x4F14D0)))(this);
+		return ((int(__thiscall*)(CVehicle*))(AddressSetter::Get("CVehicle", "GetRemapIndex")))(this);
 	}
 	void MakeDirty()
 	{
-		((void(__thiscall*)(CVehicle*))(AddressSetter::Get(0x5D3E90, 0x4FE1E0)))(this);
+		((void(__thiscall*)(CVehicle*))(AddressSetter::Get("CVehicle", "MakeDirty")))(this);
 	}
 	void GetVehicleLightsStatus()
 	{
-		((void(__thiscall*)(CVehicle*))(AddressSetter::Get(0x5C63D0, 0x4F0340)))(this);
+		((void(__thiscall*)(CVehicle*))(AddressSetter::Get("CVehicle", "GetVehicleLightsStatus")))(this);
 	}
 	// returns VehicleStruct part enum
 	int GetSeatPartId(int seat)
 	{
-		return ((int(__cdecl*)(CVehicle*, int))(AddressSetter::Get(0x5C6EF0, 0x4F0E60)))(this, seat);
+		return ((int(__cdecl*)(CVehicle*, int))(AddressSetter::Get("CVehicle", "GetSeatPartId")))(this, seat);
 	}
 	// see eVehicleCameraType
 	bool GetCameraType(int* type)
 	{
-		return ((bool(__stdcall*)(CVehicle*, int*))(AddressSetter::Get(0x5D68F0, 0x679B50)))(this, type);
+		return ((bool(__stdcall*)(CVehicle*, int*))(AddressSetter::Get("CVehicle", "GetCameraType")))(this, type);
 	}
 	void ProcessRespot(float delta)
 	{
-		((void(__thiscall*)(CVehicle*, float))(AddressSetter::Get(0x5D3A10, 0x4FDD60)))(this, delta);
+		((void(__thiscall*)(CVehicle*, float))(AddressSetter::Get("CVehicle", "ProcessRespot")))(this, delta);
 	}
 	void ProcessAirControl(void* unk)
 	{
-		((void(__thiscall*)(CVehicle*, void*))(AddressSetter::Get(0x7FD450, 0x651580)))(this, unk);
+		((void(__thiscall*)(CVehicle*, void*))(AddressSetter::Get("CVehicle", "ProcessAirControl")))(this, unk);
 	}
 	bool IsDriver(CPed* pPed)
 	{
-		return ((bool(__thiscall*)(CVehicle*, CPed*))(AddressSetter::Get(0x5C5D60, 0x4EFCD0)))(this, pPed);
+		return ((bool(__thiscall*)(CVehicle*, CPed*))(AddressSetter::Get("CVehicle", "IsDriver")))(this, pPed);
 	}
 
 	static float HeightAboveCeiling(float height, int flightModel)
 	{
-		return ((float(__stdcall*)(float, int))(AddressSetter::Get(0x5C6100, 0x4F0070)))(height, flightModel);
+		return ((float(__stdcall*)(float, int))(AddressSetter::Get("CVehicle", "HeightAboveCeiling")))(height, flightModel);
 	}
 	static bool UsesSiren(int32_t id)
 	{
-		return ((bool(__cdecl*)(int32_t))(AddressSetter::Get(0x5C5F50, 0x4EFEC0)))(id);
+		return ((bool(__cdecl*)(int32_t))(AddressSetter::Get("CVehicle", "UsesSiren")))(id);
 	}
 };
 VALIDATE_SIZE(CVehicle, 0x20D0);

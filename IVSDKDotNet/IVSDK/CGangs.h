@@ -16,14 +16,14 @@ VALIDATE_SIZE(CGangInfo, 0x14);
 class CGangs
 {
 public:
-	static inline auto Gang = (CGangInfo*)AddressSetter::Get(0xE1DDA0, 0x128C050); // Gang[12]
+	static inline auto Gang = (CGangInfo*)AddressSetter::Get("CGangs", "Gang"); // Gang[12]
 
 	static bool Save()
 	{
-		return ((int(__cdecl*)())(AddressSetter::Get(0x48EC50, 0x7EB6C0)))();
+		return ((int(__cdecl*)())(AddressSetter::Get("CGangs", "Save")))();
 	}
 	static bool Load()
 	{
-		return ((int(__cdecl*)())(AddressSetter::Get(0x48EC80, 0x7EB6F0)))();
+		return ((int(__cdecl*)())(AddressSetter::Get("CGangs", "Load")))();
 	}
 };

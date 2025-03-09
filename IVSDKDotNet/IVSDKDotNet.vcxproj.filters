@@ -413,5 +413,8 @@
     <ClInclude Include="IVSDK\CEpisodes.h">
       <Filter>Header Files\IVSDK</Filter>
     </ClInclude>
+    <ClInclude Include="INI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

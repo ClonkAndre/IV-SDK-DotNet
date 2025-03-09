@@ -31,7 +31,7 @@ namespace rage
 
 		uint8_t pad3[0x1C];									// 314-330
 
-		static inline char*& sTexturePath = AddressSetter::GetRef<char*>(0x882791, 0x8A2741); // platform:/textures/skydome
+		static inline char*& sTexturePath = AddressSetter::GetRef<char*>("SkyDome", "sTexturePath"); // platform:/textures/skydome
 	};
 	VALIDATE_SIZE(SkyDome, 0x330);
 	VALIDATE_OFFSET(SkyDome, m_sSkyhatMiniNoise, 0x10);
@@ -43,4 +43,4 @@ namespace rage
 	VALIDATE_OFFSET(SkyDome, m_nDrawStencil, 0x30C);
 	VALIDATE_OFFSET(SkyDome, m_nDrawSunOnly, 0x310);
 }
-rage::SkyDome*& TheSkyDome = AddressSetter::GetRef<rage::SkyDome*>(0x130B040, 0x13366A8);
+rage::SkyDome*& TheSkyDome = AddressSetter::GetRef<rage::SkyDome*>("SkyDome", "TheSkyDome");

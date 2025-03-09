@@ -22,18 +22,18 @@ VALIDATE_OFFSET(CZone, PopulationType, 0x20);
 class CTheZones
 {
 public:
-	static inline auto& TotalNumberOfMapZones = AddressSetter::GetRef<uint32_t>(0xE05CA4, 0x1001F14);
-	static inline auto MapZoneArray = (CZone*)AddressSetter::Get(0xE05D10, 0x1001F80);
+	static inline auto& TotalNumberOfMapZones = AddressSetter::GetRef<uint32_t>("CTheZones", "TotalNumberOfMapZones");
+	static inline auto MapZoneArray = (CZone*)AddressSetter::Get("CTheZones", "MapZoneArray");
 
-	static inline auto& ZonesRevealed = AddressSetter::GetRef<uint32_t>(0xE05C90, 0x1001F00);
-	static inline auto ZonesVisited = (bool*)AddressSetter::Get(0xE05CA8, 0x1001F18); // ZonesVisited[100] ZonesVisited[10][10]
+	static inline auto& ZonesRevealed = AddressSetter::GetRef<uint32_t>("CTheZones", "ZonesRevealed");
+	static inline auto ZonesVisited = (bool*)AddressSetter::Get("CTheZones", "ZonesVisited"); // ZonesVisited[100] ZonesVisited[10][10]
 
 	static bool Save()
 	{
-		return ((int(__cdecl*)())(AddressSetter::Get(0x48BF30, 0x64AAB0)))();
+		return ((int(__cdecl*)())(AddressSetter::Get("CTheZones", "Save")))();
 	}
 	static bool Load()
 	{
-		return ((int(__cdecl*)())(AddressSetter::Get(0x48BF90, 0x64AB10)))();
+		return ((int(__cdecl*)())(AddressSetter::Get("CTheZones", "Load")))();
 	}
 };

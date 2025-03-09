@@ -60,8 +60,19 @@ struct PedWeapons
 
 	void GiveWeapon(int weaponType, uint32_t ammoQuantity, bool unk1, bool unk2, bool unk3)
 	{
-		((void(__thiscall*)(PedWeapons*, int, uint32_t, bool, bool, bool))(AddressSetter::Get(0x5AB750, 0x5CD690)))(this, weaponType, ammoQuantity, unk1, unk2, unk3);
+		((void(__thiscall*)(PedWeapons*, int, uint32_t, bool, bool, bool))(AddressSetter::Get("PedWeapons", "GiveWeapon")))(this, weaponType, ammoQuantity, unk1, unk2, unk3);
 	}
+
+	// TEST
+	void FireSingleBullet(CPed* shooter, int unk1, int unk2, int unk3, int unk4, int unk5, int unk6, float unk7, float unk8)
+	{
+		((void(__thiscall*)(PedWeapons*, CPed*, int, int, int, int, int, int, float, float))(AddressSetter::Get(0x0, 0x5D5D50)))(this, shooter, unk1, unk2, unk3, unk4, unk5, unk6, unk7, unk8);
+	}
+	void Test(CPed* shooter, int unk1, int unk2, int unk3, int unk4, int unk5, int unk6, float unk7, float unk8)
+	{
+		
+	}
+
 };
 //VALIDATE_SIZE(PedWeapons, 0xCC);
 //VALIDATE_OFFSET(PedWeapons, m_nActiveWeaponSlot, 0x18);
@@ -97,6 +108,13 @@ public:
 	CTask* m_pSecondaryTasks[6];	// 14-2C
 	CTask* m_pMovementTasks[3];		// 2C-38
 	CPed* m_pOwnerPed;				// 38-3C
+
+public:
+	void AssignTask(CTask* task, int32_t unk1)
+	{
+		// TODO
+		((void(__thiscall*)(CPedTasks*, CTask*, int32_t, uint32_t))(AddressSetter::Get(0x0, 0x705E20)))(this, task, unk1, 0);
+	}
 };
 
 class CPedIntelligence
@@ -320,15 +338,15 @@ public:																	// 000-210
 
 	void ProcessWeaponSwitch()
 	{
-		((void(__thiscall*)(CPed*))(AddressSetter::Get(0x5BE7D0, 0x597180)))(this);
+		((void(__thiscall*)(CPed*))(AddressSetter::Get("CPed", "ProcessWeaponSwitch")))(this);
 	}
 	CPad* GetPadFromPlayer()
 	{
-		return ((CPad*(__thiscall*)(CPed*))(AddressSetter::Get(0x5BE5D0, 0x596F80)))(this);
+		return ((CPad*(__thiscall*)(CPed*))(AddressSetter::Get("CPed", "GetPadFromPlayer")))(this);
 	}
 	CVehicle* GetVehicle()
 	{
-		return ((CVehicle*(__thiscall*)(CPed*))(AddressSetter::Get(0x26AB0, 0x9FBA0)))(this);
+		return ((CVehicle*(__thiscall*)(CPed*))(AddressSetter::Get("CPed", "GetVehicle")))(this);
 	}
 	void SetHealth(float health, int unk)
 	{
@@ -340,7 +358,7 @@ public:																	// 000-210
 	}
 	void ProcessHeading()
 	{
-		((void(__thiscall*)(CPed*))(AddressSetter::Get(0x4A28B0, 0x53F9E0)))(this);
+		((void(__thiscall*)(CPed*))(AddressSetter::Get("CPed", "ProcessHeading")))(this);
 	}
 };
 

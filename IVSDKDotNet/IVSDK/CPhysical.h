@@ -38,7 +38,7 @@ public:
 
 	rage::phConstrainedCollider* GetConstrainedCollider()
 	{
-		return ((rage::phConstrainedCollider*(__thiscall*)(CPhysical*))(AddressSetter::Get(0x5E7080, 0x505110)))(this);
+		return ((rage::phConstrainedCollider*(__thiscall*)(CPhysical*))(AddressSetter::Get("CPhysical", "GetConstrainedCollider")))(this);
 	}
 
 	CVector* GetVelocity(CVector* v)
@@ -49,7 +49,7 @@ public:
 	// static
 	bool _ProcessWater()
 	{
-		return ((char(__thiscall*)(CPhysical*))(AddressSetter::Get(0x64AF20, 0x4E82E0)))(this);
+		return ((char(__thiscall*)(CPhysical*))(AddressSetter::Get("CPhysical", "_ProcessWater")))(this);
 	}
 
 	// vftable

@@ -40,7 +40,7 @@ namespace rage
 	class fiFile
 	{
 	public:
-		// Needs to be worked on
+		// TODO: Needs to be worked on
 
 		//// 1080: 17525B0 (0x13525B0)
 		//// 1070: (0x)
