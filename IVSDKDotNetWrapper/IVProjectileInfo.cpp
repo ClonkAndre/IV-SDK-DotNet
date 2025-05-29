@@ -5,7 +5,7 @@ namespace IVSDKDotNet
 {
 
 	// - - - Methods / Functions - - -
-	bool IVProjectileInfo::AddProjectile(IVEntity^ pEntProjOwner, int projType, IVMatrix^ pMatrix, Vector3 vecStart, Vector3 vecEnd, IVEntity^ pTargetEntity, bool noMPSync, IVObject^ pProjectileObject)
+	bool IVProjectileInfo::AddProjectile(IVEntity^ pEntProjOwner, int projType, IVMatrix pMatrix, Vector3 vecStart, Vector3 vecEnd, IVEntity^ pTargetEntity, bool noMPSync, IVObject^ pProjectileObject)
 	{
 		//NULLPTR_CHECK_WITH_RETURN(pEntProjOwner, false);
 		//NULLPTR_CHECK_WITH_RETURN(pTargetEntity, false);
@@ -24,7 +24,7 @@ namespace IVSDKDotNet
 		bool result = CProjectileInfo::AddProjectile(
 			pEntProjOwner == nullptr ? nullptr : pEntProjOwner->NativeEntity,
 			projType,
-			pMatrix == nullptr ? nullptr : pMatrix->NativeMatrix,
+			&pMatrix.ToCMatrix(),
 			nVecStart,
 			nVecEnd,
 			pTargetEntity == nullptr ? nullptr : pTargetEntity->NativeEntity,

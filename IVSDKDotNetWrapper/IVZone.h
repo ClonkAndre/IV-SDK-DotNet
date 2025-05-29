@@ -23,88 +23,124 @@ namespace IVSDKDotNet
 				return gcnew String(NativeZone->TextLabel);
 			}
 		}
-		property int16_t MinX
+		property float MinX
 		{
 		public:
-			int16_t get()
+			float get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeZone, 0);
-				return NativeZone->MinX;
+				NULLPTR_CHECK_WITH_RETURN(NativeZone, 0.0F);
+				return static_cast<float>(NativeZone->MinX);
 			}
-			void set(int16_t value)
+			void set(float value)
 			{
 				NULLPTR_CHECK(NativeZone);
-				NativeZone->MinX = value;
+
+				if (value < INT16_MIN)
+					value = INT16_MIN;
+				if (value > INT16_MAX)
+					value = INT16_MAX;
+
+				NativeZone->MinX = static_cast<int16_t>(value);
 			}
 		}
-		property int16_t MinY
+		property float MinY
 		{
 		public:
-			int16_t get()
+			float get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeZone, 0);
-				return NativeZone->MinY;
+				NULLPTR_CHECK_WITH_RETURN(NativeZone, 0.0F);
+				return static_cast<float>(NativeZone->MinY);
 			}
-			void set(int16_t value)
+			void set(float value)
 			{
 				NULLPTR_CHECK(NativeZone);
-				NativeZone->MinY = value;
+
+				if (value < INT16_MIN)
+					value = INT16_MIN;
+				if (value > INT16_MAX)
+					value = INT16_MAX;
+
+				NativeZone->MinY = static_cast<int16_t>(value);
 			}
 		}
-		property int16_t MinZ
+		property float MinZ
 		{
 		public:
-			int16_t get()
+			float get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeZone, 0);
-				return NativeZone->MinZ;
+				NULLPTR_CHECK_WITH_RETURN(NativeZone, 0.0F);
+				return static_cast<float>(NativeZone->MinZ);
 			}
-			void set(int16_t value)
+			void set(float value)
 			{
 				NULLPTR_CHECK(NativeZone);
-				NativeZone->MinZ = value;
+
+				if (value < INT16_MIN)
+					value = INT16_MIN;
+				if (value > INT16_MAX)
+					value = INT16_MAX;
+
+				NativeZone->MinZ = static_cast<int16_t>(value);
 			}
 		}
-		property int16_t MaxX
+		property float MaxX
 		{
 		public:
-			int16_t get()
+			float get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeZone, 0);
-				return NativeZone->MaxX;
+				NULLPTR_CHECK_WITH_RETURN(NativeZone, 0.0F);
+				return static_cast<float>(NativeZone->MaxX);
 			}
-			void set(int16_t value)
+			void set(float value)
 			{
 				NULLPTR_CHECK(NativeZone);
-				NativeZone->MaxX = value;
+
+				if (value < INT16_MIN)
+					value = INT16_MIN;
+				if (value > INT16_MAX)
+					value = INT16_MAX;
+
+				NativeZone->MaxX = static_cast<int16_t>(value);
 			}
 		}
-		property int16_t MaxY
+		property float MaxY
 		{
 		public:
-			int16_t get()
+			float get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeZone, 0);
-				return NativeZone->MaxY;
+				NULLPTR_CHECK_WITH_RETURN(NativeZone, 0.0F);
+				return static_cast<float>(NativeZone->MaxY);
 			}
-			void set(int16_t value)
+			void set(float value)
 			{
 				NULLPTR_CHECK(NativeZone);
-				NativeZone->MaxY = value;
+
+				if (value < INT16_MIN)
+					value = INT16_MIN;
+				if (value > INT16_MAX)
+					value = INT16_MAX;
+
+				NativeZone->MaxY = static_cast<int16_t>(value);
 			}
 		}
-		property int16_t MaxZ
+		property float MaxZ
 		{
 		public:
-			int16_t get()
+			float get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeZone, 0);
-				return NativeZone->MaxZ;
+				NULLPTR_CHECK_WITH_RETURN(NativeZone, 0.0F);
+				return static_cast<float>(NativeZone->MaxZ);
 			}
-			void set(int16_t value)
+			void set(float value)
 			{
 				NULLPTR_CHECK(NativeZone);
-				NativeZone->MaxZ = value;
+
+				if (value < INT16_MIN)
+					value = INT16_MIN;
+				if (value > INT16_MAX)
+					value = INT16_MAX;
+
+				NativeZone->MaxZ = static_cast<int16_t>(value);
 			}
 		}
 		property int16_t Unk1

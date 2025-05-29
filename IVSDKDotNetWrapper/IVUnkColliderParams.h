@@ -5,20 +5,18 @@ namespace IVSDKDotNet
 	public value struct IVUnkColliderParams2
 	{
 	public:
-		property IVMatrix^ Matrix
+		property IVMatrix Matrix
 		{
 		public:
-			IVMatrix^ get()
+			IVMatrix get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeColliderParams2, IVMatrix::Empty());
-				return gcnew IVMatrix(&NativeColliderParams2->m_mMatrix);
+				NULLPTR_CHECK_WITH_RETURN(NativeColliderParams2, IVMatrix::Zero);
+				return IVMatrix(&NativeColliderParams2->m_mMatrix);
 			}
-			void set(IVMatrix^ value)
+			void set(IVMatrix value)
 			{
 				NULLPTR_CHECK(NativeColliderParams2);
-				NULLPTR_CHECK(value);
-				NULLPTR_CHECK(value->NativeMatrix);
-				NativeColliderParams2->m_mMatrix = *value->NativeMatrix;
+				NativeColliderParams2->m_mMatrix = value.ToCMatrix();
 			}
 		}
 		property Vector3 Unk

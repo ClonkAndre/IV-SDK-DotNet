@@ -7,7 +7,6 @@ namespace CLR
 
 	/// <summary>
 	/// The main bridge between IVSDKDotNet.asi and IVSDKDotNetWrapper.dll.
-	/// There can only be one instance of this class.
 	/// </summary>
 	public ref class CLRBridge
 	{
@@ -85,31 +84,13 @@ namespace CLR
 		/// <summary>
 		/// Gets the current version of IV-SDK .NET
 		/// </summary>
-		static property String^ Version
+		static property System::Version^ Version
 		{
 		public:
-			String^ get()
+			System::Version^ get()
 			{
-				return m_sVersion;
-			}
-		}
-
-		/// <summary>
-		/// Gets the current log file name for this session.
-		/// This will only get used when the setting 'CreateLogFilesInMainDirectory' is set to false.
-		/// Format: IVSDKDotNet@[DAY][MONTH][YEAR]@[MILLISECOND].log
-		/// </summary>
-		static property String^ CurrentLogFileName
-		{
-		public:
-			String^ get()
-			{
-				return m_sLogFileName;
-			}
-		internal:
-			void set(String^ value)
-			{
-				m_sLogFileName = value;
+				Type^ t = CLRBridge::typeid;
+				return t->Assembly->GetName()->Version;
 			}
 		}
 
@@ -237,6 +218,7 @@ namespace CLR
 
 	public:
 		static void Initialize(uint32_t version, uint32_t baseAddress);
+		static void ForceShutdown() { Cleanup(); }
 
 		static void InvokeTickEvents();
 		static void InvokeGameLoadEvents();
@@ -253,7 +235,6 @@ namespace CLR
 		static void DoAdditionalChecks();
 		static bool DoEarlyAdditionalAssemblyLoading();
 		static bool InitManager();
-		static void LoadScripts();
 		static void LetUserKnowAboutFailedInitialization();
 		static void PreInitializationShutdown();
 		static void ShutdownMinHook();
@@ -266,8 +247,6 @@ namespace CLR
 		static bool m_bDisableScriptHookDotNetLoading = false;
 		static bool m_bHasMinHookInitialized = false;
 
-		static String^ m_sVersion = "1.8.1";
-		static String^ m_sLogFileName;
 		static String^ m_sIVSDKDotNetPath;
 		static String^ m_sIVSDKDotNetManagerPath;
 		static String^ m_sIVSDKDotNetBinaryPath;

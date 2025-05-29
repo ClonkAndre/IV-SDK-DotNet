@@ -17,9 +17,9 @@ namespace IVSDKDotNet
 		}
 
 	public:
-		int DeletePed(IVPed^ ped);
-		IVPed^ CreatePed(IVControlledByInfo info, int32_t model, IVMatrix^ mat, bool bNetwork, bool bUnk1);
+		IVPed^ CreatePed(IVControlledByInfo info, int32_t model, IVMatrix mat, bool bNetwork, bool bUnk1);
 		IVPed^ CreatePed(IVControlledByInfo info, int32_t model, Vector3 pos, bool bNetwork, bool bUnk1);
+		int DeletePed(IVPed^ ped);
 
 	internal:
 		IVPedFactoryNY(CPedFactoryNY* nativePtr);

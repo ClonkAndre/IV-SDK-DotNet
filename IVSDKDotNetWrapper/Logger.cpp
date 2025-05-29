@@ -1,3 +1,4 @@
+#include "Logger.h"
 #include "pch.h"
 
 void Logger::Log(String^ str)
@@ -63,46 +64,75 @@ array<String^>^ Logger::GetLogItemsAsString()
     return items;
 }
 
-void Logger::Initialize()
+void Logger::Initialize(IVSDKDotNet::SettingsFile^ settings)
 {
-    if (IsInitialized())
+    if (m_bWasInitialized)
         return;
 
 	m_LogItems = gcnew List<tLogItem>();
+
+    // Get where to create the log file
+    String^ fileName = "IVSDKDotNet.log";
+
+    if (!settings->GetBoolean("Main", "CreateLogFilesInMainDirectory", true))
+        fileName = Path::Combine("IVSDKDotNet", "logs", DateTime::Now.ToString()->Replace(":", "-"));
+
+    // Now create the file at the given path
+    CreateStream(fileName);
+
+    m_bWasInitialized = true;
 }
 void Logger::Shutdown()
 {
+    if (!m_bWasInitialized)
+        return;
+
+    m_bWasInitialized = false;
+
+    CloseStream();
+
     if (m_LogItems)
     {
         m_LogItems->Clear();
         m_LogItems = nullptr;
     }
 }
-void Logger::ForceCreateLogFile()
+
+void Logger::CreateStream(String^ fileName)
 {
-    if (!IsInitialized())
+    if (AreStreamsCreated())
         return;
-    if (m_LogItems == nullptr)
+
+    String^ dirName = Path::GetDirectoryName(fileName);
+
+    if (!String::IsNullOrWhiteSpace(dirName) && !Directory::Exists(fileName))
+        Directory::CreateDirectory(fileName);
+
+    m_FileStream = File::Create(fileName);
+    m_StreamWriter = gcnew StreamWriter(m_FileStream);
+}
+void Logger::CloseStream()
+{
+    if (!AreStreamsCreated())
         return;
-    
-    array<String^>^ lines = gcnew array<String^>(m_LogItems->Count);
 
-    for (int i = 0; i < lines->Length; i++)
-        lines[i] = m_LogItems[i].ToString();
-
-    System::IO::File::WriteAllLines("IVSDKDotNet.log", lines);
+    m_StreamWriter->Close();
+    m_StreamWriter = nullptr;
+    m_FileStream = nullptr;
 }
 
 void Logger::Log(eConsoleLogStyle style, String^ str, bool alsoShowInConsole)
 {
-    if (!IsInitialized())
+    if (!m_bWasInitialized)
         return;
     if (str == nullptr)
         return;
 
     if (String::IsNullOrWhiteSpace(str))
     {
-        m_LogItems->Add(tLogItem(DateTime::UtcNow, style, str, alsoShowInConsole));
+        tLogItem item = tLogItem(DateTime::UtcNow, style, str, alsoShowInConsole);
+        m_LogItems->Add(item);
+        m_StreamWriter->WriteLine(item.ToString());
         return;
     }
 
@@ -114,12 +144,7 @@ void Logger::Log(eConsoleLogStyle style, String^ str, bool alsoShowInConsole)
     if (fixedStr->Contains("}"))
         fixedStr = fixedStr->Replace("}", "");
 
-    //// Remove the first 1000 items to make space for new items
-    //if (m_LogItems->Count >= m_LogItems->Capacity)
-    //{
-    //    NoLogFileSavingNow = true;
-    //    m_LogItems->RemoveRange(0, 1000);
-    //}
-
-    m_LogItems->Add(tLogItem(DateTime::UtcNow, style, fixedStr, alsoShowInConsole));
+    tLogItem item = tLogItem(DateTime::UtcNow, style, fixedStr, alsoShowInConsole);
+    m_LogItems->Add(item);
+    m_StreamWriter->WriteLine(item.ToString());
 }

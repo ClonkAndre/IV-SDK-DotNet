@@ -41,23 +41,17 @@ namespace IVSDKDotNet
 	}
 	Script::Script(Guid id, bool useThreadedTick)
 	{
-		AssembliesLocation = eAssembliesLocation::GameRootDirectory;
-		CustomAssembliesPath = String::Empty;
 		ScriptDomain = AppDomain::CurrentDomain;
 		ID = id;
 		UseThreadedTick = useThreadedTick;
 	}
 	Script::Script(Guid id)
 	{
-		AssembliesLocation = eAssembliesLocation::GameRootDirectory;
-		CustomAssembliesPath = String::Empty;
 		ScriptDomain = AppDomain::CurrentDomain;
 		ID = id;
 	}
 	Script::Script()
 	{
-		AssembliesLocation = eAssembliesLocation::GameRootDirectory;
-		CustomAssembliesPath = String::Empty;
 		ScriptDomain = AppDomain::CurrentDomain;
 		ID = Guid::NewGuid();
 	}

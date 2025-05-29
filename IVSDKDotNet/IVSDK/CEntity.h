@@ -87,6 +87,7 @@ public:
 	{
 		((void(__thiscall*)(CEntity*, int, int, char, int))(*(void***)this)[35])(this, nUnk, nUnk2, alpha, nUnkNeg1);
 	}
+
 };
 
 VALIDATE_SIZE(CEntity, 0x70);

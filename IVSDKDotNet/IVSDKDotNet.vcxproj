@@ -259,6 +259,7 @@
     <ClInclude Include="IVSDK\fiPackfile.h" />
     <ClInclude Include="IVSDK\grcTexture.h" />
     <ClInclude Include="IVSDK\grcTextureFactory.h" />
+    <ClInclude Include="IVSDK\grcWindow.h" />
     <ClInclude Include="IVSDK\Hooks.h" />
     <ClInclude Include="IVSDK\injector\assembly.hpp" />
     <ClInclude Include="IVSDK\injector\calling.hpp" />

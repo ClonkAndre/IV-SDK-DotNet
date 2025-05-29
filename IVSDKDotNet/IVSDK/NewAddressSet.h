@@ -139,11 +139,9 @@ namespace AddressSetter
 			// Try getting the address from the pattern
 			auto scan = hook::pattern(str);
 
-			uint32_t* ptr = scan.get(0).get<uint32_t>(0);
+			assert(!scan.empty());
 
-			//assert(ptr);
-
-			return *ptr;
+			return *(uint32_t*)scan.get_first(0);
 		}
 
 		return 0;

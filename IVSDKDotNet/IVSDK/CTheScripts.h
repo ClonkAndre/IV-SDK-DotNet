@@ -40,6 +40,7 @@ public:
 		//	return 0;
 		//}
 	}
+
 	static int RegisterNativeNoChecks(uint32_t hash, LPVOID funcPtr)
 	{
 		return ((int (__stdcall*)(uint32_t, LPVOID))(AddressSetter::Get("CTheScripts", "RegisterNativeNoChecks")))(hash, funcPtr);

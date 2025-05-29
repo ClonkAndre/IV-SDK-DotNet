@@ -21,10 +21,9 @@ public:
 		return ((bool(__cdecl*)())(AddressSetter::Get("CGame", "IsGameRestarting")))();
 	}
 
-	// Forgot what it does
-	static bool Idk(int episode, int a2, char a3, char a4)
+	static bool SetMenuState(int state)
 	{
-		return ((bool(__cdecl*)(int, int, char, char))(AddressSetter::Get(0x0, 0x94140)))(episode, a2, a3, a4);
+		return ((bool(__cdecl*)(int))(AddressSetter::Get("CGame", "SetMenuState")))(state);
 	}
 
 };

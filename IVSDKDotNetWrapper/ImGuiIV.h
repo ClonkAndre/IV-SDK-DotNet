@@ -1833,6 +1833,57 @@ namespace IVSDKDotNet
 			}
 		}
 
+		property bool WantCaptureKeyboard
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_IO->WantCaptureKeyboard;
+			}
+		}
+		property bool WantCaptureMouse
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_IO->WantCaptureMouse;
+			}
+		}
+		property bool WantCaptureMouseUnlessPopupClose
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_IO->WantCaptureMouseUnlessPopupClose;
+			}
+		}
+		property bool WantSetMousePos
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_IO->WantSetMousePos;
+			}
+		}
+		property bool WantTextInput
+		{
+			bool get()
+			{
+				if (!IsValid)
+					return false;
+
+				return m_IO->WantTextInput;
+			}
+		}
+
 	public:
 		ImGuiIV_IO(ImGuiIO* ptr, bool isValid)
 		{
@@ -2469,6 +2520,13 @@ namespace IVSDKDotNet
 		}
 
 	public:
+		ImTexture(IntPtr texturePointer, Size textureSize)
+		{
+			m_pTexture = texturePointer;
+			m_sSize = textureSize;
+			IsValid = true;
+		}
+
 		// Explicit operator
 		//static explicit operator IntPtr(ImTexture^ t)
 		//{
@@ -2479,14 +2537,6 @@ namespace IVSDKDotNet
 		static operator IntPtr(ImTexture^ t)
 		{
 			return t->GetTexture();
-		}
-
-	internal:
-		ImTexture(IntPtr texturePointer, Size textureSize)
-		{
-			m_pTexture = texturePointer;
-			m_sSize = textureSize;
-			IsValid = true;
 		}
 
 	internal:
@@ -2521,23 +2571,6 @@ namespace IVSDKDotNet
 			void set(bool value)
 			{
 				m_bWasImGuiInitialized = value;
-			}
-		}
-
-		/// <summary>
-		/// Gets if drawing is allowed now.
-		/// </summary>
-		static property bool CanDraw
-		{
-		public:
-			bool get()
-			{
-				return m_bCanDraw;
-			}
-		internal:
-			void set(bool value)
-			{
-				m_bCanDraw = value;
 			}
 		}
 
@@ -3438,6 +3471,24 @@ namespace IVSDKDotNet
 
 			return ImGuiIV_DrawingContext(ptr, true);
 		}
+		static ImGuiIV_DrawingContext GetBackgroundDrawList()
+		{
+			ImDrawList* ptr = ImGui::GetBackgroundDrawList();
+
+			if (!ptr)
+				return ImGuiIV_DrawingContext(nullptr, false);
+
+			return ImGuiIV_DrawingContext(ptr, true);
+		}
+		static ImGuiIV_DrawingContext GetForegroundDrawList()
+		{
+			ImDrawList* ptr = ImGui::GetForegroundDrawList();
+
+			if (!ptr)
+				return ImGuiIV_DrawingContext(nullptr, false);
+
+			return ImGuiIV_DrawingContext(ptr, true);
+		}
 
 		static float GetWindowWidth()
 		{
@@ -4304,15 +4355,19 @@ namespace IVSDKDotNet
 			return ImGui::BeginPopupContextVoid(ctx.marshal_as<const char*>(id), (ImGuiPopupFlags)flags);
 		}
 
-		static void CreateSimplePopupDialog(String^ id, String^ description, bool centerInMiddleOfScreen, bool showButtonOne, bool showButtonTwo, String^ buttonOneName, String^ buttonTwoName, Action^ buttonOneAction, Action^ buttonTwoAction)
+		static bool CreateSimplePopupDialog(String^ id, String^ description, Vector2 size, eImGuiWindowFlags flags, bool centerInMiddleOfScreen, bool showButtonOne, bool showButtonTwo, String^ buttonOneName, String^ buttonTwoName, Action^ buttonOneAction, Action^ buttonTwoAction)
 		{
 			if (String::IsNullOrWhiteSpace(id))
-				return;
+				return false;
 			if (String::IsNullOrWhiteSpace(description))
-				return;
+				return false;
 
-			if (BeginPopupModal(id, eImGuiWindowFlags::AlwaysAutoResize))
+			if (BeginPopupModal(id, flags))
 			{
+				ImGui::SetWindowSize(Vector2ToImVec2(size));
+
+				bool result = true;
+
 				Text(description);
 				Separator();
 
@@ -4324,6 +4379,7 @@ namespace IVSDKDotNet
 						if (buttonOneAction)
 							buttonOneAction();
 						CloseCurrentPopup();
+						result = false;
 					}
 				}
 
@@ -4337,11 +4393,20 @@ namespace IVSDKDotNet
 						if (buttonTwoAction)
 							buttonTwoAction();
 						CloseCurrentPopup();
+						result = false;
 					}
 				}
 
 				EndPopup();
+
+				return result;
 			}
+
+			return false;
+		}
+		static bool CreateSimplePopupDialog(String^ id, String^ description, bool centerInMiddleOfScreen, bool showButtonOne, bool showButtonTwo, String^ buttonOneName, String^ buttonTwoName, Action^ buttonOneAction, Action^ buttonTwoAction)
+		{
+			return CreateSimplePopupDialog(id, description, Vector2::Zero, eImGuiWindowFlags::AlwaysAutoResize, centerInMiddleOfScreen, showButtonOne, showButtonTwo, buttonOneName, buttonTwoName, buttonOneAction, buttonTwoAction);
 		}
 
 		static RectangleF GetPopupAllowedExtentRect(IntPtr window)
@@ -4749,7 +4814,7 @@ namespace IVSDKDotNet
 		//-------------------------------------------------------------------------
 		static void Spacing(int n)
 		{
-			while (n--) // TODO: TEST THIS!!!!!!!!!!!
+			while (n--)
 				ImGui::Spacing();
 		}
 		static void Spacing()
@@ -5873,7 +5938,7 @@ namespace IVSDKDotNet
 		static bool TableNextColumn(int n)
 		{
 			bool b;
-			while (n--) // TODO: TEST THIS!!!!!!!!!!!!!!!!!
+			while (n--)
 				b = ImGui::TableNextColumn();
 			return b;
 		}
@@ -6470,7 +6535,6 @@ namespace IVSDKDotNet
 
 	private:
 		static bool m_bWasImGuiInitialized;
-		static bool m_bCanDraw;
 		static bool m_bDisableControllerInput;
 		static bool m_bDisableMouseInput;
 		static bool m_bDisableKeyboardInput;
@@ -6489,6 +6553,8 @@ public:
 	static void DisableControllerNavigation(ImGuiIO& io);
 
 	static void OnBeforeD3D9DeviceEndScene(IDirect3DDevice9* d3d9Device);
+
+	static void OnAfterD3D9DeviceBeginScene(IDirect3DDevice9* d3d9Device);
 
 	static void OnBeforeD3D9DeviceReset(IDirect3DDevice9* d3d9Device);
 	static void OnAfterD3D9DeviceReset();

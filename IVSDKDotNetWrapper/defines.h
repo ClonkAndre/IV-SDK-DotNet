@@ -100,6 +100,11 @@ static Vector3 CVectorToVector3(CVector v)
 	return Vector3(v.x, v.y, v.z);
 }
 
+static Vector3 CVector4ToVector3(CVector4 v)
+{
+	return System::Numerics::Vector3(v.x, v.y, v.z);
+}
+
 static CVector_pad Vector3ToCVectorPad(Vector3 v)
 {
 	CVector_pad pad;

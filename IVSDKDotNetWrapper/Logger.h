@@ -165,19 +165,24 @@ public:
 	static List<tLogItem>^ GetLogItems();
 	static array<String^>^ GetLogItemsAsString();
 
-	static bool IsInitialized()
-	{
-		return m_LogItems != nullptr;
-	}
-
 internal:
-	static void Initialize();
+	static void Initialize(IVSDKDotNet::SettingsFile^ settings);
 	static void Shutdown();
-	static void ForceCreateLogFile();
 
 private:
+	static void Log(IVSDKDotNet::Enums::eConsoleLogStyle style, String^ str, bool alsoShowInConsole);
+
+	static void CreateStream(String^ fileName);
+	static void CloseStream();
+	static bool AreStreamsCreated()
+	{
+		return m_FileStream && m_StreamWriter;
+	}
+
+private:
+	static bool m_bWasInitialized;
 	static array<String^>^ m_SplitStr = gcnew array<String^>(1) { Environment::NewLine };
 	static List<tLogItem>^ m_LogItems;
-
-	static void Log(IVSDKDotNet::Enums::eConsoleLogStyle style, String^ str, bool alsoShowInConsole);
+	static FileStream^ m_FileStream;
+	static StreamWriter^ m_StreamWriter;
 };

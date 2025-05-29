@@ -1,25 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 
 using GTA;
 
 using static IVSDKDotNet.Native.Natives;
 
-namespace Manager.Classes
+namespace Manager.Managers
 {
-    internal static class SHDNStuff
+    internal static class SHDNManager
     {
 
         #region Variables
+        private static bool wasInitialized;
+
         // Lists
-        public static Queue<Font> FontsToBeCreated;
+        private static Queue<Font> fontsToBeCreated;
 
         // States
         public static bool EnableVerboseLogging;
         public static bool NativeCallLoggingEnabled;
-        public static bool WereScriptHookDotNetScriptsLoadedThisSession;
 
         // Message
         private static string[] NEW_LINE_CHARS = new string[] { "\r\n", "\r", "\n" };
@@ -38,21 +38,71 @@ namespace Manager.Classes
         public static Version CurrentSHDNVersion;
         #endregion
 
+        #region Methods
         public static void Init()
         {
-            FontsToBeCreated = new Queue<Font>();
+            if (wasInitialized)
+                return;
+
+            fontsToBeCreated = new Queue<Font>();
 
             // Get current ScriptHookDotNet Version
             CurrentSHDNVersion = typeof(GTA.Blip).Assembly.GetName().Version;
+
+            wasInitialized = true;
         }
-        public static void Cleanup()
+        public static void Shutdown()
         {
-            FontsToBeCreated.Clear();
+            if (!wasInitialized)
+                return;
+
+            wasInitialized = false;
+
+            if (fontsToBeCreated != null)
+            {
+                fontsToBeCreated.Clear();
+                fontsToBeCreated = null;
+            }
         }
 
-        public static void SetCurrentScript(ScriptEvent forEvent, object script)
+        // Processes all the things for ScriptHookDotNet
+        public static void Process()
         {
-            switch (forEvent)
+            if (!wasInitialized)
+                return;
+            if (CLR.CLRBridge.DisableScriptHookDotNetLoading)
+                return;
+
+            // Draw current message
+            DrawMessage();
+
+            // Process the content cache
+            SHDNContentCacheManager.Process();
+        }
+        public static void OnBeforeNewImGuiFrame()
+        {
+            if (!wasInitialized)
+                return;
+
+            // Create fonts that wait to be created and added
+            while (fontsToBeCreated.Count != 0)
+                fontsToBeCreated.Dequeue().Reload();
+        }
+
+        public static void AddFont(object obj)
+        {
+            if (!wasInitialized)
+                return;
+
+            fontsToBeCreated.Enqueue(obj as Font);
+        }
+
+        public static void SetCurrentScript(int forEvent, object script)
+        {
+            if (!wasInitialized)
+                return;
+
+            switch ((ScriptEvent)forEvent)
             {
                 case ScriptEvent.ctor:
                     CurrentConstructingScript = script as Script;
@@ -74,62 +124,8 @@ namespace Manager.Classes
                     break;
             }
         }
-        public static object GetCurrentScript(ScriptEvent ofEvent)
-        {
-            switch (ofEvent)
-            {
-                case ScriptEvent.ctor:
-                    return CurrentConstructingScript;
-                case ScriptEvent.Tick:
-                    return CurrentTickScript;
-                case ScriptEvent.MouseDown:
-                    return CurrentMouseDownScript;
-                case ScriptEvent.MouseUp:
-                    return CurrentMouseUpScript;
-                case ScriptEvent.ScriptCommand:
-                    return CurrentScriptCommandScript;
-                case ScriptEvent.PerFrameDrawing:
-                    return CurrentPerFrameDrawingScript;
-            }
 
-            return null;
-        }
-
-        public static void ProcessCache()
-        {
-            if (!CLR.CLRBridge.DisableScriptHookDotNetLoading)
-                ContentCache.RemoveNonExisting();
-        }
-
-        public static void LoadIncludedScriptHookDotNetAssembly()
-        {
-            //if (CLR.CLRBridge.DisableScriptHookDotNetLoading)
-            //    return;
-
-            try
-            {
-                string path = CLR.CLRBridge.IVSDKDotNetBinaryPath + "\\ScriptHookDotNet.dll";
-
-                if (File.Exists(path))
-                {
-                    Assembly a = Assembly.UnsafeLoadFrom(path);
-
-                    if (a != null)
-                        Logger.LogDebug("Loaded included ScriptHookDotNet.dll assembly");
-                }
-            }
-            catch (Exception ex)
-            {
-#if DEBUG
-                Helper.WriteToDebugOutput(Priority.High, "FAILED TO LOAD INCLUDED ScriptHookDotNet.dll ASSEMBLY! Details: {0}", ex);
-                System.Diagnostics.Debugger.Break();
-#else
-                Logger.LogWarning("! ! ! WARNING: Failed to load included ScriptHookDotNet.dll! Make sure it's inside the 'IVSDKDotNet -> bin' directory! Game might crash now..");
-                Logger.LogWarning("Additional Details: " + ex.ToString());
-#endif
-            }
-        }
-
+        // Classic ScriptHookDotNet top-left message
         public static void SetMessageTime(int milliseconds)
         {
             messageShowUntil = DateTime.UtcNow.AddMilliseconds(milliseconds);
@@ -140,6 +136,8 @@ namespace Manager.Classes
         }
         public static void DrawMessage()
         {
+            if (!wasInitialized)
+                return;
             if (string.IsNullOrWhiteSpace(theStringToShow))
                 return;
 
@@ -225,6 +223,61 @@ namespace Manager.Classes
                 }
             }
         }
+
+        #endregion
+
+        #region Functions
+        public static bool LoadIncludedScriptHookDotNetAssembly()
+        {
+            try
+            {
+                string path = CLR.CLRBridge.IVSDKDotNetBinaryPath + "\\ScriptHookDotNet.dll";
+
+                Assembly a = Assembly.UnsafeLoadFrom(path);
+
+                if (a != null)
+                {
+                    Logger.LogDebug("Loaded included ScriptHookDotNet.dll assembly");
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Helper.WriteToDebugOutput(Priority.High, "FAILED TO LOAD INCLUDED ScriptHookDotNet.dll ASSEMBLY! Details: {0}", ex);
+                Helper.BreakInDebugger();
+#else
+                Logger.LogError("! ! ! Failed to load included ScriptHookDotNet.dll! Make sure it's inside the 'IVSDKDotNet -> bin' directory! Game might crash.");
+                Logger.LogErrorEx("Additional Details: {0}", ex);
+#endif
+            }
+
+            return false;
+        }
+        public static object GetCurrentScript(int ofEvent)
+        {
+            if (!wasInitialized)
+                return null;
+
+            switch ((ScriptEvent)ofEvent)
+            {
+                case ScriptEvent.ctor:
+                    return CurrentConstructingScript;
+                case ScriptEvent.Tick:
+                    return CurrentTickScript;
+                case ScriptEvent.MouseDown:
+                    return CurrentMouseDownScript;
+                case ScriptEvent.MouseUp:
+                    return CurrentMouseUpScript;
+                case ScriptEvent.ScriptCommand:
+                    return CurrentScriptCommandScript;
+                case ScriptEvent.PerFrameDrawing:
+                    return CurrentPerFrameDrawingScript;
+            }
+
+            return null;
+        }
+        #endregion
 
     }
 }

@@ -44,6 +44,12 @@ namespace IVSDKDotNet
 		static uint32_t AtStringHash(String^ sString);
 		static uint32_t AtStringHash(String^ sString, UIntPtr nExistingHash);
 
+		static uint32_t HashStringLowercase(String^ sString)
+		{
+			msclr::interop::marshal_context ctx;
+			return rage::hashStringLowercase(ctx.marshal_as<const char*>(sString));
+		}
+
 	internal:
 		static void RaiseOnWndProcMessageReceived(IntPtr hWnd, uint32_t msg, UIntPtr wParam, IntPtr lParam) { OnWndProcMessageReceived(hWnd, msg, wParam, lParam); };
 		static void RaiseOnExit() { OnExit(nullptr, EventArgs::Empty); }

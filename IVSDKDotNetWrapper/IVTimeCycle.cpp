@@ -15,6 +15,23 @@ namespace IVSDKDotNet
     }
 
     // - - - Methods / Functions - - -
+    IVTimeCycleParams^ IVTimeCycle::GetTimeCycleParamsByIndex(int32_t timeIndex, int32_t weather)
+    {
+        NULLPTR_CHECK_WITH_RETURN(NativeTimeCycle, nullptr);
+
+        if (timeIndex > 10)
+            return nullptr;
+
+        const int32_t timecycTimeIndexToGameTime[11] = { 0, 5, 6, 7, 9, 12, 18, 19, 20, 21, 22 };
+        int32_t timecycTimeIndex = timecycTimeIndexToGameTime[timeIndex];
+
+        TimeCycleParams* params = &NativeTimeCycle->mParams[timecycTimeIndex][weather];
+
+        if (params)
+            return gcnew IVTimeCycleParams(params);
+
+        return nullptr;
+    }
     IVTimeCycleParams^ IVTimeCycle::GetTimeCycleParams(int32_t gameHour, int32_t weather)
     {
         NULLPTR_CHECK_WITH_RETURN(NativeTimeCycle, nullptr);

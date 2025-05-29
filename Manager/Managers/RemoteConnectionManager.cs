@@ -7,6 +7,8 @@ using Riptide.Transports.Udp;
 
 using Manager.Classes;
 using Manager.Classes.Json;
+using Manager.Classes.Scripts;
+using Manager.UI;
 
 using IVSDKDotNet;
 using IVSDKDotNet.Native;
@@ -87,7 +89,7 @@ namespace Manager.Managers
 
                 // Show connect information to user
                 if (Config.ShowNotificationOnConnection)
-                    Main.Instance.Notification.ShowNotification(NotificationType.Default, DateTime.UtcNow.AddSeconds(6), "New API Connection", string.Format("'{0}' has connected to IV-SDK .NET!", connectionName), null);
+                    NotificationUI.ShowNotification(NotificationType.Default, DateTime.UtcNow.AddSeconds(6), "New API Connection", string.Format("'{0}' has connected to IV-SDK .NET!", connectionName), null);
             }
             catch (Exception ex)
             {
@@ -159,7 +161,7 @@ namespace Manager.Managers
                                 string scriptFileName = e.Message.GetString();
 
                                 // Try get script by name
-                                FoundScript fs = Main.Instance.GetFoundScript(scriptFileName);
+                                FoundScript fs = ScriptManager.GetFoundScript(scriptFileName);
 
                                 // Check if script exists or not
                                 if (fs == null)
@@ -170,7 +172,7 @@ namespace Manager.Managers
                                     string scriptPath = string.Format("{0}\\{1}", CLR.CLRBridge.IVSDKDotNetScriptsPath, scriptFileName);
 
                                     // Load assembly
-                                    if (Main.Instance.LoadAssembly(scriptPath))
+                                    if (ScriptManager.LoadAssembly(scriptPath))
                                     {
                                         server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_LoadScriptResponse).AddBool(true), e.FromConnection);
                                         // TODO: Log which API Client has loaded this script.
@@ -211,67 +213,72 @@ namespace Manager.Managers
                                 return;
                             }
 
-                            string scriptName = e.Message.GetString();
+                            //string scriptName = e.Message.GetString();
 
-                            // Try get script by name
-                            FoundScript fs = Main.Instance.GetFoundScript(scriptName);
+                            //// Try get script by name
+                            //FoundScript fs = ScriptManager.GetFoundScript(scriptName);
 
-                            if (fs != null)
-                                // Script was found
-                            {
+                            //if (fs != null)
+                            //    // Script was found
+                            //{
 
-                                // Abort script
-                                fs.Abort(AbortReason.API, true);
+                            //    // Abort script
+                            //    fs.Abort(AbortReason.API, true);
 
-                                if (fs.AbortError == null)
-                                    // Success
-                                {
-                                    server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_AbortScriptResponse).AddBool(true), e.FromConnection);
-                                }
-                                else
-                                    // Failed
-                                {
-                                    Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_AbortScriptResponse);
-                                    msg.AddBool(false); // Request failed
-                                    msg.AddByte(1); // Error ID
-                                    msg.AddString(JsonConvert.SerializeObject(fs.AbortError)); // Error Object
-                                    server.Send(msg, e.FromConnection);
-                                }
+                            //    if (fs.AbortError == null)
+                            //        // Success
+                            //    {
+                            //        server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_AbortScriptResponse).AddBool(true), e.FromConnection);
+                            //    }
+                            //    else
+                            //        // Failed
+                            //    {
+                            //        Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_AbortScriptResponse);
+                            //        msg.AddBool(false); // Request failed
+                            //        msg.AddByte(1); // Error ID
+                            //        msg.AddString(JsonConvert.SerializeObject(fs.AbortError)); // Error Object
+                            //        server.Send(msg, e.FromConnection);
+                            //    }
 
-                                // Remove script from list of active scripts
-                                Main.Instance.ActiveScripts.Remove(fs);
+                            //    // Remove script from list of active scripts
+                            //    Main.Instance.ActiveScripts.Remove(fs);
 
-                            }
-                            else
-                                // Script was not found
-                            {
-                                Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_AbortScriptResponse);
-                                msg.AddBool(false); // Request failed
-                                msg.AddByte(2); // Error ID
-                                server.Send(msg, e.FromConnection);
-                            }
+                            //}
+                            //else
+                            //    // Script was not found
+                            //{
+                            //    Message msg = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_AbortScriptResponse);
+                            //    msg.AddBool(false); // Request failed
+                            //    msg.AddByte(2); // Error ID
+                            //    server.Send(msg, e.FromConnection);
+                            //}
+
+                            Message msg2 = Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_AbortScriptResponse);
+                            msg2.AddBool(false); // Request failed
+                            msg2.AddByte(2); // Error ID
+                            server.Send(msg2, e.FromConnection);
 
                         }
                         break;
 
                     case RemoteMessageID.Manager_GetActiveScriptsInfoRequest:
                         {
-                            List<RunningScriptInfo> runningScriptInfo = new List<RunningScriptInfo>();
+                            //List<RunningScriptInfo> runningScriptInfo = new List<RunningScriptInfo>();
 
-                            // Populate runningScriptInfo list
-                            for (int i = 0; i < Main.Instance.ActiveScripts.Count; i++)
-                            {
-                                FoundScript fs = Main.Instance.ActiveScripts[i];
+                            //// Populate runningScriptInfo list
+                            //for (int i = 0; i < Main.Instance.ActiveScripts.Count; i++)
+                            //{
+                            //    FoundScript fs = Main.Instance.ActiveScripts[i];
 
-                                if (fs == null)
-                                    continue;
+                            //    if (fs == null)
+                            //        continue;
 
-                                // TODO
-                                //runningScriptInfo.Add(new RunningScriptInfo(fs.Name, fs.FullPath, fs.ID, fs.TheScript.IVLauncherWorkshopID));
-                            }
+                            //    // TODO
+                            //    //runningScriptInfo.Add(new RunningScriptInfo(fs.Name, fs.FullPath, fs.ID, fs.TheScript.IVLauncherWorkshopID));
+                            //}
 
-                            // Send response
-                            server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_GetActiveScriptsInfoResponse).AddString(JsonConvert.SerializeObject(runningScriptInfo)), e.FromConnection);
+                            //// Send response
+                            //server.Send(Message.Create(MessageSendMode.Reliable, RemoteMessageID.Manager_GetActiveScriptsInfoResponse).AddString(JsonConvert.SerializeObject(runningScriptInfo)), e.FromConnection);
                         }
                         break;
 

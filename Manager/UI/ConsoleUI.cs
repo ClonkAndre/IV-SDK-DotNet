@@ -3,42 +3,48 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
-using System.Linq;
 
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
 using IVSDKDotNet.Native;
 
 using Manager.Classes;
+using Manager.Classes.Attributes;
+using Manager.Classes.Scripts;
+using Manager.Managers;
 
 namespace Manager.UI
 {
-    public class ConsoleUI
+    public static class ConsoleUI
     {
 
         #region Variables
-        private Dictionary<string, Action<string[]>> localCommands;
-        private string[] autoCompleteCommands;
-        private string lastConsoleCommand;
+        private static List<LocalConsoleCommand> localConsoleCommands;
+
+        private static string[] autoCompleteCommands;
+        private static string lastConsoleCommand;
 
         // Suggestions Popup
-        private bool popupOpen;
-        private bool isHoveringPopup;
+        private static bool popupOpen;
+        private static bool isHoveringPopup;
 
-        private int selectionIndex;
+        private static int selectionIndex;
+        private static string lastSelectedCommand;
 
         // Input
-        private string input;
-        private bool clearSelection;
+        private static string input;
+        private static bool clearSelection;
 
         // Other
-        public bool IsConsoleOpen;
-        private bool wasOpened;
-        private bool canScrollToEnd;
+        public static bool IsConsoleOpen;
+        private static bool wasOpened;
+        private static bool canScrollToEnd;
         #endregion
 
         #region Delegates and Events
@@ -46,76 +52,281 @@ namespace Manager.UI
         public delegate void ConsoleCommandDelegate(string command, string[] args);
 
         // Events
-        public event ConsoleCommandDelegate OnConsoleCommand;
+        public static event ConsoleCommandDelegate OnConsoleCommand;
         #endregion
 
         #region Methods
-        public void ToggleConsole()
+        public static void Init()
+        {
+            input = string.Empty;
+
+            localConsoleCommands = new List<LocalConsoleCommand>();
+            RegisterDefaultCommands();
+        }
+        public static void Shutdown()
+        {
+            Close();
+
+            if (localConsoleCommands != null)
+            {
+                localConsoleCommands.Clear();
+                localConsoleCommands = null;
+            }
+        }
+
+        private static void RegisterDefaultCommands()
+        {
+            // Get all the methods of this class and check their attributes
+            MethodInfo[] methods = typeof(ConsoleUI).GetMethods(BindingFlags.NonPublic | BindingFlags.Static);
+
+            for (int i = 0; i < methods.Length; i++)
+            {
+                MethodInfo method = methods[i];
+
+                // Get the names attribute of the method
+                LocalCommandNameAttribute namesAttribute = method.GetCustomAttribute<LocalCommandNameAttribute>();
+
+                // If this it null then this method is not supposed to be a console command
+                if (namesAttribute == null)
+                    continue;
+
+                // Create command
+                LocalConsoleCommand command = new LocalConsoleCommand(method);
+
+                command.SetNameFromAttribute(namesAttribute);
+                command.SetDescriptionFromAttribute(method.GetCustomAttribute<LocalCommandDescAttribute>());
+                command.SetOptionsFromAttribute(method.GetCustomAttribute<LocalCommandOptionsAttribute>());
+                command.SetSuggestionsFromAttribute(method.GetCustomAttribute<LocalCommandSuggestionsAttribute>());
+
+                // Register the command
+                localConsoleCommands.Add(command);
+            }
+
+            // Sort commands by name
+            localConsoleCommands.OrderBy(x => x.GetFirstName());
+
+            // Build array of commands for auto complete
+            autoCompleteCommands = localConsoleCommands.SelectMany(x => x.GetNames()).ToArray();
+        }
+
+        public static void ToggleConsole()
         {
             if (IsConsoleOpen)
                 Close();
             else
                 Open();
         }
-        public void Open()
+        public static void Open()
         {
             IsConsoleOpen = true;
             wasOpened = true;
         }
-        public void Close()
+        public static void Close()
         {
             IsConsoleOpen = false;
             input = string.Empty;
             selectionIndex = 0;
         }
-        public void Clear()
+        public static void Clear()
         {
             Logger.ClearLogItems();
         }
 
-        public void ResetLastConsoleCommand()
+        public static void ResetLastConsoleCommand()
         {
             lastConsoleCommand = null;
+        }
+
+        private static void DoSuggestionsPopup(Vector2 popupPos)
+        {
+            if (!ImGuiIV.BeginPopup("ivsdkdotnetConsoleSuggestionsPopup", eImGuiWindowFlags.NoFocusOnAppearing))
+                return;
+
+            // Set position of the popup menu
+            ImGuiIV.SetWindowPos(popupPos);
+
+            // Set focus to popup menu only when hovering over it with the mouse
+            Vector2 windowPos = ImGuiIV.GetWindowPos();
+            Vector2 windowSize = ImGuiIV.GetWindowSize();
+            if (ImGuiIV.IsMouseHoveringRect(new RectangleF(windowPos.X, windowPos.Y, windowSize.X, windowSize.Y), false))
+            {
+                ImGuiIV.SetWindowFocus("ivsdkdotnetConsoleSuggestionsPopup");
+                isHoveringPopup = true;
+            }
+            else
+            {
+                isHoveringPopup = false;
+                if (ImGuiIV.IsWindowFocused(eImGuiFocusedFlags.ChildWindows))
+                    ImGuiIV.SetWindowFocus(null);
+            }
+
+            // Parse input
+            string[] args = Regex.Split(input, @"\s+");
+            string command = args[0].ToLower();
+
+            bool shouldClosePopup = true;
+
+            if (args.Length < 3)
+            {
+                if (args.Length == 1)
+                    shouldClosePopup = ShowSuggestedCommands(command);
+                else
+                    shouldClosePopup = ShowSuggestedCommandsOfCommand(command, args[1]);
+            }
+
+            if (shouldClosePopup || !popupOpen)
+                ImGuiIV.CloseCurrentPopup();
+
+            ImGuiIV.EndPopup();
+        }
+        private static bool ShowSuggestedCommands(string command) // Returns true if the popup should be closed
+        {
+            string[] autoCompleteCommandsFiltered = autoCompleteCommands.Where(x => x.Contains(command)).ToArray();
+
+            if (autoCompleteCommandsFiltered.Length == 0)
+                return true;
+
+            // Navigate through suggestions list
+            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_UpArrow, false))
+            {
+                if (selectionIndex <= 0)
+                {
+                    selectionIndex = autoCompleteCommandsFiltered.Length - 1;
+                }
+                else
+                {
+                    selectionIndex--;
+                }
+            }
+            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_DownArrow, false))
+            {
+                if (selectionIndex >= autoCompleteCommandsFiltered.Length - 1)
+                {
+                    selectionIndex = 0;
+                }
+                else
+                {
+                    selectionIndex++;
+                }
+            }
+            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_Tab) /*|| ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_RightArrow)*/)
+            {
+                ImGuiIV.SetActiveID(0, ImGuiIV.GetCurrentWindow());
+                //ImGuiIV.SetItemDefaultFocus();
+                //ImGuiIV.SetKeyboardFocusHere(-1);
+                wasOpened = true;
+                clearSelection = true;
+
+                input = autoCompleteCommandsFiltered[selectionIndex];
+            }
+
+            // Add filtered commands to suggestions list
+            for (int i = 0; i < autoCompleteCommandsFiltered.Length; i++)
+            {
+                if (ImGuiIV.Selectable(autoCompleteCommandsFiltered[i], selectionIndex == i))
+                    input = autoCompleteCommandsFiltered[i];
+
+                // Show the description of the command when hovering over this item
+                if (ImGuiIV.IsItemHovered())
+                    ImGuiIV.SetTooltip(GetLocalConsoleCommand(autoCompleteCommandsFiltered[i]).Description);
+
+                //string command = autoCompleteCommandsFiltered[i].ToLower();
+
+                //if (command.Contains(inputToLower))
+                //{
+                //    if (ImGuiIV.Selectable(autoCompleteCommandsFiltered[i], selectionIndex == i))
+                //        input = autoCompleteCommandsFiltered[i];
+                //}
+            }
+
+            return false; // Dont close popup
+        }
+        private static bool ShowSuggestedCommandsOfCommand(string command, string arg0) // Returns true if the popup should be closed
+        {
+            LocalConsoleCommand localConsoleCommand = GetLocalConsoleCommand(command);
+
+            if (localConsoleCommand == null)
+                return true;
+            if (!localConsoleCommand.HasSuggestions)
+                return true;
+
+            // Get suggestions
+            string[] suggestions = null;
+
+            switch (localConsoleCommand.DynamicSuggestions)
+            {
+                case DynamicConsoleCommandSuggestions.ActiveScripts:
+                    suggestions = ScriptManager.GetEntryPointNameOfActiveScripts();
+                    break;
+                default:
+                    suggestions = localConsoleCommand.Suggestions;
+                    break;
+            }
+
+            if (suggestions == null || suggestions.Length == 0)
+                return true;
+
+            // Navigate through suggestions list
+            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_UpArrow, false))
+            {
+                if (selectionIndex <= 0)
+                {
+                    selectionIndex = suggestions.Length - 1;
+                }
+                else
+                {
+                    selectionIndex--;
+                }
+            }
+            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_DownArrow, false))
+            {
+                if (selectionIndex >= suggestions.Length - 1)
+                {
+                    selectionIndex = 0;
+                }
+                else
+                {
+                    selectionIndex++;
+                }
+            }
+            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_Tab))
+            {
+                ImGuiIV.SetActiveID(0, ImGuiIV.GetCurrentWindow());
+                //ImGuiIV.SetItemDefaultFocus();
+                //ImGuiIV.SetKeyboardFocusHere(-1);
+                wasOpened = true;
+                clearSelection = true;
+
+                if (string.IsNullOrWhiteSpace(arg0))
+                    input = input.Insert(command.Length + 1, suggestions[selectionIndex]);
+                else
+                    input = input.Replace(arg0, suggestions[selectionIndex]);
+            }
+            
+            // Add suggestions to suggestions list
+            for (int i = 0; i < suggestions.Length; i++)
+            {
+                if (ImGuiIV.Selectable(suggestions[i], selectionIndex == i))
+                {
+                    if (string.IsNullOrWhiteSpace(arg0))
+                        input = input.Insert(command.Length + 1, suggestions[i]);
+                    else
+                        input = input.Replace(arg0, suggestions[i]);
+                }
+            }
+
+            return false; // Dont close popup
         }
         #endregion
 
         #region Functions
-        private Color GetColorFromConsoleLogStyle(int alpha, eConsoleLogStyle style)
+        public static bool ExecuteCommand(string input)
         {
-            switch (style)
-            {
-                case eConsoleLogStyle.Default:
-                    {
-                        if (Config.ImGuiStyle.ToLower() == "light" && !Config.UseCustomThemeForManagerAndConsole)
-                            return Color.FromArgb(alpha, 0, 0, 0);
-                        else
-                            return Color.FromArgb(alpha, 255, 255, 255);
-                    }
-                case eConsoleLogStyle.Debug:   return Color.FromArgb(alpha, 134, 56, 255);
-                case eConsoleLogStyle.Warning: return Color.FromArgb(alpha, 214, 207, 0);
-                case eConsoleLogStyle.Error:   return Color.FromArgb(alpha, 205, 0, 0);
-            }
-            return Color.FromArgb(alpha, 255, 255, 255);
-        }
-
-        private bool RegisterLocalCommand(string name, Action<string[]> actionToExecute)
-        {
-            string nameToLower = name.ToLower();
-
-            if (localCommands.ContainsKey(nameToLower))
+            if (string.IsNullOrWhiteSpace(input))
                 return false;
 
-            // Add command to commands list
-            localCommands.Add(nameToLower, actionToExecute);
-
-            return true;
-        }
-        public bool ExecuteCommand(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                return false;
-
-            string[] args = Regex.Split(name, @"\s+");
+            // Parse input
+            string[] args = Regex.Split(input, @"\s+");
             string command = args[0].ToLower();
 
             lastConsoleCommand = command;
@@ -127,15 +338,33 @@ namespace Manager.UI
             OnConsoleCommand?.Invoke(command, args);
 
             // Check if this is a local command
-            if (localCommands.ContainsKey(command))
+            LocalConsoleCommand localCommand = GetLocalConsoleCommand(command);
+
+            if (localCommand != null)
             {
+                // Check if command can be executed
+                if (localCommand.CanOnlyBeCalledOnceInGame && IVPlayerInfo.FindThePlayerPed() == UIntPtr.Zero)
+                {
+                    Logger.LogWarning("Cannot execute this command when not in-game yet.");
+                    return false;
+                }
+                if (localCommand.RequiredArgumentsCount != 0)
+                {
+                    if (args.Length < localCommand.RequiredArgumentsCount)
+                    {
+                        Logger.LogWarningEx("Cannot execute this command because it requires {0} argument(s) and you only passed in {1}.", localCommand.RequiredArgumentsCount, args.Length);
+                        return false;
+                    }
+                }
+
                 // Execute local command
-                localCommands[command]?.Invoke(args);
+                localCommand.Invoke(args);
                 return true;
             }
 
             // Command is not a local command, go through each registered script commands
-            Main.Instance.ActiveScripts.ForEach(x =>
+            // TODO: This can be made better
+            ScriptManager.GetActiveScripts().ForEach(x =>
             {
                 // Execute script command
                 if (x.ConsoleCommands.ContainsKey(command))
@@ -144,136 +373,201 @@ namespace Manager.UI
 
             return true;
         }
-
-        public string GetLastConsoleCommand()
+        public static string GetLastConsoleCommand()
         {
             return lastConsoleCommand;
+        }
+
+        private static LocalConsoleCommand GetLocalConsoleCommand(string command)
+        {
+            return localConsoleCommands.Where(x => x.ContainsGivenCommandName(command)).FirstOrDefault();
+        }
+        private static Color GetColorFromConsoleLogStyle(int alpha, eConsoleLogStyle style)
+        {
+            switch (style)
+            {
+                case eConsoleLogStyle.Default:
+                    {
+                        if (Config.ImGuiStyle.ToLower() == "light" && !Config.UseCustomThemeForManagerAndConsole)
+                            return Color.FromArgb(alpha, 0, 0, 0);
+                        else
+                            return Color.FromArgb(alpha, 255, 255, 255);
+                    }
+                case eConsoleLogStyle.Debug: return Color.FromArgb(alpha, 134, 56, 255);
+                case eConsoleLogStyle.Warning: return Color.FromArgb(alpha, 214, 207, 0);
+                case eConsoleLogStyle.Error: return Color.FromArgb(alpha, 205, 0, 0);
+            }
+            return Color.FromArgb(alpha, 255, 255, 255);
         }
         #endregion
 
         #region Commands
-        private void RegisterDefaultCommands()
+        [LocalCommandName("help")]
+        [LocalCommandDesc("Lists all available commands with a short description on what they do.")]
+        private static void HelpCommand(string[] args)
         {
-            RegisterLocalCommand("Help", (string[] args) => { HelpCommand(); });
-            RegisterLocalCommand("Clear", (string[] args) => { Clear(); });
-            RegisterLocalCommand("CheckForUpdates", (string[] args) => { Main.Instance.UpdateChecker.CheckForUpdates(false); });
-            RegisterLocalCommand("Autosave", (string[] args) => { Natives.DO_AUTO_SAVE(); });
-            RegisterLocalCommand("Save", (string[] args) => { Natives.ACTIVATE_SAVE_MENU(); });
-            RegisterLocalCommand("SavePlayerPos", (string[] args) => { SavePlayerPosCommand(); });
-            RegisterLocalCommand("AbortScripts", (string[] args) => { Main.Instance.AbortScripts(ScriptType.All, AbortReason.Console, true); });
-            RegisterLocalCommand("AbortScript", (string[] args) => { AbortScriptCommand(args); });
-            RegisterLocalCommand("ReloadScripts", (string[] args) => { Main.Instance.LoadScripts(); });
-            RegisterLocalCommand("GetRunningScripts", (string[] args) => { Logger.Log(string.Format("There are currently {0} scripts running.", Main.Instance.ActiveScripts.Count.ToString()), true); });
-            RegisterLocalCommand("LoadScript", (string[] args) => { LoadScriptCommand(args); });
-            RegisterLocalCommand("StartAPI", (string[] args) => { Main.Instance.ConnectionManager.Start(true); });
-            RegisterLocalCommand("StopAPI", (string[] args) => { Main.Instance.ConnectionManager.Stop(); });
-            RegisterLocalCommand("Manager", (string[] args) => { ManagerUI.IsConfigUIOpened = !ManagerUI.IsConfigUIOpened; });
-            RegisterLocalCommand("Teleport", (string[] args) => { TeleportCommand(args); });
-            RegisterLocalCommand("TP", (string[] args) => { TeleportCommand(args); });
-            RegisterLocalCommand("Wiki", (string[] args) => { Process.Start("https://github.com/ClonkAndre/IV-SDK-DotNet/wiki"); });
-            RegisterLocalCommand("Quit", (string[] args) => { QuitCommand(); });
+            Logger.LogWarning("======================== COMMANDS ========================");
+            Logger.LogWarningEx("There are currently {0} local commands available.", localConsoleCommands.Count);
 
-            // Get list of commands for auto complete
-            autoCompleteCommands = localCommands.Keys.ToArray();
+            for (int i = 0; i < localConsoleCommands.Count; i++)
+            {
+                Logger.Log(localConsoleCommands[i].Description);
+            }
+
+            Logger.LogWarning("==========================================================");
         }
-        private void HelpCommand()
+
+        [LocalCommandName("clear")]
+        [LocalCommandDesc("Clears the console.")]
+        private static void ClearCommand(string[] args)
         {
-            Logger.Log("- - - - - - - Commands - - - - - - -", true);
-            Logger.Log("Help                - Shows all commands of IV-SDK .NET with a description.", true);
-            Logger.Log("Clear               - Clears the IV-SDK .NET console.", true);
-            Logger.Log("CheckForUpdates     - Checks if there is a new update for IV-SDK .NET available.", true);
-            Logger.Log("Autosave            - Triggers an auto save.", true);
-            Logger.Log("Save                - Opens the save menu.", true);
-            Logger.Log("SavePlayerPos       - Saves the players coordinates and heading to clipboard.", true);
-            Logger.Log("AbortScripts        - Aborts all currently running scripts.", true);
-            Logger.Log("AbortScript         - Tries to abort a single script.", true);
-            Logger.Log("ReloadScripts       - Aborts and reloads all scripts.", true);
-            Logger.Log("GetRunningScripts   - Gets number of running scripts.", true);
-            Logger.Log("LoadScript          - Tries to load a single script.", true);
-            Logger.Log("StartAPI            - Starts the API so clients can connect to IV-SDK .NET.", true);
-            Logger.Log("StopAPI             - Stops the API so clients can no longer connect to IV-SDK .NET.", true);
-            Logger.Log("Manager             - Opens the Manager Window from which you can for example change some IV-SDK .NET settings, or control scripts.", true);
-            Logger.Log("Teleport (or TP)    - Teleports the player to the given location.", true);
-            Logger.Log("Wiki                - Opens the IV-SDK .NET Wiki webpage on GitHub.", true);
-            Logger.Log("Quit                - Tries to force quit GTA IV.", true);
+            Clear();
         }
-        private void SavePlayerPosCommand()
+
+        [LocalCommandName("checkforupdates")]
+        [LocalCommandDesc("Checks if there is an update available for IV-SDK .NET.")]
+        private static void CheckForUpdatesCommand(string[] args)
+        {
+            Main.Instance.UpdateChecker.CheckForUpdates(false);
+        }
+
+        [LocalCommandName("autosave")]
+        [LocalCommandDesc("Performs an instant autosave.")]
+        [LocalCommandOptions(canOnlyBeCalledOnceInGame: true)]
+        private static void Autosave(string[] args)
+        {
+            Natives.DO_AUTO_SAVE();
+        }
+
+        [LocalCommandName("save")]
+        [LocalCommandDesc("Opens the save menu.")]
+        [LocalCommandOptions(canOnlyBeCalledOnceInGame: true)]
+        private static void Save(string[] args)
+        {
+            Natives.ACTIVATE_SAVE_MENU();
+        }
+
+        [LocalCommandName("saveplayerpos")]
+        [LocalCommandDesc("Saves the current position and heading of the player.")]
+        [LocalCommandOptions(canOnlyBeCalledOnceInGame: true)]
+        private static void SavePlayerPosCommand(string[] args)
         {
             try
             {
-                IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-                if (playerPed != null)
-                {
-                    Vector3 playerPos = playerPed.Matrix.Pos;
-                    
-                    bool success = false;
-                    string str = string.Format("X: {0} Y: {1} Z: {2} H: {3}",
-                        playerPos.X.ToString(CultureInfo.InvariantCulture),                 // 0
-                        playerPos.Y.ToString(CultureInfo.InvariantCulture),                 // 1
-                        playerPos.Z.ToString(CultureInfo.InvariantCulture),                 // 2
-                        playerPed.CurrentHeading.ToString(CultureInfo.InvariantCulture));   // 3
+                Natives.GET_CHAR_COORDINATES(Main.Instance.PlayerPedHandle, out Vector3 playerPos);
+                Natives.GET_CHAR_HEADING(Main.Instance.PlayerPedHandle, out float playerHeading);
 
-                    Thread cpThread = new Thread(() => {
-                        Clipboard.SetText(str);
-                        success = Clipboard.GetText().Equals(str);
-                    });
-                    cpThread.SetApartmentState(ApartmentState.STA);
-                    cpThread.Start();
-                    cpThread.Join();
+                string str = string.Format("X: {0}, Y: {1}, Z: {2}, H: {3}",
+                    playerPos.X.ToString(CultureInfo.InvariantCulture),      // 0
+                    playerPos.Y.ToString(CultureInfo.InvariantCulture),      // 1
+                    playerPos.Z.ToString(CultureInfo.InvariantCulture),      // 2
+                    playerHeading.ToString(CultureInfo.InvariantCulture));   // 3
 
-                    if (success)
-                        Logger.Log("Current player position and heading saved to clipboard!");
-                    else
-                        Logger.LogError("Unknown error while trying to save current player position and heading to clipboard.");
-                }
-                else
-                {
-                    Logger.LogWarning("Could not save player position and heading to clipbard. Player was null. Ensure that you're actually calling this command while in-game.");
-                }
+                Thread cpThread = new Thread(() => Clipboard.SetText(str));
+                cpThread.SetApartmentState(ApartmentState.STA);
+                cpThread.Start();
+                cpThread.Join();
+
+                Logger.Log("Current player position and heading should've been saved to clipboard!");
             }
             catch (Exception ex)
             {
                 Logger.LogError(string.Format("An error occured while trying to save player position and heading to clipboard! Details: {0}", ex.ToString()));
             }
         }
-        private void AbortScriptCommand(string[] args)
-        {
-            if (args.Length > 1)
-            {
-                string scriptName = args[1];
-                FoundScript fs = Main.Instance.GetFoundScript(scriptName);
 
-                if (fs != null)
-                    Main.Instance.AbortScriptInternal(AbortReason.Manager, fs, true);
-                else
-                    Logger.LogWarning(string.Format("Could not find script {0}. Script might already be aborted.", scriptName));
-            }
-            else
-                Logger.LogWarning("AbortScript usage: AbortScript TheScriptToLoad");
-        }
-        private void LoadScriptCommand(string[] args)
+        [LocalCommandName("abortscripts")]
+        [LocalCommandDesc("Aborts all currently running scripts.")]
+        private static void AbortScriptsCommand(string[] args)
         {
-            if (args.Length > 1)
-                Main.Instance.LoadScript(args[1]);
-            else
-                Logger.LogWarning("LoadScript usage: LoadScript TheScriptToLoad.ivsdk.dll");
+            ScriptManager.AbortScripts(ScriptType.All, AbortReason.Console, true);
         }
-        private void TeleportCommand(string[] args)
-        {
-            UIntPtr playerPtr = IVPlayerInfo.FindThePlayerPed();
 
-            if (playerPtr == UIntPtr.Zero)
+        [LocalCommandName("abortscript")]
+        [LocalCommandDesc("Aborts a single script.")]
+        [LocalCommandOptions(requiredArgumentsCount: 1)]
+        [LocalCommandSuggestions(dynamicSuggestions: DynamicConsoleCommandSuggestions.ActiveScripts)]
+        private static void AbortScriptCommand(string[] args)
+        {
+            string scriptName = args[0];
+            FoundScript fs = ScriptManager.GetFoundScript(scriptName);
+
+            if (fs != null)
+                ScriptManager.AbortScriptInternal(AbortReason.Manager, fs, true);
+            else
+                Logger.LogWarning(string.Format("Could not find script {0}. Script might already be aborted.", scriptName));
+        }
+
+        [LocalCommandName("reloadscripts")]
+        [LocalCommandDesc("Reloads all scripts.")]
+        private static void ReloadScriptsCommand(string[] args)
+        {
+            ScriptManager.LoadScriptsInternal();
+        }
+
+        [LocalCommandName("loadscript")]
+        [LocalCommandDesc("Loads a single script.")]
+        [LocalCommandOptions(requiredArgumentsCount: 1)]
+        private static void LoadScriptCommand(string[] args)
+        {
+            ScriptManager.LoadScript(args[1]);
+        }
+
+        [LocalCommandName("startapi")]
+        [LocalCommandDesc("Starts the IV-SDK .NET Manager API.")]
+        private static void StartAPICommand(string[] args)
+        {
+            Main.Instance.ConnectionManager.Start(true);
+        }
+
+        [LocalCommandName("stopapi")]
+        [LocalCommandDesc("Stops the IV-SDK .NET Manager API.")]
+        private static void StopAPICommand(string[] args)
+        {
+            Main.Instance.ConnectionManager.Stop();
+        }
+
+        [LocalCommandName("manager", "mgr")]
+        [LocalCommandDesc("Toggles the manager window of IV-SDK .NET.")]
+        private static void ToggleManagerWindowCommand(string[] args)
+        {
+            ManagerUI.IsConfigUIOpened = !ManagerUI.IsConfigUIOpened;
+        }
+
+        [LocalCommandName("publicfields", "pf")]
+        [LocalCommandDesc("Toggles the public fields window of a script.")]
+        [LocalCommandOptions(requiredArgumentsCount: 1)]
+        [LocalCommandSuggestions(dynamicSuggestions: DynamicConsoleCommandSuggestions.ActiveScripts)]
+        private static void TogglePublicFieldsWindow(string[] args)
+        {
+            string scriptName = args[0];
+
+            if (scriptName == null)
             {
-                Logger.LogWarning("The teleport command can only be used when in-game.");
+                Logger.LogWarning("publicfields usage: publicfields MyScript.Main (actual name) OR publicfields MyScript/MyScript.ivsdk.dll (file name)");
                 return;
             }
 
-            if (args.Length < 3)
+            FoundScript foundScript = ScriptManager.GetFoundScript(scriptName);
+
+            if (foundScript == null)
             {
-                Logger.LogWarning("Teleport usage: teleport X Y Z");
+                Logger.LogWarning("Could not find script by that name.");
                 return;
             }
 
+            if (!foundScript.WasConstructed())
+                return;
+
+            // Toggle window
+            foundScript.PublicFieldsWindowOpen = !foundScript.PublicFieldsWindowOpen;
+        }
+
+        [LocalCommandName("teleport", "tp")]
+        [LocalCommandDesc("Teleports the player to the given coordinates.")]
+        [LocalCommandOptions(canOnlyBeCalledOnceInGame: true, requiredArgumentsCount: 3)]
+        private static void TeleportCommand(string[] args)
+        {
             // 0 = X
             // 1 = Y
             // 2 = Z
@@ -288,40 +582,39 @@ namespace Manager.UI
             }
 
             // Teleport
-            Main.Instance.ActionQueue.Enqueue(() =>
+            ThreadManager.AddToMainThreadQueue(() =>
             {
-                IVPed.FromUIntPtr(playerPtr).Teleport(new Vector3(x, y, z), false, true);
-                Logger.Log(string.Format("Teleported the player to location X: {0}, Y: {1}, Z: {2}", x, y, z));
+                IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed()).Teleport(new Vector3(x, y, z), false, true);
+                Logger.LogEx("Teleported the player to location X: {0}, Y: {1}, Z: {2}", x, y, z);
             });
         }
-        private void QuitCommand()
+
+        [LocalCommandName("docs")]
+        [LocalCommandDesc("Opens the official IV-SDK .NET GitHub Documentation in your default webbrowser.")]
+        private static void DocsCommand(string[] args)
+        {
+            Process.Start("https://github.com/ClonkAndre/IV-SDK-DotNet/wiki"); // TODO: Update the link!
+        }
+
+        [LocalCommandName("quit", "exit", "close")]
+        [LocalCommandDesc("Closes the game.")]
+        private static void QuitCommand(string[] args)
         {
             Process p = Main.Instance.GTAIVProcess;
-            if (p != null)
-            {
-                Main.Instance.Cleanup();
-                Thread.Sleep(1000);
-                p.Kill();
-            }
-            else
+
+            if (p == null)
             {
                 Logger.LogWarning("Could not close GTA IV. GTAIVProcess is null.");
+                return;
             }
+
+            CLR.CLRBridge.ForceShutdown();
+            Thread.Sleep(1000);
+            p.Kill();
         }
         #endregion
 
-        #region Constructor
-        internal ConsoleUI()
-        {
-            input = string.Empty;
-
-            // Create commands dictionary and register default commands
-            localCommands = new Dictionary<string, Action<string[]>>();
-            RegisterDefaultCommands();
-        }
-        #endregion
-
-        public void DoUI()
+        public static void DoUI()
         {
             if (!IsConsoleOpen)
                 return;
@@ -363,12 +656,14 @@ namespace Manager.UI
 
             // Check if mouse is hovering over the listbox for auto-scroll
             Vector2 listBoxItemRectMin = ImGuiIV.GetItemRectMin();
-            Vector2 listBoxItemRectMax = listBoxItemRectMin + ImGuiIV.GetItemRectSize();
-            canScrollToEnd = !ImGuiIV.IsMouseHoveringRect(new RectangleF(listBoxItemRectMin.X, listBoxItemRectMin.Y, listBoxItemRectMax.X, listBoxItemRectMax.Y), false);
+            Vector2 listBoxSize = ImGuiIV.GetItemRectSize();
 
+            canScrollToEnd = !ImGuiIV.IsMouseHoveringRect(new RectangleF(listBoxItemRectMin.X, listBoxItemRectMin.Y, listBoxSize.X, listBoxSize.Y), false);
+            
             // Send command button
             ImGuiIV.Spacing(2);
-            if (ImGuiIV.Button("Send", new Vector2(80f, 0f)) || ImGuiIV.IsKeyReleased(eImGuiKey.ImGuiKey_Enter))
+            bool isEnterReleased = ImGuiIV.IsKeyReleased(eImGuiKey.ImGuiKey_Enter) || ImGuiIV.IsKeyReleased(eImGuiKey.ImGuiKey_KeypadEnter);
+            if (ImGuiIV.Button("Send", new Vector2(80f, 0f)) || isEnterReleased)
             {
                 if (!string.IsNullOrWhiteSpace(input))
                 {
@@ -430,7 +725,7 @@ namespace Manager.UI
             {
                 popupOpen = true;
 
-                if (!ImGuiIV.IsPopupOpen("ivsdkdotnetConsoleCommandsPopup"))
+                if (!ImGuiIV.IsPopupOpen("ivsdkdotnetConsoleSuggestionsPopup"))
                     selectionIndex = 0;
             }
             else
@@ -440,88 +735,11 @@ namespace Manager.UI
             }
 
             if (popupOpen)
-                ImGuiIV.OpenPopup("ivsdkdotnetConsoleCommandsPopup");
+                ImGuiIV.OpenPopup("ivsdkdotnetConsoleSuggestionsPopup");
 
             // Suggestions popup
-            if (ImGuiIV.BeginPopup("ivsdkdotnetConsoleCommandsPopup", eImGuiWindowFlags.NoFocusOnAppearing))
-            {
-                ImGuiIV.SetWindowPos(textboxRectMin + new Vector2(0f, textboxRectSize.Y) + new Vector2(0f, 15f));
-
-                Vector2 windowPos = ImGuiIV.GetWindowPos();
-                Vector2 windowSize = ImGuiIV.GetWindowSize();
-                if (ImGuiIV.IsMouseHoveringRect(new RectangleF(windowPos.X, windowPos.Y, windowSize.X, windowSize.Y), false))
-                {
-                    ImGuiIV.SetWindowFocus("ivsdkdotnetConsoleCommandsPopup");
-                    isHoveringPopup = true;
-                }
-                else
-                {
-                    isHoveringPopup = false;
-                    if (ImGuiIV.IsWindowFocused(eImGuiFocusedFlags.ChildWindows))
-                        ImGuiIV.SetWindowFocus(null);
-                }
-
-                string inputToLower = input.ToLower();
-                string[] autoCompleteCommandsFiltered = autoCompleteCommands.Where(x => x.ToLower().Contains(inputToLower)).ToArray();
-
-                if (autoCompleteCommandsFiltered.Length != 0)
-                {
-                    // Navigate through suggestions list
-                    if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_UpArrow, false))
-                    {
-                        if (selectionIndex <= 0)
-                        {
-                            selectionIndex = autoCompleteCommandsFiltered.Length - 1;
-                        }
-                        else
-                        {
-                            selectionIndex--;
-                        }
-                    }
-                    if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_DownArrow, false))
-                    {
-                        if (selectionIndex >= autoCompleteCommandsFiltered.Length - 1)
-                        {
-                            selectionIndex = 0;
-                        }
-                        else
-                        {
-                            selectionIndex++;
-                        }
-                    }
-                    if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_Tab)
-                        || ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_RightArrow))
-                    {
-                        ImGuiIV.SetActiveID(0, ImGuiIV.GetCurrentWindow());
-                        //ImGuiIV.SetItemDefaultFocus();
-                        //ImGuiIV.SetKeyboardFocusHere(-1);
-                        wasOpened = true;
-                        clearSelection = true;
-
-                        input = autoCompleteCommandsFiltered[selectionIndex];
-                    }
-
-                    for (int i = 0; i < autoCompleteCommandsFiltered.Length; i++)
-                    {
-                        string command = autoCompleteCommandsFiltered[i].ToLower();
-
-                        if (command.Contains(inputToLower))
-                        {
-                            if (ImGuiIV.Selectable(autoCompleteCommandsFiltered[i], selectionIndex == i))
-                                input = autoCompleteCommandsFiltered[i];
-                        }
-                    }
-
-                    if (!popupOpen)
-                        ImGuiIV.CloseCurrentPopup();
-                }
-                else
-                {
-                    ImGuiIV.CloseCurrentPopup();
-                }
-
-                ImGuiIV.EndPopup();
-            }
+            Vector2 popupPos = textboxRectMin + new Vector2(0f, textboxRectSize.Y) + new Vector2(0f, 15f);
+            DoSuggestionsPopup(popupPos);
 
             ImGuiIV.End();
         }

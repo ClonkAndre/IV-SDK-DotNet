@@ -182,7 +182,7 @@ namespace IVSDKDotNet
 		}
 
 		/// <summary>
-		/// Gets the current menu.
+		/// Gets or sets the current menu.
 		/// </summary>
 		static property uint32_t MenuState
 		{
@@ -265,6 +265,11 @@ namespace IVSDKDotNet
 			return CGame::IsGameRestarting();
 		}
 
+		static bool SetMenuState(int state)
+		{
+			return CGame::SetMenuState(state);
+		}
+
 		/// <summary>
 		/// Gets if the GTA IV main window is currently in focus.
 		/// </summary>
@@ -313,11 +318,6 @@ namespace IVSDKDotNet
 		/// </summary>
 		/// <returns>The rectangle of the radar.</returns>
 		static RectangleF GetRadarRectangle();
-
-		static void Idk(int episode, int a2, char a3, char a4)
-		{
-			CGame::Idk(episode, a2, a3, a4);
-		}
 
 	};
 }

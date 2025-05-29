@@ -63,16 +63,6 @@ struct PedWeapons
 		((void(__thiscall*)(PedWeapons*, int, uint32_t, bool, bool, bool))(AddressSetter::Get("PedWeapons", "GiveWeapon")))(this, weaponType, ammoQuantity, unk1, unk2, unk3);
 	}
 
-	// TEST
-	void FireSingleBullet(CPed* shooter, int unk1, int unk2, int unk3, int unk4, int unk5, int unk6, float unk7, float unk8)
-	{
-		((void(__thiscall*)(PedWeapons*, CPed*, int, int, int, int, int, int, float, float))(AddressSetter::Get(0x0, 0x5D5D50)))(this, shooter, unk1, unk2, unk3, unk4, unk5, unk6, unk7, unk8);
-	}
-	void Test(CPed* shooter, int unk1, int unk2, int unk3, int unk4, int unk5, int unk6, float unk7, float unk8)
-	{
-		
-	}
-
 };
 //VALIDATE_SIZE(PedWeapons, 0xCC);
 //VALIDATE_OFFSET(PedWeapons, m_nActiveWeaponSlot, 0x18);
@@ -112,7 +102,7 @@ public:
 public:
 	void AssignTask(CTask* task, int32_t unk1)
 	{
-		// TODO
+		// TODO: Needs 1070 address!!!
 		((void(__thiscall*)(CPedTasks*, CTask*, int32_t, uint32_t))(AddressSetter::Get(0x0, 0x705E20)))(this, task, unk1, 0);
 	}
 };
@@ -361,6 +351,8 @@ public:																	// 000-210
 		((void(__thiscall*)(CPed*))(AddressSetter::Get("CPed", "ProcessHeading")))(this);
 	}
 };
+
+
 
 //VALIDATE_SIZE(CPed, 0xF00);
 //VALIDATE_OFFSET(CPed, m_pCollider, 0x7BC);

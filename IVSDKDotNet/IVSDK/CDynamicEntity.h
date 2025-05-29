@@ -16,6 +16,12 @@ public:
 	{
 		return ((CMatrix * (__thiscall*)(CDynamicEntity*, int))(AddressSetter::Get("CDynamicEntity", "GetBoneMatrix2")))(this, boneID);
 	}
+
+	// prolly rather goes into m_pAnim
+	uint32_t* PlayAnimation(int animGroupId, int animId, int flags, int unkMaybeBlendData, float unk1)
+	{
+		return ((uint32_t * (__thiscall*)(uint32_t*, int, int, int, int, float))(AddressSetter::Get("CDynamicEntity", "PlayAnimation")))(m_pAnim, animGroupId, animId, flags, unkMaybeBlendData, unk1);
+	}
 };
 
 VALIDATE_SIZE(CDynamicEntity, 0x110);

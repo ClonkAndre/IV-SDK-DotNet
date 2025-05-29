@@ -54,16 +54,12 @@ namespace CLR
 		IVSDKDotNetScriptsPath =	IVSDKDotNetPath + "\\scripts";
 		m_sIVSDKDotNetManagerPath = IVSDKDotNetPath + "\\IVSDKDotNet.Manager.dll";
 
-		// Set current log file name
-		DateTime dtNow = DateTime::Now;
-		CurrentLogFileName = String::Format("IVSDKDotNet@{0}{1}{2}@{3}.log", dtNow.Day, dtNow.Month, dtNow.Year, dtNow.Millisecond);
-
 		// Initialize and try loading the IVSDKDotNet settings file
 		Settings = gcnew SettingsFile(IVSDKDotNetPath + "\\config.ini");
 		bool settingsLoadResult = Settings->Load();
 		
 		// Initialize logger
-		Logger::Initialize();
+		Logger::Initialize(Settings);
 
 		// Force english culture of current thread
 		System::Globalization::CultureInfo^ cultureInfo = gcnew System::Globalization::CultureInfo("en-US");
@@ -72,7 +68,7 @@ namespace CLR
 
 		// Print about text to console
 #if _DEBUG
-		Logger::Log(String::Format("IV-SDK .NET DEBUG version {0} by ItsClonkAndre", Version));
+		Logger::LogEx("IV-SDK .NET DEBUG version {0} by ItsClonkAndre", Version);
 
 		// Launch debugger
 		if (Settings->GetBoolean("DEBUG", "LaunchDebugger", false))
@@ -109,11 +105,12 @@ namespace CLR
 			Sleep(100);
 
 		// Initialize stuff
+		Native::Function::Init();
 		MH_STATUS minHookStatus = MH_Initialize();
 
 		if (minHookStatus != MH_STATUS::MH_OK)
 		{
-			Logger::LogError(String::Format("[MinHook] Failed to initialize! Details: {0}", gcnew String(MH_StatusToString(minHookStatus))));
+			Logger::LogErrorEx("[MinHook] Failed to initialize! Details: {0}", gcnew String(MH_StatusToString(minHookStatus)));
 			LetUserKnowAboutFailedInitialization();
 			return;
 		}
@@ -139,7 +136,7 @@ namespace CLR
 
 		if (minHookStatus != MH_STATUS::MH_OK)
 		{
-			Logger::LogError(String::Format("[MinHook] Failed to enable Hooks! Details: {0}", gcnew String(MH_StatusToString(minHookStatus))));
+			Logger::LogErrorEx("[MinHook] Failed to enable Hooks! Details: {0}", gcnew String(MH_StatusToString(minHookStatus)));
 			LetUserKnowAboutFailedInitialization();
 			return;
 		}
@@ -160,15 +157,12 @@ namespace CLR
 			LetUserKnowAboutFailedInitialization();
 			return;
 		}
-	
+		
 		// Schleep a bit
 		Sleep(1100);
 
-		// Set drawing allowed now
-		ImGuiIV::CanDraw = true;
-
-		// Load scripts
-		LoadScripts();
+		// Tell the manager the initialization has finished and it can now do the stuff it needs to do after initialization
+		ManagerScript::GetInstance()->InitializationFinished(Settings);
 
 		//// Do additional checks
 		//DoAdditionalChecks();
@@ -256,8 +250,10 @@ namespace CLR
 		if (!ManagerScript::HasInstance())
 			return;
 
+		bool isUsingController = *(bool*)((uint32_t)CPad::GetPad() + 0x328C);
+
 		// Disable inputs if ImGui wants text input
-		if ((ImGuiIV::DisableMouseInput || ImGuiIV::DisableKeyboardInput) && !ManagerScript::GetInstance()->IsUsingController())
+		if (!isUsingController && (ImGuiIV::DisableMouseInput || ImGuiIV::DisableKeyboardInput))
 		{
 			CPad* pad = reinterpret_cast<CPad*>(padPtr);
 
@@ -297,7 +293,7 @@ namespace CLR
 							values->m_nLastValue = 128;
 							break;
 
-						// Do nothing with these
+							// Do nothing with these
 						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_LEFT:
 						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_RIGHT:
 						case IVSDKDotNet::Enums::ePadControls::INPUT_MOVE_UP:
@@ -347,7 +343,7 @@ namespace CLR
 							values->m_nLastValue = 128;
 							break;
 
-						// Do nothing with these
+							// Do nothing with these
 						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_LEFT:
 						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_RIGHT:
 						case IVSDKDotNet::Enums::ePadControls::INPUT_LOOK_UP:
@@ -356,7 +352,7 @@ namespace CLR
 						case IVSDKDotNet::Enums::ePadControls::INPUT_MOUSE_LR:
 							break;
 
-						// Set all the other stuff to 0
+							// Set all the other stuff to 0
 						default:
 							values->m_nCurrentValue = 0;
 							values->m_nLastValue = 0;
@@ -455,13 +451,16 @@ namespace CLR
 				throw;
 #endif // _DEBUG
 		}
-
+		
 		return false;
 	}
 	bool CLRBridge::InitManager()
 	{
+#ifndef _DEBUG
 		try
 		{
+#endif // _DEBUG
+
 			// Load the manager assembly
 			Assembly^ assembly = Assembly::UnsafeLoadFrom(m_sIVSDKDotNetManagerPath);
 
@@ -472,39 +471,31 @@ namespace CLR
 			}
 
 			// Get types from assembly
-			array<Type^>^ containedTypes = assembly->GetTypes();
-			for (int i = 0; i < containedTypes->Length; i++)
+			Type^ t = assembly->GetType("Manager.Main", true);
+
+			// Create new instance of type for assembly
+			ManagerScript^ ms = (ManagerScript^)assembly->CreateInstance(t->FullName);
+
+			if (!ms)
 			{
-				Type^ containedType = containedTypes[i];
-
-				if (!containedType->IsSubclassOf(ManagerScript::typeid))
-					continue;
-
-				// Create new instance of type for assembly
-				ManagerScript^ ms = (ManagerScript^)assembly->CreateInstance(containedType->FullName);
-
-				if (!ms)
-				{
-					Logger::LogError("Failed to create new instance of ManagerScript!");
-					LetUserKnowAboutFailedInitialization();
-					return false;
-				}
-
-				// Set static instance
-				ManagerScript::SetInstance(ms);
-
-				// Apply Settings
-				ms->ApplySettings(Settings);
-
-				// Create and set dummy script for manager
-				ms->SetDummyScript(gcnew Script(true, Guid("00000000-0000-0000-0000-000000000001")));
-
-				// Load plugins
-				if (!Settings->GetBoolean("DEBUG", "DisablePluginsLoadOnStartup", false))
-					ms->LoadPlugins();
-
-				return true;
+				Logger::LogError("Failed to create new instance of ManagerScript!");
+				LetUserKnowAboutFailedInitialization();
+				return false;
 			}
+
+			// Set static instance
+			ManagerScript::SetInstance(ms);
+
+			// Create and set dummy script for manager
+			ms->SetDummyScript(gcnew Script(true, Guid("00000000-0000-0000-0000-000000000001")));
+
+			// Load plugins
+			if (!Settings->GetBoolean("DEBUG", "DisablePluginsLoadOnStartup", false))
+				ms->LoadPlugins();
+
+			return true;
+
+#ifndef _DEBUG
 		}
 		catch (ReflectionTypeLoadException^ ex)
 		{
@@ -529,41 +520,9 @@ namespace CLR
 				throw;
 #endif // _DEBUG
 		}
+#endif // _DEBUG
 
 		return false;
-	}
-	void CLRBridge::LoadScripts()
-	{
-		try
-		{
-			if (Settings->GetBoolean("DEBUG", "DisableScriptLoadOnStartup", false))
-				return;
-
-			ManagerScript::GetInstance()->LoadScripts();
-		}
-		catch (ReflectionTypeLoadException^ ex)
-		{
-			array<Exception^>^ exs = ex->LoaderExceptions;
-			for (int i = 0; i < exs->Length; i++)
-			{
-				Exception^ e = exs[i];
-				Logger::LogError(String::Format("A ReflectionTypeLoadException occured while trying to automatically load all scripts. Details: {0}", e), false);
-			}
-
-#if _DEBUG
-			if (Debugger::IsAttached)
-				throw;
-#endif // _DEBUG
-		}
-		catch (Exception^ ex)
-		{
-			Logger::LogError(String::Format("An exception occured while trying to automatically load all scripts. Details: {0}", ex));
-
-#if _DEBUG
-			if (Debugger::IsAttached)
-				throw;
-#endif // _DEBUG
-		}
 	}
 	void CLRBridge::LetUserKnowAboutFailedInitialization()
 	{
@@ -578,7 +537,6 @@ namespace CLR
 		ShutdownMinHook();
 
 		// Logger
-		Logger::ForceCreateLogFile();
 		Logger::Shutdown();
 
 		// Other
@@ -616,9 +574,9 @@ namespace CLR
 		// Log
 		Logger::Log("Application is closing, starting cleanup process...");
 
-		// Start cleanup in manager script
+		// Start shutting down the manager script
 		if (ManagerScript::HasInstance())
-			ManagerScript::GetInstance()->Cleanup();
+			ManagerScript::GetInstance()->Shutdown();
 
 		// MinHook
 		ShutdownMinHook();
@@ -635,7 +593,6 @@ namespace CLR
 
 		// Logger
 		Logger::Log("Cleanup process finished!");
-		Logger::ForceCreateLogFile();
 		Logger::Shutdown();
 
 		CanTerminate = true;

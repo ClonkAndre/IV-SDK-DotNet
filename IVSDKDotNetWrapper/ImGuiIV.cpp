@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "ImGuiIV.h"
 
 bool ImGuiDraw::OnWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -128,6 +128,10 @@ void ImGuiDraw::DisableControllerNavigation(ImGuiIO& io)
 	io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
 }
 
+void ImGuiDraw::OnAfterD3D9DeviceBeginScene(IDirect3DDevice9* d3d9Device)
+{
+
+}
 void ImGuiDraw::OnBeforeD3D9DeviceEndScene(IDirect3DDevice9* d3d9Device)
 {
 	// Initialize ImGui if not initialized yet
@@ -141,6 +145,12 @@ void ImGuiDraw::OnBeforeD3D9DeviceEndScene(IDirect3DDevice9* d3d9Device)
 
 	// Get ImGuiIO
 	ImGuiIO& io = ImGui::GetIO();
+
+	// Little hack to get the mouse XButtons to register
+	SHORT x1 = GetAsyncKeyState(VK_XBUTTON1);
+	SHORT x2 = GetAsyncKeyState(VK_XBUTTON2);
+	io.AddMouseButtonEvent(3, (x1 & 0x8000) != 0);
+	io.AddMouseButtonEvent(4, (x2 & 0x8000) != 0);
 
 	// Get the main Viewport of ImGui
 	ImGuiViewport* vp = ImGui::GetMainViewport();
@@ -202,9 +212,17 @@ void ImGuiDraw::OnBeforeD3D9DeviceEndScene(IDirect3DDevice9* d3d9Device)
 		// If there are as many active windows as there are windows with the "DoNotDisableMouseInput" flag, we can safely enable input
 		ImGuiIV::DisableMouseInput = ImGuiIV::ActiveScriptWindows != windowsWithDoNotDisableMouseInputFlag;
 
-		// If there are as many active windows as there are windows with the "DoNotDisableKeyboardInput" flag, we can safely enable input
-		ImGuiIV::DisableKeyboardInput = ImGuiIV::ActiveScriptWindows != windowsWithDoNotDisableKeyboardInputFlag;
-
+		if (io.WantTextInput)
+		{
+			// If ImGui wants text input we definitly want to disable the keyboard input
+			ImGuiIV::DisableKeyboardInput = true;
+		}
+		else
+		{
+			// If there are as many active windows as there are windows with the "DoNotDisableKeyboardInput" flag, we can safely enable input
+			ImGuiIV::DisableKeyboardInput = ImGuiIV::ActiveScriptWindows != windowsWithDoNotDisableKeyboardInputFlag;
+		}
+		
 		m_bDidResetInputStates = false;
 	}
 	else
@@ -227,8 +245,12 @@ void ImGuiDraw::OnBeforeD3D9DeviceEndScene(IDirect3DDevice9* d3d9Device)
 	ImGui::Render();
 	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 }
+
+
 void ImGuiDraw::OnBeforeD3D9DeviceReset(IDirect3DDevice9* d3d9Device)
 {
+	WRITE_TO_DEBUG_OUTPUT("A D3D9 device reset is about to happen.");
+
 	// Initialize ImGui if not initialized yet
 	InitializeImGui(d3d9Device);
 
@@ -237,6 +259,8 @@ void ImGuiDraw::OnBeforeD3D9DeviceReset(IDirect3DDevice9* d3d9Device)
 }
 void ImGuiDraw::OnAfterD3D9DeviceReset()
 {
+	WRITE_TO_DEBUG_OUTPUT("The D3D9 device was reset.");
+
 	// Create device objects for ImGui
 	ImGui_ImplDX9_CreateDeviceObjects();
 }

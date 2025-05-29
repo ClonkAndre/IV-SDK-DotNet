@@ -5,194 +5,59 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-using Manager.Classes;
-
 using IVSDKDotNet;
 using IVSDKDotNet.Manager;
 
+using Manager.Classes;
+using Manager.UI;
+
 namespace Manager.Managers
 {
-    public class PluginManager
+    public static class PluginManager
     {
 
         #region Variables
+        private static bool wasInitialized;
+
         // Lists
-        public List<FoundPlugin> ActivePlugins;
+        public static List<FoundPlugin> ActivePlugins;
         
         // Other
-        private readonly object activePluginsLockObj = new object();
-        public DateTime TimeSinceLastPluginLoad;
-        #endregion
-
-        #region Raisers
-        public void RaiseTick()
-        {
-            ActivePlugins.ForEach(x =>
-            {
-                try
-                {
-                    x.RaiseTick();
-                }
-                catch (Exception ex)
-                {
-                    HandlePluginException(x, 6d, "Tick", ex);
-                }
-            });
-        }
-        public void RaiseGameLoad()
-        {
-            ActivePlugins.ForEach(x =>
-            {
-                try
-                {
-                    x.RaiseGameLoad();
-                }
-                catch (Exception ex)
-                {
-                    HandlePluginException(x, 6d, "GameLoad", ex);
-                }
-            });
-        }
-        public void RaiseGameLoadPriority()
-        {
-            ActivePlugins.ForEach(x =>
-            {
-                try
-                {
-                    x.RaiseGameLoadPriority();
-                }
-                catch (Exception ex)
-                {
-                    HandlePluginException(x, 6d, "GameLoadPriority", ex);
-                }
-            });
-        }
-        public void RaiseMountDevice()
-        {
-            ActivePlugins.ForEach(x =>
-            {
-                try
-                {
-                    x.RaiseMountDevice();
-                }
-                catch (Exception ex)
-                {
-                    HandlePluginException(x, 6d, "MountDevice", ex);
-                }
-            });
-        }
-
-        public void RaiseOnImGuiGlobalRenderingEvent(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
-        {
-            ActivePlugins.ForEach(x =>
-            {
-                try
-                {
-                    x.RaiseOnImGuiGlobalRendering(devicePtr, ctx);
-                }
-                catch (Exception ex)
-                {
-                    HandlePluginException(x, 6d, "OnImGuiGlobalRendering", ex);
-                }
-
-                // The plugin itself might've changed the style of ImGui so we need to reset it for the next plugin
-                Main.Instance.ResetImGuiStyle();
-            });
-        }
-        public void RaiseOnImGuiManagerRenderingEvent(FoundPlugin plugin, IntPtr devicePtr)
-        {
-            if (plugin == null)
-                return;
-
-            try
-            {
-                plugin.RaiseOnImGuiManagerRendering(devicePtr);
-            }
-            catch (Exception ex)
-            {
-                HandlePluginException(plugin, 6d, "OnImGuiManagerRendering", ex);
-            }
-        }
-
-        public void RaiseOnShutdown()
-        {
-            ActivePlugins.ForEach(x =>
-            {
-                try
-                {
-                    x.RaiseOnShutdown();
-                }
-                catch (Exception ex)
-                {
-                    HandlePluginException(x, 6d, "OnShutdown", ex);
-                }
-            });
-        }
-
-        public void RaiseOnScriptAbort(Guid scriptID)
-        {
-            ActivePlugins.ForEach(x =>
-            {
-                try
-                {
-                    x.RaiseOnScriptAbort(scriptID);
-                }
-                catch (Exception ex)
-                {
-                    HandlePluginException(x, 6d, "OnScriptAbort", ex);
-                }
-            });
-        }
-        public void RaiseOnScriptLoad(Guid scriptID)
-        {
-            ActivePlugins.ForEach(x =>
-            {
-                try
-                {
-                    x.RaiseOnScriptLoad(scriptID);
-                }
-                catch (Exception ex)
-                {
-                    HandlePluginException(x, 6d, "OnScriptLoad", ex);
-                }
-            });
-        }
-
-        public void RaiseOnBeforeScriptsAbort(Guid[] scriptIDs)
-        {
-            ActivePlugins.ForEach(x =>
-            {
-                try
-                {
-                    x.RaiseOnBeforeScriptsAbort(scriptIDs);
-                }
-                catch (Exception ex)
-                {
-                    HandlePluginException(x, 6d, "RaiseOnBeforeScriptsAbort", ex);
-                }
-            });
-        }
-        public void RaiseOnAfterScriptsAbort()
-        {
-            ActivePlugins.ForEach(x =>
-            {
-                try
-                {
-                    x.RaiseOnAfterScriptsAbort();
-                }
-                catch (Exception ex)
-                {
-                    HandlePluginException(x, 6d, "RaiseOnAfterScriptsAbort", ex);
-                }
-            });
-        }
+        private static readonly object activePluginsLockObj = new object();
+        public static DateTime TimeSinceLastPluginLoad;
         #endregion
 
         #region Methods
 
-        // Load stuff
-        public void LoadPlugins()
+        public static void Init()
         {
+            if (wasInitialized)
+                return;
+
+            ActivePlugins = new List<FoundPlugin>();
+
+            wasInitialized = true;
+        }
+        public static void Shutdown()
+        {
+            if (!wasInitialized)
+                return;
+
+            wasInitialized = false;
+
+            if (ActivePlugins != null)
+            {
+                ActivePlugins.Clear();
+                ActivePlugins = null;
+            }
+        }
+
+        // Load stuff
+        public static void LoadPlugins()
+        {
+            if (!wasInitialized)
+                return;
+
             if (!Directory.Exists(CLR.CLRBridge.IVSDKDotNetPluginsPath))
             {
                 Directory.CreateDirectory(CLR.CLRBridge.IVSDKDotNetPluginsPath);
@@ -214,8 +79,10 @@ namespace Manager.Managers
             TimeSinceLastPluginLoad = DateTime.Now;
         }
 
-        public bool LoadAssembly(string path)
+        public static bool LoadAssembly(string path)
         {
+            if (!wasInitialized)
+                return false;
             if (string.IsNullOrWhiteSpace(path))
                 return false;
 
@@ -308,8 +175,10 @@ namespace Manager.Managers
         }
 
         // Unload stuff
-        public void UnloadPlugins(AbortReason reason, bool showMessage)
+        public static void UnloadPlugins(AbortReason reason, bool showMessage)
         {
+            if (!wasInitialized)
+                return;
             if (ActivePlugins.Count == 0)
             {
                 if (showMessage)
@@ -344,15 +213,18 @@ namespace Manager.Managers
         }
 
         // Other
-        public void HandlePluginException(FoundPlugin target, double notifySecondsVisible, string eventErrorOccuredIn, Exception ex, bool isInternalEvent = false)
+        public static void HandlePluginException(FoundPlugin target, double notifySecondsVisible, string eventErrorOccuredIn, Exception ex, bool isInternalEvent = false)
         {
+            if (!wasInitialized)
+                return;
+
             // Stop plugin so it doesn't raise any events anymore
             target.Stop();
 
             string pluginName = target.EntryPoint.FullName;
 
             // Show and Log the error
-            Main.Instance.Notification.ShowNotification(
+            NotificationUI.ShowNotification(
                 NotificationType.Error,
                 DateTime.UtcNow.AddSeconds(notifySecondsVisible),
                 string.Format("An error occured in IV-SDK .NET Manager Plugin {0} {1}.", pluginName, eventErrorOccuredIn),
@@ -368,8 +240,18 @@ namespace Manager.Managers
         #endregion
 
         #region Functions
-        public FoundPlugin GetFoundPlugin(string name)
+        public static int GetActivePluginsCount()
         {
+            if (!wasInitialized)
+                return 0;
+
+            return ActivePlugins.Count;
+        }
+
+        public static FoundPlugin GetFoundPlugin(string name)
+        {
+            if (!wasInitialized)
+                return null;
             if (string.IsNullOrWhiteSpace(name))
                 return null;
 
@@ -383,8 +265,11 @@ namespace Manager.Managers
 
             return fp;
         }
-        public FoundPlugin GetFoundPlugin(Guid id)
+        public static FoundPlugin GetFoundPlugin(Guid id)
         {
+            if (!wasInitialized)
+                return null;
+
             FoundPlugin fp = null;
 
             lock (activePluginsLockObj)
@@ -395,8 +280,11 @@ namespace Manager.Managers
             return fp;
         }
 
-        public bool UnloadPlugin(AbortReason reason, FoundPlugin plugin, bool showMessage)
+        public static bool UnloadPlugin(AbortReason reason, FoundPlugin plugin, bool showMessage)
         {
+            if (!wasInitialized)
+               return false;
+
             if (plugin != null)
             {
                 if (showMessage)
@@ -413,10 +301,199 @@ namespace Manager.Managers
         }
         #endregion
 
-        #region Constructor
-        public PluginManager()
+        #region Raisers
+        public static void RaiseTick()
         {
-            ActivePlugins = new List<FoundPlugin>();
+            if (!wasInitialized)
+                return;
+
+            ActivePlugins.ForEach(x =>
+            {
+                try
+                {
+                    x.RaiseTick();
+                }
+                catch (Exception ex)
+                {
+                    HandlePluginException(x, 6d, "Tick", ex);
+                }
+            });
+        }
+        public static void RaiseGameLoad()
+        {
+            if (!wasInitialized)
+                return;
+
+            ActivePlugins.ForEach(x =>
+            {
+                try
+                {
+                    x.RaiseGameLoad();
+                }
+                catch (Exception ex)
+                {
+                    HandlePluginException(x, 6d, "GameLoad", ex);
+                }
+            });
+        }
+        public static void RaiseGameLoadPriority()
+        {
+            if (!wasInitialized)
+                return;
+
+            ActivePlugins.ForEach(x =>
+            {
+                try
+                {
+                    x.RaiseGameLoadPriority();
+                }
+                catch (Exception ex)
+                {
+                    HandlePluginException(x, 6d, "GameLoadPriority", ex);
+                }
+            });
+        }
+        public static void RaiseMountDevice()
+        {
+            if (!wasInitialized)
+                return;
+
+            ActivePlugins.ForEach(x =>
+            {
+                try
+                {
+                    x.RaiseMountDevice();
+                }
+                catch (Exception ex)
+                {
+                    HandlePluginException(x, 6d, "MountDevice", ex);
+                }
+            });
+        }
+
+        public static void RaiseOnImGuiGlobalRenderingEvent(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
+        {
+            if (!wasInitialized)
+                return;
+
+            ActivePlugins.ForEach(x =>
+            {
+                try
+                {
+                    x.RaiseOnImGuiGlobalRendering(devicePtr, ctx);
+                }
+                catch (Exception ex)
+                {
+                    HandlePluginException(x, 6d, "OnImGuiGlobalRendering", ex);
+                }
+
+                // The plugin itself might've changed the style of ImGui so we need to reset it for the next plugin
+                UIStyles.ResetImGuiStyle();
+            });
+        }
+        public static void RaiseOnImGuiManagerRenderingEvent(FoundPlugin plugin, IntPtr devicePtr)
+        {
+            if (!wasInitialized)
+                return;
+            if (plugin == null)
+                return;
+
+            try
+            {
+                plugin.RaiseOnImGuiManagerRendering(devicePtr);
+            }
+            catch (Exception ex)
+            {
+                HandlePluginException(plugin, 6d, "OnImGuiManagerRendering", ex);
+            }
+        }
+
+        public static void RaiseOnShutdown()
+        {
+            if (!wasInitialized)
+                return;
+
+            ActivePlugins.ForEach(x =>
+            {
+                try
+                {
+                    x.RaiseOnShutdown();
+                }
+                catch (Exception ex)
+                {
+                    HandlePluginException(x, 6d, "OnShutdown", ex);
+                }
+            });
+        }
+
+        public static void RaiseOnScriptAbort(Guid scriptID)
+        {
+            if (!wasInitialized)
+                return;
+
+            ActivePlugins.ForEach(x =>
+            {
+                try
+                {
+                    x.RaiseOnScriptAbort(scriptID);
+                }
+                catch (Exception ex)
+                {
+                    HandlePluginException(x, 6d, "OnScriptAbort", ex);
+                }
+            });
+        }
+        public static void RaiseOnScriptLoad(Guid scriptID)
+        {
+            if (!wasInitialized)
+                return;
+
+            ActivePlugins.ForEach(x =>
+            {
+                try
+                {
+                    x.RaiseOnScriptLoad(scriptID);
+                }
+                catch (Exception ex)
+                {
+                    HandlePluginException(x, 6d, "OnScriptLoad", ex);
+                }
+            });
+        }
+
+        public static void RaiseOnBeforeScriptsAbort(Guid[] scriptIDs)
+        {
+            if (!wasInitialized)
+                return;
+
+            ActivePlugins.ForEach(x =>
+            {
+                try
+                {
+                    x.RaiseOnBeforeScriptsAbort(scriptIDs);
+                }
+                catch (Exception ex)
+                {
+                    HandlePluginException(x, 6d, "RaiseOnBeforeScriptsAbort", ex);
+                }
+            });
+        }
+        public static void RaiseOnAfterScriptsAbort()
+        {
+            if (!wasInitialized)
+                return;
+
+            ActivePlugins.ForEach(x =>
+            {
+                try
+                {
+                    x.RaiseOnAfterScriptsAbort();
+                }
+                catch (Exception ex)
+                {
+                    HandlePluginException(x, 6d, "RaiseOnAfterScriptsAbort", ex);
+                }
+            });
         }
         #endregion
 

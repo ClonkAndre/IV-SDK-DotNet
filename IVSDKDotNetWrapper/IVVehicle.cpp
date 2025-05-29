@@ -115,6 +115,12 @@ namespace IVSDKDotNet
         return NativeVehicle->IsDriver(pPed->NativePed);
     }
 
+    int IVVehicle::GetNumberOfWheelsTouchingGround()
+    {
+        NULLPTR_CHECK_WITH_RETURN(NativeVehicle, 0);
+        return NativeVehicle->GetNumberOfWheelsTouchingGround();;
+    }
+
     float IVVehicle::HeightAboveCeiling(float height, int32_t flightModel)
     {
         return CVehicle::HeightAboveCeiling(height, flightModel);

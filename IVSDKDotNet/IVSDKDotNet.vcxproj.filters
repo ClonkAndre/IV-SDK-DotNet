@@ -416,5 +416,8 @@
     <ClInclude Include="INI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IVSDK\grcWindow.h">
+      <Filter>Header Files\IVSDK</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

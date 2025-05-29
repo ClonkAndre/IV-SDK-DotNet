@@ -638,6 +638,11 @@ public:
 		return ((bool(__thiscall*)(CVehicle*, CPed*))(AddressSetter::Get("CVehicle", "IsDriver")))(this, pPed);
 	}
 
+	int GetNumberOfWheelsTouchingGround()
+	{
+		return ((int(__cdecl*)(CVehicle*))(AddressSetter::Get("CVehicle", "GetNumberOfWheelsTouchingGround")))(this);
+	}
+
 	static float HeightAboveCeiling(float height, int flightModel)
 	{
 		return ((float(__stdcall*)(float, int))(AddressSetter::Get("CVehicle", "HeightAboveCeiling")))(height, flightModel);
@@ -665,7 +670,7 @@ VALIDATE_OFFSET(CVehicle, m_fDeformationMult, 0x132C);
 VALIDATE_OFFSET(CVehicle, m_pDriver, 0xFA0);
 VALIDATE_OFFSET(CVehicle, m_nPrimaryColor, 0xFE4);
 VALIDATE_OFFSET(CVehicle, m_nMaxPassengers, 0x10C0);
-VALIDATE_OFFSET(CVehicle, m_fGasPedal, 0x10C8);
+VALIDATE_OFFSET(CVehicle, m_fGasPedal, 0x10C8); // 4296
 VALIDATE_OFFSET(CVehicle, m_nCurrentGear, 0x10E0);
 VALIDATE_OFFSET(CVehicle, m_fEngineHealth, 0x10FC);
 VALIDATE_OFFSET(CVehicle, m_fPetrolTankHealth, 0x1128);

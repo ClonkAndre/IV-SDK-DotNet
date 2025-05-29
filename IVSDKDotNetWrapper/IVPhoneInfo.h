@@ -62,13 +62,16 @@ namespace IVSDKDotNet
 		char _f24D[7]; // 00D1
 	};
 
-	public ref class IVPhoneInfo
+	public ref struct IVPhoneInfo
 	{
 	public:
 		static property IVPhoneInfo^ ThePhoneInfo
 		{
 			IVPhoneInfo^ get()
 			{
+				if (!CTheScripts::m_aGlobalVariables)
+					return nullptr;
+
 				uint32_t* ptr = nullptr;
 
 				switch (CGame::m_nCurrentEpisode)
@@ -581,6 +584,7 @@ namespace IVSDKDotNet
 			String^ get()
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativePhoneInfo, String::Empty);
+				NULLPTR_CHECK_WITH_RETURN(NativePhoneInfo->CurrentNumberInput, String::Empty);
 				return gcnew String(NativePhoneInfo->CurrentNumberInput);
 			}
 			void set(String^ value)

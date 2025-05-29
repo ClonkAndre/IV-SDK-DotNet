@@ -59,10 +59,12 @@ using namespace System::Text;
 using namespace IVSDKDotNet::Enums;
 
 // Logger
+#include "SettingsFile.h"
 #include "Logger.h"
 
-// Hooking.Patterns
+// Hooking
 #include "Patterns.h"
+#include "ManagedMinHook.h"
 
 #include "defines.h"
 
@@ -74,8 +76,10 @@ using namespace IVSDKDotNet::Enums;
 #include "GameHooks.h"
 
 #include "Attributes.h"
+#include "Exceptions.h"
 
-#include "SettingsFile.h"
+#include "TlsHelper.h"
+#include "UnsafeMemory.h"
 #include "Helper.h"
 
 // ImGuiIV
@@ -83,6 +87,8 @@ using namespace IVSDKDotNet::Enums;
 #include "ImGuiStuff.h"
 
 
+// GTA IV Natives Stuff
+#include "NativeArg.h"
 
 // Important stuff for the manager
 #include "ManagerStuff.h"
@@ -227,6 +233,7 @@ using namespace IVSDKDotNet::Enums;
 #include "IVRenderPhases.h"
 #include "IVGrcTexture.h"
 #include "IVGrcTextureFactory.h"
+#include "IVGrcWindow.h"
 #include "IVSprite2D.h"
 #include "IVDraw.h"
 #include "IVTxdStore.h"

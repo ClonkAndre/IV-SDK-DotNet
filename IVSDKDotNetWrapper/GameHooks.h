@@ -57,6 +57,8 @@ namespace IVSDKDotNet
 			delegate HookCallback<bool> IsNetworkGameRunningDelegate();
 			delegate HookCallback<bool> IsThisMachineTheServerDelegate();
 
+			delegate HookCallback<int> OnDoPickupGlowDelegate();
+
 		public:
 			static event AddSceneLightDelegate^ OnAddSceneLight;
 			static event RenderCoronaDelegate^ OnRenderCorona;
@@ -68,6 +70,8 @@ namespace IVSDKDotNet
 
 			static event IsNetworkGameRunningDelegate^ OnIsNetworkGameRunning;
 			static event IsThisMachineTheServerDelegate^ OnIsThisMachineTheServer;
+
+			static event OnDoPickupGlowDelegate^ OnDoPickupGlow;
 
 		internal:
 			static HookCallback<int> RaiseOnAddSceneLight(uint32_t a1, uint32_t nLightType, uint32_t nFlags, CVector* vDir, CVector* vTanDir, CVector* vPos, CVector* vColor, float fIntensity, int32_t texHash, int32_t txdSlot, float fRange, float fInnerConeAngle, float fOuterConeAngle, float fVolIntensity, float fVolSizeScale, int32_t interiorId, uint32_t a15, uint32_t nID)
@@ -134,6 +138,11 @@ namespace IVSDKDotNet
 				return OnIsThisMachineTheServer();
 			}
 
+			static HookCallback<int> RaiseOnDoPickupGlow()
+			{
+				return OnDoPickupGlow();
+			}
+
 		};
 
 	}
@@ -142,66 +151,10 @@ namespace IVSDKDotNet
 class UnmanagedGameHooks
 {
 public:
-	static void Initialize()
-	{
-		TryCreateHook("UnmanagedGameHooks", "AddSceneLight",			&AddSceneLightHook,				(void**)&originalAddSceneLight);
-		TryCreateHook("UnmanagedGameHooks", "RenderCorona",				&RenderCoronaHook,				(void**)&originalRenderCorona);
-		TryCreateHook("UnmanagedGameHooks", "GetTrafficLightState1",	&GetTrafficLightState1,			(void**)&originalGetTrafficLightState1);
-		TryCreateHook("UnmanagedGameHooks", "GetTrafficLightState2",	&GetTrafficLightState2,			(void**)&originalGetTrafficLightState2);
-		TryCreateHook("UnmanagedGameHooks", "RegisterNative",			&RegisterNativeHook,			(void**)&originalRegisterNative);
-		TryCreateHook("UnmanagedGameHooks", "RegisterNativeNoChecks",	&RegisterNativeNoChecksHook,	(void**)&originalRegisterNativeNoChecks);
-		TryCreateHook("UnmanagedGameHooks", "IsNetworkGameRunning",		&IsNetworkGameRunning,			(void**)&originalIsNetworkGameRunning);
-		TryCreateHook("UnmanagedGameHooks", "IsThisMachineTheServer",	&IsThisMachineTheServer,		(void**)&originalIsThisMachineTheServer);
-
-		//// AddExplosion func hook
-		//if (!originalAddExplosion)
-		//{
-		//	auto scan = hook::pattern(std::string_view("55 8B EC 83 E4 F0 83 EC 64 53 56 57 BB"));
-
-		//	assert(!scan.empty());
-
-		//	mhStatus = MH_CreateHook((LPVOID*)scan.get_first(0), &AddExplosionHook, (void**)&originalAddExplosion);
-
-		//	if (mhStatus != MH_OK)
-		//	{
-		//		Logger::LogError(String::Format("[GameHooks] Could not hook AddExplosion func! Details: {0}", gcnew String(MH_StatusToString(mhStatus))));
-		//		return false;
-		//	}
-		//}
-
-		Logger::LogDebug("[GameHooks] Done!");
-	}
+	static void Initialize();
 
 private:
-	static bool TryCreateHook(const std::string& section, const std::string& key, LPVOID detour, LPVOID* ppOriginal)
-	{
-		MH_STATUS mhStatus;
-
-		// Figure out if config is a pattern or a regular memory address
-		if (AddressSetter::IsConfigPattern(section, key))
-		{
-			auto scan = hook::pattern(AddressSetter::GetConfigString(section, key));
-
-			assert(!scan.empty());
-
-			mhStatus = MH_CreateHook((LPVOID*)scan.get_first(0), detour, ppOriginal);
-
-		}
-		else
-		{
-			mhStatus = MH_CreateHook((LPVOID*)AddressSetter::Get(section, key), detour, ppOriginal);
-		}
-
-		// Validate
-		if (mhStatus != MH_OK)
-		{
-			Logger::LogError(String::Format("[GameHooks] Could not hook {0} func! Details: {1}", gcnew String(key.c_str()), gcnew String(MH_StatusToString(mhStatus))));
-			return false;
-		}
-
-		Logger::LogDebug(String::Format("[GameHooks] Hooked {0} func.", gcnew String(key.c_str())));
-		return true;
-	}
+	static bool TryCreateHook(const std::string& section, const std::string& key, LPVOID detour, LPVOID* ppOriginal);
 
 private:
 	static inline AddSceneLightT* originalAddSceneLight = nullptr;
@@ -215,6 +168,8 @@ private:
 
 	static inline IsNetworkGameRunningT* originalIsNetworkGameRunning = nullptr;
 	static inline IsThisMachineTheServerT* originalIsThisMachineTheServer = nullptr;
+
+	static inline DoPickupGlowT* originalDoPickupGlow = nullptr;
 
 	//static inline AddExplosionT* originalAddExplosion;
 
@@ -324,6 +279,17 @@ private:
 
 		// Call original function if allowed to
 		return originalIsThisMachineTheServer();
+	}
+
+	static inline int __cdecl DoPickupGlow()
+	{
+		// Raise managed event
+		IVSDKDotNet::Hooking::HookCallback<int> callback = IVSDKDotNet::Hooking::GameHooks::RaiseOnDoPickupGlow();
+
+		if (callback.InterceptCall)
+			return callback.CustomReturnValue;
+
+		return originalDoPickupGlow();
 	}
 
 	//static inline bool __cdecl AddExplosionHook(int a1, int a2, int a3, int a4, int a5, char a6, int a7, int a8, float a9, int a10, int a11, int a12, int a13, int a14, char a15, char a16, int a17, char a18, int a19)

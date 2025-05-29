@@ -1,5 +1,8 @@
 #pragma once
 
+// Thanks to AssaultKifle47 for the offsets and the TimeCycleParams struct!
+// From his InGameTimecycEditor project: https://github.com/akifle47/InGameTimecycEditor
+
 namespace IVSDKDotNet
 {
 	public ref class IVTimeCycleParams
@@ -1289,6 +1292,7 @@ namespace IVSDKDotNet
 		}
 
 	public:
+		IVTimeCycleParams^ GetTimeCycleParamsByIndex(int32_t timeIndex, int32_t weather);
 		IVTimeCycleParams^ GetTimeCycleParams(int32_t gameHour, int32_t weather);
 
 		generic <typename T>

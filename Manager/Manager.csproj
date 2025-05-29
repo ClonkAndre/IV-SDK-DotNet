@@ -50,9 +50,9 @@
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="ScriptHookDotNet, Version=1.7.2.2, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="ScriptHookDotNet, Version=1.7.2.4, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ScriptHookDotNet-for-IVSDKDotNet\Release\ScriptHookDotNet.dll</HintPath>
+      <HintPath>..\..\ScriptHookDotNet-for-IVSDKDotNet\Debug\ScriptHookDotNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -64,12 +64,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\AdvancedTask.cs" />
+    <Compile Include="Classes\Attributes\LocalCommandDescAttribute.cs" />
+    <Compile Include="Classes\Attributes\LocalCommandNameAttribute.cs" />
+    <Compile Include="Classes\Attributes\LocalCommandOptionsAttribute.cs" />
+    <Compile Include="Classes\Attributes\LocalCommandSuggestionsAttribute.cs" />
     <Compile Include="Classes\BoundPhoneNumber.cs" />
+    <Compile Include="Classes\ImPopup.cs" />
     <Compile Include="Classes\KeyChecker.cs" />
     <Compile Include="Classes\Config.cs" />
     <Compile Include="Classes\DelayedAction.cs" />
     <Compile Include="Classes\FoundPlugin.cs" />
-    <Compile Include="Classes\FoundScript.cs" />
+    <Compile Include="Classes\Scripts\FoundScript.cs" />
     <Compile Include="Classes\Json\IVPresenceInfo.cs" />
     <Compile Include="Classes\Json\IVSessionInfo.cs" />
     <Compile Include="Classes\Json\JsonHelper.cs" />
@@ -79,22 +84,34 @@
     <Compile Include="Classes\Json\RunningScriptInfo.cs" />
     <Compile Include="Classes\Json\Script\ScriptDependencyInfo.cs" />
     <Compile Include="Classes\Json\Script\ScriptConfig.cs" />
-    <Compile Include="Classes\NativeCaller.cs" />
+    <Compile Include="Classes\LocalConsoleCommand.cs" />
+    <Compile Include="Classes\ManagedNativeCaller.cs" />
     <Compile Include="Classes\Reflection.cs" />
-    <Compile Include="Classes\RegisteredEvent.cs" />
+    <Compile Include="Classes\ScriptHookDotNet\CachedEntity.cs" />
+    <Compile Include="Classes\Scripts\ScriptFileInfo.cs" />
     <Compile Include="Classes\Secrittzzz.cs" />
-    <Compile Include="Classes\SHDNStuff.cs" />
-    <Compile Include="Classes\Win32.cs" />
+    <Compile Include="Classes\Tasks\CustomTask.cs" />
+    <Compile Include="Classes\Tasks\MainThreadTaskScheduler.cs" />
+    <Compile Include="Classes\Threading\GenericThread.cs" />
+    <Compile Include="Classes\Threading\ThreadData.cs" />
     <Compile Include="Extensions\IntPtrExtensions.cs" />
+    <Compile Include="Managers\DelayedActionManager.cs" />
+    <Compile Include="Managers\FileCacheManager.cs" />
+    <Compile Include="Managers\MinHookManager.cs" />
     <Compile Include="Managers\PluginManager.cs" />
+    <Compile Include="Managers\ScriptManager.cs" />
+    <Compile Include="Managers\SHDNContentCacheManager.cs" />
+    <Compile Include="Managers\SHDNManager.cs" />
+    <Compile Include="Managers\TaskManager.cs" />
+    <Compile Include="Managers\ThreadManager.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Threading\Dispatcher.cs" />
-    <Compile Include="Threading\NetThread.cs" />
-    <Compile Include="Threading\ScriptThread.cs" />
+    <Compile Include="Classes\Threading\Dispatcher.cs" />
+    <Compile Include="Classes\Threading\NetThread.cs" />
+    <Compile Include="Classes\Threading\ScriptThread.cs" />
     <Compile Include="UI\ManagerUI.cs" />
     <Compile Include="UI\ConsoleUI.cs" />
     <Compile Include="Enums.cs" />
@@ -133,6 +150,7 @@
     <Compile Include="Riptide\Utils\PriorityQueue.cs" />
     <Compile Include="Riptide\Utils\RiptideLogger.cs" />
     <Compile Include="Classes\UpdateChecker.cs" />
+    <Compile Include="UI\UIStyles.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Riptide\version.txt" />

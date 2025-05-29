@@ -484,7 +484,7 @@ namespace IVSDKDotNet
 				maxhealth = p;
 			}
 			static void GIVE_PLAYER_RAGDOLL_CONTROL(int player, b8 give) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GIVE_PLAYER_RAGDOLL_CONTROL, player, give); }
-			static void INCREASE_PLAYER_MAX_ARMOUR(int player, float armour) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_INCREASE_PLAYER_MAX_ARMOUR, player, armour); }
+			static void INCREASE_PLAYER_MAX_ARMOUR(int player, int maxArmour) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_INCREASE_PLAYER_MAX_ARMOUR, player, maxArmour); }
 			static void INCREASE_PLAYER_MAX_HEALTH(int player, int maxhealth) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_INCREASE_PLAYER_MAX_HEALTH, player, maxhealth); }
 			static void LISTEN_TO_PLAYER_GROUP_COMMANDS(Ped ped, b8 set) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_LISTEN_TO_PLAYER_GROUP_COMMANDS, ped, set); }
 			static void MAKE_PLAYER_FIRE_PROOF(int player, b8 proof) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_MAKE_PLAYER_FIRE_PROOF, player, proof); }
@@ -558,7 +558,7 @@ namespace IVSDKDotNet
 			static void ATTACH_PED_TO_OBJECT_PHYSICALLY(Ped ped, Entity obj, int pedbone, float x, float y, float z, float angle, float Unk36, b8 Unk37, b8 Unk38) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_PED_TO_OBJECT_PHYSICALLY, ped, obj, pedbone, x, y, z, angle, Unk36, Unk37, Unk38); }
 			static void ATTACH_PED_TO_SHIMMY_EDGE(Ped ped, float x, float y, float z, float Unk39) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_PED_TO_SHIMMY_EDGE, ped, x, y, z, Unk39); }
 			static void CLOSE_MIC_PED(int id, Ped ped) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CLOSE_MIC_PED, id, ped); }
-			static void COPY_ANIMATIONS(Ped ped, Ped pednext, float speed) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_COPY_ANIMATIONS, ped, pednext, speed); }
+			static void COPY_ANIMATIONS(Ped toPed, Ped fromPed, float speed) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_COPY_ANIMATIONS, toPed, fromPed, speed); }
 			static void CREATE_GROUP(b8 unknownFalse, [OutAttribute] Group% pGroup, b8 unknownTrue)
 			{
 				Group p;
@@ -1349,6 +1349,9 @@ namespace IVSDKDotNet
 			static void ATTACH_OBJECT_TO_CAR_PHYSICALLY(Entity obj, Vehicle car, ScriptAny Unk79, ScriptAny Unk80, ScriptAny Unk81, ScriptAny Unk82, ScriptAny Unk83, ScriptAny Unk84, ScriptAny Unk85, ScriptAny Unk86, ScriptAny Unk87, ScriptAny Unk88, ScriptAny Unk89, ScriptAny Unk90, b8 flag) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_CAR_PHYSICALLY, obj, car, Unk79, Unk80, Unk81, Unk82, Unk83, Unk84, Unk85, Unk86, Unk87, Unk88, Unk89, Unk90, flag); }
 			static void ATTACH_OBJECT_TO_OBJECT(Entity obj0, Entity obj1_attach_to, int Unk91, Vector3 pos, Vector3 rot) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_OBJECT, obj0, obj1_attach_to, Unk91, pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z); }
 			static void ATTACH_OBJECT_TO_OBJECT(Entity obj0, Entity obj1_attach_to, int Unk91, float x0, float y0, float z0, float x1, float y1, float z1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_OBJECT, obj0, obj1_attach_to, Unk91, x0, y0, z0, x1, y1, z1); }
+			
+			static void ATTACH_OBJECT_TO_OBJECT_PHYSICALLY(Entity obj0, Entity obj1_attach_to, bool a1, ScriptAny a2, ScriptAny a3, ScriptAny a4, ScriptAny a5, ScriptAny a6, ScriptAny a7, ScriptAny a8, ScriptAny a9, ScriptAny a10) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_OBJECT_PHYSICALLY, obj0, obj1_attach_to, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
+			
 			static void ATTACH_OBJECT_TO_PED(Entity obj, Ped c, unsigned int bone, Vector3 pos, Vector3 rot, unsigned int unknown1_0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_PED, obj, c, bone, pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z, unknown1_0); }
 			static void ATTACH_OBJECT_TO_PED(Entity obj, Ped c, unsigned int bone, float pX, float pY, float pZ, float rX, float rY, float rZ, unsigned int unknown1_0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_PED, obj, c, bone, pX, pY, pZ, rX, rY, rZ, unknown1_0); }
 			static void ATTACH_OBJECT_TO_PED_PHYSICALLY(Entity obj, Ped c, b8 unknown, unsigned int bone, Vector3 pos, Vector3 rot, unsigned int unknown1_0, unsigned int unknown2_0) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_OBJECT_TO_PED_PHYSICALLY, obj, c, unknown, bone, pos.X, pos.Y, pos.Z, rot.X, rot.Y, rot.Z, unknown1_0, unknown2_0); }
@@ -2360,7 +2363,12 @@ namespace IVSDKDotNet
 			static void ATTACH_CAM_TO_PED(int cam, Ped ped) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_CAM_TO_PED, cam, ped); }
 			static void ATTACH_CAM_TO_VEHICLE(int cam, Vehicle veh) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_CAM_TO_VEHICLE, cam, veh); }
 			static void ATTACH_CAM_TO_VIEWPORT(int cam, int viewportid) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ATTACH_CAM_TO_VIEWPORT, cam, viewportid); }
-			//static void BEGIN_CAM_COMMANDS(int* Unk540) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_BEGIN_CAM_COMMANDS, Unk540); }
+			static void BEGIN_CAM_COMMANDS([OutAttribute] int% Unk540)
+			{
+				int arg1;
+				NativeInvoke::Invoke<ScriptVoid>(eNativeHash::NATIVE_BEGIN_CAM_COMMANDS, &arg1);
+				Unk540 = arg1;
+			}
 			static void CAM_PROCESS(int cam) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CAM_PROCESS, cam); }
 			static void CAM_RESTORE() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CAM_RESTORE); }
 			static void CAM_RESTORE_JUMPCUT() { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CAM_RESTORE_JUMPCUT); }
@@ -2418,7 +2426,12 @@ namespace IVSDKDotNet
 			static void DETACH_CAM_FROM_VIEWPORT(int Unk557) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_DETACH_CAM_FROM_VIEWPORT, Unk557); }
 			static void ENABLE_CAM_COLLISION(int cam, b8 enable) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ENABLE_CAM_COLLISION, cam, enable); }
 			static void ENABLE_FOV_LOD_MULTIPLIER(b8 enable) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ENABLE_FOV_LOD_MULTIPLIER, enable); }
-			//static void END_CAM_COMMANDS(int* Unk558) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_END_CAM_COMMANDS, Unk558); }
+			static void END_CAM_COMMANDS([OutAttribute] int% Unk558)
+			{
+				int arg1;
+				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_END_CAM_COMMANDS, &arg1);
+				Unk558 = arg1;
+			}
 			static void FORCE_GAME_TELESCOPE_CAM(b8 force) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_FORCE_GAME_TELESCOPE_CAM, force); }
 			static void FORCE_NO_CAM_PAUSE(b8 foce) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_FORCE_NO_CAM_PAUSE, foce); }
 			static void GET_CAM_FAR_CLIP(int cam, [OutAttribute] float% clip)
@@ -3846,10 +3859,6 @@ namespace IVSDKDotNet
 			static FireId START_SCRIPT_FIRE(Vector3 pos, uint32_t numGenerationsAllowed, uint32_t strength) { return NativeInvoke::Invoke<FireId>(eNativeHash::NATIVE_START_SCRIPT_FIRE, pos.X, pos.Y, pos.Z, numGenerationsAllowed, strength); }
 			static FireId START_OBJECT_FIRE(Entity obj) { return NativeInvoke::Invoke<FireId>(eNativeHash::NATIVE_START_OBJECT_FIRE, obj); }
 			static void SET_MAX_FIRE_GENERATIONS(int max) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_MAX_FIRE_GENERATIONS, max); }
-			static void ADD_CHAR_DECISION_MAKER_EVENT_RESPONSE(DecisionMaker dm, unsigned int eventid, unsigned int responseid, float param1, float param2, float param3, float param4, unsigned int unknown0_1, unsigned int unknown1_1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_CHAR_DECISION_MAKER_EVENT_RESPONSE, dm, eventid, responseid, param1, param2, param3, param4, unknown0_1, unknown1_1); }
-			//static void ADD_COMBAT_DECISION_MAKER_EVENT_RESPONSE(DecisionMaker dm, unsigned int eventid, unsigned int responseid, float param1, float param2, float param3, float param4, unsigned int unknown0_1, unsigned int unknown1_1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_COMBAT_DECISION_MAKER_EVENT_RESPONSE, dm, eventid, responseid, param1, param2, param3, param4, unknown0_1, unknown1_1); }
-			static void ADD_GROUP_DECISION_MAKER_EVENT_RESPONSE(DecisionMaker dm, unsigned int eventid, unsigned int responseid, float param1, float param2, float param3, float param4, unsigned int unknown0_1, unsigned int unknown1_1) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_ADD_GROUP_DECISION_MAKER_EVENT_RESPONSE, dm, eventid, responseid, param1, param2, param3, param4, unknown0_1, unknown1_1); }
-			static void CLEAR_GROUP_DECISION_MAKER_EVENT_RESPONSE(DecisionMaker dm, unsigned int eventid) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_CLEAR_GROUP_DECISION_MAKER_EVENT_RESPONSE, dm, eventid); }
 			static void REMOVE_DECISION_MAKER(DecisionMaker dm) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_REMOVE_DECISION_MAKER, dm); }
 			static void SET_ADVANCED_BOOL_IN_DECISION_MAKER(int dm, int Unk844, int Unk845, int Unk846, b8 Unk847) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_ADVANCED_BOOL_IN_DECISION_MAKER, dm, Unk844, Unk845, Unk846, Unk847); }
 			static void SET_CHAR_DECISION_MAKER(Ped ped, DecisionMaker dm) { NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_SET_CHAR_DECISION_MAKER, ped, dm); }
@@ -3970,7 +3979,7 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_PED_FROM_NETWORK_ID, netid, &p);
 				ped = p;
 			}
-			static void GET_PLAYER_RGB_COLOUR(int Player, [OutAttribute] int% pR, [OutAttribute] int% pG, [OutAttribute] int& pB)
+			static void GET_PLAYER_RGB_COLOUR(int Player, [OutAttribute] int% pR, [OutAttribute] int% pG, [OutAttribute] int% pB)
 			{
 				int r, g, b;
 				NativeInvoke::Invoke< ScriptVoid>(eNativeHash::NATIVE_GET_PLAYER_RGB_COLOUR, Player, &r, &g, &b);
@@ -5536,7 +5545,12 @@ namespace IVSDKDotNet
 			static int GET_HASH_KEY(String^ value)
 			{
 				msclr::interop::marshal_context ctx;
-				return NativeInvoke::Invoke<ScriptAny>(eNativeHash::NATIVE_GET_HASH_KEY, ctx.marshal_as<const char*>(value));
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_GET_HASH_KEY, ctx.marshal_as<const char*>(value));
+			}
+			static uint32_t GET_HASH_KEY_2(String^ value)
+			{
+				msclr::interop::marshal_context ctx;
+				return NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_GET_HASH_KEY, ctx.marshal_as<const char*>(value));
 			}
 			static float COS(float value) { return NativeInvoke::Invoke< float>(eNativeHash::NATIVE_COS, value); }
 			static float SIN(float value) { return NativeInvoke::Invoke< float>(eNativeHash::NATIVE_SIN, value); }
@@ -5741,6 +5755,71 @@ namespace IVSDKDotNet
 			static int GET_CAM_STATE(Camera cam) { return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_GET_CAM_STATE, cam); }
 
 			static int FIND_NETWORK_KILLER_OF_PLAYER(Player playerId) { return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_FIND_NETWORK_KILLER_OF_PLAYER, playerId); }
+
+			// DecisionMaker stuff
+			static void LOAD_CHAR_DECISION_MAKER(uint32_t type, [OutAttribute] DecisionMaker% pDM)
+			{
+				DecisionMaker dm;
+				NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_LOAD_CHAR_DECISION_MAKER, type, &dm);
+				pDM = dm;
+			}
+			static void LOAD_COMBAT_DECISION_MAKER(uint32_t type, [OutAttribute] DecisionMaker% pDM)
+			{
+				DecisionMaker dm;
+				NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_LOAD_COMBAT_DECISION_MAKER, type, &dm);
+				pDM = dm;
+			}
+
+			static void ADD_CHAR_DECISION_MAKER_EVENT_RESPONSE(DecisionMaker dm, uint32_t eventid, uint32_t responseid, float param1, float param2, float param3, float param4, uint32_t unknown0_1, uint32_t unknown1_1)
+			{
+				NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_ADD_CHAR_DECISION_MAKER_EVENT_RESPONSE, dm, eventid, responseid, param1, param2, param3, param4, unknown0_1, unknown1_1);
+			}
+			//static void ADD_COMBAT_DECISION_MAKER_EVENT_RESPONSE(DecisionMaker dm, uint32_t eventid, uint32_t responseid, float param1, float param2, float param3, float param4, uint32_t unknown0_1, uint32_t unknown1_1)
+			//{
+			//	NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_ADD_COMBAT_DECISION_MAKER_EVENT_RESPONSE, dm, eventid, responseid, param1, param2, param3, param4, unknown0_1, unknown1_1);
+			//}
+			static void ADD_GROUP_DECISION_MAKER_EVENT_RESPONSE(DecisionMaker dm, uint32_t eventid, uint32_t responseid, float param1, float param2, float param3, float param4, uint32_t unknown0_1, uint32_t unknown1_1)
+			{
+				NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_ADD_GROUP_DECISION_MAKER_EVENT_RESPONSE, dm, eventid, responseid, param1, param2, param3, param4, unknown0_1, unknown1_1);
+			}
+
+			static void COPY_CHAR_DECISION_MAKER(uint32_t type, [OutAttribute] DecisionMaker% pDM)
+			{
+				DecisionMaker dm;
+				NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_COPY_CHAR_DECISION_MAKER, type, &dm);
+				pDM = dm;
+			}
+			static void COPY_COMBAT_DECISION_MAKER(uint32_t type, [OutAttribute] DecisionMaker% pDM)
+			{
+				DecisionMaker dm;
+				NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_COPY_COMBAT_DECISION_MAKER, type, &dm);
+				pDM = dm;
+			}
+			static void COPY_GROUP_CHAR_DECISION_MAKER(uint32_t type, [OutAttribute] DecisionMaker% pDM)
+			{
+				DecisionMaker dm;
+				NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_COPY_GROUP_CHAR_DECISION_MAKER, type, &dm);
+				pDM = dm;
+			}
+			static void COPY_GROUP_COMBAT_DECISION_MAKER(uint32_t type, [OutAttribute] DecisionMaker% pDM)
+			{
+				DecisionMaker dm;
+				NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_COPY_GROUP_COMBAT_DECISION_MAKER, type, &dm);
+				pDM = dm;
+			}
+
+			//static void CLEAR_CHAR_DECISION_MAKER_EVENT_RESPONSE(DecisionMaker dm, uint32_t eventid)
+			//{
+			//	NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_CLEAR_CHAR_DECISION_MAKER_EVENT_RESPONSE, dm, eventid);
+			//}
+			//static void CLEAR_COMBAT_DECISION_MAKER_EVENT_RESPONSE(DecisionMaker dm, uint32_t eventid)
+			//{
+			//	NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_CLEAR_COMBAT_DECISION_MAKER_EVENT_RESPONSE, dm, eventid);
+			//}
+			static void CLEAR_GROUP_DECISION_MAKER_EVENT_RESPONSE(DecisionMaker dm, uint32_t eventid)
+			{
+				NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_CLEAR_GROUP_DECISION_MAKER_EVENT_RESPONSE, dm, eventid);
+			}
 
 		};
 	}

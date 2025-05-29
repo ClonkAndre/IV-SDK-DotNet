@@ -11,13 +11,17 @@ using IVSDKDotNet.Attributes;
 using IVSDKDotNet.Enums;
 
 using Manager.Classes;
+using Manager.Classes.ScriptHookDotNet;
+using Manager.Classes.Scripts;
+using Manager.Classes.Threading;
+using Manager.Managers;
 
 // Designed with ImRAD
 // Check out the project on GitHub: https://github.com/tpecholt/imrad
 
 namespace Manager.UI
 {
-    internal class ManagerUI
+    internal static class ManagerUI
     {
 
         #region Variables
@@ -29,6 +33,7 @@ namespace Manager.UI
         // Filter
         private static bool showIVSDKDotNetScripts = true;
         private static bool showScriptHookDotNetScripts = true;
+        private static bool showOnlyConstructedScripts = true;
         private static string scriptNameFilter;
 
         // Developer
@@ -98,236 +103,236 @@ namespace Manager.UI
                 {
                     case SupportedPublicFields._byte:
                         {
-                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+                            int value = Convert.ToInt32(info.GetValue(foundScript.GetTheScriptObject()));
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
-                                info.SetValue(foundScript.TheScriptObject, Convert.ToByte(value));
+                                info.SetValue(foundScript.GetTheScriptObject(), Convert.ToByte(value));
                         }
                         break;
                     case SupportedPublicFields._sbyte:
                         {
-                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+                            int value = Convert.ToInt32(info.GetValue(foundScript.GetTheScriptObject()));
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
-                                info.SetValue(foundScript.TheScriptObject, Convert.ToSByte(value));
+                                info.SetValue(foundScript.GetTheScriptObject(), Convert.ToSByte(value));
                         }
                         break;
                     case SupportedPublicFields._short:
                         {
-                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+                            int value = Convert.ToInt32(info.GetValue(foundScript.GetTheScriptObject()));
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
-                                info.SetValue(foundScript.TheScriptObject, Convert.ToInt16(value));
+                                info.SetValue(foundScript.GetTheScriptObject(), Convert.ToInt16(value));
                         }
                         break;
                     case SupportedPublicFields._ushort:
                         {
-                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+                            int value = Convert.ToInt32(info.GetValue(foundScript.GetTheScriptObject()));
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
-                                info.SetValue(foundScript.TheScriptObject, Convert.ToUInt16(value));
+                                info.SetValue(foundScript.GetTheScriptObject(), Convert.ToUInt16(value));
                         }
                         break;
                     case SupportedPublicFields._int:
                         {
-                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+                            int value = Convert.ToInt32(info.GetValue(foundScript.GetTheScriptObject()));
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
-                                info.SetValue(foundScript.TheScriptObject, value);
+                                info.SetValue(foundScript.GetTheScriptObject(), value);
                         }
                         break;
                     case SupportedPublicFields._uint:
                         {
-                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+                            int value = Convert.ToInt32(info.GetValue(foundScript.GetTheScriptObject()));
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
-                                info.SetValue(foundScript.TheScriptObject, Convert.ToUInt32(value));
+                                info.SetValue(foundScript.GetTheScriptObject(), Convert.ToUInt32(value));
                         }
                         break;
                     case SupportedPublicFields._long:
                         {
-                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+                            int value = Convert.ToInt32(info.GetValue(foundScript.GetTheScriptObject()));
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
-                                info.SetValue(foundScript.TheScriptObject, Convert.ToInt64(value));
+                                info.SetValue(foundScript.GetTheScriptObject(), Convert.ToInt64(value));
                         }
                         break;
                     case SupportedPublicFields._ulong:
                         {
-                            int value = Convert.ToInt32(info.GetValue(foundScript.TheScriptObject));
+                            int value = Convert.ToInt32(info.GetValue(foundScript.GetTheScriptObject()));
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragInt(string.Format("##{0}", info.Name), ref value, speed, (int)min, (int)max))
-                                info.SetValue(foundScript.TheScriptObject, Convert.ToUInt64(value));
+                                info.SetValue(foundScript.GetTheScriptObject(), Convert.ToUInt64(value));
                         }
                         break;
                     case SupportedPublicFields._float:
                         {
-                            float value = Convert.ToSingle(info.GetValue(foundScript.TheScriptObject));
+                            float value = Convert.ToSingle(info.GetValue(foundScript.GetTheScriptObject()));
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value, speed, min, max))
-                                info.SetValue(foundScript.TheScriptObject, Convert.ToSingle(value));
+                                info.SetValue(foundScript.GetTheScriptObject(), Convert.ToSingle(value));
                         }
                         break;
                     case SupportedPublicFields._double:
                         {
-                            float value = Convert.ToSingle(info.GetValue(foundScript.TheScriptObject));
+                            float value = Convert.ToSingle(info.GetValue(foundScript.GetTheScriptObject()));
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value, speed, min, max))
-                                info.SetValue(foundScript.TheScriptObject, Convert.ToDouble(value));
+                                info.SetValue(foundScript.GetTheScriptObject(), Convert.ToDouble(value));
                         }
                         break;
                     case SupportedPublicFields._decimal:
                         {
-                            float value = Convert.ToSingle(info.GetValue(foundScript.TheScriptObject));
+                            float value = Convert.ToSingle(info.GetValue(foundScript.GetTheScriptObject()));
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragFloat(string.Format("##{0}", info.Name), ref value, speed, min, max))
-                                info.SetValue(foundScript.TheScriptObject, Convert.ToDecimal(value));
+                                info.SetValue(foundScript.GetTheScriptObject(), Convert.ToDecimal(value));
                         }
                         break;
                     case SupportedPublicFields._bool:
                         {
-                            bool value = Convert.ToBoolean(info.GetValue(foundScript.TheScriptObject));
+                            bool value = Convert.ToBoolean(info.GetValue(foundScript.GetTheScriptObject()));
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.CheckBox(string.Format("##{0}", info.Name), ref value))
-                                info.SetValue(foundScript.TheScriptObject, value);
+                                info.SetValue(foundScript.GetTheScriptObject(), value);
                         }
                         break;
                     case SupportedPublicFields._string:
                         {
-                            string value = Convert.ToString(info.GetValue(foundScript.TheScriptObject));
+                            string value = Convert.ToString(info.GetValue(foundScript.GetTheScriptObject()));
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.InputText(string.Format("##{0}", info.Name), ref value))
-                                info.SetValue(foundScript.TheScriptObject, value);
+                                info.SetValue(foundScript.GetTheScriptObject(), value);
                         }
                         break;
                     case SupportedPublicFields._Vector2:
                         {
-                            Vector2 value = (Vector2)info.GetValue(foundScript.TheScriptObject);
+                            Vector2 value = (Vector2)info.GetValue(foundScript.GetTheScriptObject());
                             float[] arr = new float[2] { value.X, value.Y };
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr, speed))
-                                info.SetValue(foundScript.TheScriptObject, new Vector2(arr[0], arr[1]));
+                                info.SetValue(foundScript.GetTheScriptObject(), new Vector2(arr[0], arr[1]));
                         }
                         break;
                     case SupportedPublicFields._Vector3:
                         {
-                            Vector3 value = (Vector3)info.GetValue(foundScript.TheScriptObject);
+                            Vector3 value = (Vector3)info.GetValue(foundScript.GetTheScriptObject());
                             float[] arr = new float[3] { value.X, value.Y, value.Z };
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragFloat3(string.Format("##{0}", info.Name), ref arr, speed))
-                                info.SetValue(foundScript.TheScriptObject, new Vector3(arr[0], arr[1], arr[2]));
+                                info.SetValue(foundScript.GetTheScriptObject(), new Vector3(arr[0], arr[1], arr[2]));
                         }
                         break;
                     case SupportedPublicFields._Vector4:
                         {
-                            Vector4 value = (Vector4)info.GetValue(foundScript.TheScriptObject);
+                            Vector4 value = (Vector4)info.GetValue(foundScript.GetTheScriptObject());
                             float[] arr = new float[4] { value.X, value.Y, value.Z, value.W };
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragFloat4(string.Format("##{0}", info.Name), ref arr, speed))
-                                info.SetValue(foundScript.TheScriptObject, new Vector4(arr[0], arr[1], arr[2], arr[3]));
+                                info.SetValue(foundScript.GetTheScriptObject(), new Vector4(arr[0], arr[1], arr[2], arr[3]));
                         }
                         break;
                     case SupportedPublicFields._Quaternion:
                         {
-                            Quaternion value = (Quaternion)info.GetValue(foundScript.TheScriptObject);
+                            Quaternion value = (Quaternion)info.GetValue(foundScript.GetTheScriptObject());
                             float[] arr = new float[4] { value.X, value.Y, value.Z, value.W };
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragFloat4(string.Format("##{0}", info.Name), ref arr, speed))
-                                info.SetValue(foundScript.TheScriptObject, new Quaternion(arr[0], arr[1], arr[2], arr[3]));
+                                info.SetValue(foundScript.GetTheScriptObject(), new Quaternion(arr[0], arr[1], arr[2], arr[3]));
                         }
                         break;
                     case SupportedPublicFields._Color:
                         {
-                            Color value = (Color)info.GetValue(foundScript.TheScriptObject);
+                            Color value = (Color)info.GetValue(foundScript.GetTheScriptObject());
                             Vector4 arr = ImGuiIV.ColorToFloatRGB(value);
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.ColorEdit4(string.Format("##{0}", info.Name), ref arr, eImGuiColorEditFlags.InputRGB))
-                                info.SetValue(foundScript.TheScriptObject, ImGuiIV.FloatRGBToColor(arr));
+                                info.SetValue(foundScript.GetTheScriptObject(), ImGuiIV.FloatRGBToColor(arr));
                         }
                         break;
                     case SupportedPublicFields._Size:
                         {
-                            Size value = (Size)info.GetValue(foundScript.TheScriptObject);
+                            Size value = (Size)info.GetValue(foundScript.GetTheScriptObject());
                             int[] arr = new int[2] { value.Width, value.Height };
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragInt2(string.Format("##{0}", info.Name), ref arr, speed))
-                                info.SetValue(foundScript.TheScriptObject, new Size(arr[0], arr[1]));
+                                info.SetValue(foundScript.GetTheScriptObject(), new Size(arr[0], arr[1]));
                         }
                         break;
                     case SupportedPublicFields._SizeF:
                         {
-                            SizeF value = (SizeF)info.GetValue(foundScript.TheScriptObject);
+                            SizeF value = (SizeF)info.GetValue(foundScript.GetTheScriptObject());
                             float[] arr = new float[2] { value.Width, value.Height };
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr, speed))
-                                info.SetValue(foundScript.TheScriptObject, new SizeF(arr[0], arr[1]));
+                                info.SetValue(foundScript.GetTheScriptObject(), new SizeF(arr[0], arr[1]));
                         }
                         break;
                     case SupportedPublicFields._Point:
                         {
-                            Point value = (Point)info.GetValue(foundScript.TheScriptObject);
+                            Point value = (Point)info.GetValue(foundScript.GetTheScriptObject());
                             int[] arr = new int[2] { value.X, value.Y };
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragInt2(string.Format("##{0}", info.Name), ref arr, speed))
-                                info.SetValue(foundScript.TheScriptObject, new Point(arr[0], arr[1]));
+                                info.SetValue(foundScript.GetTheScriptObject(), new Point(arr[0], arr[1]));
                         }
                         break;
                     case SupportedPublicFields._PointF:
                         {
-                            PointF value = (PointF)info.GetValue(foundScript.TheScriptObject);
+                            PointF value = (PointF)info.GetValue(foundScript.GetTheScriptObject());
                             float[] arr = new float[2] { value.X, value.Y };
 
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             if (ImGuiIV.DragFloat2(string.Format("##{0}", info.Name), ref arr, speed))
-                                info.SetValue(foundScript.TheScriptObject, new PointF(arr[0], arr[1]));
+                                info.SetValue(foundScript.GetTheScriptObject(), new PointF(arr[0], arr[1]));
                         }
                         break;
                     case SupportedPublicFields._IList:
                         {
-                            object obj = info.GetValue(foundScript.TheScriptObject);
+                            object obj = info.GetValue(foundScript.GetTheScriptObject());
 
                             if (obj == null)
                             {
@@ -358,7 +363,7 @@ namespace Manager.UI
                         break;
                     case SupportedPublicFields._ICollection:
                         {
-                            object obj = info.GetValue(foundScript.TheScriptObject);
+                            object obj = info.GetValue(foundScript.GetTheScriptObject());
 
                             if (obj == null)
                             {
@@ -626,7 +631,7 @@ namespace Manager.UI
                     /// @separator
 
 #if DEBUG
-                    DebugTab();
+                    DebugTab(devicePtr);
 #endif
                     ScriptsTab();
                     PluginsTab(devicePtr, ctx);
@@ -645,9 +650,9 @@ namespace Manager.UI
         }
         private static void ShowPublicFieldsWindow()
         {
-            for (int i = 0; i < Main.Instance.ActiveScripts.Count; i++)
+            for (int i = 0; i < ScriptManager.GetActiveScriptsCount(); i++)
             {
-                FoundScript fs = Main.Instance.ActiveScripts[i];
+                FoundScript fs = ScriptManager.GetActiveScripts()[i];
 
                 if (fs.PublicFieldsWindowOpen)
                 {
@@ -691,16 +696,17 @@ namespace Manager.UI
         }
 
 #if DEBUG
-        private static bool testNotifyIsError;
-        private static string testNotifyTitle;
-        private static string testNotifyDesc;
-        private static string testNotifyAdditionalContent;
+        //private static bool testNotifyIsError;
+        //private static string testNotifyTitle;
+        //private static string testNotifyDesc;
+        //private static string testNotifyAdditionalContent;
         private static string shdnMessageContent;
         private static int shdnMessageTimeMS;
-        public static Threading.ScriptThread[] scriptThreads;
-        public delegate void TestThreadMethodDelegate();
-        public static TestThreadMethodDelegate d;
-        private static void DebugTab()
+        private static bool shdn_cc_showCachedEntitiesWithOwnerOnly;
+        private static int shdn_cc_showCachedEntitiesOfThisTypeOnly;
+        private static string zoneInfoLabel, zoneTextLabel;
+        private static Vector3 zoneMin, zoneMax;
+        private static void DebugTab(IntPtr devicePtr)
         {
             /// @begin TabItem
             if (ImGuiIV.BeginTabItem("DEBUG"))
@@ -710,196 +716,475 @@ namespace Manager.UI
                 // Threads
                 if (ImGuiIV.TreeNode("Threads"))
                 {
+                    ImGuiIV.SeparatorText("Game Thread IDs");
+
+                    foreach(KeyValuePair<GameThread, ThreadData> pairs in ThreadManager.GetDataOfGameThreads())
+                    {
+                        ImGuiIV.TextUnformatted("{0} - ID: {1}, TlsContext: {2}", pairs.Key, pairs.Value.ThreadID, pairs.Value.TlsContext);
+                    }
+
+                    ImGuiIV.Spacing();
+                    ImGuiIV.SeparatorText("Managed Threads");
+
+                    NetThread[] activeThreads = ThreadManager.GetActiveThreads();
+                    ImGuiIV.TextUnformatted("Active Threads: {0}", activeThreads.Length);
+
+                    for (int i = 0; i < activeThreads.Length; i++)
+                    {
+                        NetThread thread = activeThreads[i];
+
+                        if (ImGuiIV.TreeNode(string.Format("Thread #{0} - {1}", thread.ThreadId, thread.ThreadName)))
+                        {
+                            if (ImGuiIV.Button("Try shutdown (Request cancellation)"))
+                            {
+                                thread.TryShutdown();
+                            }
+
+                            ImGuiIV.Spacing(2);
+                            ImGuiIV.TextDisabled("Details");
+                            ImGuiIV.TextUnformatted("ID: {0}", thread.ThreadId);
+                            ImGuiIV.TextUnformatted("Name: {0}", thread.ThreadName);
+                            ImGuiIV.TextUnformatted("Type: {0}", thread.Type);
+
+                            ImGuiIV.Spacing();
+                            ImGuiIV.TextDisabled("States");
+                            ImGuiIV.TextUnformatted("ThreadState: {0}", thread.ThreadState);
+                            ImGuiIV.TextUnformatted("IsRunning: {0}", thread.IsRunning);
+                            ImGuiIV.TextUnformatted("IsInLoop: {0}", thread.IsInLoop);
+                            ImGuiIV.TextUnformatted("IsThreadAbleToTick: {0}", thread.IsThreadAbleToTick);
+                            ImGuiIV.TextUnformatted("WasShutdownRequested: {0}", thread.WasShutdownRequested);
+                            ImGuiIV.TreePop();
+                        }
+                    }
+
+                    ImGuiIV.Spacing(3);
+                    ImGuiIV.TreePop();
+                }
+
+                // Tasks
+                if (ImGuiIV.TreeNode("Tasks"))
+                {
+                    ImGuiIV.TextUnformatted("Active Tasks: {0}", TaskManager.GetActiveTasksCount());
 
                     ImGuiIV.TreePop();
                 }
 
-                // General Debug
-                ImGuiIV.Spacing();
-                ImGuiIV.SeparatorText("General Debug");
-                ImGuiIV.CheckBox("Disable Key Events", ref Main.Instance.DisableKeyEvents);
-                ImGuiIV.CheckBox("Throw On Error", ref Main.Instance.ThrowOnError);
-                ImGuiIV.CheckBox("Do Not Reset ImGui Style", ref Main.Instance.DoNotResetImGuiStyle);
-                ImGuiIV.CheckBox("Allow Write To Debug Output", ref Main.Instance.AllowWriteToDebugOutput);
-                ImGuiIV.TextUnformatted("Main Thread ID: {0}", Main.Instance.MainThreadID);
-                ImGuiIV.TextUnformatted("Console Log Items: {0}", Logger.GetLogItems().Count);
-                ImGuiIV.TextUnformatted("Last Console Command: {0}", Main.Instance.Console.GetLastConsoleCommand());
-
-                ImGuiIV.Spacing();
-                ImGuiIV.SeparatorText("Test Notification and Popup");
-                ImGuiIV.CheckBox("Test notification is error", ref testNotifyIsError);
-
-                ImGuiIV.InputText("TestNotifyTitle", ref testNotifyTitle);
-                ImGuiIV.InputText("TestNotifyDesc", ref testNotifyDesc);
-                ImGuiIV.InputText("TestNotifyAdditionalContent", ref testNotifyAdditionalContent);
-
-                if (ImGuiIV.Button("Show test notification"))
-                    Main.Instance.Notification.ShowNotificationEx(testNotifyIsError ? NotificationType.Error : NotificationType.Default,
-                        DateTime.UtcNow.AddSeconds(5d),
-                        new NotificationContent(testNotifyTitle, testNotifyDesc, testNotifyAdditionalContent),
-                        null);
-
-                if (ImGuiIV.Button("open test popup"))
+                // IV-SDK .NET
+                if (ImGuiIV.TreeNode("IVSDKDotNet"))
                 {
-                    ImGuiIV.OpenPopup("testpopuplkof");
-                }
 
-                ImGuiIV.CreateSimplePopupDialog("testpopuplkof", "test", true, true, true, "close", "test", () => { }, () => { });
+                    // General Debug
+                    ImGuiIV.SeparatorText("Debug");
+                    ImGuiIV.CheckBox("Disable Key Events", ref Main.Instance.DisableKeyEvents);
+                    ImGuiIV.CheckBox("Throw On Error", ref Main.Instance.ThrowOnError);
+                    ImGuiIV.CheckBox("Allow Write To Debug Output", ref Main.Instance.AllowWriteToDebugOutput);
+                    ImGuiIV.TextUnformatted("Console Log Items: {0}", Logger.GetLogItems().Count);
+                    ImGuiIV.TextUnformatted("Last Console Command: {0}", ConsoleUI.GetLastConsoleCommand());
+
+                    // Lists
+                    ImGuiIV.Spacing();
+                    ImGuiIV.SeparatorText("Lists");
+                    ImGuiIV.TextUnformatted("Active Scripts: {0}", ScriptManager.GetActiveScriptsCount());
+                    ImGuiIV.TextUnformatted("Action Queue: {0}", ThreadManager.GetMainThreadActionQueueCount());
+                    ImGuiIV.TextUnformatted("Active Tasks: {0}", Main.Instance.ActiveTasks.Count);
+                    ImGuiIV.TextUnformatted("Delayed Actions: {0}", DelayedActionManager.GetDelayedActionsCount());
+
+
+                    ImGuiIV.TreePop();
+                }
 
                 // ScriptHookDotNet
-                ImGuiIV.Spacing();
-                ImGuiIV.SeparatorText("ScriptHookDotNet");
-                ImGuiIV.CheckBox("Enable Verbose Logging", ref SHDNStuff.EnableVerboseLogging);
-                ImGuiIV.CheckBox("Enable Native Call Logging", ref SHDNStuff.NativeCallLoggingEnabled);
-                ImGuiIV.BeginDisabled();
-                ImGuiIV.CheckBox("WereScriptHookDotNetScriptsLoadedThisSession", ref SHDNStuff.WereScriptHookDotNetScriptsLoadedThisSession);
-                ImGuiIV.EndDisabled();
-
-                ImGuiIV.Spacing();
-                ImGuiIV.TextDisabled("Message");
-                ImGuiIV.InputText("shdnMessageContent", ref shdnMessageContent);
-                ImGuiIV.DragInt("shdnMessageTimeMS", ref shdnMessageTimeMS);
-
-                if (ImGuiIV.Button("Set message"))
-                    Main.Instance.SHDN_ShowMessage(shdnMessageContent, shdnMessageTimeMS);
-
-                ImGuiIV.Spacing();
-                ImGuiIV.TextDisabled("Current Running Scripts");
-                ImGuiIV.TextUnformatted("CurrentConstructingScript: {0}", SHDNStuff.CurrentConstructingScript != null ? SHDNStuff.CurrentConstructingScript.GUID : Guid.Empty);
-                ImGuiIV.TextUnformatted("CurrentTickScript: {0}", SHDNStuff.CurrentTickScript != null ? SHDNStuff.CurrentTickScript.GUID : Guid.Empty);
-                ImGuiIV.TextUnformatted("CurrentMouseDownScript: {0}", SHDNStuff.CurrentMouseDownScript != null ? SHDNStuff.CurrentMouseDownScript.GUID : Guid.Empty);
-                ImGuiIV.TextUnformatted("CurrentMouseUpScript: {0}", SHDNStuff.CurrentMouseUpScript != null ? SHDNStuff.CurrentMouseUpScript.GUID : Guid.Empty);
-                ImGuiIV.TextUnformatted("CurrentScriptCommandScript: {0}", SHDNStuff.CurrentScriptCommandScript != null ? SHDNStuff.CurrentScriptCommandScript.GUID : Guid.Empty);
-                ImGuiIV.TextUnformatted("CurrentPerFrameDrawingScript: {0}", SHDNStuff.CurrentPerFrameDrawingScript != null ? SHDNStuff.CurrentPerFrameDrawingScript.GUID : Guid.Empty);
-
-                ImGuiIV.Spacing();
-                ImGuiIV.TextDisabled("ContentCache");
-                ImGuiIV.TextUnformatted("PlayerCache Count: {0}", GTA.ContentCache.PlayerCache.Count);
-                ImGuiIV.TextUnformatted("PedCache Count: {0}", GTA.ContentCache.PedCache.Count);
-                ImGuiIV.TextUnformatted("VehicleCache Count: {0}", GTA.ContentCache.VehicleCache.Count);
-                ImGuiIV.TextUnformatted("ObjectCache Count: {0}", GTA.ContentCache.ObjectCache.Count);
-                ImGuiIV.TextUnformatted("PickupCache Count: {0}", GTA.ContentCache.PickupCache.Count);
-                ImGuiIV.TextUnformatted("GroupCache Count: {0}", GTA.ContentCache.GroupCache.Count);
-                ImGuiIV.TextUnformatted("BlipCache Count: {0}", GTA.ContentCache.BlipCache.Count);
-                ImGuiIV.TextUnformatted("CameraCache Count: {0}", GTA.ContentCache.CameraCache.Count);
-                ImGuiIV.TextUnformatted("FireCache Count: {0}", GTA.ContentCache.FireCache.Count);
-                ImGuiIV.TextUnformatted("DeleteCache Count: {0}", GTA.ContentCache.DeleteCache.Count);
-                ImGuiIV.TextUnformatted("DeleteQueue Count: {0}", GTA.ContentCache.DeleteQueue.Count);
-                ImGuiIV.TextUnformatted("metadata Count: {0}", GTA.ContentCache.metadata.Count);
-
-                // Lists
-                ImGuiIV.Spacing();
-                ImGuiIV.SeparatorText("Lists");
-                ImGuiIV.TextUnformatted("Active Scripts: {0}", Main.Instance.ActiveScripts.Count);
-                ImGuiIV.TextUnformatted("Action Queue: {0}", Main.Instance.ActionQueue.Count);
-                ImGuiIV.TextUnformatted("Active Tasks: {0}", Main.Instance.ActiveTasks.Count);
-                ImGuiIV.TextUnformatted("Delayed Actions: {0}", Main.Instance.DelayedActions.Count);
-
-                // States
-                ImGuiIV.Spacing();
-                ImGuiIV.SeparatorText("States");
-                ImGuiIV.BeginDisabled();
-                ImGuiIV.CheckBox("FirstFrame", ref Main.Instance.FirstFrame);
-                ImGuiIV.CheckBox("IsGTAIVWindowInFocus", ref Main.Instance.IsGTAIVWindowInFocus);
-                ImGuiIV.CheckBox("OnWindowFocusChangedEventCalled", ref Main.Instance.OnWindowFocusChangedEventCalled);
-                ImGuiIV.CheckBox("WasBoundPhoneNumbersProcessed", ref Main.Instance.WasBoundPhoneNumbersProcessed);
-                ImGuiIV.EndDisabled();
-
-                // Player
-                ImGuiIV.Spacing();
-                ImGuiIV.SeparatorText("Player");
-
-                UIntPtr playerPedPtr = IVPlayerInfo.FindThePlayerPed();
-                ImGuiIV.TextUnformatted("Player Ped Pointer: {0}", playerPedPtr);
-
-                if (playerPedPtr != UIntPtr.Zero)
+                if (ImGuiIV.TreeNode("ScriptHookDotNet"))
                 {
-                    IVPed playerPed = IVPed.FromUIntPtr(playerPedPtr);
-                    int handle = (int)IVPools.GetPedPool().GetIndex(playerPedPtr);
-                    ImGuiIV.TextUnformatted("PlayerIndex: {0}", playerPed.PlayerIndex);
-                    ImGuiIV.TextUnformatted("PlayerHandle: {0}", handle);
-                    ImGuiIV.TextUnformatted("DoesPlayerCharExists: {0}", IVSDKDotNet.Native.Natives.DOES_CHAR_EXIST(handle));
 
-                }
+                    ImGuiIV.SeparatorText("Debug");
+                    ImGuiIV.CheckBox("Enable Verbose Logging", ref SHDNManager.EnableVerboseLogging);
+                    ImGuiIV.CheckBox("Enable Native Call Logging", ref SHDNManager.NativeCallLoggingEnabled);
 
-                // Phone
-                IVPhoneInfo thePhoneInfo = IVPhoneInfo.ThePhoneInfo;
-                if (thePhoneInfo != null && IVPlayerInfo.FindThePlayerPed() != UIntPtr.Zero)
-                {
                     ImGuiIV.Spacing();
-                    ImGuiIV.SeparatorText("Phone");
-                    ImGuiIV.TextUnformatted("Current Phone Number: {0}", thePhoneInfo.CurrentNumberInput);
-                    ImGuiIV.TextUnformatted("Phone State: {0}", (ePhoneState)thePhoneInfo.State);
+                    ImGuiIV.SeparatorText("Current Running Scripts");
+                    ImGuiIV.TextUnformatted("CurrentConstructingScript: {0}", SHDNManager.CurrentConstructingScript != null ? SHDNManager.CurrentConstructingScript.GUID : Guid.Empty);
+                    ImGuiIV.TextUnformatted("CurrentTickScript: {0}", SHDNManager.CurrentTickScript != null ? SHDNManager.CurrentTickScript.GUID : Guid.Empty);
+                    ImGuiIV.TextUnformatted("CurrentMouseDownScript: {0}", SHDNManager.CurrentMouseDownScript != null ? SHDNManager.CurrentMouseDownScript.GUID : Guid.Empty);
+                    ImGuiIV.TextUnformatted("CurrentMouseUpScript: {0}", SHDNManager.CurrentMouseUpScript != null ? SHDNManager.CurrentMouseUpScript.GUID : Guid.Empty);
+                    ImGuiIV.TextUnformatted("CurrentScriptCommandScript: {0}", SHDNManager.CurrentScriptCommandScript != null ? SHDNManager.CurrentScriptCommandScript.GUID : Guid.Empty);
+                    ImGuiIV.TextUnformatted("CurrentPerFrameDrawingScript: {0}", SHDNManager.CurrentPerFrameDrawingScript != null ? SHDNManager.CurrentPerFrameDrawingScript.GUID : Guid.Empty);
+
+                    ImGuiIV.Spacing();
+                    ImGuiIV.SeparatorText("Testing");
+
+                    ImGuiIV.TextDisabled("Message");
+                    ImGuiIV.InputText("shdnMessageContent", ref shdnMessageContent);
+                    ImGuiIV.DragInt("shdnMessageTimeMS", ref shdnMessageTimeMS);
+                    if (ImGuiIV.Button("Set message"))
+                        Main.Instance.SHDN_ShowMessage(shdnMessageContent, shdnMessageTimeMS);
+
+                    ImGuiIV.Spacing();
+                    ImGuiIV.SeparatorText("ContentCache");
+                    ImGuiIV.TextUnformatted("Current Cached Entity Count: {0}", SHDNContentCacheManager.GetCachedEntityCount());
+                    ImGuiIV.TextUnformatted("Current Cached Players Count: {0}", SHDNContentCacheManager.GetCachedPlayersCount());
+                    ImGuiIV.TextUnformatted("(LEGACY) metadata Count: {0}", GTA.ContentCache.metadata.Count);
+
+                    if (ImGuiIV.TreeNode("Cached entities"))
+                    {
+                        ImGuiIV.CheckBox("ShowCachedEntitiesWithOwnerOnly", ref shdn_cc_showCachedEntitiesWithOwnerOnly);
+                        ImGuiIV.SliderInt("ShowCachedEntitiesOfThisTypeOnly", ref shdn_cc_showCachedEntitiesOfThisTypeOnly, 0, 9);
+
+                        ImGuiIV.TextDisabled("Show entities of type: {0}", shdn_cc_showCachedEntitiesOfThisTypeOnly == 0 ? "ALL" : ((GTA.HandleType)shdn_cc_showCachedEntitiesOfThisTypeOnly).ToString());
+
+                        CachedEntity[] cachedEntities = SHDNContentCacheManager.GetCachedEntities();
+                        for (int i = 0; i < cachedEntities.Length; i++)
+                        {
+                            CachedEntity cachedEntity = cachedEntities[i];
+
+                            // Filter
+                            if (shdn_cc_showCachedEntitiesWithOwnerOnly && cachedEntity.OwnerScriptID == Guid.Empty)
+                                continue;
+                            if (shdn_cc_showCachedEntitiesOfThisTypeOnly != 0)
+                            {
+                                if ((int)cachedEntity.TheEntity.Type != shdn_cc_showCachedEntitiesOfThisTypeOnly)
+                                    continue;
+                            }
+
+                            if (ImGuiIV.TreeNode(string.Format("Cached Entity {0} (Type: {1})", cachedEntity.TheEntity.UID, cachedEntity.TheEntity.Type)))
+                            {
+                                ImGuiIV.TextUnformatted("OwnerScriptID: {0}", cachedEntity.OwnerScriptID);
+                                ImGuiIV.TextUnformatted("Entity Type: {0}", cachedEntity.TheEntity.Type);
+                                ImGuiIV.TextUnformatted("Entity Handle: {0}", cachedEntity.TheEntity.UID);
+
+                                ImGuiIV.TreePop();
+                            }
+                        }
+
+                        ImGuiIV.TreePop();
+                    }
+
+                    if (ImGuiIV.TreeNode("Cached players"))
+                    {
+                        GTA.Player[] cachedPlayers = SHDNContentCacheManager.GetCachedPlayers();
+
+                        if (cachedPlayers != null)
+                        {
+                            for (int i = 0; i < cachedPlayers.Length; i++)
+                            {
+                                GTA.Player cachedPlayer = cachedPlayers[i];
+
+                                if (ImGuiIV.TreeNode(string.Format("Cached Player {0} (IsLocalPlayer: {1})", i, cachedPlayer.isLocalPlayer)))
+                                {
+                                    ImGuiIV.TextUnformatted("ID: {0}", cachedPlayer.ID);
+                                    ImGuiIV.TextUnformatted("Index: {0}", cachedPlayer.Index);
+                                    ImGuiIV.TextUnformatted("PedHandle: {0}", cachedPlayer.PedHandle);
+                                    ImGuiIV.TextUnformatted("Name: {0}", cachedPlayer.Name);
+                                    ImGuiIV.TextUnformatted("isActive: {0}", cachedPlayer.isActive);
+                                    ImGuiIV.TextUnformatted("isLocalPlayer: {0}", cachedPlayer.isLocalPlayer);
+
+                                    ImGuiIV.TreePop();
+                                }
+                            }
+                        }
+
+                        ImGuiIV.TreePop();
+                    }
+
+                    ImGuiIV.TreePop();
                 }
 
-                ImGuiIV.Spacing();
-                ImGuiIV.SeparatorText("Threading test");
+                // Game
+                if (ImGuiIV.TreeNode("Game"))
+                {
 
-                if (scriptThreads == null)
-                {
-                    if (ImGuiIV.Button("Create test threads"))
+                    ImGuiIV.SeparatorText("States");
+                    ImGuiIV.BeginDisabled();
+                    ImGuiIV.CheckBox("FirstFrame", ref Main.Instance.FirstFrame);
+                    ImGuiIV.CheckBox("IsGTAIVWindowInFocus", ref Main.Instance.IsGTAIVWindowInFocus);
+                    ImGuiIV.CheckBox("OnWindowFocusChangedEventCalled", ref Main.Instance.OnWindowFocusChangedEventCalled);
+                    ImGuiIV.EndDisabled();
+
+                    ImGuiIV.Spacing();
+
+                    // Pad
+                    if (ImGuiIV.TreeNode("Pad"))
                     {
-                        //scriptThreads = new Threading.ScriptThread[2];
-                        //scriptThreads[0] = new Threading.ScriptThread(ScriptTestThreadLoop);
-                        //scriptThreads[1] = new Threading.ScriptThread(ScriptTestThreadLoop2);
-                    }
-                }
-                else
-                {
-                    if (ImGuiIV.Button("Launch threads"))
-                    {
-                        for (int i = 0; i < scriptThreads.Length; i++)
+                        IVPad pad = IVPad.GetPad();
+                        ImGuiIV.TextUnformatted("Pad Pointer: {0} ({1})", pad.GetUIntPtr(), pad.GetUIntPtr().ToUInt32().ToString("X"));
+
+                        unsafe
                         {
-                            scriptThreads[i].Launch();
+                            bool isUsingController = *(bool*)(pad.GetUIntPtr().ToUInt32() + 0x328C);
+                            ImGuiIV.TextUnformatted("isUsingController: {0}", isUsingController);
+                        }
+
+                        ImGuiIV.TreePop();
+                    }
+
+                    // Player
+                    if (ImGuiIV.TreeNode("Player"))
+                    {
+                        UIntPtr playerPedPtr = IVPlayerInfo.FindThePlayerPed();
+                        
+                        if (playerPedPtr != UIntPtr.Zero)
+                        {
+                            ImGuiIV.TextUnformatted("Player Ped Pointer: {0} ({1})", playerPedPtr, playerPedPtr.ToUInt32().ToString("X"));
+                            ImGuiIV.TextUnformatted("PlayerHandle: {0}", Main.Instance.PlayerPedHandle);
+                            ImGuiIV.TextUnformatted("PlayerVehicleHandle: {0}", Main.Instance.PlayerVehicleHandle);
+                            ImGuiIV.TextUnformatted("DoesPlayerCharExists: {0}", IVSDKDotNet.Native.Natives.DOES_CHAR_EXIST(Main.Instance.PlayerPedHandle));
+                        }
+                        else
+                        {
+                            ImGuiIV.TextDisabled("Player does not exist yet");
+                        }
+
+                        ImGuiIV.TreePop();
+                    }
+
+                    // Players
+                    if (ImGuiIV.TreeNode("Players"))
+                    {
+                        for (int i = 0; i < 32; i++)
+                        {
+                            ImGuiIV.TextUnformatted("Is player {0} active: {1}", i, IVPlayerInfo.IsPlayerActive(i));
+                        }
+
+                        ImGuiIV.TreePop();
+                    }
+
+                    // Phone
+                    if (ImGuiIV.TreeNode("Phone"))
+                    {
+
+                        IVPhoneInfo thePhoneInfo = IVPhoneInfo.ThePhoneInfo;
+
+                        if (thePhoneInfo != null && IVPlayerInfo.FindThePlayerPed() != UIntPtr.Zero)
+                        {
+                            ImGuiIV.TextUnformatted("Current Phone Number: {0}", thePhoneInfo.CurrentNumberInput);
+                            ImGuiIV.TextUnformatted("Phone State: {0}", (ePhoneState)thePhoneInfo.State);
+                        }
+                        else
+                        {
+                            ImGuiIV.TextDisabled("Phone is not initialized yet");
+                        }
+
+                        ImGuiIV.TreePop();
+                    }
+
+                    // Zones
+                    if (ImGuiIV.TreeNode("Zones"))
+                    {
+                        ImGuiIV.TextDisabled("TotalNumberOfMapZones: {0}", IVTheZones.TotalNumberOfMapZones);
+                        ImGuiIV.TextDisabled("ZonesRevealed: {0}", IVTheZones.ZonesRevealed);
+
+                        //string name = IVTheZones.GetZoneNameByCoords(Main.Instance.ppos);
+                        //int index = IVTheZones.GetZoneNumberByName(name);
+                        //ImGuiIV.TextUnformatted("Current Zone Name (by coords): {0}", name);
+                        //ImGuiIV.TextUnformatted("Current number: {0}", index);
+                        //ImGuiIV.TextUnformatted("Current zone name by index: {0}", IVTheZones.GetZoneNameByIndex(index));
+
+                        if (ImGuiIV.Button("Reset"))
+                            IVTheZones.Reset();
+
+                        if (ImGuiIV.CollapsingHeader("Add new zone##ManagerZonesHeader"))
+                        {
+                            if (ImGuiIV.Button("Add"))
+                                Logger.LogDebugEx("Added new zone. Index: {0}", IVTheZones.Add(zoneInfoLabel, zoneTextLabel, zoneMin, zoneMax));
+
+                            ImGuiIV.InputText("InfoLabel", ref zoneInfoLabel);
+                            ImGuiIV.InputText("TextLabel", ref zoneTextLabel);
+                            ImGuiIV.DragFloat3("Min", ref zoneMin);
+                            ImGuiIV.DragFloat3("Max", ref zoneMax);
+                        }
+
+                        IVZone[] zones = IVTheZones.MapZoneArray;
+                        for (int i = 0; i < zones.Length; i++)
+                        {
+                            IVZone zone = zones[i];
+
+                            if (ImGuiIV.TreeNode(string.Format("Zone #{0} ({1})", i, zone.InfoLabel)))
+                            {
+                                ImGuiIV.TextUnformatted("InfoLabel: {0}", zone.InfoLabel);
+                                ImGuiIV.TextUnformatted("TextLabel: {0}", zone.TextLabel);
+                                ImGuiIV.TextUnformatted("MinX: {0}", zone.MinX);
+                                ImGuiIV.TextUnformatted("MinY: {0}", zone.MinY);
+                                ImGuiIV.TextUnformatted("MinZ: {0}", zone.MinZ);
+                                ImGuiIV.TextUnformatted("MaxX: {0}", zone.MaxX);
+                                ImGuiIV.TextUnformatted("MaxY: {0}", zone.MaxY);
+                                ImGuiIV.TextUnformatted("MaxZ: {0}", zone.MaxZ);
+                                ImGuiIV.TextUnformatted("Unk1: {0}", zone.Unk1);
+                                ImGuiIV.TextUnformatted("Unk2: {0}", zone.Unk2);
+                                ImGuiIV.TextUnformatted("PopulationType: {0}", zone.PopulationType);
+                                ImGuiIV.TextUnformatted("Scumminess: {0}", zone.Scumminess);
+
+                                //ImGuiIV.TextColored(Color.Yellow, "Is player within zone: {0}", IVTheZones.IsPointInZone(Main.Instance.ppos, zone));
+
+                                ImGuiIV.TreePop();
+                            }
+                        }
+
+                        ImGuiIV.TreePop();
+                    }
+
+                    
+                    ImGuiIV.TreePop();
+                }
+
+                // ImGui
+                if (ImGuiIV.TreeNode("ImGui"))
+                {
+                    IntPtr rageD3D9DevicePtr = RAGE.GetDirect3DDevice9();
+                    ImGuiIV.TextUnformatted("RAGE Direct3D Device 9:        {0} ({1})", rageD3D9DevicePtr, rageD3D9DevicePtr.ToInt32().ToString("X"));
+                    ImGuiIV.TextUnformatted("EndScene Direct3D Device 9:    {0} ({1})", devicePtr, devicePtr.ToInt32().ToString("X"));
+
+                    ImGuiIV.Spacing();
+                    ImGuiIV.SeparatorText("ImGuiIV States");
+                    ImGuiIV.TextUnformatted("ActiveScriptWindows: {0}", ImGuiIV.ActiveScriptWindows);
+
+                    ImGuiIV.Spacing();
+                    ImGuiIV.SeparatorText("IO States");
+                    ImGuiIV_IO io = ImGuiIV.GetIO();
+                    ImGuiIV.TextUnformatted("WantCaptureKeyboard: {0}", io.WantCaptureKeyboard);
+                    ImGuiIV.TextUnformatted("WantCaptureMouse: {0}", io.WantCaptureMouse);
+                    ImGuiIV.TextUnformatted("WantTextInput: {0}", io.WantTextInput);
+
+                    ImGuiIV.TreePop();
+                }
+
+                // File Cache Manager
+                if (ImGuiIV.TreeNode("File Cache Manager"))
+                {
+                    ImGuiIV.TextUnformatted("View all the currently cached files in the following directories");
+
+                    if (ImGuiIV.Button("Get full path of file"))
+                    {
+                        string scriptPath = FileCacheManager.GetFullPathOfCachedFile("Businesses.net.dll", Folder.Scripts | Folder.IVSDKDotNet_Scripts);
+                        
+                        if (scriptPath == null)
+                        {
+                            Logger.LogWarning("could not find file");
+                        }
+                        else
+                        {
+                            Logger.LogWarning(scriptPath);
                         }
                     }
-                    if (ImGuiIV.Button("Abort threads"))
+                    if (ImGuiIV.Button("Test IsFilePresentWithVersionCheck"))
                     {
-                        for (int i = 0; i < scriptThreads.Length; i++)
-                        {
-                            scriptThreads[i].Abort();
-                            scriptThreads[i] = null;
-                        }
-                        scriptThreads = null;
+                        Logger.LogWarningEx("No wildcard exact version: {0}", FileCacheManager.IsFilePresentWithVersionCheck(Folder.Any, "ClonksCodingLib.GTAIV.dll", "1.9.0.38745"));
+                        Logger.LogWarningEx("No wildcard wrong version: {0}", FileCacheManager.IsFilePresentWithVersionCheck(Folder.Any, "ClonksCodingLib.GTAIV.dll", "1.9.0"));
+                        Logger.Log("-");
+                        Logger.LogWarningEx("Equal wildcard exact version: {0}", FileCacheManager.IsFilePresentWithVersionCheck(Folder.Any, "ClonksCodingLib.GTAIV.dll", "= 1.9.0.38745"));
+                        Logger.LogWarningEx("Double equal wildcard exact version: {0}", FileCacheManager.IsFilePresentWithVersionCheck(Folder.Any, "ClonksCodingLib.GTAIV.dll", "== 1.9.0.38745"));
+                        Logger.Log("-");
+                        Logger.LogWarningEx("Lower wildcard exact version: {0}", FileCacheManager.IsFilePresentWithVersionCheck(Folder.Any, "ClonksCodingLib.GTAIV.dll", "< 1.9.0.38745"));
+                        Logger.LogWarningEx("Lower wildcard with version 2.0: {0}", FileCacheManager.IsFilePresentWithVersionCheck(Folder.Any, "ClonksCodingLib.GTAIV.dll", "< 2.0"));
+                        Logger.Log("-");
+                        Logger.LogWarningEx("Higher wildcard exact version: {0}", FileCacheManager.IsFilePresentWithVersionCheck(Folder.Any, "ClonksCodingLib.GTAIV.dll", "> 1.9.0.38745"));
+                        Logger.LogWarningEx("Higher wildcard with version 1.5: {0}", FileCacheManager.IsFilePresentWithVersionCheck(Folder.Any, "ClonksCodingLib.GTAIV.dll", "> 1.5"));
+                        Logger.Log("-");
+                        Logger.LogWarningEx("Lower or equal wildcard exact version: {0}", FileCacheManager.IsFilePresentWithVersionCheck(Folder.Any, "ClonksCodingLib.GTAIV.dll", "<= 1.9.0.38745"));
+                        Logger.LogWarningEx("Lower or equal wildcard with version 2.0: {0}", FileCacheManager.IsFilePresentWithVersionCheck(Folder.Any, "ClonksCodingLib.GTAIV.dll", "<= 2.0"));
+                        Logger.Log("-");
+                        Logger.LogWarningEx("Higher or equal wildcard exact version: {0}", FileCacheManager.IsFilePresentWithVersionCheck(Folder.Any, "ClonksCodingLib.GTAIV.dll", ">= 1.9.0.38745"));
+                        Logger.LogWarningEx("Higher or equal wildcard with version 1.5: {0}", FileCacheManager.IsFilePresentWithVersionCheck(Folder.Any, "ClonksCodingLib.GTAIV.dll", ">= 1.5"));
                     }
+
+                    if (ImGuiIV.CollapsingHeader("Main Folder"))
+                    {
+                        string[] files = FileCacheManager.GetCachedFiles(Folder.Main);
+
+                        ImGuiIV.TextColored(Color.Yellow, "{0} cached files.", files.Length);
+
+                        for (int i = 0; i < files.Length; i++)
+                        {
+                            string file = files[i];
+                            ImGuiIV.TextUnformatted(file);
+                        }
+                    }
+                    if (ImGuiIV.CollapsingHeader("Scripts Folder"))
+                    {
+                        string[] files = FileCacheManager.GetCachedFiles(Folder.Scripts);
+
+                        ImGuiIV.TextColored(Color.Yellow, "{0} cached files.", files.Length);
+
+                        for (int i = 0; i < files.Length; i++)
+                        {
+                            string file = files[i];
+                            ImGuiIV.TextUnformatted(file);
+                        }
+                    }
+                    if (ImGuiIV.CollapsingHeader("Plugins Folder"))
+                    {
+                        string[] files = FileCacheManager.GetCachedFiles(Folder.Plugins);
+
+                        ImGuiIV.TextColored(Color.Yellow, "{0} cached files.", files.Length);
+
+                        for (int i = 0; i < files.Length; i++)
+                        {
+                            string file = files[i];
+                            ImGuiIV.TextUnformatted(file);
+                        }
+                    }
+                    if (ImGuiIV.CollapsingHeader("Update Folder"))
+                    {
+                        string[] files = FileCacheManager.GetCachedFiles(Folder.Update);
+
+                        ImGuiIV.TextColored(Color.Yellow, "{0} cached files.", files.Length);
+
+                        for (int i = 0; i < files.Length; i++)
+                        {
+                            string file = files[i];
+                            ImGuiIV.TextUnformatted(file);
+                        }
+                    }
+                    if (ImGuiIV.CollapsingHeader("IVSDKDotNet\\Scripts Folder"))
+                    {
+                        string[] files = FileCacheManager.GetCachedFiles(Folder.IVSDKDotNet_Scripts);
+
+                        ImGuiIV.TextColored(Color.Yellow, "{0} cached files.", files.Length);
+
+                        for (int i = 0; i < files.Length; i++)
+                        {
+                            string file = files[i];
+                            ImGuiIV.TextUnformatted(file);
+                        }
+                    }
+
+                    ImGuiIV.TreePop();
                 }
+
+                // MinHook Manager
+                if (ImGuiIV.TreeNode("MinHook Manager"))
+                {
+                    ImGuiIV.TextUnformatted("Registered Hooks count: {0}", MinHookManager.GetRegisteredHooksCount());
+                    ImGuiIV.TreePop();
+                }
+
+                //ImGuiIV.Spacing();
+                //ImGuiIV.SeparatorText("Test Notification and Popup");
+                //ImGuiIV.CheckBox("Test notification is error", ref testNotifyIsError);
+
+                //ImGuiIV.InputText("TestNotifyTitle", ref testNotifyTitle);
+                //ImGuiIV.InputText("TestNotifyDesc", ref testNotifyDesc);
+                //ImGuiIV.InputText("TestNotifyAdditionalContent", ref testNotifyAdditionalContent);
+
+                //if (ImGuiIV.Button("Show test notification"))
+                //    NotificationUI.ShowNotificationEx(testNotifyIsError ? NotificationType.Error : NotificationType.Default,
+                //        DateTime.UtcNow.AddSeconds(5d),
+                //        new NotificationContent(testNotifyTitle, testNotifyDesc, testNotifyAdditionalContent),
+                //        null);
+
+                //if (ImGuiIV.Button("open test popup"))
+                //{
+                //    ImGuiIV.OpenPopup("testpopuplkof");
+                //}
+
+                //ImGuiIV.CreateSimplePopupDialog("testpopuplkof", "test", true, true, true, "close", "test", () => { }, () => { });
 
                 /// @separator
                 ImGuiIV.EndTabItem();
             }
             /// @end TabItem
         }
-        private static void ScriptTestThreadLoop()
-        {
-            //while (!ImGuiIV.IsKeyDown(eImGuiKey.ImGuiKey_H))
-            //{
-            //    IVSDKDotNet.Native.Natives.PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", "press H to continue", 10, true);
-            //    scriptThread.Wait(1);
-            //}
-
-            if (ImGuiIV.IsKeyPressed(eImGuiKey.ImGuiKey_H, false))
-            {
-                IVSDKDotNet.Native.Natives.PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", "Hello and welcome", 3000, true);
-                scriptThreads[0].Wait(3000);
-                IVSDKDotNet.Native.Natives.PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", "this is a little test", 3000, true);
-                scriptThreads[0].Wait(3000);
-                IVSDKDotNet.Native.Natives.PRINT_STRING_WITH_LITERAL_STRING_NOW("STRING", "and it really works!", 3000, true);
-                scriptThreads[0].Wait(3000);
-            }
-        }
-        private static void ScriptTestThreadLoop2()
-        {
-            while (true)
-            {
-                int index = IVSDKDotNet.Native.Natives.CONVERT_INT_TO_PLAYERINDEX(IVSDKDotNet.Native.Natives.GET_PLAYER_ID());
-                IVSDKDotNet.Native.Natives.GET_PLAYER_CHAR(index, out int ped);
-                IVSDKDotNet.Native.Natives.GET_CHAR_COORDINATES(ped, out Vector3 pos);
-
-                IVSDKDotNet.Native.Natives.DRAW_CHECKPOINT(pos, 1f, Color.Red);
-                scriptThreads[1].Wait(1);
-            }
-        }
 #endif
+
 
         private static void ScriptsTab()
         {
@@ -913,23 +1198,23 @@ namespace Manager.UI
                 /// @end Separator
 
                 /// @begin Text
-                ImGuiIV.TextUnformatted(string.Format("Active IV-SDK .NET Scripts: {0}", Main.Instance.ActiveScripts.Count(x => x.IsIVSDKDotNetScript)));
+                ImGuiIV.TextUnformatted(string.Format("Active IV-SDK .NET Scripts: {0}", ScriptManager.GetIVSDKDotNetScripts().Length));
                 /// @end Text
 
                 /// @begin Text
-                ImGuiIV.TextUnformatted(string.Format("Active ScriptHookDotNet Scripts: {0}", Main.Instance.ActiveScripts.Count(x => x.IsScriptHookDotNetScript)));
+                ImGuiIV.TextUnformatted(string.Format("Active ScriptHookDotNet Scripts: {0}", ScriptManager.GetScriptHookDotNetScripts().Length));
                 /// @end Text
 
                 /// @begin Text
                 // Time since last script reload
-                TimeSpan timeSinceLastScriptLoad = DateTime.Now - Main.Instance.TimeSinceLastScriptLoad;
+                TimeSpan timeSinceLastScriptLoad = DateTime.Now - ScriptManager.TimeSinceLastScriptLoad;
 
                 if (timeSinceLastScriptLoad.TotalSeconds < 59d)
-                    ImGuiIV.TextUnformatted("Last Script Load Occured: {0} Second(s) ago ({1})", (int)timeSinceLastScriptLoad.TotalSeconds, Main.Instance.TimeSinceLastScriptLoad);
+                    ImGuiIV.TextUnformatted("Last Script Load Occured: {0} Second(s) ago ({1})", (int)timeSinceLastScriptLoad.TotalSeconds, ScriptManager.TimeSinceLastScriptLoad);
                 else if (timeSinceLastScriptLoad.TotalMinutes < 61d)
-                    ImGuiIV.TextUnformatted("Last Script Load Occured: {0} Minute(s) ago ({1})", (int)timeSinceLastScriptLoad.TotalMinutes, Main.Instance.TimeSinceLastScriptLoad);
+                    ImGuiIV.TextUnformatted("Last Script Load Occured: {0} Minute(s) ago ({1})", (int)timeSinceLastScriptLoad.TotalMinutes, ScriptManager.TimeSinceLastScriptLoad);
                 else
-                    ImGuiIV.TextUnformatted("Last Script Load Occured: {0} Hour(s) ago ({1})", (int)timeSinceLastScriptLoad.TotalHours, Main.Instance.TimeSinceLastScriptLoad);
+                    ImGuiIV.TextUnformatted("Last Script Load Occured: {0} Hour(s) ago ({1})", (int)timeSinceLastScriptLoad.TotalHours, ScriptManager.TimeSinceLastScriptLoad);
                 /// @end Text
 
                 /// @begin Separator
@@ -940,7 +1225,7 @@ namespace Manager.UI
                 /// @begin Button
                 if (ImGuiIV.Button("Abort all Scripts", new Vector2(150f, 0f)))
                 {
-                    Main.Instance.AbortScripts(ScriptType.All, AbortReason.Manager, false);
+                    ScriptManager.AbortScripts(ScriptType.All, AbortReason.Manager);
                 }
                 /// @end Button
 
@@ -953,7 +1238,7 @@ namespace Manager.UI
                 ImGuiIV.SameLine(0, 3 * ImGuiIV.GetStyle().ItemSpacing.X);
                 if (ImGuiIV.Button("Abort all IV-SDK .NET Scripts", new Vector2(250f, 0f)))
                 {
-                    Main.Instance.AbortScripts(ScriptType.IVSDKDotNet, AbortReason.Manager, false);
+                    ScriptManager.AbortScripts(ScriptType.IVSDKDotNet, AbortReason.Manager);
                 }
                 /// @end Button
 
@@ -961,7 +1246,7 @@ namespace Manager.UI
                 ImGuiIV.SameLine(0, 1 * ImGuiIV.GetStyle().ItemSpacing.X);
                 if (ImGuiIV.Button("Abort all ScriptHookDotNet Scripts", new Vector2(290f, 0f)))
                 {
-                    Main.Instance.AbortScripts(ScriptType.ScriptHookDotNet, AbortReason.Manager, false);
+                    ScriptManager.AbortScripts(ScriptType.ScriptHookDotNet, AbortReason.Manager);
                 }
                 /// @end Button
 
@@ -972,7 +1257,7 @@ namespace Manager.UI
                 /// @begin Button
                 if (ImGuiIV.Button("Reload all Scripts", new Vector2(150f, 0f)))
                 {
-                    Main.Instance.LoadScripts();
+                    ScriptManager.LoadScriptsInternal();
                 }
                 /// @end Button
 
@@ -985,7 +1270,7 @@ namespace Manager.UI
                 ImGuiIV.SameLine(0, 3 * ImGuiIV.GetStyle().ItemSpacing.X);
                 if (ImGuiIV.Button("Reload all IV-SDK .NET Scripts", new Vector2(250f, 0f)))
                 {
-                    Main.Instance.LoadIVSDKDotNetScripts();
+                    ScriptManager.LoadIVSDKDotNetScripts();
                 }
                 /// @end Button
 
@@ -993,7 +1278,7 @@ namespace Manager.UI
                 ImGuiIV.SameLine(0, 1 * ImGuiIV.GetStyle().ItemSpacing.X);
                 if (ImGuiIV.Button("Reload all ScriptHookDotNet Scripts", new Vector2(290f, 0f)))
                 {
-                    Main.Instance.LoadSHDNScripts();
+                    ScriptManager.LoadSHDNScripts();
                 }
                 /// @end Button
 
@@ -1003,23 +1288,26 @@ namespace Manager.UI
                 /// @end Separator
 
                 /// @begin CheckBox
-                ImGuiIV.CheckBox("Show IV-SDK .NET Scripts", ref showIVSDKDotNetScripts);
+                ImGuiIV.CheckBox("Show IV-SDK .NET scripts", ref showIVSDKDotNetScripts);
                 /// @end CheckBox
 
                 /// @begin CheckBox
                 ImGuiIV.SameLine(0, 2 * ImGuiIV.GetStyle().ItemSpacing.X);
-                ImGuiIV.CheckBox("Show ScriptHookDotNet Scripts", ref showScriptHookDotNetScripts);
+                ImGuiIV.CheckBox("Show ScriptHookDotNet scripts", ref showScriptHookDotNetScripts);
+                /// @end CheckBox
+
+                /// @begin CheckBox
+                ImGuiIV.SameLine(0, 2 * ImGuiIV.GetStyle().ItemSpacing.X);
+                ImGuiIV.CheckBox("Show constructed scripts only", ref showOnlyConstructedScripts);
                 /// @end CheckBox
 
                 /// @begin Text
-                ImGuiIV.AlignTextToFramePadding();
-                ImGuiIV.TextUnformatted("Search for:");
+                ImGuiIV.TextUnformatted("Search for scripts by file name or actual name");
                 /// @end Text
 
                 /// @begin Input
-                ImGuiIV.SameLine(0, 1 * ImGuiIV.GetStyle().ItemSpacing.X);
-                ImGuiIV.SetNextItemWidth(300);
-                ImGuiIV.InputText("##scriptNameFilterBtn", ref scriptNameFilter);
+                ImGuiIV.SetNextItemWidth(350);
+                ImGuiIV.InputText("##scriptNameFilterInputText", ref scriptNameFilter);
                 /// @end Input
 
                 /// @begin Separator
@@ -1027,7 +1315,7 @@ namespace Manager.UI
                 ImGuiIV.SeparatorEx(eImGuiSeparatorFlags.Horizontal);
                 /// @end Separator
 
-                if (Main.Instance.ActiveScripts.Count == 0)
+                if (ScriptManager.GetActiveScriptsCount() == 0)
                 {
                     /// @begin Text
                     ImGuiIV.TextDisabled("There are currently no active scripts.");
@@ -1035,11 +1323,14 @@ namespace Manager.UI
                 }
                 else
                 {
-                    for (int i = 0; i < Main.Instance.ActiveScripts.Count; i++)
+                    for (int i = 0; i < ScriptManager.GetActiveScriptsCount(); i++)
                     {
-                        FoundScript fs = Main.Instance.ActiveScripts[i];
+                        FoundScript fs = ScriptManager.GetActiveScripts()[i];
 
                         // Filter
+                        if (showOnlyConstructedScripts && !fs.WasConstructed())
+                            continue;
+
                         if (fs.ScriptType != ScriptType.Unknown) // Skip type filter if script type is unknown
                         {
                             if (string.IsNullOrWhiteSpace(scriptNameFilter))
@@ -1056,12 +1347,10 @@ namespace Manager.UI
                             {
                                 string searchStringLower = scriptNameFilter.ToLower();
 
-                                if (!fs.EntryPoint.FullName.ToLower().Contains(searchStringLower))
+                                if (!fs.EntryPoint.FullName.ToLower().Contains(searchStringLower)
+                                    && !fs.TheFileInfo.DoesStringMatchWithAnyFileName(searchStringLower, true, true))
                                 {
-                                    if (!fs.FileName.ToLower().Contains(searchStringLower))
-                                    {
-                                        continue;
-                                    }
+                                    continue;
                                 }
                             }
                         }
@@ -1071,20 +1360,39 @@ namespace Manager.UI
                             {
                                 string searchStringLower = scriptNameFilter.ToLower();
 
-                                if (!fs.EntryPoint.FullName.ToLower().Contains(searchStringLower))
+                                if (!fs.EntryPoint.FullName.ToLower().Contains(searchStringLower)
+                                    && !fs.TheFileInfo.DoesStringMatchWithAnyFileName(searchStringLower, true, true))
                                 {
-                                    if (!fs.FileName.ToLower().Contains(searchStringLower))
-                                    {
-                                        continue;
-                                    }
+                                    continue;
                                 }
                             }
+                        }
+
+                        // Make it obvious when a script was not yet constructed
+                        bool wasCustomHeaderStylePushed = false;
+                        if (!fs.WasConstructed())
+                        {
+                            ImGuiIV.PushStyleColor(eImGuiCol.Header,        Color.FromArgb(100, 255, 255, 0));
+                            ImGuiIV.PushStyleColor(eImGuiCol.HeaderHovered, Color.FromArgb(150, 255, 255, 0));
+                            ImGuiIV.PushStyleColor(eImGuiCol.HeaderActive,  Color.FromArgb(165, 255, 255, 0));
+                            wasCustomHeaderStylePushed = true;
                         }
 
                         /// @begin CollapsingHeader
                         if (ImGuiIV.CollapsingHeader(string.Format("{0} ({1} - {2})", fs.EntryPoint.FullName, fs.ScriptType, fs.ID)))
                         {
-                            /// @separator
+                            if (wasCustomHeaderStylePushed)
+                            {
+                                ImGuiIV.PopStyleColor(3);
+                                wasCustomHeaderStylePushed = false;
+                            }
+
+                            if (!fs.WasConstructed())
+                            {
+                                ImGuiIV.TextColored(Color.Yellow, "This script was not constructed yet.");
+                                ImGuiIV.TextColored(Color.Yellow, "More things will be available here once the script was constructed.");
+                                ImGuiIV.Spacing();
+                            }
 
                             /// @begin Separator
                             ImGuiIV.SeparatorText("Control");
@@ -1093,7 +1401,7 @@ namespace Manager.UI
                             /// @begin Button
                             if (ImGuiIV.Button("Abort this script", new Vector2(150f, 0f)))
                             {
-                                Main.Instance.AbortScriptInternal(AbortReason.Manual, fs, false);
+                                ScriptManager.AbortScriptInternal(AbortReason.Manual, fs, false, true);
                                 goto SKIP_TO_END;
                             }
                             /// @end Button
@@ -1102,11 +1410,11 @@ namespace Manager.UI
                             ImGuiIV.SameLine(0, 1 * ImGuiIV.GetStyle().ItemSpacing.X);
                             if (ImGuiIV.Button("Reload this script", new Vector2(170f, 0f)))
                             {
-                                string fullPath = fs.FullPath;
+                                string fullPath = fs.TheFileInfo.FullPath;
                                 string actualName = fs.EntryPoint.FullName;
-                                if (Main.Instance.AbortScriptInternal(AbortReason.Manual, fs, true))
+                                if (ScriptManager.AbortScriptInternal(AbortReason.Manual, fs, true))
                                 {
-                                    if (!Main.Instance.LoadAssembly(fullPath))
+                                    if (!ScriptManager.LoadAssembly(fullPath))
                                     {
                                         Logger.LogWarning(string.Format("Failed to reload script '{0}'!", actualName));
                                     }
@@ -1120,13 +1428,16 @@ namespace Manager.UI
                             }
                             /// @end Button
 
-                            /// @begin Button
-                            ImGuiIV.SameLine(0, 1 * ImGuiIV.GetStyle().ItemSpacing.X);
-                            if (ImGuiIV.Button(fs.Running ? "Pause this script" : "Resume this script", new Vector2(170f, 0f)))
+                            if (fs.WasConstructed())
                             {
-                                fs.Running = !fs.Running;
+                                /// @begin Button
+                                ImGuiIV.SameLine(0, 1 * ImGuiIV.GetStyle().ItemSpacing.X);
+                                if (ImGuiIV.Button(fs.Running ? "Pause this script" : "Resume this script", new Vector2(170f, 0f)))
+                                {
+                                    fs.Running = !fs.Running;
+                                }
+                                /// @end Button
                             }
-                            /// @end Button
 
                             /// @begin Separator
                             ImGuiIV.Spacing(4);
@@ -1143,214 +1454,159 @@ namespace Manager.UI
                                 ImGuiIV.TableSetColumnIndex(0);
                                 /// @separator
 
-                                // - - - COLUMN 0 - - -
-
-                                /// @begin Text
+                                // ===========================================
+                                // ================ COLUMN 0 =================
+                                // ===========================================
                                 ImGuiIV.TextUnformatted("Type");
-                                /// @end Text
-
-                                /// @begin Text
                                 ImGuiIV.TextUnformatted("ID");
-                                /// @end Text
-
-                                /// @begin Text
                                 ImGuiIV.TextUnformatted("Actual Name");
-                                /// @end Text
-
-                                /// @begin Text
                                 ImGuiIV.TextUnformatted("File Name");
-                                /// @end Text
-
-                                /// @begin Text
                                 ImGuiIV.TextUnformatted("Path");
-                                /// @end Text
-
-                                /// @begin Text
                                 ImGuiIV.TextUnformatted("Active Tasks");
-                                /// @end Text
-
-                                /// @begin Text
                                 ImGuiIV.TextUnformatted("Uses Threaded Tick");
-                                /// @end Text
 
-                                if (fs.RegisteredEvents != null)
+                                if (fs.IsIVSDKDotNetScript && fs.IsScriptReady())
                                 {
-                                    /// @begin Text
-                                    ImGuiIV.TextUnformatted("Registered Events");
-                                    /// @end Text
-                                }
-
-                                if (fs.IsIVSDKDotNetScript)
-                                {
-                                    /// @begin Text
                                     ImGuiIV.TextUnformatted("No Abort Forced");
-                                    /// @end Text
                                 }
 
-                                /// @begin Text
+                                ImGuiIV.TextUnformatted("Was Constructed");
                                 ImGuiIV.TextUnformatted("Is Ready");
-                                /// @end Text
-
-                                /// @begin Text
                                 ImGuiIV.TextUnformatted("Is Running");
-                                /// @end Text
 
-                                // - - - COLUMN 1 - - -
-
-                                /// @begin Text
+                                // ===========================================
+                                // ================ COLUMN 1 =================
+                                // ===========================================
                                 ImGuiIV.TableNextColumn(1);
+
                                 ImGuiIV.TextUnformatted(fs.ScriptType.ToString()); // Type
-                                /// @end Text
-
-                                /// @begin Text
                                 ImGuiIV.TextUnformatted(fs.ID.ToString()); // ID
-                                /// @end Text
-
-                                /// @begin Text
                                 ImGuiIV.TextUnformatted(fs.EntryPoint.FullName); // Actual Name
-                                /// @end Text
+                                ImGuiIV.TextUnformatted(fs.TheFileInfo.FileName); // File Name
 
-                                /// @begin Text
-                                ImGuiIV.TextUnformatted(fs.FileName); // File Name
-                                /// @end Text
+                                ImGuiIV.TextUnformatted(fs.TheFileInfo.FullPath); // Path
+                                ImGuiIV.SetItemTooltip(fs.TheFileInfo.FullPath);
 
-                                /// @begin Text
-                                ImGuiIV.TextUnformatted(fs.FullPath); // Path
-                                ImGuiIV.SetItemTooltip(fs.FullPath);
-                                /// @end Text
-
-                                /// @begin Text
                                 ImGuiIV.TextUnformatted(Main.Instance.ActiveTasks.Count(x => x.OwnerID == fs.ID).ToString()); // Active Tasks
-                                /// @end Text
+                                ImGuiIV.TextUnformatted((fs.ThreadID != -1).ToString()); // Uses Threaded Tick
 
-                                /// @begin Text
-                                ImGuiIV.TextUnformatted((fs.TickThread != -1).ToString()); // Uses Threaded Tick
-                                /// @end Text
-
-                                if (fs.RegisteredEvents != null)
+                                if (fs.IsIVSDKDotNetScript && fs.IsScriptReady())
                                 {
-                                    /// @begin Text
-                                    ImGuiIV.TextUnformatted(fs.RegisteredEvents.Count.ToString()); // Registered Events
-                                    /// @end Text
-                                }
-
-                                if (fs.IsIVSDKDotNetScript)
-                                {
-                                    /// @begin Text
                                     ImGuiIV.TextUnformatted(fs.GetScriptAs<Script>().ForceNoAbort.ToString()); // No Abort Forced
-                                    /// @end Text
                                 }
 
-                                /// @begin Text
+                                ImGuiIV.TextUnformatted(fs.WasConstructed().ToString()); // Was Constructed
                                 ImGuiIV.TextUnformatted(fs.IsScriptReady().ToString()); // Is Ready
-                                /// @end Text
-
-                                /// @begin Text
                                 ImGuiIV.TextUnformatted(fs.Running.ToString()); // Is Running
-                                /// @end Text
-
 
                                 /// @separator
                                 ImGuiIV.EndTable();
                             }
                             /// @end Table
 
-                            /// @begin CheckBox
+                            if (fs.WasConstructed())
+                            {
+                                /// @begin CheckBox
+                                ImGuiIV.Spacing(3);
+                                ImGuiIV.CheckBox("Show public field(s)", ref fs.PublicFieldsWindowOpen);
+                                /// @end CheckBox
+
+                                /// @begin Separator
+                                ImGuiIV.Spacing(4);
+                                ImGuiIV.SeparatorText("Registered Stuff");
+                                /// @end Separator
+
+                                /// @begin CollapsingHeader
+                                if (fs.ConsoleCommands != null)
+                                {
+                                    if (fs.ConsoleCommands.Count == 0)
+                                        ImGuiIV.BeginDisabled();
+                                    if (ImGuiIV.CollapsingHeader(string.Format("{0} registered console command(s)##{1}", fs.ConsoleCommands.Count, fs.ID)))
+                                    {
+                                        string[] keys = fs.ConsoleCommands.Keys.ToArray();
+                                        for (int c = 0; c < keys.Length; c++)
+                                        {
+                                            ImGuiIV.BulletText(keys[c]);
+                                        }
+                                    }
+                                    if (fs.ConsoleCommands.Count == 0)
+                                        ImGuiIV.EndDisabled();
+                                }
+                                else
+                                {
+                                    ImGuiIV.TextUnformatted("List of console commands is not initialized.");
+                                }
+                                /// @end CollapsingHeader
+
+                                /// @begin CollapsingHeader
+                                if (fs.BoundPhoneNumbers != null)
+                                {
+                                    if (fs.BoundPhoneNumbers.Count == 0)
+                                        ImGuiIV.BeginDisabled();
+                                    if (ImGuiIV.CollapsingHeader(string.Format("{0} registered phone number(s)##{1}", fs.BoundPhoneNumbers.Count, fs.ID)))
+                                    {
+                                        string[] keys = fs.BoundPhoneNumbers.Keys.ToArray();
+                                        for (int c = 0; c < keys.Length; c++)
+                                        {
+                                            ImGuiIV.BulletText(keys[c]);
+                                        }
+                                    }
+                                    if (fs.BoundPhoneNumbers.Count == 0)
+                                        ImGuiIV.EndDisabled();
+                                }
+                                else
+                                {
+                                    ImGuiIV.TextUnformatted("List of phone numbers is not initialized.");
+                                }
+                                /// @end CollapsingHeader
+
+                                /// @begin CollapsingHeader
+                                if (fs.Textures != null)
+                                {
+                                    if (fs.Textures.Count == 0)
+                                        ImGuiIV.BeginDisabled();
+                                    if (ImGuiIV.CollapsingHeader(string.Format("{0} registered texture(s)##{1}", fs.Textures.Count, fs.ID)))
+                                    {
+                                        Vector2 button_sz = new Vector2(64f);
+                                        float window_visible_x2 = ImGuiIV.GetWindowPos().Y + ImGuiIV.GetWindowContentRegionMax().X * 2f;
+
+                                        for (int c = 0; c < fs.Textures.Count; c++)
+                                        {
+                                            IntPtr txtPtr = fs.Textures[c];
+
+                                            ImGuiIV.PushID(c);
+
+                                            Vector2 pos = ImGuiIV.GetCursorScreenPos();
+                                            ImGuiIV.Image(txtPtr, button_sz);
+                                            ImGuiIV.ImagePreviewToolTip(txtPtr, button_sz, pos, 32f, 5f);
+
+                                            float last_button_x2 = ImGuiIV.GetItemRectMax().X;
+                                            float next_button_x2 = last_button_x2 + 10f + button_sz.X; // Expected position if next button was on same line
+                                            if (i + 1 < fs.Textures.Count && next_button_x2 < window_visible_x2)
+                                                ImGuiIV.SameLine();
+
+                                            ImGuiIV.PopID();
+                                        }
+                                    }
+                                    if (fs.Textures.Count == 0)
+                                        ImGuiIV.EndDisabled();
+                                }
+                                else
+                                {
+                                    ImGuiIV.TextUnformatted("List of textures is not initialized.");
+                                }
+                                /// @end CollapsingHeader
+                            }
+
                             ImGuiIV.Spacing(3);
-                            ImGuiIV.CheckBox("Show public field(s)", ref fs.PublicFieldsWindowOpen);
-                            /// @end CheckBox
-
-                            /// @begin Separator
-                            ImGuiIV.Spacing(4);
-                            ImGuiIV.SeparatorText("Registered Stuff");
-                            /// @end Separator
-
-                            /// @begin CollapsingHeader
-                            if (fs.ConsoleCommands != null)
-                            {
-                                if (fs.ConsoleCommands.Count == 0)
-                                    ImGuiIV.BeginDisabled();
-                                if (ImGuiIV.CollapsingHeader(string.Format("{0} registered console command(s)##{1}", fs.ConsoleCommands.Count, fs.ID)))
-                                {
-                                    string[] keys = fs.ConsoleCommands.Keys.ToArray();
-                                    for (int c = 0; c < keys.Length; c++)
-                                    {
-                                        ImGuiIV.BulletText(keys[c]);
-                                    }
-                                }
-                                if (fs.ConsoleCommands.Count == 0)
-                                    ImGuiIV.EndDisabled();
-                            }
-                            else
-                            {
-                                ImGuiIV.TextUnformatted("List of console commands is not initialized.");
-                            }
-                            /// @end CollapsingHeader
-
-                            /// @begin CollapsingHeader
-                            if (fs.BoundPhoneNumbers != null)
-                            {
-                                if (fs.BoundPhoneNumbers.Count == 0)
-                                    ImGuiIV.BeginDisabled();
-                                if (ImGuiIV.CollapsingHeader(string.Format("{0} registered phone number(s)##{1}", fs.BoundPhoneNumbers.Count, fs.ID)))
-                                {
-                                    string[] keys = fs.BoundPhoneNumbers.Keys.ToArray();
-                                    for (int c = 0; c < keys.Length; c++)
-                                    {
-                                        ImGuiIV.BulletText(keys[c]);
-                                    }
-                                }
-                                if (fs.BoundPhoneNumbers.Count == 0)
-                                    ImGuiIV.EndDisabled();
-                            }
-                            else
-                            {
-                                ImGuiIV.TextUnformatted("List of phone numbers is not initialized.");
-                            }
-                            /// @end CollapsingHeader
-
-                            /// @begin CollapsingHeader
-                            if (fs.Textures != null)
-                            {
-                                if (fs.Textures.Count == 0)
-                                    ImGuiIV.BeginDisabled();
-                                if (ImGuiIV.CollapsingHeader(string.Format("{0} registered texture(s)##{1}", fs.Textures.Count, fs.ID)))
-                                {
-                                    Vector2 button_sz = new Vector2(64f);
-                                    float window_visible_x2 = ImGuiIV.GetWindowPos().Y + ImGuiIV.GetWindowContentRegionMax().X * 2f;
-
-                                    for (int c = 0; c < fs.Textures.Count; c++)
-                                    {
-                                        IntPtr txtPtr = fs.Textures[c];
-
-                                        ImGuiIV.PushID(c);
-
-                                        Vector2 pos = ImGuiIV.GetCursorScreenPos();
-                                        ImGuiIV.Image(txtPtr, button_sz);
-                                        ImGuiIV.ImagePreviewToolTip(txtPtr, button_sz, pos, 32f, 5f);
-
-                                        float last_button_x2 = ImGuiIV.GetItemRectMax().X;
-                                        float next_button_x2 = last_button_x2 + 10f + button_sz.X; // Expected position if next button was on same line
-                                        if (i + 1 < fs.Textures.Count && next_button_x2 < window_visible_x2)
-                                            ImGuiIV.SameLine();
-
-                                        ImGuiIV.PopID();
-                                    }
-                                }
-                                if (fs.Textures.Count == 0)
-                                    ImGuiIV.EndDisabled();
-                            }
-                            else
-                            {
-                                ImGuiIV.TextUnformatted("List of textures is not initialized.");
-                            }
-                            /// @end CollapsingHeader
-
-                            ImGuiIV.Spacing(3);
-
-                            /// @separator
                         }
                         /// @end CollapsingHeader
+                        
+                        if (wasCustomHeaderStylePushed)
+                        {
+                            ImGuiIV.PopStyleColor(3);
+                            wasCustomHeaderStylePushed = false;
+                        }
                     }
                 }
 
@@ -1372,19 +1628,19 @@ SKIP_TO_END:
                 /// @end Separator
 
                 /// @begin Text
-                ImGuiIV.TextUnformatted(string.Format("Active Plugins: {0}", Main.Instance.ThePluginManager.ActivePlugins.Count));
+                ImGuiIV.TextUnformatted(string.Format("Active Plugins: {0}", PluginManager.GetActivePluginsCount()));
                 /// @end Text
 
                 /// @begin Text
                 // Time since last plugin reload
-                TimeSpan timeSinceLastPluginLoad = DateTime.Now - Main.Instance.ThePluginManager.TimeSinceLastPluginLoad;
+                TimeSpan timeSinceLastPluginLoad = DateTime.Now - PluginManager.TimeSinceLastPluginLoad;
 
                 if (timeSinceLastPluginLoad.TotalSeconds < 59d)
-                    ImGuiIV.TextUnformatted("Last Plugin Load Occured: {0} Second(s) ago ({1})", (int)timeSinceLastPluginLoad.TotalSeconds, Main.Instance.TimeSinceLastScriptLoad);
+                    ImGuiIV.TextUnformatted("Last Plugin Load Occured: {0} Second(s) ago ({1})", (int)timeSinceLastPluginLoad.TotalSeconds, PluginManager.TimeSinceLastPluginLoad);
                 else if (timeSinceLastPluginLoad.TotalMinutes < 61d)
-                    ImGuiIV.TextUnformatted("Last Plugin Load Occured: {0} Minute(s) ago ({1})", (int)timeSinceLastPluginLoad.TotalMinutes, Main.Instance.TimeSinceLastScriptLoad);
+                    ImGuiIV.TextUnformatted("Last Plugin Load Occured: {0} Minute(s) ago ({1})", (int)timeSinceLastPluginLoad.TotalMinutes, PluginManager.TimeSinceLastPluginLoad);
                 else
-                    ImGuiIV.TextUnformatted("Last Plugin Load Occured: {0} Hour(s) ago ({1})", (int)timeSinceLastPluginLoad.TotalHours, Main.Instance.TimeSinceLastScriptLoad);
+                    ImGuiIV.TextUnformatted("Last Plugin Load Occured: {0} Hour(s) ago ({1})", (int)timeSinceLastPluginLoad.TotalHours, PluginManager.TimeSinceLastPluginLoad);
                 /// @end Text
 
                 /// @begin Separator
@@ -1395,7 +1651,7 @@ SKIP_TO_END:
                 /// @begin Button
                 if (ImGuiIV.Button("Reload all plugins", new Vector2(150f, 0f)))
                 {
-                    Main.Instance.ThePluginManager.LoadPlugins();
+                    PluginManager.LoadPlugins();
                 }
                 /// @end Button
 
@@ -1404,7 +1660,7 @@ SKIP_TO_END:
                 /// @begin Button
                 if (ImGuiIV.Button("Unload all plugins", new Vector2(150f, 0f)))
                 {
-                    Main.Instance.ThePluginManager.UnloadPlugins(AbortReason.Manual, true);
+                    PluginManager.UnloadPlugins(AbortReason.Manual, true);
                 }
                 /// @end Button
 
@@ -1413,7 +1669,7 @@ SKIP_TO_END:
                 ImGuiIV.SeparatorText("Active plugins");
                 /// @end Separator
 
-                if (Main.Instance.ThePluginManager.ActivePlugins.Count == 0)
+                if (PluginManager.ActivePlugins.Count == 0)
                 {
                     /// @begin Text
                     ImGuiIV.TextDisabled("There are currently no active plugins.");
@@ -1427,9 +1683,9 @@ SKIP_TO_END:
 
                     ImGuiIV.Spacing(2);
 
-                    for (int i = 0; i < Main.Instance.ThePluginManager.ActivePlugins.Count; i++)
+                    for (int i = 0; i < PluginManager.ActivePlugins.Count; i++)
                     {
-                        FoundPlugin plugin = Main.Instance.ThePluginManager.ActivePlugins[i];
+                        FoundPlugin plugin = PluginManager.ActivePlugins[i];
 
                         if (!plugin.IsReady())
                             continue;
@@ -1438,7 +1694,7 @@ SKIP_TO_END:
                         if (ImGuiIV.CollapsingHeader(string.Format("{0} by {1}##IVSDKDotNetManagerPlugin", plugin.ThePluginInstance.DisplayName, plugin.ThePluginInstance.Author)))
                         {
                             // Allow plugin to draw their own stuff within this CollapsingHeader
-                            Main.Instance.ThePluginManager.RaiseOnImGuiManagerRenderingEvent(plugin, devicePtr);
+                            PluginManager.RaiseOnImGuiManagerRenderingEvent(plugin, devicePtr);
                         }
                         /// @end CollapsingHeader
 
@@ -1450,11 +1706,11 @@ SKIP_TO_END:
                             {
                                 if (plugin.CanPluginBeAborted(AbortReason.Manual, false))
                                 {
-                                    Main.Instance.ThePluginManager.UnloadPlugin(AbortReason.Manual, plugin, true);
+                                    PluginManager.UnloadPlugin(AbortReason.Manual, plugin, true);
                                 }
                                 else
                                 {
-                                    Main.Instance.Notification.ShowNotification(NotificationType.Info, DateTime.UtcNow.AddSeconds(5d), string.Format("Plugin {0} cannot be unloaded.", plugin.EntryPoint.FullName), "The Plugin set to never allow unloads except if it creates an error.", "PLUGIN_CANNOT_BE_ABORTED");
+                                    NotificationUI.ShowNotification(NotificationType.Info, DateTime.UtcNow.AddSeconds(5d), string.Format("Plugin {0} cannot be unloaded.", plugin.EntryPoint.FullName), "The Plugin set to never allow unloads except if it creates an error.", "PLUGIN_CANNOT_BE_ABORTED");
                                 }
                             }
                             if (ImGuiIV.Selectable("Reload this Plugin"))
@@ -1463,9 +1719,9 @@ SKIP_TO_END:
                                 {
                                     string fullPath = plugin.FullPath;
                                     string actualName = plugin.EntryPoint.FullName;
-                                    if (Main.Instance.ThePluginManager.UnloadPlugin(AbortReason.Manual, plugin, true))
+                                    if (PluginManager.UnloadPlugin(AbortReason.Manual, plugin, true))
                                     {
-                                        if (!Main.Instance.ThePluginManager.LoadAssembly(fullPath))
+                                        if (!PluginManager.LoadAssembly(fullPath))
                                         {
                                             Logger.LogWarning(string.Format("Failed to reload Plugin '{0}'!", actualName));
                                         }
@@ -1477,7 +1733,7 @@ SKIP_TO_END:
                                 }
                                 else
                                 {
-                                    Main.Instance.Notification.ShowNotification(NotificationType.Info, DateTime.UtcNow.AddSeconds(5d), string.Format("Plugin {0} cannot be reloaded.", plugin.EntryPoint.FullName), "The Plugin set to never allow unloads except if it creates an error.", "PLUGIN_CANNOT_BE_ABORTED");
+                                    NotificationUI.ShowNotification(NotificationType.Info, DateTime.UtcNow.AddSeconds(5d), string.Format("Plugin {0} cannot be reloaded.", plugin.EntryPoint.FullName), "The Plugin set to never allow unloads except if it creates an error.", "PLUGIN_CANNOT_BE_ABORTED");
                                 }
                             }
                             if (ImGuiIV.Selectable("Close popup"))
@@ -1532,13 +1788,6 @@ SKIP_TO_END:
                     ImGuiIV.SameLine();
                     ImGuiIV.CheckBox("CreateLogFilesInMainDirectory", ref Config.CreateLogFilesInMainDirectory);
                     /// @end CheckBox
-
-                    /// @begin Slider
-                    ImGuiIV.HelpMarker("Determines how many logs files can be stored inside the 'logs' folder within the 'IVSDKDotNet' directory.");
-                    ImGuiIV.SameLine();
-                    ImGuiIV.SetNextItemWidth(200);
-                    ImGuiIV.SliderInt("MaxLogsFiles", ref Config.MaxLogsFiles, 0, 50);
-                    /// @end Slider
 
                     /// @begin CheckBox
                     ImGuiIV.HelpMarker("Sets if the Manager can check for new IV-SDK .NET updates.");
@@ -1759,11 +2008,11 @@ SKIP_TO_END:
                 /// @end Button
 
                 /// @begin Text
-                ImGuiIV.TextUnformatted("Current IVSDKDotNetWrapper Version: {0}", Main.Instance.CurrentWrapperVersion);
+                ImGuiIV.TextUnformatted("Current IVSDKDotNetWrapper Version: {0}", CLR.CLRBridge.Version);
                 /// @end Text
 
                 /// @begin Text
-                ImGuiIV.TextUnformatted("Current included ScriptHookDotNet Version: {0}", SHDNStuff.CurrentSHDNVersion);
+                ImGuiIV.TextUnformatted("Current included ScriptHookDotNet Version: {0}", SHDNManager.CurrentSHDNVersion);
                 /// @end Text
 
                 /// @begin Separator

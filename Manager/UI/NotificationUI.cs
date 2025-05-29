@@ -6,6 +6,7 @@ using IVSDKDotNet;
 using IVSDKDotNet.Enums;
 
 using Manager.Classes;
+using Manager.Managers;
 
 namespace Manager.UI
 {
@@ -27,11 +28,11 @@ namespace Manager.UI
         #endregion
     }
 
-    public class NotificationUI
+    public static class NotificationUI
     {
 
         #region Variables
-        private List<NotificationItem> items;
+        private static List<NotificationItem> items;
         #endregion
 
         #region Classes
@@ -66,14 +67,22 @@ namespace Manager.UI
         #endregion
 
         #region Methods
-        public void Cleanup()
+        public static void Init()
         {
-            items.Clear();
+            items = new List<NotificationItem>(4);
+        }
+        public static void Shutdown()
+        {
+            if (items != null)
+            {
+                items.Clear();
+                items = null;
+            }
         }
         #endregion
 
         #region Functions
-        public bool ShowNotificationEx(NotificationType type, DateTime showTime, NotificationContent content, string tag)
+        public static bool ShowNotificationEx(NotificationType type, DateTime showTime, NotificationContent content, string tag)
         {
             if (!Config.ShowNotifications)
                 return false;
@@ -92,7 +101,7 @@ namespace Manager.UI
             items.Add(item);
 
             // Start delayed action to remove the notification item
-            Main.Instance.StartDelayedAction(Guid.NewGuid(), "Removing notification", showTime, (DelayedAction dA, object obj) =>
+            DelayedActionManager.StartDelayedAction(Guid.NewGuid(), "Removing notification", showTime, (DelayedAction dA, object obj) =>
             {
                 if (CLR.CLRBridge.IsShuttingDown)
                     return;
@@ -102,7 +111,7 @@ namespace Manager.UI
 
             return true;
         }
-        public bool ShowNotification(NotificationType type, DateTime showTime, string title, string description, string tag)
+        public static bool ShowNotification(NotificationType type, DateTime showTime, string title, string description, string tag)
         {
             if (!Config.ShowNotifications)
                 return false;
@@ -121,7 +130,7 @@ namespace Manager.UI
             items.Add(item);
 
             // Start delayed action to remove the notification item
-            Main.Instance.StartDelayedAction(Guid.NewGuid(), "Removing notification", showTime, (DelayedAction dA, object obj) =>
+            DelayedActionManager.StartDelayedAction(Guid.NewGuid(), "Removing notification", showTime, (DelayedAction dA, object obj) =>
             {
                 if (CLR.CLRBridge.IsShuttingDown)
                     return;
@@ -132,7 +141,7 @@ namespace Manager.UI
             return true;
         }
 
-        private bool DoesNotificationExistsWithTag(string tag)
+        private static bool DoesNotificationExistsWithTag(string tag)
         {
             for (int i = 0; i < items.Count; i++)
             {
@@ -148,7 +157,7 @@ namespace Manager.UI
             return false;
         }
 
-        private Vector3 GetColorFromNotificationType(NotificationType type)
+        private static Vector3 GetColorFromNotificationType(NotificationType type)
         {
             switch (type)
             {
@@ -170,15 +179,11 @@ namespace Manager.UI
         }
         #endregion
 
-        #region Constructor
-        internal NotificationUI()
+        public static void DoUI()
         {
-            items = new List<NotificationItem>(4);
-        }
-        #endregion
+            if (items == null)
+                return;
 
-        public void DoUI()
-        {
             bool open = true;
 
             for (int i = 0; i < items.Count; i++)

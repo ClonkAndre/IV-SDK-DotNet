@@ -73,6 +73,19 @@
         Timer,
         Custom
     }
+    public enum ThreadType
+    {
+        Unknown,
+        NetThread,
+        ScriptThread,
+        GenericThread
+    }
+    public enum GameThread
+    {
+        MainThread,
+        RenderThread,
+        COUNT
+    }
     public enum Priority
     {
         Default,
@@ -109,6 +122,54 @@
         Info,
         Warning,
         Error
+    }
+
+    public enum DynamicConsoleCommandSuggestions
+    {
+        DontUse,
+        ActiveScripts
+    }
+
+    public enum Folder
+    {
+        /// <summary>
+        /// For searching: Searches in any available folder.
+        /// </summary>
+        Any,
+
+        /// <summary>
+        /// The current directory e.g. where GTAIV.exe is located.
+        /// </summary>
+        Main,
+        /// <summary>
+        /// The scripts directory.
+        /// </summary>
+        Scripts,
+        /// <summary>
+        /// The plugins directory.
+        /// </summary>
+        Plugins,
+        /// <summary>
+        /// The update directory.
+        /// </summary>
+        Update,
+        /// <summary>
+        /// The IVSDKDotNet\bin directory.
+        /// </summary>
+        IVSDKDotNet_bin,
+        /// <summary>
+        /// The IVSDKDotNet\scripts directory.
+        /// </summary>
+        IVSDKDotNet_Scripts
+    }
+    public enum FileVersionWildcards
+    {
+        None,
+        Equal,
+        Larger,
+        LargerOrEqual,
+        Lower,
+        LowerOrEqual,
     }
 
     public enum ScriptType
