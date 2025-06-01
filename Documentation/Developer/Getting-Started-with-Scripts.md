@@ -83,6 +83,7 @@ We're working on creating official **Visual Studio project templates** to make s
 
 - Use the [Public Fields Window](Public-Fields-Window.md) for real-time inspection and modification of your script's public fields.
 - Use the in-game console for output and debugging.
+- You can find all available native functions of GTA IV on [Pastebin](https://pastebin.com/H77F9V38), and on [GTAMods Wiki](https://gtamods.com/wiki/List_of_native_functions_(GTA_IV)), where most of them are even documented.
 - Feel free to get inspired by other IV-SDK .NET scripts on [GitHub](https://github.com/topics/iv-sdk-net).
 
 ---
