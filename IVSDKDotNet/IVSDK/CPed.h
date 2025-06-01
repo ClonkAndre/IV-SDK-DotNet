@@ -100,10 +100,9 @@ public:
 	CPed* m_pOwnerPed;				// 38-3C
 
 public:
-	void AssignTask(CTask* task, int32_t unk1)
+	void AssignTask(CTask* task, int32_t unk1, int32_t unused1)
 	{
-		// TODO: Needs 1070 address!!!
-		((void(__thiscall*)(CPedTasks*, CTask*, int32_t, uint32_t))(AddressSetter::Get(0x0, 0x705E20)))(this, task, unk1, 0);
+		((void(__thiscall*)(CPedTasks*, CTask*, int32_t, uint32_t))(AddressSetter::Get("CPedTasks", "AssignTask")))(this, task, unk1, unused1);
 	}
 };
 

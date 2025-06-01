@@ -122,7 +122,7 @@ namespace AddressSetter
 
 		if (str.empty())
 		{
-			MessageBoxA(NULL, std::string("Address for section ").append(section).append(" and key ").append(key).append(" was not found in the config file!").c_str(), "IVSDK", MB_ICONERROR);
+			MessageBoxA(NULL, std::string("Address for section ").append(section).append(" and key ").append(key).append(" was not found in the config file for version ").append(std::to_string(gCurrentExeVersion)).append("!").c_str(), "IVSDK", MB_ICONERROR);
 			exit(1);
 			return 0;
 		}

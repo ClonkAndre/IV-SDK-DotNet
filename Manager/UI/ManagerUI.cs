@@ -1895,6 +1895,11 @@ SKIP_TO_END:
                     ImGuiIV.SameLine();
                     ImGuiIV.CheckBox("UseCustomThemeForManagerAndConsole", ref Config.UseCustomThemeForManagerAndConsole);
 
+                    ImGuiIV.HelpMarker("Adjusts the scale of all fonts in ImGui-based windows (e.g., Manager and Console).");
+                    ImGuiIV.SameLine();
+                    ImGuiIV.SetNextItemWidth(200);
+                    ImGuiIV.DragFloat("GlobalFontScale", ref Config.GlobalFontScale, 0.01f);
+
                     ImGuiIV.Dummy(new Vector2(0f, 4f));
                 }
                 /// @end CollapsingHeader

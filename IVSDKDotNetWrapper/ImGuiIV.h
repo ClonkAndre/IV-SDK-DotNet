@@ -1723,6 +1723,28 @@ namespace IVSDKDotNet
 			}
 		}
 
+		/// <summary>
+		/// Global scale all fonts.
+		/// </summary>
+		property float FontGlobalScale
+		{
+		public:
+			float get()
+			{
+				if (!m_bIsValid)
+					return 0.0F;
+
+				return m_IO->FontGlobalScale;
+			}
+			void set(float value)
+			{
+				if (!m_bIsValid)
+					return;
+
+				m_IO->FontGlobalScale = value;
+			}
+		}
+
 		//------------------------------------------------------------------
 		// Output - Updated by NewFrame() or EndFrame()/Render()
 		//------------------------------------------------------------------

@@ -70,14 +70,15 @@ namespace CLR
 #if _DEBUG
 		Logger::LogEx("IV-SDK .NET DEBUG version {0} by ItsClonkAndre", Version);
 
-		// Launch debugger
-		if (Settings->GetBoolean("DEBUG", "LaunchDebugger", false))
-			Debugger::Launch();
 #elif PREVIEW
 		Logger::Log(String::Format("IV-SDK .NET PREVIEW version {0} by ItsClonkAndre", Version));
 #else
 		Logger::Log(String::Format("IV-SDK .NET Release version {0} by ItsClonkAndre", Version));
 #endif
+
+		// Launch debugger
+		if (Settings->GetBoolean("DEBUG", "LaunchDebugger", false))
+			Debugger::Launch();
 
 		// Log settings file load result
 		if (settingsLoadResult)
@@ -410,8 +411,9 @@ namespace CLR
 				String^ msg = String::Format("Incompability detected!{0}{0}"
 					+ "Please remove the old ScriptHookDotNet if you want to use the ScriptHookDotNet mod loader from IV-SDK .NET!{0}{0}"
 					+ "The files that would need to be removed: ScriptHookDotNet.dll and ScriptHookDotNet.asi{0}{0}"
-					+ "- Why am i seeing this message?{0}"
-					+ "You are seeing this message because the 'LoadScriptHookDotNetScripts' option in the IV-SDK .NET config file is enabled, which enables the experimental ScriptHookDotNet mod loader of IV-SDK .NET. For more information about this, open the Console and type in 'wiki' to get to the IV-SDK .NET GitHub Wiki page.{0}{0}"
+					+ "- Why am I seeing this message?{0}"
+					+ "You are seeing this message because the 'LoadScriptHookDotNetScripts' option in the IV-SDK .NET config file is enabled, which enables the experimental ScriptHookDotNet mod loader of IV-SDK .NET.{0}"
+					+ "For more information about this, check out the FAQ page in the IV-SDK .NET Documentation. Open the IV-SDK .NET Console and type in 'docs' to get there.{0}{0}"
 					+ "Would you like to close the game now and remove the old ScriptHookDotNet?", Environment::NewLine);
 
 				switch (MessageBox::Show(msg,

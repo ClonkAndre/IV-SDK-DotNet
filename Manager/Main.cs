@@ -518,6 +518,10 @@ namespace Manager
             if (!ImGuiIV.WasImGuiInitialized || !allowDrawing || isShuttingDown)
                 return;
 
+            // Adjust global font scale dynamically
+            ImGuiIV_IO imguiIO = ImGuiIV.GetIO();
+            imguiIO.FontGlobalScale = Config.GlobalFontScale;
+
             // Process the thread manager
             ThreadManager.ProcessRenderThread();
 

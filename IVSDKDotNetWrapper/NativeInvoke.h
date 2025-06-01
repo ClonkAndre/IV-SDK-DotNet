@@ -128,7 +128,7 @@ class NativeInvoke
 private:
 	typedef void(_cdecl* NativeCall)(CNativeCallContext* pNativeContext);
 
-	static int AccessViolationFilter(DWORD code, EXCEPTION_POINTERS* ep, int32_t callingThread)
+	static int AccessViolationFilter(DWORD code, EXCEPTION_POINTERS* ep, uint32_t nativeHash, int32_t callingThread)
 	{
 		if (code == EXCEPTION_ACCESS_VIOLATION)
 		{
@@ -147,6 +147,7 @@ private:
 
 			ULONG_PTR address = ep->ExceptionRecord->ExceptionInformation[1];
 			
+			WRITE_TO_DEBUG_OUTPUT(String::Format("- Native Hash: {0}", nativeHash));
 			WRITE_TO_DEBUG_OUTPUT(String::Format("- Calling thread: {0}", callingThread));
 			WRITE_TO_DEBUG_OUTPUT(String::Format("- Access type: {0}", accessType));
 			WRITE_TO_DEBUG_OUTPUT(String::Format("- Faulting address: {0}", address.ToString("X")));
@@ -171,19 +172,16 @@ public:
 		if (NativeFunc == NULL)
 			return false;
 
-		eNativeHash hash = (eNativeHash)uiHash;
-
 		__try
 		{
 			NativeFunc(pNativeContext);
 		}
-		__except (AccessViolationFilter(GetExceptionCode(), GetExceptionInformation(), callingThread))
+		__except (AccessViolationFilter(GetExceptionCode(), GetExceptionInformation(), uiHash, callingThread))
 		{
 			// It's pretty dirty to do this, but a bunch of ScriptHookDotNet scripts call natives from the render thread,
 			// and certain natives might crash with an access violation... Or natives return a weird value, and this value
 			// is then being used to call another native resulting in an access violation. So here we just ignore the
 			// exception, and just set a default result for the native call context.
-			WRITE_TO_DEBUG_OUTPUT("Setting the result of the native call to a default value (0).");
 			pNativeContext->SetResult<uint32_t>(0, 0);
 		}
 		

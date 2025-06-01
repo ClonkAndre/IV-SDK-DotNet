@@ -161,6 +161,8 @@ public:
 		LogError(String::Format(str, args), true);
 	}
 
+	static void ForceFlush();
+
 	static void ClearLogItems();
 	static List<tLogItem>^ GetLogItems();
 	static array<String^>^ GetLogItemsAsString();
@@ -176,13 +178,14 @@ private:
 	static void CloseStream();
 	static bool AreStreamsCreated()
 	{
-		return m_FileStream && m_StreamWriter;
+		/*m_FileStream &&*/
+		return m_StreamWriter != nullptr;
 	}
 
 private:
 	static bool m_bWasInitialized;
 	static array<String^>^ m_SplitStr = gcnew array<String^>(1) { Environment::NewLine };
 	static List<tLogItem>^ m_LogItems;
-	static FileStream^ m_FileStream;
+	//static FileStream^ m_FileStream;
 	static StreamWriter^ m_StreamWriter;
 };

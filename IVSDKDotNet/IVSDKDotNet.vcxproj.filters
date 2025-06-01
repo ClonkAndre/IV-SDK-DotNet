@@ -32,9 +32,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="IVSDK\Addresses.h">
-      <Filter>Header Files\IVSDK</Filter>
-    </ClInclude>
     <ClInclude Include="IVSDK\audEngine.h">
       <Filter>Header Files\IVSDK</Filter>
     </ClInclude>

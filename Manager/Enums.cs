@@ -127,7 +127,8 @@
     public enum DynamicConsoleCommandSuggestions
     {
         DontUse,
-        ActiveScripts
+        ActiveScripts,
+        ConsoleCommands
     }
 
     public enum Folder

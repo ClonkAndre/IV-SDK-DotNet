@@ -6,13 +6,15 @@ namespace Manager.Classes.Attributes
     {
 
         #region Variables
-        public string Description;
+        public string ShortDescription;
+        public string[] DetailedDescription;
         #endregion
 
         #region Constructor
-        public LocalCommandDescAttribute(string desc)
+        public LocalCommandDescAttribute(string shortDesc, string[] detailedDesc = null)
         {
-            Description = desc;
+            ShortDescription = shortDesc;
+            DetailedDescription = detailedDesc;
         }
         #endregion
 

@@ -139,10 +139,10 @@ namespace IVSDKDotNet
 		static IVPedTasks^ FromUIntPtr(UIntPtr ptr);
 		UIntPtr GetUIntPtr();
 
-		void AssignTask(IVTask^ task, int unk1)
+		void AssignTask(IVTask^ task, int unk1, int unused1)
 		{
 			NULLPTR_CHECK(NativePedTasks);
-			NativePedTasks->AssignTask(task == nullptr ? nullptr : task->NativeBaseTask, unk1);
+			NativePedTasks->AssignTask(task == nullptr ? nullptr : task->NativeBaseTask, unk1, unused1);
 		}
 
 	internal:

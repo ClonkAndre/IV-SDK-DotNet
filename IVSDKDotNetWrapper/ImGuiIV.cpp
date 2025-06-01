@@ -49,7 +49,7 @@ void ImGuiDraw::InitializeImGui(IDirect3DDevice9* d3d9Device)
 	// Add font
 	String^ fontFile = CLR::CLRBridge::IVSDKDotNetDataPath + "\\public-sans.regular.ttf";
 	msclr::interop::marshal_context ctx;
-	io.Fonts->AddFontFromFileTTF(ctx.marshal_as<const char*>(fontFile), 15.5F);
+	io.Fonts->AddFontFromFileTTF(ctx.marshal_as<const char*>(fontFile), 16.0F);
 
 	// Set flag
 	ImGuiIV::WasImGuiInitialized = true;

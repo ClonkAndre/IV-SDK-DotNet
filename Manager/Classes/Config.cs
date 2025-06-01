@@ -39,6 +39,7 @@ namespace Manager.Classes
         // Style
         public static string ImGuiStyle;
         public static bool UseCustomThemeForManagerAndConsole;
+        public static float GlobalFontScale;
 
         // API
         public static bool AllowRemoteConnections;
@@ -86,6 +87,7 @@ namespace Manager.Classes
             // Section: Style
             ImGuiStyle =                            settings.GetValue("Style", "ImGuiStyle", "dark");
             UseCustomThemeForManagerAndConsole =    settings.GetBoolean("Style", "UseCustomThemeForManagerAndConsole", true);
+            GlobalFontScale =                       settings.GetFloat("Style", "GlobalFontScale", 1.0f);
 
             // Section: API
             AllowRemoteConnections =            settings.GetBoolean("API", "AllowConnections", false);
@@ -127,6 +129,7 @@ namespace Manager.Classes
             // Section: Style
             theSettingsFile.SetValue("Style", "ImGuiStyle", ImGuiStyle);
             theSettingsFile.SetBoolean("Style", "UseCustomThemeForManagerAndConsole", UseCustomThemeForManagerAndConsole);
+            theSettingsFile.SetFloat("Style", "GlobalFontScale", GlobalFontScale);
 
             // Section: API
             theSettingsFile.SetBoolean("API", "AllowConnections", AllowRemoteConnections);
@@ -167,6 +170,7 @@ namespace Manager.Classes
             // Section: Style
             ImGuiStyle = "dark";
             UseCustomThemeForManagerAndConsole = true;
+            GlobalFontScale = 1.0f;
 
             // Section: API
             AllowRemoteConnections = false;

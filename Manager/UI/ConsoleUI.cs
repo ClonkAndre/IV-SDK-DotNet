@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Numerics;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Windows.Forms;
-
-using IVSDKDotNet;
+﻿using IVSDKDotNet;
 using IVSDKDotNet.Enums;
 using IVSDKDotNet.Native;
-
 using Manager.Classes;
 using Manager.Classes.Attributes;
 using Manager.Classes.Scripts;
 using Manager.Managers;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
+using System.Linq;
+using System.Numerics;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace Manager.UI
 {
@@ -258,6 +257,9 @@ namespace Manager.UI
                 case DynamicConsoleCommandSuggestions.ActiveScripts:
                     suggestions = ScriptManager.GetEntryPointNameOfActiveScripts();
                     break;
+                case DynamicConsoleCommandSuggestions.ConsoleCommands:
+                    suggestions = autoCompleteCommands;
+                    break;
                 default:
                     suggestions = localConsoleCommand.Suggestions;
                     break;
@@ -403,18 +405,58 @@ namespace Manager.UI
 
         #region Commands
         [LocalCommandName("help")]
-        [LocalCommandDesc("Lists all available commands with a short description on what they do.")]
+        [LocalCommandDesc("Lists all commands with brief descriptions, or shows detailed info for a specific command.")]
+        [LocalCommandSuggestions(dynamicSuggestions: DynamicConsoleCommandSuggestions.ConsoleCommands)]
         private static void HelpCommand(string[] args)
         {
-            Logger.LogWarning("======================== COMMANDS ========================");
-            Logger.LogWarningEx("There are currently {0} local commands available.", localConsoleCommands.Count);
-
-            for (int i = 0; i < localConsoleCommands.Count; i++)
+            if (args.Length != 0) // Show description of a single command
             {
-                Logger.Log(localConsoleCommands[i].Description);
-            }
+                string command = args[0];
+                
+                // Try to find the command
+                LocalConsoleCommand localConsoleCommand = GetLocalConsoleCommand(command);
 
-            Logger.LogWarning("==========================================================");
+                if (localConsoleCommand == null)
+                {
+                    Logger.LogWarningEx("Could not find command with the name '{0}'.", command);
+                    return;
+                }
+
+                if (localConsoleCommand.CanOnlyBeCalledOnceInGame)
+                    Logger.LogWarning("Note that this command can only be called once in-game!");
+
+                if (localConsoleCommand.DetailedDescription != null)
+                {
+                    for (int i = 0; i < localConsoleCommand.DetailedDescription.Length; i++)
+                    {
+                        string desc = localConsoleCommand.DetailedDescription[i];
+
+                        // To avoid needing to populate the array with the same string as the short description,
+                        // we can simply use this wildcard which will tell us to use the short description.
+                        if (desc[0] == '*')
+                            desc = localConsoleCommand.Description;
+
+                        Logger.Log(desc);
+                    }
+                }
+                else
+                {
+                    Logger.Log(localConsoleCommand.Description);
+                }
+            }
+            else // Show all commands
+            {
+                Logger.LogWarning("======================== COMMANDS ========================");
+                Logger.LogWarningEx("There are currently {0} local commands available.", localConsoleCommands.Count);
+
+                for (int i = 0; i < localConsoleCommands.Count; i++)
+                {
+                    LocalConsoleCommand command = localConsoleCommands[i];
+                    Logger.LogEx("{0} - {1}", string.Join(", ", command.GetNames()), command.Description);
+                }
+
+                Logger.LogWarning("==========================================================");
+            }
         }
 
         [LocalCommandName("clear")]
@@ -422,6 +464,13 @@ namespace Manager.UI
         private static void ClearCommand(string[] args)
         {
             Clear();
+        }
+
+        [LocalCommandName("forceflush")]
+        [LocalCommandDesc("Forces the console output to be written to the log file.")]
+        private static void ForceFlush(string[] args)
+        {
+            Logger.ForceFlush();
         }
 
         [LocalCommandName("checkforupdates")]
@@ -484,7 +533,7 @@ namespace Manager.UI
         }
 
         [LocalCommandName("abortscript")]
-        [LocalCommandDesc("Aborts a single script.")]
+        [LocalCommandDesc("Aborts a single script.", new string[] { "*", "Example usage: abortscript MyScript.ivsdk.dll" })]
         [LocalCommandOptions(requiredArgumentsCount: 1)]
         [LocalCommandSuggestions(dynamicSuggestions: DynamicConsoleCommandSuggestions.ActiveScripts)]
         private static void AbortScriptCommand(string[] args)
@@ -506,7 +555,7 @@ namespace Manager.UI
         }
 
         [LocalCommandName("loadscript")]
-        [LocalCommandDesc("Loads a single script.")]
+        [LocalCommandDesc("Loads a single script.", new string[] { "*", "Example usage: loadscript MyScript.ivsdk.dll" })]
         [LocalCommandOptions(requiredArgumentsCount: 1)]
         private static void LoadScriptCommand(string[] args)
         {
@@ -535,7 +584,7 @@ namespace Manager.UI
         }
 
         [LocalCommandName("publicfields", "pf")]
-        [LocalCommandDesc("Toggles the public fields window of a script.")]
+        [LocalCommandDesc("Toggles the public fields window of a script.", new string[] { "*", "Example usage: publicfields MyScript.ivsdk.dll" })]
         [LocalCommandOptions(requiredArgumentsCount: 1)]
         [LocalCommandSuggestions(dynamicSuggestions: DynamicConsoleCommandSuggestions.ActiveScripts)]
         private static void TogglePublicFieldsWindow(string[] args)
@@ -564,7 +613,7 @@ namespace Manager.UI
         }
 
         [LocalCommandName("teleport", "tp")]
-        [LocalCommandDesc("Teleports the player to the given coordinates.")]
+        [LocalCommandDesc("Teleports the player to the given coordinates.", new string[] { "*", "Example usage: teleport X, Y, Z" })]
         [LocalCommandOptions(canOnlyBeCalledOnceInGame: true, requiredArgumentsCount: 3)]
         private static void TeleportCommand(string[] args)
         {

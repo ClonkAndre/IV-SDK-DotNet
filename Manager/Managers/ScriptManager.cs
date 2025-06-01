@@ -689,6 +689,12 @@ namespace Manager.Managers
                     // If script is a ScriptHookDotNet script then handle it differently
                     if (scriptFileInfo.IsScriptHookDotNetScript)
                     {
+                        if (CLR.CLRBridge.DisableScriptHookDotNetLoading)
+                        {
+                            NotificationUI.ShowNotification(NotificationType.Warning, DateTime.UtcNow.AddSeconds(7d), "Could not load ScriptHookDotNet mod", "The IV-SDK .NET ScriptHookDotNet mod loader got disabled because the old ScriptHookDotNet is currently installed.", "SHDN_MOD_LOADING_IS_DISABLED");
+                            return false;
+                        }
+
                         return HandleScriptHookDotNetAssemblyLoading(scriptFileInfo, assembly);
                     }
 

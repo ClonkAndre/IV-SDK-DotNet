@@ -6,6 +6,16 @@ namespace IVSDKDotNet
 	namespace Attributes
 	{
 
+		[AttributeUsageAttribute(AttributeTargets::Class)]
+		public ref class ShowStaticFieldsInInspector : Attribute
+		{
+		public:
+			ShowStaticFieldsInInspector()
+			{
+
+			}
+		};
+
 		[AttributeUsageAttribute(AttributeTargets::Field)]
 		public ref class SeparatorAttribute : Attribute
 		{
@@ -108,16 +118,6 @@ namespace IVSDKDotNet
 			ExcludeFromJsonSerializationAttribute()
 			{
 
-			}
-		};
-
-		[AttributeUsageAttribute(AttributeTargets::Class)]
-		public ref class ShowStaticFieldsInInspector : Attribute
-		{
-		public:
-			ShowStaticFieldsInInspector()
-			{
-				
 			}
 		};
 

@@ -41,6 +41,14 @@ void Logger::LogError(String^ str, bool alsoShowInConsole)
 	Log(eConsoleLogStyle::Error, str, alsoShowInConsole);
 }
 
+void Logger::ForceFlush()
+{
+    if (!AreStreamsCreated())
+        return;
+
+    m_StreamWriter->Flush();
+}
+
 void Logger::ClearLogItems()
 {
     m_LogItems->Clear();
@@ -108,8 +116,10 @@ void Logger::CreateStream(String^ fileName)
     if (!String::IsNullOrWhiteSpace(dirName) && !Directory::Exists(fileName))
         Directory::CreateDirectory(fileName);
 
-    m_FileStream = File::Create(fileName);
-    m_StreamWriter = gcnew StreamWriter(m_FileStream);
+    //m_FileStream = File::Create(fileName);
+    //m_StreamWriter = gcnew StreamWriter(m_FileStream);
+
+    m_StreamWriter = File::CreateText(fileName);
 }
 void Logger::CloseStream()
 {
@@ -118,7 +128,7 @@ void Logger::CloseStream()
 
     m_StreamWriter->Close();
     m_StreamWriter = nullptr;
-    m_FileStream = nullptr;
+    //m_FileStream = nullptr;
 }
 
 void Logger::Log(eConsoleLogStyle style, String^ str, bool alsoShowInConsole)

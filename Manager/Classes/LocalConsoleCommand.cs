@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 using Manager.Classes.Attributes;
 
@@ -14,11 +13,15 @@ namespace Manager.Classes
         /// <summary>
         /// All the possible names with which this command can be invoked.
         /// </summary>
-        private string[] theNames;
+        public string[] theNames;
         /// <summary>
         /// Describes what this command does.
         /// </summary>
         public string Description;
+        /// <summary>
+        /// Will be shown when the user wants to get help about a single command.
+        /// </summary>
+        public string[] DetailedDescription;
 
         /// <summary>
         /// The action that should be invoked when this command was called.
@@ -75,9 +78,12 @@ namespace Manager.Classes
             if (attr == null && setFromThisString == null)
                 return;
 
-            Description = attr != null ? attr.Description : setFromThisString;
+            Description = attr != null ? attr.ShortDescription : setFromThisString;
 
-            BuildDescriptionString();
+            if (attr != null)
+            {
+                DetailedDescription = attr.DetailedDescription;
+            }
         }
         public void SetOptionsFromAttribute(LocalCommandOptionsAttribute attr)
         {
@@ -95,21 +101,6 @@ namespace Manager.Classes
             HasSuggestions = true;
             Suggestions = attr.Suggestions;
             DynamicSuggestions = attr.DynamicSuggestions;
-        }
-
-        private void BuildDescriptionString()
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-
-            for (int i = 0; i < theNames.Length; i++)
-            {
-                if (i == theNames.Length - 1)
-                    stringBuilder.Append(theNames[i]);
-                else
-                    stringBuilder.Append(string.Concat(theNames[i], ", "));
-            }
-
-            Description = string.Format("{0} - {1}", stringBuilder.ToString(), Description);
         }
         #endregion
 

@@ -18,7 +18,6 @@
 #include <d3dx9.h>
 #include "injector/injector.hpp"
 
-#include "Addresses.h"
 #include "IVSDK.h"
 #include "Hooks.h"
 
