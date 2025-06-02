@@ -1,6 +1,7 @@
-# IV-SDK .NET
-
-Welcome to the **IV-SDK .NET** documentation!
+<h1 align="center">Welcome to the IV-SDK .NET Documentation!</h1>
+<p align="center">
+    <img src="Images/IVSDKDotNetSocialPreview.png" alt="IVSDKDotNet" width="900"/>
+</p>
 
 ---
 
@@ -23,6 +24,7 @@ Built with ease of use in mind, IV-SDK .NET provides both a streamlined ConsoleU
 
 ### For developers
 - [Getting started with creating Scripts](Developer/Getting-Started-with-Scripts.md)
+- - [The Script Configuration File](Developer/ScriptConfig.md)
 - [Getting started with creating Plugins for the Manager](Developer/Getting-Started-with-Plugins.md)
 - [Learn more about GTA IV and IV-SDK .NET-specific classes and Structs](Developer/ClassesIndex.md)
 

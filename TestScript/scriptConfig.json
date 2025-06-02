@@ -1,0 +1,30 @@
+
+// For documentation about this file, visit TODO
+
+{
+  // Tells the IV-SDK .NET Manager that this script can not automatically be aborted, and has to be aborted manually.
+  "ForceNoAbort": true,
+  // Hint to the IV-SDK .NET Manager what the Workshop ID of this mod is for the IV Launcher.
+  // Could be used if the user decides to check the mod page out, or if the user wants to check for updates.
+  "IVLauncherWorkshopID": "00000000-0000-0000-0000-000000000000",
+  // Hint to the IV-SDK .NET Manager which dependencies this script has.
+  // If a dependencie was not found, the IV Launcher could download it if the user wants to.
+  //"Dependencies": [
+  //  {
+  //    // The exact file name of the dependency
+  //    "FileName": "ClonksCodingLib.GTAIV.dll",
+  //    // If a specific version is required, you can specify it here. This string supports wildcards.
+  //    "SpecificVersion": "<= 1.9",
+  //    "DownloadURL": "",
+  //    "IVLauncherWorkshopID": "00000000-0000-0000-0000-000000000000"
+  //  }
+  //],
+  // Hint to the IV-SDK .NET Manager which mods are known to be incompatible with this script.
+  // If a incompatible mod was found, a notification will be shown to the user, and the loading of this script is put to a hold.
+  // The user can then decide to load the script or not.
+  //"IncompatibleMods": [
+  //  "ZolikaPatch.asi",
+  //  "ALM.net.dll",
+  //  "ProjectThunder.ivsdk.dll"
+  //]
+}
