@@ -11,11 +11,11 @@ The file must be in valid JSON format. Below is a breakdown of all supported pro
 To add a blank file in project, right-click your project in the **Solution Explorer**, `Add` -> `New Item...` -> Search for a `Text File`, name it exactly `scriptConfig.json` and click on `Add`.
 
 Now you should have a file named `scriptConfig.json` in your project like so:  
-<img src="Images/ScriptConfigFilePlacement.png" alt="ConsoleUI"/>
+<img src="Images/ScriptConfigFilePlacement.png" alt="ScriptConfigFilePlacement"/>
 
 ⚠️ **IMPORTANT**: After you've done that, we need to change the way the file gets treated when you build your project.  
 Click on the `scriptConfig.json` file, and in the **Properties** window, change the `Build Action` to `Embedded Resource` like so:  
-<img src="Images/ScriptConfigFileBuildAction.png" alt="ConsoleUI"/>
+<img src="Images/ScriptConfigFileBuildAction.png" alt="ScriptConfigFileBuildAction"/>
 
 This will make sure the file actually gets **embedded into your project** so IV-SDK .NET can read it.
 

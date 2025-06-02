@@ -1,6 +1,7 @@
-# IV-SDK .NET
-
-Welcome to the **IV-SDK .NET** documentation!
+<h1 align="center">Welcome to the IV-SDK .NET Documentation!</h1>
+<p align="center">
+    <img src="Images/IVSDKDotNetSocialPreview.png" alt="IVSDKDotNet" width="900"/>
+</p>
 
 ---
 
