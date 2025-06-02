@@ -9,6 +9,7 @@ To add support for a new GTA IV version:
    - Duplicate an existing .ini file (e.g., 1080.ini).
    - Rename it to match the GTA IV version you want to support (e.g., 12059.ini).
    - Now you can update all the memory offsets for this version.
+   - Tho, is it that easy? Probably not, because struct sizes might change per version which needs to be adjusted in the actual code.
 
 The configuration file is built up using section, keys and values which look like this:
 
