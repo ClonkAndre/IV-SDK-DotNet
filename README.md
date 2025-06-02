@@ -15,12 +15,10 @@ It allows you to create and run scripts for *Grand Theft Auto IV* using any .NET
 Feel free to contribute to this project to get rid of some limitations.  
 
 ## How to Install
-Check out the [Installation Guide]() in the documentation.  
-TODO: Link to docs once pushed to main branch
+Check out the [Installation Guide](https://github.com/ClonkAndre/IV-SDK-DotNet/blob/main/Documentation/Installation.md) in the documentation.  
 
 ## Documentation
-[Check it out]()  
-TODO: Link to docs once pushed to main branch
+[Check it out](https://github.com/ClonkAndre/IV-SDK-DotNet/blob/main/Documentation/Home.md)  
 
 ## Other Links
 IV-SDK .NET on [GTAForums](https://gtaforums.com/topic/986510-iv-sdk-net)

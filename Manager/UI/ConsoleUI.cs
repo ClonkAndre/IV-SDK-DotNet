@@ -642,7 +642,7 @@ namespace Manager.UI
         [LocalCommandDesc("Opens the official IV-SDK .NET GitHub Documentation in your default webbrowser.")]
         private static void DocsCommand(string[] args)
         {
-            Process.Start("https://github.com/ClonkAndre/IV-SDK-DotNet/wiki"); // TODO: Update the link!
+            Process.Start("https://github.com/ClonkAndre/IV-SDK-DotNet/blob/main/Documentation/Home.md");
         }
 
         [LocalCommandName("quit", "exit", "close")]
