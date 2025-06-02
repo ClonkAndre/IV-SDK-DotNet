@@ -45,9 +45,9 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ClonksCodingLib.GTAIV, Version=1.7.1.29844, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="ClonksCodingLib.GTAIV, Version=2.0.0.39253, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ClonksCodingLib.GTAIV\ClonksCodingLib.GTAIV\ClonksCodingLib.GTAIV\bin\x86\Debug\ClonksCodingLib.GTAIV.dll</HintPath>
+      <HintPath>..\..\ClonksCodingLib.GTAIV\ClonksCodingLib.GTAIV\ClonksCodingLib.GTAIV\bin\x86\Release\ClonksCodingLib.GTAIV.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

@@ -70,6 +70,12 @@ namespace Manager.Managers
             cachedFiles.TryAdd(Folder.IVSDKDotNet_bin,          Helper.GetFilesInDirectoryNoThrow(ivsdkdotnetBinFolder, DEPENDENCY_WILDCAST, SearchOption.TopDirectoryOnly));
             cachedFiles.TryAdd(Folder.IVSDKDotNet_Scripts,      Helper.GetFilesInDirectoryNoThrow(ivsdkdotnetScriptsFolder, SCRIPTS_WILDCAST, SearchOption.TopDirectoryOnly));
 
+            // Create dirs if they dont exist yet so we can safely create a new FileSystemWatcher instance with them
+            if (!Directory.Exists(scriptsFolder))
+                Directory.CreateDirectory(scriptsFolder);
+            if (!Directory.Exists(ivsdkdotnetScriptsFolder))
+                Directory.CreateDirectory(ivsdkdotnetScriptsFolder);
+
             // Install file system watchers for directories whos files might change
             watchers = new FileSystemWatcher[3]
             {
