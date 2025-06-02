@@ -1,0 +1,1 @@
+Put the "IVSDK" folder into your main directory of GTA IV so IV-SDK can read the memory offsets from the appropriate config file.

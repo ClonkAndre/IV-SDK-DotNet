@@ -33,7 +33,8 @@ namespace IVSDKDotNet
 		// Properties
 	public:
 		/// <summary>
-		/// The unique ID of this script. This can only be set on the scripts constructor overload.
+		/// The unique ID of this script.
+		/// If you want to set a custom one, you need to use the GUID constructor overload of this class.
 		/// </summary>
 		property Guid ID
 		{
@@ -68,56 +69,6 @@ namespace IVSDKDotNet
 			void set(AppDomain^ value)
 			{
 				m_AppDomain = value;
-			}
-		}
-
-		/// <summary>
-		/// If you uploaded your Modification to the IV Launchers Workshop, you can set the value of this property to the ID of the Modification in the Workshop.
-		/// </summary>
-		property Guid IVLauncherWorkshopID
-		{
-		public:
-			Guid get()
-			{
-				return m_ivLauncherWorkshopID;
-			}
-			void set(Guid value)
-			{
-				m_ivLauncherWorkshopID = value;
-			}
-		}
-
-		/// <summary>
-		/// Gets or sets where the Assemblies are located for this script. Default: GameRootDirectory
-		/// </summary>
-		property eAssembliesLocation AssembliesLocation
-		{
-		public:
-			eAssembliesLocation get()
-			{
-				return m_AssembliesLocation;
-			}
-			void set(eAssembliesLocation value)
-			{
-				m_AssembliesLocation = value;
-			}
-		}
-
-		/// <summary>
-		/// Gets or sets the custom Assemblies path for this Script if you have set the AssembliesLocation to Custom.
-		/// The path is relative to the root directory of GTA IV.
-		/// Example: IVSDKDotNet\scripts\AssembliesForMyEpicScript - The Assemblies for your Script will now be loaded from the AssembliesForMyEpicScript folder.
-		/// </summary>
-		property String^ CustomAssembliesPath
-		{
-		public:
-			String^ get()
-			{
-				return m_CustomAssembliesPath;
-			}
-			void	set(String^ value)
-			{
-				m_CustomAssembliesPath = value;
 			}
 		}
 
@@ -614,9 +565,6 @@ namespace IVSDKDotNet
 	private:
 		Guid m_id;
 		AppDomain^ m_AppDomain;
-		Guid m_ivLauncherWorkshopID;
-		eAssembliesLocation m_AssembliesLocation;
-		String^ m_CustomAssembliesPath;
 		String^ m_ScriptResourceFolder;
 		SettingsFile^ m_SettingsFile;
 		bool m_bInternalCtorWasUsed;

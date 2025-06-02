@@ -17,7 +17,7 @@ public:
 	// same as CDrawSpriteDC but with different params?
 	CDrawRadioHudTextDC(tRadioHudTextPos* pos, CSprite2d sprite, CRGBA color)
 	{
-		((void(__thiscall*)(CDrawRadioHudTextDC*, tRadioHudTextPos*, CSprite2d, CRGBA))(AddressSetter::Get(0x3C0D70, 0x4613E0)))(this, pos, sprite, color);
+		((void(__thiscall*)(CDrawRadioHudTextDC*, tRadioHudTextPos*, CSprite2d, CRGBA))(AddressSetter::Get("CDrawRadioHudTextDC", "CDrawRadioHudTextDC")))(this, pos, sprite, color);
 	}
 };
 VALIDATE_SIZE(CDrawRadioHudTextDC, 0x30);

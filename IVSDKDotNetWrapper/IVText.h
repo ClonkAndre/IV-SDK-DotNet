@@ -17,8 +17,10 @@ namespace IVSDKDotNet
 
 	public:
 		String^ Get(String^ ident);
+		String^ Get(uint32_t hash, String^ ident);
 
 		void ReplaceTextOfTextLabel(String^ ident, String^ newText);
+		void ReplaceTextOfTextLabel(uint32_t hash, String^ newText);
 
 	internal:
 		IVText(CText* nativePtr);

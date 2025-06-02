@@ -12,23 +12,23 @@ namespace IVSDKDotNet
 	}
 
 	// - - - Methods / Functions - - -
-	IVMatrix^ IVDynamicEntity::GetBoneMatrix(int boneID)
+	IVMatrix IVDynamicEntity::GetBoneMatrix(int boneID)
 	{
-		NULLPTR_CHECK_WITH_RETURN(NativeDynEntity, IVMatrix::Empty());
+		NULLPTR_CHECK_WITH_RETURN(NativeDynEntity, IVMatrix::Zero);
 
 		CMatrix* matrix = NativeDynEntity->GetBoneMatrix(boneID);
-		NULLPTR_CHECK_WITH_RETURN(matrix, IVMatrix::Empty());
+		NULLPTR_CHECK_WITH_RETURN(matrix, IVMatrix::Zero);
 
-		return gcnew IVMatrix(matrix);
+		return IVMatrix(matrix);
 	}
-	IVMatrix^ IVDynamicEntity::GetBoneMatrix2(int boneID)
+	IVMatrix IVDynamicEntity::GetBoneMatrix2(int boneID)
 	{
-		NULLPTR_CHECK_WITH_RETURN(NativeDynEntity, IVMatrix::Empty());
+		NULLPTR_CHECK_WITH_RETURN(NativeDynEntity, IVMatrix::Zero);
 
 		CMatrix* matrix = NativeDynEntity->GetBoneMatrix2(boneID);
-		NULLPTR_CHECK_WITH_RETURN(matrix, IVMatrix::Empty());
+		NULLPTR_CHECK_WITH_RETURN(matrix, IVMatrix::Zero);
 
-		return gcnew IVMatrix(matrix);
+		return IVMatrix(matrix);
 	}
 
 }

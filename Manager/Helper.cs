@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -123,6 +122,13 @@ namespace Manager
                 Debugger.Log((int)priority, "IV-SDK .NET", string.Format(str + "\n", args));
 #endif
         }
+        public static void BreakInDebugger()
+        {
+#if DEBUG
+            if (Debugger.IsAttached)
+                Debugger.Break();
+#endif
+        }
         #endregion
 
         #region Functions
@@ -154,6 +160,140 @@ namespace Manager
                 stream.Dispose();
                 return result;
             }
+        }
+
+        public static bool DoesFileVersionMatchGivenVersionWithWildcards(string filePath, string version)
+        {
+            if (string.IsNullOrWhiteSpace(version))
+                return true;
+            if (!File.Exists(filePath))
+                return true;
+
+            // Get wildcard type
+            FileVersionWildcards wildcards = GetWildcardsFromVersion(version);
+
+            // Remove the wildcards from the string
+            version = version.Replace("=", "").Replace(">", "").Replace("<", "").Trim();
+
+            // Read the file version info
+            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(filePath);
+
+            switch (wildcards)
+            {
+                case FileVersionWildcards.None:
+                case FileVersionWildcards.Equal:
+
+                    if (string.Compare(fileVersionInfo.FileVersion, version) == 0)
+                        return true;
+
+                    break;
+
+                case FileVersionWildcards.Larger:
+
+                    if (string.Compare(fileVersionInfo.FileVersion, version) == 1)
+                        return true;
+
+                    break;
+                case FileVersionWildcards.LargerOrEqual:
+
+                    if (string.Compare(fileVersionInfo.FileVersion, version) == 0
+                        || string.Compare(fileVersionInfo.FileVersion, version) == 1)
+                        return true;
+
+                    break;
+
+                case FileVersionWildcards.Lower:
+
+                    if (string.Compare(fileVersionInfo.FileVersion, version) == -1)
+                        return true;
+
+                    break;
+                case FileVersionWildcards.LowerOrEqual:
+
+                    if (string.Compare(fileVersionInfo.FileVersion, version) == 0
+                        || string.Compare(fileVersionInfo.FileVersion, version) == -1)
+                        return true;
+
+                    break;
+            }
+
+            return false;
+        }
+        public static FileVersionWildcards GetWildcardsFromVersion(string version)
+        {
+            if (string.IsNullOrWhiteSpace(version))
+                return FileVersionWildcards.None;
+            if (version.Length < 2)
+                return FileVersionWildcards.None;
+
+            string firstTwoChars = new string(new char[] { version[0], version[1] });
+
+            if (firstTwoChars.Contains("<") && firstTwoChars.Contains("="))
+                return FileVersionWildcards.LowerOrEqual;
+            if (firstTwoChars.Contains(">") && firstTwoChars.Contains("="))
+                return FileVersionWildcards.LargerOrEqual;
+
+            if (firstTwoChars.Contains("<"))
+                return FileVersionWildcards.Lower;
+            if (firstTwoChars.Contains(">"))
+                return FileVersionWildcards.Larger;
+
+            if (firstTwoChars.Contains("=") || firstTwoChars.Contains("=="))
+                return FileVersionWildcards.Equal;
+
+            return FileVersionWildcards.None;
+        }
+
+        // The Directory.GetFiles function does not normally support multiple wildcards, so here's a helper function whichs adds support for it
+        public static string[] GetFilesInDirectoryNoThrow(string path, string searchPattern, SearchOption searchOption, bool retrieveFileNameOnly = false)
+        {
+            try
+            {
+                string[] files = null;
+
+                // Check if searchPattern has multiple wildcasts
+                if (!searchPattern.Contains("|"))
+                {
+                    files = Directory.GetFiles(path, searchPattern, searchOption);
+                }
+                else
+                {
+                    string[] wildcasts = searchPattern.Split('|');
+
+                    for (int i = 0; i < wildcasts.Length; i++)
+                    {
+                        string wildcast = wildcasts[i];
+
+                        if (i == 0)
+                        {
+                            // Initialize and populate the array
+                            files = Directory.GetFiles(path, wildcast, searchOption);
+                        }
+                        else
+                        {
+                            // Append to the array
+                            files = files.Concat(Directory.GetFiles(path, wildcast, searchOption)).ToArray();
+                        }
+                    }
+                }
+
+                if (retrieveFileNameOnly)
+                {
+                    // Only get the file name
+                    for (int i = 0; i < files.Length; i++)
+                    {
+                        files[i] = Path.GetFileName(files[i]);
+                    }
+                }
+
+                return files;
+            }
+            catch (Exception ex)
+            {
+                WriteToDebugOutput(Priority.Default, "Failed to get files in directory {0}! Details: {1}", path, ex);
+            }
+
+            return Array.Empty<string>();
         }
         #endregion
 

@@ -28,12 +28,10 @@ namespace IVSDKDotNet
 		return UIntPtr(NativeEntity);
 	}
 
-	void IVEntity::Teleport(IVMatrix^ mat, bool bDontUpdatePhysicsMatrix, bool bImmediately)
+	void IVEntity::Teleport(IVMatrix mat, bool bDontUpdatePhysicsMatrix, bool bImmediately)
 	{
 		NULLPTR_CHECK(NativeEntity);
-		NULLPTR_CHECK(mat);
-		NULLPTR_CHECK(mat->NativeMatrix);
-		NativeEntity->Teleport(mat->NativeMatrix, bDontUpdatePhysicsMatrix, bImmediately);
+		NativeEntity->Teleport(&mat.ToCMatrix(), bDontUpdatePhysicsMatrix, bImmediately);
 	}
 	void IVEntity::Teleport(Vector3 v, bool bDontUpdatePhysicsMatrix, bool bImmediately)
 	{

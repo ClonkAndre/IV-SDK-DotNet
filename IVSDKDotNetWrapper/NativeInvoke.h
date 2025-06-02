@@ -128,23 +128,69 @@ class NativeInvoke
 private:
 	typedef void(_cdecl* NativeCall)(CNativeCallContext* pNativeContext);
 
+	static int AccessViolationFilter(DWORD code, EXCEPTION_POINTERS* ep, uint32_t nativeHash, int32_t callingThread)
+	{
+		if (code == EXCEPTION_ACCESS_VIOLATION)
+		{
+			WRITE_TO_DEBUG_OUTPUT("================== ACCESS VIOLATION CAUGHT WHILE TRYING TO INVOKE NATIVE FUNCTION! ==================");
+			
+			// Access type: 0 = read, 1 = write, 8 = DEP (execute)
+			String^ accessType = "unknown";
+			ULONG_PTR violationType = ep->ExceptionRecord->ExceptionInformation[0];
+
+			switch (violationType)
+			{
+				case 0: accessType = "read"; break;
+				case 1: accessType = "write"; break;
+				case 8: accessType = "execute (DEP)"; break;
+			}
+
+			ULONG_PTR address = ep->ExceptionRecord->ExceptionInformation[1];
+			
+			WRITE_TO_DEBUG_OUTPUT(String::Format("- Native Hash: {0}", nativeHash));
+			WRITE_TO_DEBUG_OUTPUT(String::Format("- Calling thread: {0}", callingThread));
+			WRITE_TO_DEBUG_OUTPUT(String::Format("- Access type: {0}", accessType));
+			WRITE_TO_DEBUG_OUTPUT(String::Format("- Faulting address: {0}", address.ToString("X")));
+			//WRITE_TO_DEBUG_OUTPUT(String::Format("Instruction ptr (EAX): {0}", ((ULONG_PTR)ep->ContextRecord->Eax).ToString("X")));
+
+			// Only catch the exception when the calling thread is the render thread for scripts.
+			// For other threads, i think it's better to not catch it as the exception might occur in the script thread which should not happen?
+			if (!GetManagerScript()->IsThisThreadTheScriptRenderThread(callingThread))
+				return EXCEPTION_CONTINUE_SEARCH;
+
+			return EXCEPTION_EXECUTE_HANDLER;
+		}
+
+		return EXCEPTION_CONTINUE_SEARCH;
+	}
+
 public:
-	static bool Invoke(uint32_t uiHash, CNativeCallContext* pNativeContext)
+	static bool Invoke(uint32_t uiHash, CNativeCallContext* pNativeContext, int32_t callingThread)
 	{
 		NativeCall NativeFunc = (NativeCall)CTheScripts::FindNativeAddress(uiHash);
 
 		if (NativeFunc == NULL)
 			return false;
 
-		eNativeHash hash = (eNativeHash)uiHash;
-
-		NativeFunc(pNativeContext);
+		__try
+		{
+			NativeFunc(pNativeContext);
+		}
+		__except (AccessViolationFilter(GetExceptionCode(), GetExceptionInformation(), uiHash, callingThread))
+		{
+			// It's pretty dirty to do this, but a bunch of ScriptHookDotNet scripts call natives from the render thread,
+			// and certain natives might crash with an access violation... Or natives return a weird value, and this value
+			// is then being used to call another native resulting in an access violation. So here we just ignore the
+			// exception, and just set a default result for the native call context.
+			pNativeContext->SetResult<uint32_t>(0, 0);
+		}
+		
 		return true;
 	}
 
-	static void InvokeEx(uint32_t uiHash, CNativeCallContext* pNativeContext)
+	static void DispatchedInvoke(uint32_t uiHash, CNativeCallContext* pNativeContext)
 	{
-		IVSDKDotNet::Manager::ManagerScript::GetInstance()->DispatchNativeCall(uiHash, UIntPtr(pNativeContext));
+		GetManagerScript()->DispatchNativeCall(uiHash, UIntPtr(pNativeContext));
 	}
 
 public:
@@ -155,7 +201,7 @@ public:
 		CNativeContext* cxt = new CNativeContext();
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -163,10 +209,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1>
@@ -179,7 +221,7 @@ public:
 		cxt->Push(p1);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -187,11 +229,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2>
@@ -205,7 +242,7 @@ public:
 		cxt->Push(p2);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -213,12 +250,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3>
@@ -233,7 +264,7 @@ public:
 		cxt->Push(p3);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -241,13 +272,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3, typename T4>
@@ -263,7 +287,7 @@ public:
 		cxt->Push(p4);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -271,14 +295,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//cxt.Push(p4);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3, typename T4,
@@ -296,7 +312,7 @@ public:
 		cxt->Push(p5);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -304,15 +320,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//cxt.Push(p4);
-		//cxt.Push(p5);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3, typename T4,
@@ -331,7 +338,7 @@ public:
 		cxt->Push(p6);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -339,16 +346,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//cxt.Push(p4);
-		//cxt.Push(p5);
-		//cxt.Push(p6);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3, typename T4,
@@ -368,7 +365,7 @@ public:
 		cxt->Push(p7);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -376,17 +373,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//cxt.Push(p4);
-		//cxt.Push(p5);
-		//cxt.Push(p6);
-		//cxt.Push(p7);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3, typename T4,
@@ -407,7 +393,7 @@ public:
 		cxt->Push(p8);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -415,18 +401,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//cxt.Push(p4);
-		//cxt.Push(p5);
-		//cxt.Push(p6);
-		//cxt.Push(p7);
-		//cxt.Push(p8);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3, typename T4,
@@ -449,7 +423,7 @@ public:
 		cxt->Push(p9);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -457,19 +431,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//cxt.Push(p4);
-		//cxt.Push(p5);
-		//cxt.Push(p6);
-		//cxt.Push(p7);
-		//cxt.Push(p8);
-		//cxt.Push(p9);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3, typename T4,
@@ -494,7 +455,7 @@ public:
 		cxt->Push(p10);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -502,20 +463,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//cxt.Push(p4);
-		//cxt.Push(p5);
-		//cxt.Push(p6);
-		//cxt.Push(p7);
-		//cxt.Push(p8);
-		//cxt.Push(p9);
-		//cxt.Push(p10);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3, typename T4,
@@ -541,7 +488,7 @@ public:
 		cxt->Push(p11);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -549,21 +496,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//cxt.Push(p4);
-		//cxt.Push(p5);
-		//cxt.Push(p6);
-		//cxt.Push(p7);
-		//cxt.Push(p8);
-		//cxt.Push(p9);
-		//cxt.Push(p10);
-		//cxt.Push(p11);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3, typename T4,
@@ -590,7 +522,7 @@ public:
 		cxt->Push(p12);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -598,22 +530,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//cxt.Push(p4);
-		//cxt.Push(p5);
-		//cxt.Push(p6);
-		//cxt.Push(p7);
-		//cxt.Push(p8);
-		//cxt.Push(p9);
-		//cxt.Push(p10);
-		//cxt.Push(p11);
-		//cxt.Push(p12);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3, typename T4,
@@ -641,7 +557,7 @@ public:
 		cxt->Push(p13);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -649,23 +565,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//cxt.Push(p4);
-		//cxt.Push(p5);
-		//cxt.Push(p6);
-		//cxt.Push(p7);
-		//cxt.Push(p8);
-		//cxt.Push(p9);
-		//cxt.Push(p10);
-		//cxt.Push(p11);
-		//cxt.Push(p12);
-		//cxt.Push(p13);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3, typename T4,
@@ -694,7 +593,7 @@ public:
 		cxt->Push(p14);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -702,24 +601,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//cxt.Push(p4);
-		//cxt.Push(p5);
-		//cxt.Push(p6);
-		//cxt.Push(p7);
-		//cxt.Push(p8);
-		//cxt.Push(p9);
-		//cxt.Push(p10);
-		//cxt.Push(p11);
-		//cxt.Push(p12);
-		//cxt.Push(p13);
-		//cxt.Push(p14);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3, typename T4,
@@ -750,7 +631,7 @@ public:
 		cxt->Push(p15);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -758,25 +639,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//cxt.Push(p4);
-		//cxt.Push(p5);
-		//cxt.Push(p6);
-		//cxt.Push(p7);
-		//cxt.Push(p8);
-		//cxt.Push(p9);
-		//cxt.Push(p10);
-		//cxt.Push(p11);
-		//cxt.Push(p12);
-		//cxt.Push(p13);
-		//cxt.Push(p14);
-		//cxt.Push(p15);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 	template <typename R, typename T1, typename T2, typename T3, typename T4,
@@ -808,7 +670,7 @@ public:
 		cxt->Push(p16);
 
 		// Invoke the call
-		InvokeEx((uint32_t)hash, cxt);
+		DispatchedInvoke((uint32_t)hash, cxt);
 
 		// Get result
 		R result = cxt->GetResult<R>();
@@ -816,26 +678,6 @@ public:
 		// Delete the context and return the result
 		delete cxt;
 		return result;
-
-		//CNativeContext cxt;
-		//cxt.Push(p1);
-		//cxt.Push(p2);
-		//cxt.Push(p3);
-		//cxt.Push(p4);
-		//cxt.Push(p5);
-		//cxt.Push(p6);
-		//cxt.Push(p7);
-		//cxt.Push(p8);
-		//cxt.Push(p9);
-		//cxt.Push(p10);
-		//cxt.Push(p11);
-		//cxt.Push(p12);
-		//cxt.Push(p13);
-		//cxt.Push(p14);
-		//cxt.Push(p15);
-		//cxt.Push(p16);
-		//Invoke((uint32_t)hash, &cxt);
-		//return cxt.GetResult<R>();
 	}
 
 };
@@ -1154,6 +996,12 @@ namespace IVSDKDotNet
 			}
 
 		public:
+
+			IntPtr GetTempStack()
+			{
+				return IntPtr(NativeContext->m_TempStack);
+			}
+
 			/// <summary>
 			/// Pushes an integer to this native context.
 			/// </summary>
@@ -1165,6 +1013,7 @@ namespace IVSDKDotNet
 			/// </returns>
 			bool Push(int32_t value)
 			{
+				// TODO: When calling a native like MARK_OBJECT_AS_NO_LONGER_NEEDED, the native function sets the given object handle to 0... and this needs to be handled here somehow
 				NULLPTR_CHECK_WITH_RETURN(NativeContext, false);
 				return NativeContext->Push(value);
 			}
@@ -1250,11 +1099,12 @@ namespace IVSDKDotNet
 			/// <para>False = The argument is too big (Only 4 bytes or less allowed).</para>
 			/// <para>False = The maximum number of arguments to push is reached (16).</para>
 			/// </returns>
+			[ObsoleteAttribute("This function does not currently work. What you can do instead: Allocate your string yourself using the functions provided in the Marshal class, and then use Push(IntPtr value), to push your pointer to the allocated memory for your string.")]
 			bool Push(String^ value)
 			{
 				NULLPTR_CHECK_WITH_RETURN(NativeContext, false);
 				msclr::interop::marshal_context ctx;
-				return NativeContext->Push((char*)ctx.marshal_as<const char*>(value));
+				return NativeContext->Push(ctx.marshal_as<const char*>(value));
 			}
 
 			/// <summary>
@@ -1307,6 +1157,21 @@ namespace IVSDKDotNet
 				bool result =	NativeContext->Push(value.X);
 				bool result1 =	NativeContext->Push(value.Y);
 				return result && result1;
+			}
+
+			/// <summary>
+			/// Pushes an IntPtr to this native context.
+			/// </summary>
+			/// <param name="value">The value to push.</param>
+			/// <returns>
+			/// True = The argument got pushed onto this native context.
+			/// <para>False = The argument is too big (Only 4 bytes or less allowed).</para>
+			/// <para>False = The maximum number of arguments to push is reached (16).</para>
+			/// </returns>
+			bool Push(IntPtr value)
+			{
+				NULLPTR_CHECK_WITH_RETURN(NativeContext, false);
+				return NativeContext->Push(value.ToPointer());
 			}
 
 			/// <summary>
@@ -1491,31 +1356,89 @@ namespace IVSDKDotNet
 		public ref class IVNativeInvoke
 		{
 		public:
-			static bool Invoke(uint32_t uiHash, IVNativeContext^ pNativeContext)
+			/// <summary>
+			/// Invokes a native function identified by a hash value using the provided native context.
+			/// </summary>
+			/// <param name="uiHash">The hash value identifying the native function to invoke.</param>
+			/// <param name="pNativeContext">The native context used for the invocation.</param>
+			/// <param name="callingThreadId">The ID of the thread making the call.</param>
+			/// <returns>True if the native function was successfully invoked; otherwise, false.</returns>
+			static bool Invoke(uint32_t uiHash, IVNativeContext^ pNativeContext, int32_t callingThreadId)
 			{
 				if (uiHash == 0x0)
 					return false;
 
 				NULLPTR_CHECK_WITH_RETURN(pNativeContext, false);
-				return NativeInvoke::Invoke(uiHash, pNativeContext->NativeContext);
+				return NativeInvoke::Invoke(uiHash, pNativeContext->NativeContext, callingThreadId);
 			}
-			static bool Invoke(uint32_t uiHash, UIntPtr pNativeContext)
+			/// <summary>
+			/// Invokes a native function identified by a hash value using the provided native context.
+			/// </summary>
+			/// <param name="uiHash">The hash value identifying the native function to invoke.</param>
+			/// <param name="pNativeContext">The native context used for the invocation.</param>
+			/// <returns>True if the native function was successfully invoked; otherwise, false.</returns>
+			static bool Invoke(uint32_t uiHash, IVNativeContext^ pNativeContext)
+			{
+				int callingThreadId = -1;
+				System::Threading::Thread^ thread = System::Threading::Thread::CurrentThread;
+				if (thread)
+					callingThreadId = thread->ManagedThreadId;
+
+				return Invoke(uiHash, pNativeContext, callingThreadId);
+			}
+			/// <summary>
+			/// Invokes a native function identified by a hash value using the provided native context.
+			/// </summary>
+			/// <param name="uiHash">The hash value identifying the native function to invoke.</param>
+			/// <param name="pNativeContext">The native context used for the invocation.</param>
+			/// <returns>True if the native function was successfully invoked; otherwise, false.</returns>
+			static bool Invoke(eNativeHash uiHash, IVNativeContext^ pNativeContext)
+			{
+				return Invoke((uint32_t)uiHash, pNativeContext);
+			}
+
+
+			/// <summary>
+			/// Invokes a native function identified by a hash value using the provided native context.
+			/// </summary>
+			/// <param name="uiHash">The hash value identifying the native function to invoke.</param>
+			/// <param name="pNativeContext">The pointer to the native context used for the invocation.</param>
+			/// <param name="callingThreadId">The ID of the thread making the call.</param>
+			/// <returns>True if the native function was successfully invoked; otherwise, false.</returns>
+			static bool Invoke(uint32_t uiHash, UIntPtr pNativeContext, int32_t callingThreadId)
 			{
 				if (uiHash == 0x0)
 					return false;
 
 				UINTPTR_ZERO_CHECK_WITH_RETURN(pNativeContext, false);
-				return NativeInvoke::Invoke(uiHash, (CNativeCallContext*)pNativeContext.ToPointer());
+				return NativeInvoke::Invoke(uiHash, (CNativeCallContext*)pNativeContext.ToPointer(), callingThreadId);
 			}
-
-			static bool Invoke(eNativeHash uiHash, IVNativeContext^ pNativeContext)
+			/// <summary>
+			/// Invokes a native function identified by a hash value using the provided native context.
+			/// </summary>
+			/// <param name="uiHash">The hash value identifying the native function to invoke.</param>
+			/// <param name="pNativeContext">The pointer to the native context used for the invocation.</param>
+			/// <returns>True if the native function was successfully invoked; otherwise, false.</returns>
+			static bool Invoke(uint32_t uiHash, UIntPtr pNativeContext)
 			{
-				return Invoke((uint32_t)uiHash, pNativeContext);
+				int callingThreadId = -1;
+				System::Threading::Thread^ thread = System::Threading::Thread::CurrentThread;
+				if (thread)
+					callingThreadId = thread->ManagedThreadId;
+
+				return Invoke(uiHash, pNativeContext, callingThreadId);
 			}
+			/// <summary>
+			/// Invokes a native function identified by a hash value using the provided native context.
+			/// </summary>
+			/// <param name="uiHash">The hash value identifying the native function to invoke.</param>
+			/// <param name="pNativeContext">The pointer to the native context used for the invocation.</param>
+			/// <returns>True if the native function was successfully invoked; otherwise, false.</returns>
 			static bool Invoke(eNativeHash uiHash, UIntPtr pNativeContext)
 			{
 				return Invoke((uint32_t)uiHash, pNativeContext);
 			}
+
 		};
 
 	}

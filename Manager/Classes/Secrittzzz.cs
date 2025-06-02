@@ -36,11 +36,8 @@ namespace Manager.Classes
                 {
                     TRIGGER_MISSION_COMPLETE_AUDIO(58);
 
-                    int playerIndex = CONVERT_INT_TO_PLAYERINDEX(GET_PLAYER_ID());
-                    GET_PLAYER_CHAR(playerIndex, out int playerPed);
-
-                    if (playerPed != 0)
-                        _TASK_PLAY_ANIM_FACIAL(playerPed, "plyr_mood_happy", "facials@m_hi", 1f, 1, 0, -1);
+                    if (Main.Instance.PlayerPedHandle != 0)
+                        _TASK_PLAY_ANIM_FACIAL(Main.Instance.PlayerPedHandle, "plyr_mood_happy", "facials@m_hi", 1f, 1, 0, -1);
 
                     didDoGTAIVBirthdayStuff = true;
                 }

@@ -4,16 +4,13 @@ namespace IVSDKDotNet
 {
 
 	// Forward declarations
-	ref class ResultTask;
 	ref class Script;
 
-	/// <summary> Internal-only IV-SDK .NET Manager stuff. </summary>
 	namespace Manager
 	{
 
 		/// <summary>
 		/// Only used for the IV-SDK .NET Manager.
-		/// There can only be one instance of this class.
 		/// </summary>
 		public ref class ManagerScript abstract
 		{
@@ -23,8 +20,8 @@ namespace IVSDKDotNet
 		public:
 
 			// General stuff
-			virtual void ApplySettings(SettingsFile^ settings)	abstract;
-			virtual void Cleanup()								abstract;
+			virtual void InitializationFinished(SettingsFile^ settings) abstract;
+			virtual void Shutdown()								abstract;
 
 			// Console
 			virtual void OpenConsole()						abstract;
@@ -45,7 +42,8 @@ namespace IVSDKDotNet
 
 			// Game
 			virtual bool IsGameInFocus() abstract;
-			virtual bool IsUsingController() abstract;
+			virtual void GetPlayerAndCurrentVehicleHandle([OutAttribute] int% playerHandle, [OutAttribute] int% vehicleHandle) abstract;
+			//virtual bool IsUsingController() abstract;
 
 			// Script
 			virtual void RaiseTick()														abstract;
@@ -59,8 +57,6 @@ namespace IVSDKDotNet
 			virtual void RaiseIngameStartup()												abstract;
 			virtual void RaiseOnD3D9Frame(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)		abstract;
 			virtual void RaiseOnBeforeNewImGuiFrame(IntPtr devicePtr)						abstract;
-
-			virtual void RegisterEvent(String^ scriptOrPluginName, Delegate^ source, Delegate^ target) abstract;
 
 			virtual void LoadScripts()							abstract;
 			virtual bool AbortScript(Guid id)					abstract;
@@ -83,16 +79,23 @@ namespace IVSDKDotNet
 			
 			// Thread
 			virtual void WaitInScript(Guid id, int milliseconds) abstract;
-
-			virtual void DispatchEvent(Action^ a) abstract;
-
-			generic <typename T>
-			virtual Object^ DispatchEventWithReturn(Func<T>^ a) abstract;
+			virtual Object^ GetScriptThisThreadIsOwnedBy() abstract;
 
 			virtual void DispatchNativeCall(uint32_t hash, UIntPtr contextPointer) abstract;
 
 			virtual int GetMainThreadID() abstract;
 			virtual int GetCurrentThreadID() abstract;
+			virtual bool IsThisThreadTheScriptRenderThread(int threadId) abstract;
+
+			virtual void ThreadManager_StoreCurrentThreadTlsContext() abstract;
+			virtual void ThreadManager_ChangeTlsContextOfCurrentThreadToContextOfTargetThread(int gameThreadId) abstract;
+			virtual void ThreadManager_RestoreTlsContextForCurrentThread() abstract;
+
+			// Native Calling
+			generic <typename T>
+			virtual T CallNativeUsingManagedNativeCaller(uint32_t hash, array<IVSDKDotNet::Native::NativeArg>^ args) abstract;
+
+			virtual uint32_t TryGetNativeHashByName(String^ name) abstract;
 
 			// Task
 			virtual Guid StartNewTask(Guid forScript, Func<Object^>^ actionToExecute, Action<Object^>^ continueWithAction)	abstract;
@@ -107,6 +110,9 @@ namespace IVSDKDotNet
 			virtual void Direct3D9_RegisterScriptTexture(String^ forScript, IntPtr ptr)			abstract;
 			//virtual void Direct3D9_UnregisterScriptTexture(String^ forScript, IntPtr ptr)		abstract;
 
+			// Hooking Stuff
+			virtual bool MinHook_RegisterHook(String^ ofScript, uint32_t address) abstract;
+
 			// Helper
 			virtual String^ Helper_ConvertObjectToJsonString(Object^ obj, bool useFormatting) abstract;
 			virtual Object^ Helper_ConvertJsonStringToObject(String^ str, Type^ targetType) abstract;
@@ -117,6 +123,7 @@ namespace IVSDKDotNet
 			virtual Object^ SHDN_GetScriptByName(String^ name) abstract;
 			virtual Object^ SHDN_GetScriptByGUID(Guid id) abstract;
 
+			virtual Guid SHDN_GetIdOfCurrentExecutingScript() abstract;
 			virtual Object^ SHDN_GetCurrentScript(int iEvent) abstract;
 			virtual void SHDN_SetCurrentScript(int iEvent, Object^ script) abstract;
 
@@ -127,6 +134,15 @@ namespace IVSDKDotNet
 			virtual bool SHDN_IsScriptRunning(Guid id) abstract;
 
 			virtual void SHDN_ShowMessage(String^ str, int time) abstract;
+
+			virtual void SHDNCache_AddEntity(Guid ownerScript, Object^ entity) abstract;
+			virtual void SHDNCache_RemoveEntity(Object^ entity) abstract;
+			virtual void SHDNCache_RemoveEntity(int handle) abstract;
+			virtual Object^ SHDNCache_GetEntity(int handle, int requestedType, Guid ownerScript) abstract;
+
+			virtual void SHDNCache_AddPlayer(Object^ player) abstract;
+			virtual void SHDNCache_RemovePlayer(Object^ player) abstract;
+			virtual Object^ SHDNCache_GetPlayer(int id) abstract;
 
 		public:
 			ManagerScript();

@@ -5,12 +5,24 @@ namespace IVSDKDotNet
 	namespace Enums
 	{
 
-		public enum class eGameVersion
+		public enum class eGameVersion : uint32_t
 		{
 			VERSION_NONE,
-			VERSION_1070,
-			VERSION_1080,
-			VERSION_1040,
+			VERSION_1000 = 1000,
+			VERSION_1010 = 1010,
+			VERSION_1020 = 1020,
+			VERSION_1030 = 1030,
+			VERSION_1040 = 1040,
+			VERSION_1050 = 1050,
+			VERSION_1060 = 1060,
+			VERSION_1070 = 1070,
+			VERSION_1080 = 1080,
+			VERSION_12030 = 12030,
+			VERSION_12031 = 12031,
+			VERSION_12032 = 12032,
+			VERSION_12041 = 12041,
+			VERSION_12043 = 12043,
+			VERSION_12059 = 12059,
 		};
 
 		public enum class eAssembliesLocation
@@ -5674,6 +5686,83 @@ namespace IVSDKDotNet
 			OutOfMemory = E_OUTOFMEMORY,
 		};
 
+		// MinHook
+		/// <summary>
+		/// MinHook Error Codes
+		/// </summary>
+		public enum class eMinHookStatus
+		{
+			/// <summary>
+			/// Unknown error. Should never be returned.
+			/// </summary>
+			MH_UNKNOWN = -1,
+
+			/// <summary>
+			/// Successful.
+			/// </summary>
+			MH_OK = 0,
+
+			/// <summary>
+			/// MinHook is already initialized.
+			/// </summary>
+			MH_ERROR_ALREADY_INITIALIZED,
+
+			/// <summary>
+			/// MinHook is not initialized yet, or already uninitialized.
+			/// </summary>
+			MH_ERROR_NOT_INITIALIZED,
+
+			/// <summary>
+			/// The hook for the specified target function is already created.
+			/// </summary>
+			MH_ERROR_ALREADY_CREATED,
+
+			/// <summary>
+			/// The hook for the specified target function is not created yet.
+			/// </summary>
+			MH_ERROR_NOT_CREATED,
+
+			/// <summary>
+			/// The hook for the specified target function is already enabled.
+			/// </summary>
+			MH_ERROR_ENABLED,
+
+			/// <summary>
+			/// The hook for the specified target function is not enabled yet, or already disabled.
+			/// </summary>
+			MH_ERROR_DISABLED,
+
+			/// <summary>
+			/// The specified pointer is invalid. It points the address of non-allocated and/or non-executable region.
+			/// </summary>
+			MH_ERROR_NOT_EXECUTABLE,
+
+			/// <summary>
+			/// The specified target function cannot be hooked.
+			/// </summary>
+			MH_ERROR_UNSUPPORTED_FUNCTION,
+
+			/// <summary>
+			/// Failed to allocate memory.
+			/// </summary>
+			MH_ERROR_MEMORY_ALLOC,
+
+			/// <summary>
+			/// Failed to change the memory protection.
+			/// </summary>
+			MH_ERROR_MEMORY_PROTECT,
+
+			/// <summary>
+			/// The specified module is not loaded.
+			/// </summary>
+			MH_ERROR_MODULE_NOT_FOUND,
+
+			/// <summary>
+			/// The specified function is not found.
+			/// </summary>
+			MH_ERROR_FUNCTION_NOT_FOUND
+		};
+
 		// ImGui
 		public enum class eImDrawFlags
 		{
@@ -5894,6 +5983,8 @@ namespace IVSDKDotNet
 			Left = 0,
 			Right = 1,
 			Middle = 2,
+			XButton1 = 3,
+			XButton2 = 4,
 			COUNT = 5
 		};
 		public enum class eImGuiMouseCursor

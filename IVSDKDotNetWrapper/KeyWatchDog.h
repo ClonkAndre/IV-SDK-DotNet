@@ -2,63 +2,81 @@
 
 namespace IVSDKDotNet
 {
-	public ref class KeyWatchDog
+	namespace Internal
 	{
-	public:
-		event KeyEventHandler^ KeyDown;
-		event KeyEventHandler^ KeyUp;
-
-		KeyWatchDog(String^ tag);
-		~KeyWatchDog();
-
-		void Process();
-
-		bool IsKeyPressed(Keys key)
+		public ref class KeyWatchDog
 		{
-			int num = (int)key;
+		public:
+			event KeyEventHandler^ KeyDown;
+			event KeyEventHandler^ KeyUp;
 
-			if ((num < 0) || (num > 255))
-				return false;
+			KeyWatchDog();
+			KeyWatchDog(String^ tag);
+			~KeyWatchDog();
 
-			return ((ckeystate[num] & 0x80) != 0);
-		}
+			void Process();
 
-		property bool Shift
-		{
-			bool get() { return bShift; }
-		}
-		property bool Ctrl
-		{
-			bool get() { return bCtrl; }
-		}
-		property bool Alt
-		{
-			bool get() { return bAlt; }
-		}
-		property Keys Modifier
-		{
-			Keys get() { return pModifier; }
-		}
+			bool IsKeyPressed(Keys key)
+			{
+				int num = (int)key;
 
-		property String^ Tag
-		{
-			String^ get() { return pTag; }
-		}
+				if ((num < 0) || (num > 255))
+					return false;
 
-	private:
-		array<bool>^ keystate;
-		BYTE* ckeystate;
-		bool bShift;
-		bool bCtrl;
-		bool bAlt;
-		Keys pModifier;
-		String^ pTag;
+				return ((ckeystate[num] & 0x80) != 0);
+			}
 
-		void CheckKeyAsync(Keys Key);
+			property bool Shift
+			{
+				bool get()
+				{
+					return bShift;
+				}
+			}
+			property bool Ctrl
+			{
+				bool get()
+				{
+					return bCtrl;
+				}
+			}
+			property bool Alt
+			{
+				bool get()
+				{
+					return bAlt;
+				}
+			}
+			property Keys Modifier
+			{
+				Keys get()
+				{
+					return pModifier;
+				}
+			}
 
-		void OnKeyDown(KeyEventArgs^ e);
-		void OnKeyUp(KeyEventArgs^ e);
+			property String^ Tag
+			{
+				String^ get()
+				{
+					return pTag;
+				}
+			}
 
-	};
+		private:
+			array<bool>^ keystate;
+			BYTE* ckeystate;
+			bool bShift;
+			bool bCtrl;
+			bool bAlt;
+			Keys pModifier;
+			String^ pTag;
 
+			void CheckKeyAsync(Keys Key);
+
+			void OnKeyDown(KeyEventArgs^ e);
+			void OnKeyUp(KeyEventArgs^ e);
+
+		};
+	}
 }

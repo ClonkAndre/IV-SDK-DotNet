@@ -4,7 +4,7 @@ public:
 
 	void ReplaceWithNewModel(int32_t index)
 	{
-		return ((void(__thiscall*)(CBuilding*, int32_t))(AddressSetter::Get(0x71B430, 0x4DDD00)))(this, index);
+		return ((void(__thiscall*)(CBuilding*, int32_t))(AddressSetter::Get("CBuilding", "ReplaceWithNewModel")))(this, index);
 	}
 };
 

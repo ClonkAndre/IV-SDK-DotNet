@@ -84,33 +84,33 @@ public:
 	uint32_t m_nShotsFired;									// 100-104
 	uint8_t pad4[0xC];										// 104-110
 
-	static inline char** ms_aWeaponNames = (char**)AddressSetter::Get(0xB27A88, 0xB3ECA8);
+	static inline char** ms_aWeaponNames = (char**)AddressSetter::Get("CWeaponInfo", "ms_aWeaponNames");
 
 	static CWeaponInfo* GetWeaponInfo(uint32_t weaponID)
 	{
-		return ((CWeaponInfo*(__cdecl*)(uint32_t))(AddressSetter::Get(0x524E80, 0x4DDEB0)))(weaponID);
+		return ((CWeaponInfo*(__cdecl*)(uint32_t))(AddressSetter::Get("CWeaponInfo", "GetWeaponInfo")))(weaponID);
 	}
 	static void LoadWeaponData(const char* path)
 	{
-		return ((void(__cdecl*)(const char*))(AddressSetter::Get(0x5263D0, 0x4DF2D0)))(path);
+		return ((void(__cdecl*)(const char*))(AddressSetter::Get("CWeaponInfo", "LoadWeaponData")))(path);
 	}
 	static int FindWeaponType(uint32_t nameHash, int defaultReturn)
 	{
-		return ((int(__cdecl*)(uint32_t, int))(AddressSetter::Get(0x524EA0, 0x4DDED0)))(nameHash, defaultReturn);
+		return ((int(__cdecl*)(uint32_t, int))(AddressSetter::Get("CWeaponInfo", "FindWeaponType")))(nameHash, defaultReturn);
 	}
 	static int FindWeaponType(const char* pString, int defaultReturn)
 	{
-		return ((int(__cdecl*)(const char*, int))(AddressSetter::Get(0x5257E0, 0x4DE6F0)))(pString, defaultReturn);
+		return ((int(__cdecl*)(const char*, int))(AddressSetter::Get("CWeaponInfo", "FindWeaponType_2")))(pString, defaultReturn);
 	}
 	static int FindWeaponFireType(const char* pString)
 	{
-		return ((int(__cdecl*)(const char*))(AddressSetter::Get(0x524F10, 0x4DDF40)))(pString);
+		return ((int(__cdecl*)(const char*))(AddressSetter::Get("CWeaponInfo", "FindWeaponFireType")))(pString);
 	}
 	static int FindWeaponDamageType(const char* pString)
 	{
-		return ((int(__cdecl*)(const char*))(AddressSetter::Get(0x524F70, 0x4DDFA0)))(pString);
+		return ((int(__cdecl*)(const char*))(AddressSetter::Get("CWeaponInfo", "FindWeaponDamageType")))(pString);
 	}
 };
 VALIDATE_SIZE(CWeaponInfo, 0x110);
 
-CWeaponInfo* aWeaponInfo = (CWeaponInfo*)AddressSetter::Get(0x1140A20, 0xE4A600); // aWeaponInfo[60]
+CWeaponInfo* aWeaponInfo = (CWeaponInfo*)AddressSetter::Get("CWeaponInfo", "aWeaponInfo"); // aWeaponInfo[60]

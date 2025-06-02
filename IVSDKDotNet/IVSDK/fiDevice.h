@@ -2,7 +2,7 @@ namespace rage
 {
 	class fiDeviceLocal
 	{
-		uint32_t m_pVFTable = AddressSetter::Get(0x95A9BC, 0x9894C4);
+		uint32_t m_pVFTable = AddressSetter::Get("fiDeviceLocal", "m_pVFTable");
 		uint8_t pad[0x20C];
 	};
 	VALIDATE_SIZE(fiDeviceLocal, 0x210);
@@ -10,28 +10,28 @@ namespace rage
 	class fiDevice
 	{
 	public:
-		static inline int& g_nMaxMountPoints = AddressSetter::GetRef<int>(0x22E6, 0x8FB46);
+		static inline int& g_nMaxMountPoints = AddressSetter::GetRef<int>("fiDevice", "g_nMaxMountPoints");
 
 		static bool Mount(char* path, fiDeviceLocal* device, bool bUnk1)
 		{
-			return ((char(__cdecl*)(const char*, fiDeviceLocal*, int))(AddressSetter::Get(0x1ABE20, 0x5DDA0)))(path, device, bUnk1);
+			return ((char(__cdecl*)(const char*, fiDeviceLocal*, int))(AddressSetter::Get("fiDevice", "Mount")))(path, device, bUnk1);
 		}
 		static bool Unmount(char* path)
 		{
-			return ((char(__cdecl*)(const char*))(AddressSetter::Get(0x0, 0x5E000)))(path); // TODO: Get address for 1070
+			return ((char(__cdecl*)(const char*))(AddressSetter::Get("fiDevice", "Unmount")))(path);
 		}
 
 	public:
-		uint32_t m_pVFTable = AddressSetter::Get(0x953D0C, 0x9856A4);
+		uint32_t m_pVFTable = AddressSetter::Get("fiDevice", "m_pVFTable");
 		uint8_t pad[0x20C];
 
 		uint32_t SetPath(char* path, bool bAbsolute)
 		{
-			return ((uint32_t(__thiscall*)(fiDevice*, char*, bool))(AddressSetter::Get(0x1B43F0, 0x6F7D0)))(this, path, bAbsolute);
+			return ((uint32_t(__thiscall*)(fiDevice*, char*, bool))(AddressSetter::Get("fiDevice", "SetPath")))(this, path, bAbsolute);
 		}
 		uint32_t SetMountPath(char* path)
 		{
-			return ((uint32_t(__thiscall*)(fiDevice*, const char*))(AddressSetter::Get(0x1B4480, 0x6F860)))(this, path);
+			return ((uint32_t(__thiscall*)(fiDevice*, const char*))(AddressSetter::Get("fiDevice", "SetMountPath")))(this, path);
 		}
 
 	};
@@ -40,7 +40,7 @@ namespace rage
 	class fiFile
 	{
 	public:
-		// Needs to be worked on
+		// TODO: Needs to be worked on
 
 		//// 1080: 17525B0 (0x13525B0)
 		//// 1070: (0x)

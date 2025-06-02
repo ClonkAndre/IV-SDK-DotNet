@@ -17,6 +17,6 @@ namespace IVSDKDotNet
 		/// <param name="noMPSync">If the projectile should be synced over the network or not.</param>
 		/// <param name="pProjectileObject">The projectile object to shoot. Can be null.</param>
 		/// <returns></returns>
-		static bool AddProjectile(IVEntity^ pEntProjOwner, int projType, IVMatrix^ pMatrix, Vector3 vecStart, Vector3 vecEnd, IVEntity^ pTargetEntity, bool noMPSync, IVObject^ pProjectileObject);
+		static bool AddProjectile(IVEntity^ pEntProjOwner, int projType, IVMatrix pMatrix, Vector3 vecStart, Vector3 vecEnd, IVEntity^ pTargetEntity, bool noMPSync, IVObject^ pProjectileObject);
 	};
 }

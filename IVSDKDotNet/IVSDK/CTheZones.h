@@ -22,18 +22,56 @@ VALIDATE_OFFSET(CZone, PopulationType, 0x20);
 class CTheZones
 {
 public:
-	static inline auto& TotalNumberOfMapZones = AddressSetter::GetRef<uint32_t>(0xE05CA4, 0x1001F14);
-	static inline auto MapZoneArray = (CZone*)AddressSetter::Get(0xE05D10, 0x1001F80);
+	static inline auto& TotalNumberOfMapZones = AddressSetter::GetRef<uint32_t>("CTheZones", "TotalNumberOfMapZones");
+	static inline auto MapZoneArray = (CZone*)AddressSetter::Get("CTheZones", "MapZoneArray");
 
-	static inline auto& ZonesRevealed = AddressSetter::GetRef<uint32_t>(0xE05C90, 0x1001F00);
-	static inline auto ZonesVisited = (bool*)AddressSetter::Get(0xE05CA8, 0x1001F18); // ZonesVisited[100] ZonesVisited[10][10]
+	static inline auto& ZonesRevealed = AddressSetter::GetRef<uint32_t>("CTheZones", "ZonesRevealed");
+	static inline auto ZonesVisited = (bool*)AddressSetter::Get("CTheZones", "ZonesVisited"); // ZonesVisited[100] ZonesVisited[10][10]
 
 	static bool Save()
 	{
-		return ((int(__cdecl*)())(AddressSetter::Get(0x48BF30, 0x64AAB0)))();
+		return ((int(__cdecl*)())(AddressSetter::Get("CTheZones", "Save")))();
 	}
 	static bool Load()
 	{
-		return ((int(__cdecl*)())(AddressSetter::Get(0x48BF90, 0x64AB10)))();
+		return ((int(__cdecl*)())(AddressSetter::Get("CTheZones", "Load")))();
 	}
+
+	static CZone* Reset()
+	{
+		return ((CZone*(__cdecl*)())(AddressSetter::Get("CTheZones", "Reset")))();
+	}
+
+	// Returns probably the index of the next slot in the zones array (result * 2 = next slot?)
+	static int Add(const char* name, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, const char* a8)
+	{
+		return ((int(__cdecl*)(const char*, float, float, float, float, float, float, const char*))(AddressSetter::Get("CTheZones", "Add")))(
+			name,
+			minX,
+			minY,
+			minZ,
+			maxX,
+			maxY,
+			maxZ,
+			a8);
+	}
+
+	static const char* GetZoneNameByCoords(CVector* vec)
+	{
+		return ((const char* (__cdecl*)(CVector*))(AddressSetter::Get("CTheZones", "GetZoneNameByCoords")))(vec);
+	}
+	static const char* GetZoneNameByIndex(int index)
+	{
+		return ((const char* (__cdecl*)(int))(AddressSetter::Get("CTheZones", "GetZoneNameByIndex")))(index);
+	}
+	static int GetZoneNumberByName(const char* name)
+	{
+		return ((int (__cdecl*)(const char*))(AddressSetter::Get("CTheZones", "GetZoneNumberByName")))(name);
+	}
+
+	static bool IsPointInZone(CVector* vec, CZone* zone)
+	{
+		return ((bool (__cdecl*)(CVector*, CZone*))(AddressSetter::Get("CTheZones", "IsPointInZone")))(vec, zone);
+	}
+
 };

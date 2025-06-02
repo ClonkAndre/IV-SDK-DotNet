@@ -173,25 +173,25 @@ VALIDATE_OFFSET(tHandlingData, m_pBoatHandling, 0x100);
 class cHandlingDataMgr
 {
 public:
-	static inline tHandlingData* HandlingData = (tHandlingData*)AddressSetter::Get(0x11E3BF0, 0x12773B0); // HandlingData[160]
-	static inline tHandlingData* BikeHandlingData = (tHandlingData*)AddressSetter::Get(0x11EE5F0, 0x1281DB0); // BikeHandlingData[40]
-	static inline tHandlingData* FlyingHandlingData = (tHandlingData*)AddressSetter::Get(0x11EEFF0, 0x12827B0); // FlyingHandlingData[40]
-	static inline tHandlingData* BoatHandlingData = (tHandlingData*)AddressSetter::Get(0x11EFEF0, 0x12836B0); // BoatHandlingData[40]
+	static inline tHandlingData* HandlingData = (tHandlingData*)AddressSetter::Get("cHandlingDataMgr", "HandlingData"); // HandlingData[160]
+	static inline tHandlingData* BikeHandlingData = (tHandlingData*)AddressSetter::Get("cHandlingDataMgr", "BikeHandlingData"); // BikeHandlingData[40]
+	static inline tHandlingData* FlyingHandlingData = (tHandlingData*)AddressSetter::Get("cHandlingDataMgr", "FlyingHandlingData"); // FlyingHandlingData[40]
+	static inline tHandlingData* BoatHandlingData = (tHandlingData*)AddressSetter::Get("cHandlingDataMgr", "BoatHandlingData"); // BoatHandlingData[40]
 
 	static void Initialise()
 	{
-		((void(__cdecl*)())(AddressSetter::Get(0x571FC0, 0x7A2C10)))();
+		((void(__cdecl*)())(AddressSetter::Get("cHandlingDataMgr", "Initialise")))();
 	}
 	static void LoadHandlingData(char* sPath)
 	{
-		((void(__cdecl*)(char*))(AddressSetter::Get(0x571D60, 0x7A29B0)))(sPath);
+		((void(__cdecl*)(char*))(AddressSetter::Get("cHandlingDataMgr", "LoadHandlingData")))(sPath);
 	}
 	static tHandlingData* GetHandlingData(int id)
 	{
-		return ((tHandlingData*(__cdecl*)(int))(AddressSetter::Get(0x5719C0, 0x7A2610)))(id);
+		return ((tHandlingData*(__cdecl*)(int))(AddressSetter::Get("cHandlingDataMgr", "GetHandlingData")))(id);
 	}
 	static int GetHandlingId(char* handlingName)
 	{
-		return ((int(__cdecl*)(char*))(AddressSetter::Get(0x571BF0, 0x7A2840)))(handlingName);
+		return ((int(__cdecl*)(char*))(AddressSetter::Get("cHandlingDataMgr", "GetHandlingId")))(handlingName);
 	}
 };

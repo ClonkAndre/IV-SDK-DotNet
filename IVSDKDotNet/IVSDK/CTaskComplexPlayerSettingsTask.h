@@ -9,7 +9,7 @@ public:
 	CTaskComplexPlayerSettingsTask(uint32_t unkFromPed)
 	{
 		// this was inlined
-		((void(__thiscall*)(CTaskComplex*))(AddressSetter::Get(0x628AF0, 0x703040)))(this); // CTaskComplex::CTaskComplex
+		((void(__thiscall*)(CTaskComplex*))(AddressSetter::Get("CTaskComplexPlayerSettingsTask", "CTaskComplexPlayerSettingsTask")))(this); // CTaskComplex::CTaskComplex
 		m_nUnk0 = 0;
 		m_nUnkNeg1 = -1;
 		m_nUnkNeg1_2 = -1;

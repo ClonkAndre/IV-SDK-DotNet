@@ -8,13 +8,19 @@ public:
 	// used for reading bone positions e.g. seat locations
 	CMatrix* GetBoneMatrix(int boneID)
 	{
-		return ((CMatrix*(__thiscall*)(CDynamicEntity*, int))(AddressSetter::Get(0x5C7710, 0x4F1930)))(this, boneID);
+		return ((CMatrix*(__thiscall*)(CDynamicEntity*, int))(AddressSetter::Get("CDynamicEntity", "GetBoneMatrix")))(this, boneID);
 	}
 
 	// used for transform modifications e.g. popup lights, firetruck/apc cannon but 1:1 identical to the above
 	CMatrix* GetBoneMatrix2(int boneID)
 	{
-		return ((CMatrix * (__thiscall*)(CDynamicEntity*, int))(AddressSetter::Get(0xD9100, 0x315390)))(this, boneID);
+		return ((CMatrix * (__thiscall*)(CDynamicEntity*, int))(AddressSetter::Get("CDynamicEntity", "GetBoneMatrix2")))(this, boneID);
+	}
+
+	// prolly rather goes into m_pAnim
+	uint32_t* PlayAnimation(int animGroupId, int animId, int flags, int unkMaybeBlendData, float unk1)
+	{
+		return ((uint32_t * (__thiscall*)(uint32_t*, int, int, int, int, float))(AddressSetter::Get("CDynamicEntity", "PlayAnimation")))(m_pAnim, animGroupId, animId, flags, unkMaybeBlendData, unk1);
 	}
 };
 

@@ -18,15 +18,15 @@ public:
 	VALIDATE_OFFSET(AnimAssocDefinition, pUnknown, 0x40);
 	VALIDATE_OFFSET(AnimAssocDefinition, aAnimDesc, 0x44);
 
-	static inline auto& ms_aAnimAssocDefinitions = AddressSetter::GetRef<AnimAssocDefinition*>(0x1148F90, 0x127623C);
-	static inline auto& ms_numAnimAssocDefinitions = AddressSetter::GetRef<int32_t>(0x1148F84, 0x1276230);
+	static inline auto& ms_aAnimAssocDefinitions = AddressSetter::GetRef<AnimAssocDefinition*>("CAnimManager", "ms_aAnimAssocDefinitions");
+	static inline auto& ms_numAnimAssocDefinitions = AddressSetter::GetRef<int32_t>("CAnimManager", "ms_numAnimAssocDefinitions");
 
 	static void Initialise()
 	{
-		return ((void(__cdecl*)())(AddressSetter::Get(0x531120, 0x78DFE0)))();
+		return ((void(__cdecl*)())(AddressSetter::Get("CAnimManager", "Initialise")))();
 	}
 	static void AddAnimAssocDefinition(int id, const char* pName, const char* pFile, uint32_t numAnims, const char** pAnimNames, AnimDescriptor* pAnimDescs, int unk1, int unk2, int unk3, bool unk4)
 	{
-		return ((void(__stdcall*)(int, const char*, const char*, uint32_t, const char**, AnimDescriptor*, int, int, int, bool))(AddressSetter::Get(0x530F70, 0x78DE00)))(id, pName, pFile, numAnims, pAnimNames, pAnimDescs, unk1, unk2, unk3, unk4);
+		return ((void(__stdcall*)(int, const char*, const char*, uint32_t, const char**, AnimDescriptor*, int, int, int, bool))(AddressSetter::Get("CAnimManager", "AddAnimAssocDefinition")))(id, pName, pFile, numAnims, pAnimNames, pAnimDescs, unk1, unk2, unk3, unk4);
 	}
 };

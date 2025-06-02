@@ -1,7 +1,7 @@
 class CCamera
 {
 public:
-	static inline CCam*& g_pFinalCam = AddressSetter::GetRef<CCam*>(0xB21A70, 0xB488EC); // CCamFinal
+	static inline CCam*& g_pFinalCam = AddressSetter::GetRef<CCam*>("CCamera", "g_pFinalCam"); // CCamFinal
 
 	uint8_t pad[0x4];					// 00-04
 	CCam* m_pFinalCam;					// 04-08
@@ -12,10 +12,10 @@ public:
 
 	CCam* CreateCam(int type, CCam* unk, CCam* unk2)
 	{
-		return ((CCam*(__thiscall*)(CCamera*, int, CCam*, CCam*))(AddressSetter::Get(0x51F510, 0x5DF770)))(this, type, unk, unk2);
+		return ((CCam*(__thiscall*)(CCamera*, int, CCam*, CCam*))(AddressSetter::Get("CCamera", "CreateCam")))(this, type, unk, unk2);
 	}
 };
-static CCamera& TheCamera = AddressSetter::GetRef<CCamera>(0xB21A6C, 0xB488E8);
+static CCamera& TheCamera = AddressSetter::GetRef<CCamera>("CCamera", "TheCamera");
 
 VALIDATE_OFFSET(CCamera, m_pFinalCam, 0x4);
 VALIDATE_OFFSET(CCamera, m_pGameCam, 0xC);

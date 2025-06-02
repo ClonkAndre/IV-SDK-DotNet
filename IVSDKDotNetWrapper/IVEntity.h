@@ -42,6 +42,468 @@ namespace IVSDKDotNet
 		tObjectDrawable* NativeObjDrawable;
 	};
 
+	//public ref class IVEntityFlags2
+	//{
+	//public:
+	//	property bool _f0
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f0;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f0 = value;
+	//		}
+	//	}
+	//	property bool _f1
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f1;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f1 = value;
+	//		}
+	//	}
+	//	property bool _f2
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f2;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f2 = value;
+	//		}
+	//	}
+	//	property bool _f3
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f3;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f3 = value;
+	//		}
+	//	}
+	//	property bool _f4
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f4;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f4 = value;
+	//		}
+	//	}
+	//	property bool _f5
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f5;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f5 = value;
+	//		}
+	//	}
+	//	property bool _f6
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f6;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f6 = value;
+	//		}
+	//	}
+	//	property bool _f7
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f7;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f7 = value;
+	//		}
+	//	}
+	//	property bool _f8
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f8;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f8 = value;
+	//		}
+	//	}
+	//	property bool _f9
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f9;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f9 = value;
+	//		}
+	//	}
+	//	property bool _fa
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._fa;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._fa = value;
+	//		}
+	//	}
+	//	property bool _fb
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._fb;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._fb = value;
+	//		}
+	//	}
+	//	property bool _fc
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._fc;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._fc = value;
+	//		}
+	//	}
+	//	property bool _fd
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._fd;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._fd = value;
+	//		}
+	//	}
+	//	property bool _fe
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._fe;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._fe = value;
+	//		}
+	//	}
+	//	property bool _ff
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._ff;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._ff = value;
+	//		}
+	//	}
+	//	property bool _f10
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f10;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f10 = value;
+	//		}
+	//	}
+	//	property bool _f11
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f11;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f11 = value;
+	//		}
+	//	}
+	//	property bool _f12
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f12;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f12 = value;
+	//		}
+	//	}
+	//	property bool _f13
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f13;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f13 = value;
+	//		}
+	//	}
+	//	property bool _f14
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f14;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f14 = value;
+	//		}
+	//	}
+	//	property bool _f15
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f15;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f15 = value;
+	//		}
+	//	}
+	//	property bool _f16
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f16;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f16 = value;
+	//		}
+	//	}
+	//	property bool _f17
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f17;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f17 = value;
+	//		}
+	//	}
+	//	property bool _f18
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f18;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f18 = value;
+	//		}
+	//	}
+	//	property bool _f19
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f19;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f19 = value;
+	//		}
+	//	}
+	//	property bool _f1a
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f1a;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f1a = value;
+	//		}
+	//	}
+	//	property bool _f1b
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f1b;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f1b = value;
+	//		}
+	//	}
+	//	property bool _f1c
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f1c;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f1c = value;
+	//		}
+	//	}
+	//	property bool _f1d
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f1d;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f1d = value;
+	//		}
+	//	}
+	//	property bool _f1e
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f1e;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f1e = value;
+	//		}
+	//	}
+	//	property bool _f1f
+	//	{
+	//	public:
+	//		bool get()
+	//		{
+	//			NULLPTR_CHECK_WITH_RETURN(NativeEntity, false);
+	//			return NativeEntity->m_nEntityFlags2._f1f;
+	//		}
+	//		void set(bool value)
+	//		{
+	//			NULLPTR_CHECK(NativeEntity);
+	//			NativeEntity->m_nEntityFlags2._f1f = value;
+	//		}
+	//	}
+
+	//internal:
+	//	IVEntityFlags2(CEntity* nativePtr)
+	//	{
+	//		NativeEntity = nativePtr;
+	//	}
+
+	//internal:
+	//	CEntity* NativeEntity;
+	//};
+
 	public ref class IVEntity
 	{
 	public:
@@ -66,20 +528,18 @@ namespace IVSDKDotNet
 				NativeEntity->m_placement = v;
 			}
 		}
-		property IVMatrix^ Matrix
+		property IVMatrix Matrix
 		{
 		public:
-			IVMatrix^ get()
+			IVMatrix get()
 			{
-				NULLPTR_CHECK_WITH_RETURN(NativeEntity, IVMatrix::Empty());
-				return gcnew IVMatrix(NativeEntity->m_pMatrix);
+				NULLPTR_CHECK_WITH_RETURN(NativeEntity, IVMatrix::Zero);
+				return IVMatrix(NativeEntity->m_pMatrix);
 			}
-			void set(IVMatrix^ value)
+			void set(IVMatrix value)
 			{
 				NULLPTR_CHECK(NativeEntity);
-				NULLPTR_CHECK(value);
-				NULLPTR_CHECK(value->NativeMatrix);
-				NativeEntity->m_pMatrix = value->NativeMatrix;
+				NativeEntity->m_pMatrix = &value.ToCMatrix();
 			}
 		}
 		property uint32_t EntityFlags2
@@ -204,7 +664,7 @@ namespace IVSDKDotNet
 		static IVEntity^ FromUIntPtr(UIntPtr ptr);
 		UIntPtr GetUIntPtr();
 
-		void Teleport(IVMatrix^ mat, bool bDontUpdatePhysicsMatrix, bool bImmediately);
+		void Teleport(IVMatrix mat, bool bDontUpdatePhysicsMatrix, bool bImmediately);
 		void Teleport(Vector3 v, bool bDontUpdatePhysicsMatrix, bool bImmediately);
 
 		void PreRender(int nUnk, int nUnk2, char alpha, int nUnkNeg1);

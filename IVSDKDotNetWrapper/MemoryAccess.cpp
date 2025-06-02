@@ -1,9 +1,6 @@
 #include "pch.h"
 #include "MemoryAccess.h"
 
-//eGameVersion AddressSetter::m_eGameVersion;
-//uint32_t AddressSetter::m_baseAddress;
-
 namespace IVSDKDotNet
 {
 
@@ -18,16 +15,24 @@ namespace IVSDKDotNet
 		}
 	}
 
-	generic <typename T>
-	T MemoryAccess::GetRef(uint32_t addr1070, uint32_t addr1080)
+	uint32_t MemoryAccess::GetAddressFromConfigFile(String^ section, String^ key)
 	{
-		switch (m_eGameVersion)
-		{
-			case eGameVersion::VERSION_1070: return (T)Marshal::PtrToStructure(IntPtr((int)(m_baseAddress + addr1070)), T::typeid);
-			case eGameVersion::VERSION_1080: return (T)Marshal::PtrToStructure(IntPtr((int)(m_baseAddress + addr1080)), T::typeid);
-		}
+		msclr::interop::marshal_context ctx;
+		return AddressSetter::GetAddressFromConfig(ctx.marshal_as<const char*>(section), ctx.marshal_as<const char*>(key));
+	}
 
-		return T();
+	uint32_t MemoryAccess::GetAbsoluteAddress(String^ section, String^ key)
+	{
+		msclr::interop::marshal_context ctx;
+		return AddressSetter::Get(ctx.marshal_as<const char*>(section), ctx.marshal_as<const char*>(key));
+	}
+	uint32_t MemoryAccess::GetAbsoluteAddress(uint32_t addr1070, uint32_t addr1080)
+	{
+		return AddressSetter::Get(addr1070, addr1080);
+	}
+	uint32_t MemoryAccess::GetAbsoluteAddress(uint32_t addr)
+	{
+		return AddressSetter::Get(addr);
 	}
 
 	uint32_t MemoryAccess::GetValue(uint32_t addr1070, uint32_t addr1080)

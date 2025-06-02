@@ -149,7 +149,7 @@
   <ItemGroup>
     <ClInclude Include="AdvancedPatcher.h" />
     <ClInclude Include="Hooking.Patterns.h" />
-    <ClInclude Include="IVSDK\Addresses.h" />
+    <ClInclude Include="INI.h" />
     <ClInclude Include="IVSDK\audEngine.h" />
     <ClInclude Include="IVSDK\audRadioAudioEntity.h" />
     <ClInclude Include="IVSDK\CAchievements.h" />
@@ -258,6 +258,7 @@
     <ClInclude Include="IVSDK\fiPackfile.h" />
     <ClInclude Include="IVSDK\grcTexture.h" />
     <ClInclude Include="IVSDK\grcTextureFactory.h" />
+    <ClInclude Include="IVSDK\grcWindow.h" />
     <ClInclude Include="IVSDK\Hooks.h" />
     <ClInclude Include="IVSDK\injector\assembly.hpp" />
     <ClInclude Include="IVSDK\injector\calling.hpp" />

@@ -7,5 +7,5 @@ public:
 	T* m_storeArray;					// 08-0C
 };
 
-auto& ms_vehicleModelStore = AddressSetter::GetRef<CStore<CVehicleModelInfo>>(0xB2C14C, 0xB3E8E8);
-auto& ms_pedModelStore = AddressSetter::GetRef<CStore<CPedModelInfo>>(0xB2C158, 0xB3E8F4);
+auto& ms_vehicleModelStore = AddressSetter::GetRef<CStore<CVehicleModelInfo>>("CStore", "ms_vehicleModelStore");
+auto& ms_pedModelStore = AddressSetter::GetRef<CStore<CPedModelInfo>>("CStore", "ms_pedModelStore");

@@ -9,24 +9,40 @@
 
 namespace plugin
 {
-	enum eGameVersion
+	enum eGameVersion : uint32_t
 	{
 		VERSION_NONE,
-		VERSION_1070,
-		VERSION_1080,
+		VERSION_1000	= 1000,
+		VERSION_1010	= 1010,
+		VERSION_1020	= 1020,
+		VERSION_1030	= 1030,
+		VERSION_1040	= 1040,
+		VERSION_1050	= 1050,
+		VERSION_1060	= 1060,
+		VERSION_1070	= 1070,
+		VERSION_1080	= 1080,
+		VERSION_12030	= 12030,
+		VERSION_12031	= 12031,
+		VERSION_12032	= 12032,
+		VERSION_12041	= 12041,
+		VERSION_12043	= 12043,
+		VERSION_12059	= 12059,
 	};
 	static eGameVersion gameVer = VERSION_NONE;
 	void gameStartupEvent();
 }
 
+#include "..\INI.h"
 #include "..\Hooking.Patterns.h"
 
 #include "NewAddressSet.h"
+
 #include "CRGBA.h"
 #include "rage.h"
 #include "CRect.h"
 #include "CVector.h"
 #include "CVector2D.h"
+#include "CVector4.h"
 #include "CQuaternion.h"
 #include "CMatrix.h"
 #include "CPlayerInfo.h"
@@ -87,6 +103,7 @@ namespace plugin
 #include "CRenderPhase.h"
 #include "grcTexture.h"
 #include "grcTextureFactory.h"
+#include "grcWindow.h"
 #include "CSprite2d.h"
 #include "CDraw.h"
 #include "pgDictionary.h"

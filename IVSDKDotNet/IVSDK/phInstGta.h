@@ -34,7 +34,7 @@ namespace rage
 		uint16_t m_nBoneCount;							// 14-18
 		crSkeletonData* GetBoneDataByName(char* sName)
 		{
-			return ((crSkeletonData *(__thiscall*)(crSkeleton*, char*))(AddressSetter::Get(0x2434F0, 0x4F510)))(this, sName);
+			return ((crSkeletonData *(__thiscall*)(crSkeleton*, char*))(AddressSetter::Get("crSkeleton", "GetBoneDataByName")))(this, sName);
 		}
 	};
 	VALIDATE_OFFSET(crSkeleton, m_aData, 0x0);
@@ -98,7 +98,7 @@ public:																	// 00-50
 	// use tDoor->m_nGroupID for vehicle doors, haven't found a way to see the rest of the bones, or anything for other entity types other than guessing
 	phInstGta* DetachFragmentGroup(uint32_t groupId)
 	{
-		return ((phInstGta * (__thiscall*)(phInstGta*, signed int))(AddressSetter::Get(0x117D30, 0x245C10)))(this, groupId);
+		return ((phInstGta * (__thiscall*)(phInstGta*, signed int))(AddressSetter::Get("phInstGta", "DetachFragmentGroup")))(this, groupId);
 	}
 };
 VALIDATE_OFFSET(phInstGta, m_pFragType, 0x6C);

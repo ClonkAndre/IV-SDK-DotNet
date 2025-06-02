@@ -8,6 +8,6 @@ public:
 	// object can be null, it'll create one if it is
 	static bool AddProjectile(CEntity* pEntProjOwner, int ProjType, CMatrix* pMatrix, CVector* vecStart, CVector* vecEnd, CEntity* pTargetEntity, bool noMPSync, CObject* pProjectileObject)
 	{
-		return ((bool(__cdecl*)(CEntity*, int, CMatrix*, CVector*, CVector*, CEntity*, bool, CObject*))(AddressSetter::Get(0x59DA30, 0x452A90)))(pEntProjOwner, ProjType, pMatrix, vecStart, vecEnd, pTargetEntity, noMPSync, pProjectileObject);
+		return ((bool(__cdecl*)(CEntity*, int, CMatrix*, CVector*, CVector*, CEntity*, bool, CObject*))(AddressSetter::Get("CProjectileInfo", "AddProjectile")))(pEntProjOwner, ProjType, pMatrix, vecStart, vecEnd, pTargetEntity, noMPSync, pProjectileObject);
 	}
 };

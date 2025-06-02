@@ -103,14 +103,14 @@ namespace Manager.Classes
         public static void CheckOpenConsoleKeyPressed(KeyEventArgs e)
         {
             if (CheckIsKeyPressed(Config.OpenConsoleKey, e))
-                Main.Instance.Console.ToggleConsole();
+                ConsoleUI.ToggleConsole();
         }
         public static void CheckReloadScriptsKeyPressed(KeyEventArgs e)
         {
             if (CheckIsKeyPressed(Config.ReloadScriptsKey, e))
             {
                 Main.Instance.LoadScripts();
-                Main.Instance.Notification.ShowNotification(NotificationType.Info, DateTime.UtcNow.AddSeconds(3.5d), "Scripts reloaded", "All scripts were reloaded by hotkey.", "RELOADED_SCRIPTS_BY_HOTKEY");
+                NotificationUI.ShowNotification(NotificationType.Info, DateTime.UtcNow.AddSeconds(3.5d), "Scripts reloaded", "All scripts were reloaded by hotkey.", "RELOADED_SCRIPTS_BY_HOTKEY");
             }
         }
 

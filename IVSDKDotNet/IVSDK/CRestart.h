@@ -1,17 +1,17 @@
 class CRestart
 {
 public:
-	static inline auto& NumberOfHospitalRestarts = AddressSetter::GetRef<uint32_t>(0xF50FC8, 0xF59E68);
-	static inline auto& NumberOfPoliceRestarts = AddressSetter::GetRef<uint32_t>(0xF50FD0, 0xF59E70);
-	static inline auto& NumberOfSafehouses = AddressSetter::GetRef<uint32_t>(0xF50FCC, 0xF59E6C);
+	static inline auto& NumberOfHospitalRestarts = AddressSetter::GetRef<uint32_t>("CRestart", "NumberOfHospitalRestarts");
+	static inline auto& NumberOfPoliceRestarts = AddressSetter::GetRef<uint32_t>("CRestart", "NumberOfPoliceRestarts");
+	static inline auto& NumberOfSafehouses = AddressSetter::GetRef<uint32_t>("CRestart", "NumberOfSafehouses");
 
-	static inline auto HospitalRestartPoints = (CVector_pad*)AddressSetter::Get(0xF51380, 0xF5A220);
-	static inline auto HospitalRestartHeadings = (float*)AddressSetter::Get(0xF50DC4, 0xF59C64);
-	static inline auto HospitalRestartWhenToUse = (int*)AddressSetter::Get(0xF50D90, 0xF59C30);
+	static inline auto HospitalRestartPoints = (CVector_pad*)AddressSetter::Get("CRestart", "HospitalRestartPoints");
+	static inline auto HospitalRestartHeadings = (float*)AddressSetter::Get("CRestart", "HospitalRestartHeadings");
+	static inline auto HospitalRestartWhenToUse = (int*)AddressSetter::Get("CRestart", "HospitalRestartWhenToUse");
 
-	static inline auto PoliceRestartPoints = AddressSetter::GetRef<CVector_pad>(0xF51420, 0xF5A2C0);
-	static inline auto PoliceRestartHeadings = AddressSetter::GetRef<float>(0xF50DF8, 0xF59C98);
-	static inline auto PoliceRestartWhenToUse = AddressSetter::GetRef<int>(0xF50D40, 0xF59BE0);
+	static inline auto PoliceRestartPoints = AddressSetter::GetRef<CVector_pad>("CRestart", "PoliceRestartPoints");
+	static inline auto PoliceRestartHeadings = AddressSetter::GetRef<float>("CRestart", "PoliceRestartHeadings");
+	static inline auto PoliceRestartWhenToUse = AddressSetter::GetRef<int>("CRestart", "PoliceRestartWhenToUse");
 
 	struct tSafehouse
 	{
@@ -24,25 +24,25 @@ public:
 	};
 	VALIDATE_SIZE(tSafehouse, 0x40);
 
-	static inline auto Safehouses = (tSafehouse*)AddressSetter::Get(0xF51200, 0xF5A0A0);
+	static inline auto Safehouses = (tSafehouse*)AddressSetter::Get("CRestart", "Safehouses");
 
-	static inline auto& bOverrideRestart = AddressSetter::GetRef<bool>(0xF50DB8, 0xF59C58);
-	static inline auto& OverridePosition = AddressSetter::GetRef<CVector_pad>(0xF51560, 0xF5A400);
-	static inline auto& OverrideHeading = AddressSetter::GetRef<float>(0xF50DBC, 0xF59C5C);
-	static inline auto& bFadeInAfterNextDeath = AddressSetter::GetRef<bool>(0xF59E78, 0xF59E78);
-	static inline auto& ExtraHospitalRestartCoors = AddressSetter::GetRef<CVector_pad>(0xF51570, 0xF5A410);
-	static inline auto& ExtraHospitalRestartHeading = AddressSetter::GetRef<float>(0xF50DEC, 0xF59C8C);
-	static inline auto& ExtraHospitalRestartWhenToUse = AddressSetter::GetRef<uint32_t>(0xF50DC0, 0xF59C60);
-	static inline auto& ExtraPoliceStationRestartCoors = AddressSetter::GetRef<CVector_pad>(0xF50FF0, 0xF59E90);
-	static inline auto& ExtraPoliceStationRestartHeading = AddressSetter::GetRef<float>(0xF50DF0, 0xF59C90);
-	static inline auto& ExtraPoliceStationRestartWhenToUse = AddressSetter::GetRef<uint32_t>(0xF50DF4, 0xF59C94);
+	static inline auto& bOverrideRestart = AddressSetter::GetRef<bool>("CRestart", "bOverrideRestart");
+	static inline auto& OverridePosition = AddressSetter::GetRef<CVector_pad>("CRestart", "OverridePosition");
+	static inline auto& OverrideHeading = AddressSetter::GetRef<float>("CRestart", "OverrideHeading");
+	static inline auto& bFadeInAfterNextDeath = AddressSetter::GetRef<bool>("CRestart", "bFadeInAfterNextDeath");
+	static inline auto& ExtraHospitalRestartCoors = AddressSetter::GetRef<CVector_pad>("CRestart", "ExtraHospitalRestartCoors");
+	static inline auto& ExtraHospitalRestartHeading = AddressSetter::GetRef<float>("CRestart", "ExtraHospitalRestartHeading");
+	static inline auto& ExtraHospitalRestartWhenToUse = AddressSetter::GetRef<uint32_t>("CRestart", "ExtraHospitalRestartWhenToUse");
+	static inline auto& ExtraPoliceStationRestartCoors = AddressSetter::GetRef<CVector_pad>("CRestart", "ExtraPoliceStationRestartCoors");
+	static inline auto& ExtraPoliceStationRestartHeading = AddressSetter::GetRef<float>("CRestart", "ExtraPoliceStationRestartHeading");
+	static inline auto& ExtraPoliceStationRestartWhenToUse = AddressSetter::GetRef<uint32_t>("CRestart", "ExtraPoliceStationRestartWhenToUse");
 
 	static bool Save()
 	{
-		return ((int(__cdecl*)())(AddressSetter::Get(0x4E5D60, 0x5BBB00)))();
+		return ((int(__cdecl*)())(AddressSetter::Get("CRestart", "Save")))();
 	}
 	static bool Load()
 	{
-		return ((int(__cdecl*)())(AddressSetter::Get(0x4E5F00, 0x5BBC90)))();
+		return ((int(__cdecl*)())(AddressSetter::Get("CRestart", "Load")))();
 	}
 };

@@ -18,7 +18,6 @@
 #include <d3dx9.h>
 #include "injector/injector.hpp"
 
-#include "Addresses.h"
 #include "IVSDK.h"
 #include "Hooks.h"
 
@@ -82,15 +81,15 @@ namespace plugin
 	// Methods
 	void InitHooks()
 	{
-		processScriptsEvent::returnAddress = DoHook(AddressSetter::Get(0x21601, 0x95141), processScriptsEvent::MainHook);
-		gameLoadEvent::returnAddress = DoHook(AddressSetter::Get(0x4ADB38, 0x770748), gameLoadEvent::MainHook);
-		gameLoadPriorityEvent::returnAddress = DoHook(AddressSetter::Get(0x4ADA9D, 0x7706AD), gameLoadPriorityEvent::MainHook);
-		drawingEvent::returnAddress = DoHook(AddressSetter::Get(0x46AFA8, 0x60E1C8), drawingEvent::MainHook);
-		processAutomobileEvent::callAddress = DoHook(AddressSetter::Get(0x7FE9C6, 0x652C26), processAutomobileEvent::MainHook);
-		processPadEvent::callAddress = DoHook(AddressSetter::Get(0x3C4002, 0x46A802), processPadEvent::MainHook);
-		processCameraEvent::returnAddress = DoHook(AddressSetter::Get(0x52C4C2, 0x694232), processCameraEvent::MainHook);
-		mountDeviceEvent::returnAddress = DoHook(AddressSetter::Get(0x3B2E27, 0x456C27), mountDeviceEvent::MainHook);
-		ingameStartupEvent::returnAddress = DoHook(AddressSetter::Get(0x20379, 0x93F09), ingameStartupEvent::MainHook);
+		processScriptsEvent::returnAddress = DoHook(AddressSetter::Get("Hooks", "processScriptsEvent"), processScriptsEvent::MainHook);
+		gameLoadEvent::returnAddress = DoHook(AddressSetter::Get("Hooks", "gameLoadEvent"), gameLoadEvent::MainHook);
+		gameLoadPriorityEvent::returnAddress = DoHook(AddressSetter::Get("Hooks", "gameLoadPriorityEvent"), gameLoadPriorityEvent::MainHook);
+		drawingEvent::returnAddress = DoHook(AddressSetter::Get("Hooks", "drawingEvent"), drawingEvent::MainHook);
+		processAutomobileEvent::callAddress = DoHook(AddressSetter::Get("Hooks", "processAutomobileEvent"), processAutomobileEvent::MainHook);
+		processPadEvent::callAddress = DoHook(AddressSetter::Get("Hooks", "processPadEvent"), processPadEvent::MainHook);
+		processCameraEvent::returnAddress = DoHook(AddressSetter::Get("Hooks", "processCameraEvent"), processCameraEvent::MainHook);
+		mountDeviceEvent::returnAddress = DoHook(AddressSetter::Get("Hooks", "mountDeviceEvent"), mountDeviceEvent::MainHook);
+		ingameStartupEvent::returnAddress = DoHook(AddressSetter::Get("Hooks", "ingameStartupEvent"), ingameStartupEvent::MainHook);
 	}
 	void InitWrapper()
 	{
@@ -111,21 +110,14 @@ namespace plugin
 
 	DWORD WINAPI Initialize(HMODULE hModule)
 	{
-		// Initialize AddressSetter if addresses where not read yet
+		// Initialize AddressSetter
 		if (!AddressSetter::bAddressesRead)
 			AddressSetter::Init();
 
-		// Init stuff for specific versions
-		switch (gameVer)
-		{
-			// Initialize stuff for 1070 and 1080
-			case plugin::VERSION_1070:
-			case plugin::VERSION_1080:
-				InitHooks();
-				//gameStartupEvent();
-				InitWrapper();
-				break;
-		}
+		// Init stuff
+		InitHooks();
+		//gameStartupEvent();
+		InitWrapper();
 
 		// Keep the plugin alive. I guess.
 		while (!CLR::CLRBridge::CanTerminate)

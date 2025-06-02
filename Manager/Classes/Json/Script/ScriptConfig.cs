@@ -1,11 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Manager.Classes.Json.Script
 {
     public class ScriptConfig
     {
         #region Variables
-        public List<ScriptDependencyInfo> DependencyInfo;
+        public bool ForceNoAbort;
+        public Guid IVLauncherWorkshopID;
+
+        public List<ScriptDependencyInfo> Dependencies;
         public List<string> IncompatibleMods;
         #endregion
 
@@ -19,7 +23,7 @@ namespace Manager.Classes.Json.Script
         #region Functions
         public bool HasDependencyInfo()
         {
-            return DependencyInfo != null && DependencyInfo.Count > 0;
+            return Dependencies != null && Dependencies.Count > 0;
         }
         public bool HasIncompatibleMods()
         {

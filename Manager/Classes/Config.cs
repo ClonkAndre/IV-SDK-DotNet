@@ -8,9 +8,13 @@ namespace Manager.Classes
         #region Variables
         private static SettingsFile theSettingsFile;
 
+        // DEBUG
+        public static bool LaunchDebugger;
+        public static bool DisablePluginsLoadOnStartup;
+        public static bool DisableScriptLoadOnStartup;
+
         // Main
         public static bool CreateLogFilesInMainDirectory;
-        public static int MaxLogsFiles;
         public static bool EnableAutomaticUpdateCheck;
 
         // Keys
@@ -35,6 +39,7 @@ namespace Manager.Classes
         // Style
         public static string ImGuiStyle;
         public static bool UseCustomThemeForManagerAndConsole;
+        public static float GlobalFontScale;
 
         // API
         public static bool AllowRemoteConnections;
@@ -51,9 +56,13 @@ namespace Manager.Classes
         {
             theSettingsFile = settings;
 
+            // Section: DEBUG
+            LaunchDebugger =                settings.GetBoolean("DEBUG", "LaunchDebugger", false);
+            DisablePluginsLoadOnStartup =   settings.GetBoolean("DEBUG", "DisablePluginsLoadOnStartup", false);
+            DisableScriptLoadOnStartup =    settings.GetBoolean("DEBUG", "DisableScriptLoadOnStartup", false);
+
             // Section: Main
             CreateLogFilesInMainDirectory = settings.GetBoolean("Main", "CreateLogFilesInMainDirectory", true);
-            MaxLogsFiles =                  settings.GetInteger("Main", "MaxLogsFiles", 5);
             EnableAutomaticUpdateCheck =    settings.GetBoolean("Main", "EnableAutomaticUpdateCheck", true);
 
             // Section: Keys
@@ -78,6 +87,7 @@ namespace Manager.Classes
             // Section: Style
             ImGuiStyle =                            settings.GetValue("Style", "ImGuiStyle", "dark");
             UseCustomThemeForManagerAndConsole =    settings.GetBoolean("Style", "UseCustomThemeForManagerAndConsole", true);
+            GlobalFontScale =                       settings.GetFloat("Style", "GlobalFontScale", 1.0f);
 
             // Section: API
             AllowRemoteConnections =            settings.GetBoolean("API", "AllowConnections", false);
@@ -95,7 +105,6 @@ namespace Manager.Classes
         {
             // Section: Main
             theSettingsFile.SetBoolean("Main", "CreateLogFilesInMainDirectory", CreateLogFilesInMainDirectory);
-            theSettingsFile.SetInteger("Main", "MaxLogsFiles", MaxLogsFiles);
             theSettingsFile.SetBoolean("Main", "EnableAutomaticUpdateCheck", EnableAutomaticUpdateCheck);
 
             // Section: Keys
@@ -120,6 +129,7 @@ namespace Manager.Classes
             // Section: Style
             theSettingsFile.SetValue("Style", "ImGuiStyle", ImGuiStyle);
             theSettingsFile.SetBoolean("Style", "UseCustomThemeForManagerAndConsole", UseCustomThemeForManagerAndConsole);
+            theSettingsFile.SetFloat("Style", "GlobalFontScale", GlobalFontScale);
 
             // Section: API
             theSettingsFile.SetBoolean("API", "AllowConnections", AllowRemoteConnections);
@@ -137,7 +147,6 @@ namespace Manager.Classes
         {
             // Section: Main
             CreateLogFilesInMainDirectory = true;
-            MaxLogsFiles = 5;
 
             // Section: Keys
             SwitchCursorKey = "Control+F8";
@@ -161,6 +170,7 @@ namespace Manager.Classes
             // Section: Style
             ImGuiStyle = "dark";
             UseCustomThemeForManagerAndConsole = true;
+            GlobalFontScale = 1.0f;
 
             // Section: API
             AllowRemoteConnections = false;

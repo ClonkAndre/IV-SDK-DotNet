@@ -83,6 +83,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MinSpace</Optimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>dinput8.lib;dxguid.lib;libMinHook.x86_DBG.lib;..\IVSDKDotNet\Hooking.Patterns_DBG.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -133,13 +134,18 @@
     <ClInclude Include="IVControlledByInfo.h" />
     <ClInclude Include="IVDrawRadioHudTextDC.h" />
     <ClInclude Include="IVEpisodes.h" />
+    <ClInclude Include="IVGrcWindow.h" />
     <ClInclude Include="IVPedIntelligence.h" />
     <ClInclude Include="IVPedIntelligenceNY.h" />
     <ClInclude Include="IVPedTasks.h" />
     <ClInclude Include="IVPhoneInfo.h" />
+    <ClInclude Include="Exceptions.h" />
     <ClInclude Include="IVStore.h" />
     <ClInclude Include="ManagedD3D9.h" />
+    <ClInclude Include="ManagedMinHook.h" />
     <ClInclude Include="ManagerStuff.h" />
+    <ClInclude Include="IVMatrix.h" />
+    <ClInclude Include="UnsafeMemory.h" />
     <ClInclude Include="MemoryAccess.h" />
     <ClInclude Include="Attributes.h" />
     <ClInclude Include="DirectInputHook.h" />
@@ -213,7 +219,6 @@
     <ClInclude Include="IVInteriorInst.h" />
     <ClInclude Include="IVIplStore.h" />
     <ClInclude Include="IVLineOfSightResults.h" />
-    <ClInclude Include="IVMatrix.h" />
     <ClInclude Include="IVMenuManager.h" />
     <ClInclude Include="IVModelInfo.h" />
     <ClInclude Include="IVNetwork.h" />
@@ -303,6 +308,7 @@
     <ClInclude Include="KeyWatchDog.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Native.h" />
+    <ClInclude Include="NativeArg.h" />
     <ClInclude Include="NativeFunction.h" />
     <ClInclude Include="NativeHashes.h" />
     <ClInclude Include="NativeHooks.h" />
@@ -313,6 +319,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scripts.h" />
     <ClInclude Include="SettingsFile.h" />
+    <ClInclude Include="TlsHelper.h" />
     <ClInclude Include="typedefs.h" />
     <ClInclude Include="XInputHook.h" />
   </ItemGroup>
@@ -327,19 +334,24 @@
     <ClCompile Include="ImGui\imgui_hex.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Preview|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ImGui\imgui_knobs.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Preview|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="IVControlledByInfo.cpp" />
     <ClCompile Include="IVDrawRadioHudTextDC.cpp" />
     <ClCompile Include="IVEpisodes.cpp" />
+    <ClCompile Include="IVGrcWindow.cpp" />
     <ClCompile Include="IVPedIntelligence.cpp" />
     <ClCompile Include="IVPedIntelligenceNY.cpp" />
     <ClCompile Include="IVPedTasks.cpp" />
     <ClCompile Include="IVPhoneInfo.cpp" />
     <ClCompile Include="IVStore.cpp" />
     <ClCompile Include="ManagedD3D9.cpp" />
+    <ClCompile Include="ManagedMinHook.cpp" />
     <ClCompile Include="MemoryAccess.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="CLRBridge.cpp" />
@@ -438,7 +450,6 @@
     <ClCompile Include="IVInteriorInst.cpp" />
     <ClCompile Include="IVIplStore.cpp" />
     <ClCompile Include="IVLineOfSightResults.cpp" />
-    <ClCompile Include="IVMatrix.cpp" />
     <ClCompile Include="IVMenuManager.cpp" />
     <ClCompile Include="IVModelInfo.cpp" />
     <ClCompile Include="IVNetwork.cpp" />
@@ -527,6 +538,7 @@
     <ClCompile Include="IVZone.cpp" />
     <ClCompile Include="KeyWatchDog.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="NativeFunction.cpp" />
     <ClCompile Include="NativeHooks.cpp" />
     <ClCompile Include="Patterns.cpp" />
     <ClCompile Include="pch.cpp">
@@ -537,6 +549,7 @@
     <ClCompile Include="rage.cpp" />
     <ClCompile Include="Scripts.cpp" />
     <ClCompile Include="SettingsFile.cpp" />
+    <ClCompile Include="TlsHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc" />

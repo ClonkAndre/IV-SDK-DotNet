@@ -4060,6 +4060,8 @@ namespace IVSDKDotNet
 		void ProcessAirControl(UIntPtr unk);
 		bool IsDriver(IVPed^ pPed);
 
+		int GetNumberOfWheelsTouchingGround();
+
 	public:
 		static float HeightAboveCeiling(float height, int32_t flightModel);
 		static bool UsesSiren(int32_t id);

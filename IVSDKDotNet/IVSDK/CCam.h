@@ -59,11 +59,11 @@ public:
 
 	CCam* GetCamOfType(int type, int unk)
 	{
-		return ((CCam*(__thiscall*)(CCam*, int, int))(AddressSetter::Get(0x5AD2D0, 0x5DEEB0)))(this, type, unk);
+		return ((CCam*(__thiscall*)(CCam*, int, int))(AddressSetter::Get("CCam", "GetCamOfType")))(this, type, unk);
 	}
 	CCam* Activate()
 	{
-		return ((CCam * (__thiscall*)(CCam*))(AddressSetter::Get(0x5ACC00, 0x5DE7E0)))(this);
+		return ((CCam * (__thiscall*)(CCam*))(AddressSetter::Get("CCam", "Activate")))(this);
 	}
 	bool Process()
 	{
