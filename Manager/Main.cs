@@ -706,7 +706,7 @@ namespace Manager
                     null,
                     () =>
                     {
-                        Process.Start(""); // TODO: Give it the link!
+                        Process.Start("https://github.com/ClonkAndre/IV-SDK-DotNet/blob/main/Documentation/Home.md");
                     }));
             }
         }
