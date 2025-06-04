@@ -1,15 +1,13 @@
-﻿using System;
+﻿using IVSDKDotNet;
+using IVSDKDotNet.Manager;
+using Manager.Classes;
+using Manager.UI;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-
-using IVSDKDotNet;
-using IVSDKDotNet.Manager;
-
-using Manager.Classes;
-using Manager.UI;
 
 namespace Manager.Managers
 {
@@ -213,7 +211,7 @@ namespace Manager.Managers
         }
 
         // Other
-        public static void HandlePluginException(FoundPlugin target, double notifySecondsVisible, string eventErrorOccuredIn, Exception ex, bool isInternalEvent = false)
+        public static void HandlePluginException(FoundPlugin target, string eventErrorOccuredIn, Exception ex, bool isInternalEvent = false, double notifySecondsVisible = 6.0d)
         {
             if (!wasInitialized)
                 return;
@@ -299,6 +297,57 @@ namespace Manager.Managers
 
             return false;
         }
+
+        public static bool SendPluginCommand(Guid sender, Guid toPlugin, string command, object[] parameters, out object result)
+        {
+            // Find target plugin that should receive the plugin command
+            FoundPlugin target = GetFoundPlugin(toPlugin);
+
+            if (target != null)
+            {
+                try
+                {
+                    // Try send plugin command to target plugin
+                    if (target.RaisePluginCommandReceived(sender, command, parameters, out object res))
+                    {
+                        result = res;
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HandlePluginException(target, "PluginCommandReceived", ex);
+                }
+            }
+
+            result = null;
+            return false;
+        }
+        public static bool SendPluginCommand(Guid sender, string toPlugin, string command, object[] parameters, out object result)
+        {
+            // Find target plugin that should receive the plugin command
+            FoundPlugin target = GetFoundPlugin(toPlugin);
+
+            if (target != null)
+            {
+                try
+                {
+                    // Try send plugin command to target plugin
+                    if (target.RaisePluginCommandReceived(sender, command, parameters, out object res))
+                    {
+                        result = res;
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HandlePluginException(target, "PluginCommandReceived", ex);
+                }
+            }
+
+            result = null;
+            return false;
+        }
         #endregion
 
         #region Raisers
@@ -315,7 +364,7 @@ namespace Manager.Managers
                 }
                 catch (Exception ex)
                 {
-                    HandlePluginException(x, 6d, "Tick", ex);
+                    HandlePluginException(x, "Tick", ex);
                 }
             });
         }
@@ -332,7 +381,7 @@ namespace Manager.Managers
                 }
                 catch (Exception ex)
                 {
-                    HandlePluginException(x, 6d, "GameLoad", ex);
+                    HandlePluginException(x, "GameLoad", ex);
                 }
             });
         }
@@ -349,7 +398,7 @@ namespace Manager.Managers
                 }
                 catch (Exception ex)
                 {
-                    HandlePluginException(x, 6d, "GameLoadPriority", ex);
+                    HandlePluginException(x, "GameLoadPriority", ex);
                 }
             });
         }
@@ -366,7 +415,7 @@ namespace Manager.Managers
                 }
                 catch (Exception ex)
                 {
-                    HandlePluginException(x, 6d, "MountDevice", ex);
+                    HandlePluginException(x, "MountDevice", ex);
                 }
             });
         }
@@ -384,7 +433,7 @@ namespace Manager.Managers
                 }
                 catch (Exception ex)
                 {
-                    HandlePluginException(x, 6d, "OnImGuiGlobalRendering", ex);
+                    HandlePluginException(x, "OnImGuiGlobalRendering", ex);
                 }
 
                 // The plugin itself might've changed the style of ImGui so we need to reset it for the next plugin
@@ -404,7 +453,7 @@ namespace Manager.Managers
             }
             catch (Exception ex)
             {
-                HandlePluginException(plugin, 6d, "OnImGuiManagerRendering", ex);
+                HandlePluginException(plugin, "OnImGuiManagerRendering", ex);
             }
         }
 
@@ -421,7 +470,7 @@ namespace Manager.Managers
                 }
                 catch (Exception ex)
                 {
-                    HandlePluginException(x, 6d, "OnShutdown", ex);
+                    HandlePluginException(x, "OnShutdown", ex);
                 }
             });
         }
@@ -439,7 +488,7 @@ namespace Manager.Managers
                 }
                 catch (Exception ex)
                 {
-                    HandlePluginException(x, 6d, "OnScriptAbort", ex);
+                    HandlePluginException(x, "OnScriptAbort", ex);
                 }
             });
         }
@@ -456,7 +505,7 @@ namespace Manager.Managers
                 }
                 catch (Exception ex)
                 {
-                    HandlePluginException(x, 6d, "OnScriptLoad", ex);
+                    HandlePluginException(x, "OnScriptLoad", ex);
                 }
             });
         }
@@ -474,7 +523,7 @@ namespace Manager.Managers
                 }
                 catch (Exception ex)
                 {
-                    HandlePluginException(x, 6d, "RaiseOnBeforeScriptsAbort", ex);
+                    HandlePluginException(x, "RaiseOnBeforeScriptsAbort", ex);
                 }
             });
         }
@@ -491,7 +540,7 @@ namespace Manager.Managers
                 }
                 catch (Exception ex)
                 {
-                    HandlePluginException(x, 6d, "RaiseOnAfterScriptsAbort", ex);
+                    HandlePluginException(x, "RaiseOnAfterScriptsAbort", ex);
                 }
             });
         }

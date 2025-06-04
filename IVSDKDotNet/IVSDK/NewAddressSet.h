@@ -1,10 +1,12 @@
+#include <filesystem>
+
 namespace AddressSetter
 {
 	static uint32_t gCurrentExeVersion;
 	static uint32_t gBaseAddress;
 	static bool bAddressesRead = false;
 
-	static INI<>* loadedConfig = nullptr;
+	static INI<>* gLoadedConfig = nullptr;
 
 	static inline bool DoesFileExists(const std::string& name)
 	{
@@ -61,12 +63,25 @@ namespace AddressSetter
 
 	static inline bool LoadCurrentVersionConfig()
 	{
-		std::string path = std::string(".\\IVSDK\\").append(std::to_string(gCurrentExeVersion)).append(".ini");
+		int numArgs;
+		LPWSTR* args = CommandLineToArgvW(GetCommandLineW(), &numArgs);
 
-		if (!DoesFileExists(path))
+		if (args == NULL)
+		{
+			MessageBoxA(NULL, "Failed to parse command line of current process!", "IVSDK", MB_ICONERROR);
+			exit(1);
+			return false;
+		}
+
+		std::filesystem::path rootPath =	std::filesystem::path(std::wstring(args[0])).remove_filename();
+		std::string finalPath =				rootPath.append("IVSDK").append(std::to_string(gCurrentExeVersion).append(".ini")).string();
+
+		LocalFree(args);
+
+		if (!DoesFileExists(finalPath))
 			return false;
 
-		loadedConfig = new INI<>(path, true);
+		gLoadedConfig = new INI<>(finalPath, true);
 		return true;
 	}
 	static inline void Init()
@@ -74,9 +89,10 @@ namespace AddressSetter
 		if (bAddressesRead)
 			return;
 
+		gBaseAddress = (uint32_t)GetModuleHandle(NULL);
+
 		// Dertemine the game version
 		DetermineVersion();
-		gBaseAddress = (uint32_t)GetModuleHandle(NULL);
 
 		// Load config file according to the game version
 		if (!LoadCurrentVersionConfig())
@@ -95,7 +111,7 @@ namespace AddressSetter
 			Init();
 
 		// Get string from section
-		std::string str = loadedConfig->get(section, key, std::string());
+		std::string str = gLoadedConfig->get(section, key, std::string());
 
 		if (str.empty())
 			return false;
@@ -110,7 +126,7 @@ namespace AddressSetter
 			Init();
 
 		// Get string from section
-		return loadedConfig->get(section, key, std::string());
+		return gLoadedConfig->get(section, key, std::string());
 	}
 	static inline uint32_t GetAddressFromConfig(const std::string& section, const std::string& key)
 	{
@@ -118,7 +134,7 @@ namespace AddressSetter
 			Init();
 
 		// Get string from section
-		std::string str = loadedConfig->get(section, key, std::string());
+		std::string str = gLoadedConfig->get(section, key, std::string());
 
 		if (str.empty())
 		{

@@ -534,30 +534,33 @@ namespace IVSDKDotNet
 		/// <returns>The amount of currently active scripts.</returns>
 		int GetActiveScriptCount();
 
+		// ==========================================================================
+		// =========================== Script Commands ==============================
+		// ==========================================================================
 		/// <summary>
 		/// Allows you to communicate with other scripts.
 		/// </summary>
-		/// <param name="toScript">To which the script the command should be send to.</param>
-		/// <param name="command">The command to send to the script.</param>
-		/// <param name="args">The arguments to send to the script with this command.</param>
+		/// <param name="toScript">To which script the command should be send to.</param>
+		/// <param name="command">The command to send.</param>
+		/// <param name="args">The arguments to send with this command.</param>
 		/// <param name="result">The object returned by the target script.</param>
 		/// <returns>If successful, true is returned. Otherwise, false.</returns>
 		bool SendScriptCommand(Script^ toScript, String^ command, array<Object^>^ args, [OutAttribute] Object^% result);
 		/// <summary>
 		/// Allows you to communicate with other scripts.
 		/// </summary>
-		/// <param name="toScript">The ID of the script to which the command should be send to.</param>
-		/// <param name="command">The command to send to the script.</param>
-		/// <param name="args">The arguments to send to the script with this command.</param>
+		/// <param name="toScript">The ID of the script this command should be send to.</param>
+		/// <param name="command">The command to send.</param>
+		/// <param name="args">The arguments to send with this command.</param>
 		/// <param name="result">The object returned by the target script.</param>
 		/// <returns>If successful, true is returned. Otherwise, false.</returns>
 		bool SendScriptCommand(Guid toScript, String^ command, array<Object^>^ args, [OutAttribute] Object^% result);
 		/// <summary>
 		/// Allows you to communicate with other scripts.
 		/// </summary>
-		/// <param name="toScript">The name of the script to which the command should be send to.</param>
-		/// <param name="command">The command to send to the script.</param>
-		/// <param name="args">The arguments to send to the script with this command.</param>
+		/// <param name="toScript">The name of the script this command should be send to.</param>
+		/// <param name="command">The command to send.</param>
+		/// <param name="args">The arguments to send with this command.</param>
 		/// <param name="result">The object returned by the target script.</param>
 		/// <returns>If successful, true is returned. Otherwise, false.</returns>
 		bool SendScriptCommand(String^ toScript, String^ command, array<Object^>^ args, [OutAttribute] Object^% result);

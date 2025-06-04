@@ -42,6 +42,10 @@ namespace IVSDKDotNet
 			return NativeBaseTask->GetType();
 		}
 
+	public:
+		static IVTask^ FromUIntPtr(UIntPtr ptr);
+		UIntPtr GetUIntPtr();
+
 	internal:
 		IVTask(CTask* nativePtr);
 

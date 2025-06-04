@@ -77,6 +77,9 @@ namespace IVSDKDotNet
 			// Plugin
 			virtual void LoadPlugins() abstract;
 			
+			virtual bool SendPluginCommand(bool isSenderAPlugin, Guid sender, Guid toPlugin, String^ command, array<Object^>^ parameters, [OutAttribute] Object^% result) abstract;
+			virtual bool SendPluginCommand(bool isSenderAPlugin, Guid sender, String^ toPlugin, String^ command, array<Object^>^ parameters, [OutAttribute] Object^% result) abstract;
+
 			// Thread
 			virtual void WaitInScript(Guid id, int milliseconds) abstract;
 			virtual Object^ GetScriptThisThreadIsOwnedBy() abstract;
@@ -196,6 +199,8 @@ namespace IVSDKDotNet
 			delegate void OnBeforeScriptsReloadDelegate(array<Guid>^ ids);
 			delegate void OnAfterScriptsAbortDelegate();
 
+			delegate Object^ PluginCommandReceivedDelegate(ManagerPlugin^ fromPlugin, array<Object^>^ args, String^ command);
+
 		public:
 			/// <summary>
 			/// The unique ID of this plugin.
@@ -282,6 +287,22 @@ namespace IVSDKDotNet
 				void set(bool value)
 				{
 					m_bForceNoAbort = value;
+				}
+			}
+
+			/// <summary>
+			/// Gets or sets a value indicating whether scripts can send commands to this plugin.
+			/// <para>The default value is false.</para>
+			/// </summary>
+			property bool AllowReceiveCommandsFromScripts
+			{
+				bool get()
+				{
+					return m_bAllowReceiveCommandsFromScripts;
+				}
+				void set(bool value)
+				{
+					m_bAllowReceiveCommandsFromScripts = value;
 				}
 			}
 
@@ -412,6 +433,16 @@ namespace IVSDKDotNet
 				OnAfterScriptsAbort();
 			}
 
+			/// <summary>
+			/// Gets raised when another plugin has sent a command to this plugin.
+			/// <para>This can also get raised by scripts sending a command to this plugin if the plugin allows it.</para>
+			/// </summary>
+			event PluginCommandReceivedDelegate^ PluginCommandReceived;
+			Object^ RaisePluginCommandReceived(ManagerPlugin^ fromPlugin, array<Object^>^ args, String^ command)
+			{
+				return PluginCommandReceived(fromPlugin, args, command);
+			}
+
 		public:
 			/// <summary>
 			/// Gives you quick access to the IV-SDK .NET Manager.
@@ -422,12 +453,56 @@ namespace IVSDKDotNet
 				return ManagerScript::GetInstance();
 			}
 
+			/// <summary>
+			/// Allows you to communicate with other plugins.
+			/// </summary>
+			/// <param name="toPlugin">To which plugin this command should be send to.</param>
+			/// <param name="command">The command to send.</param>
+			/// <param name="args">The arguments to send with this command.</param>
+			/// <param name="result">The object returned by the target plugin.</param>
+			/// <returns>If successful, true is returned. Otherwise, false.</returns>
+			bool SendPluginCommand(ManagerPlugin^ toPlugin, String^ command, array<Object^>^ args, [OutAttribute] Object^% result)
+			{
+				if (!toPlugin)
+				{
+					result = nullptr;
+					return false;
+				}
+
+				return ManagerScript::GetInstance()->SendPluginCommand(true, ID, toPlugin->ID, command, args, result);
+			}
+			/// <summary>
+			/// Allows you to communicate with other plugins.
+			/// </summary>
+			/// <param name="toPlugin">The ID of the plugin this command should be send to.</param>
+			/// <param name="command">The command to send.</param>
+			/// <param name="args">The arguments to send with this command.</param>
+			/// <param name="result">The object returned by the target plugin.</param>
+			/// <returns>If successful, true is returned. Otherwise, false.</returns>
+			bool SendPluginCommand(Guid toPlugin, String^ command, array<Object^>^ args, [OutAttribute] Object^% result)
+			{
+				return ManagerScript::GetInstance()->SendPluginCommand(true, ID, toPlugin, command, args, result);
+			}
+			/// <summary>
+			/// Allows you to communicate with other plugins.
+			/// </summary>
+			/// <param name="toPlugin">The name of the plugin this command should be send to.</param>
+			/// <param name="command">The command to send.</param>
+			/// <param name="args">The arguments to send with this command.</param>
+			/// <param name="result">The object returned by the target plugin.</param>
+			/// <returns>If successful, true is returned. Otherwise, false.</returns>
+			bool SendPluginCommand(String^ toPlugin, String^ command, array<Object^>^ args, [OutAttribute] Object^% result)
+			{
+				return ManagerScript::GetInstance()->SendPluginCommand(true, ID, toPlugin, command, args, result);
+			}
+
 		private:
 			Guid m_id;
 			String^ m_sDisplayName;
 			String^ m_sAuthor;
 			String^ m_PluginResourceFolder;
 			bool m_bForceNoAbort;
+			bool m_bAllowReceiveCommandsFromScripts;
 		};
 
 	}

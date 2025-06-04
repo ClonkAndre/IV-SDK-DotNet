@@ -172,7 +172,7 @@ namespace IVSDKDotNet
                 default[(row * 4) + column] = value; // Calls the 1D indexer
             }
         }
-        
+
         property bool IsIdentity
         {
             bool get()
@@ -288,6 +288,14 @@ namespace IVSDKDotNet
                 CVector4(M21, M22, M23, M24),
                 CVector4(M31, M32, M33, M34),
                 CVector4(M41, M42, M43, M44));
+        }
+
+        D3DXMATRIX ToD3DXMatrix()
+        {
+            return D3DXMATRIX(M11, M12, M13, M14,
+                             M21, M22, M23, M24,
+                             M31, M32, M33, M34,
+                             M41, M42, M43, M44);
         }
 
     public:
