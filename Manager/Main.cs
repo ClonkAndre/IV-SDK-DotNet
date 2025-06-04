@@ -1089,6 +1089,15 @@ namespace Manager
             if (Config.AllowPluginLoading)
                 PluginManager.LoadPlugins();
         }
+
+        public override bool SendPluginCommand(bool isSenderAPlugin, Guid sender, Guid toPlugin, string command, object[] parameters, out object result)
+        {
+            return PluginManager.SendPluginCommand(sender, toPlugin, command, parameters, out result);
+        }
+        public override bool SendPluginCommand(bool isSenderAPlugin, Guid sender, string toPlugin, string command, object[] parameters, out object result)
+        {
+            return PluginManager.SendPluginCommand(sender, toPlugin, command, parameters, out result);
+        }
         #endregion
 
         #region Direct3D9 Stuff

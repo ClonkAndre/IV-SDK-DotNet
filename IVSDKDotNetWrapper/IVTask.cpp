@@ -21,4 +21,15 @@ namespace IVSDKDotNet
         NativeSimpleTask = nativePtr;
     }
 
+    IVTask^ IVTask::FromUIntPtr(UIntPtr ptr)
+    {
+        UINTPTR_ZERO_CHECK_WITH_RETURN(ptr, nullptr);
+        return gcnew IVTask((CTask*)ptr.ToPointer());
+    }
+    UIntPtr IVTask::GetUIntPtr()
+    {
+        NULLPTR_CHECK_WITH_RETURN(NativeBaseTask, UIntPtr::Zero);
+        return UIntPtr(NativeBaseTask);
+    }
+
 }

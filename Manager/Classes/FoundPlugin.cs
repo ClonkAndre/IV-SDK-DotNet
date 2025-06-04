@@ -4,6 +4,8 @@ using System.Reflection;
 using IVSDKDotNet;
 using IVSDKDotNet.Manager;
 
+using Manager.Managers;
+
 namespace Manager.Classes
 {
     public class FoundPlugin
@@ -146,6 +148,22 @@ namespace Manager.Classes
                 return;
 
             ThePluginInstance.RaiseOnAfterScriptsAbort();
+        }
+
+        public bool RaisePluginCommandReceived(Guid sender, string command, object[] args, out object result)
+        {
+            if (!IsReady())
+            {
+                result = null;
+                return false;
+            }
+
+            // Get the command sender
+            FoundPlugin senderPlugin = PluginManager.GetFoundPlugin(sender);
+
+            // Send script command to IVSDKDotNet script
+            result = ThePluginInstance.RaisePluginCommandReceived(senderPlugin != null ? senderPlugin.ThePluginInstance : null, args, command);
+            return true;
         }
         #endregion
 

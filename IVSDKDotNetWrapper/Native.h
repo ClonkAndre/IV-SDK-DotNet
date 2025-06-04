@@ -5821,6 +5821,20 @@ namespace IVSDKDotNet
 				NativeInvoke::Invoke<uint32_t>(eNativeHash::NATIVE_CLEAR_GROUP_DECISION_MAKER_EVENT_RESPONSE, dm, eventid);
 			}
 
+			static int GET_NUMBER_OF_INJURED_PEDS_IN_RANGE(float x, float y, float z, float range)
+			{
+				return NativeInvoke::Invoke<int32_t>(eNativeHash::NATIVE_GET_NUMBER_OF_INJURED_PEDS_IN_RANGE, x, y, z, range);
+			}
+			static int GET_NUMBER_OF_INJURED_PEDS_IN_RANGE(Vector3 pos, float range)
+			{
+				return GET_NUMBER_OF_INJURED_PEDS_IN_RANGE(pos.X, pos.Y, pos.Z, range);
+			}
+
+			static int WHAT_WILL_PLAYER_PICKUP(int player)
+			{
+				return NativeInvoke::Invoke<int>(eNativeHash::NATIVE_WHAT_WILL_PLAYER_PICKUP, player);
+			}
+
 		};
 	}
 }
