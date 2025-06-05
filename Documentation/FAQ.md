@@ -54,6 +54,13 @@ Decide if you want to use the old ScriptHookDotNet loader (older, potentionally 
 
 ---
 
+### ❓ All my scripts are crashing after i've updated to a newer IV-SDK .NET version!
+
+Usually updating IV-SDK .NET does not result in your scripts crashing, but some IV-SDK .NET updates might've changed something critical, and thus it might crash scripts that are not yet adapted to that change.  
+If that's the case, it is up to the script developers to update their scripts to work with the latest version of IV-SDK .NET.
+
+---
+
 ### ❓ My game crashes after installing IV-SDK .NET. What should I do?
 
 1. Make sure you have all prerequisites installed (see [Installation Guide](Installation.md)).
