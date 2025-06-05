@@ -53,7 +53,8 @@ namespace Manager.Managers
             {
                 foreach (KeyValuePair<int, NetThread> entry in threads)
                 {
-                    entry.Value.TryShutdown();
+                    // Manager needs to shutdown, forcefully abort all threads
+                    entry.Value.ForceShutdown();
                 }
 
                 threads.Clear();

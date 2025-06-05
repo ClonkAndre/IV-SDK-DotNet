@@ -73,7 +73,6 @@ namespace Manager
         public bool IsGTAIVWindowInFocus;
         public bool OnWindowFocusChangedEventCalled;
         private bool wasBoundPhoneNumbersProcessed;
-        private int lastLogLineCount;
 
         public int PlayerPedHandle;
         public int PlayerVehicleHandle;
@@ -828,9 +827,6 @@ namespace Manager
 
                 isShuttingDown = true;
 
-                ConsoleUI.Shutdown();
-                NotificationUI.Shutdown();
-
                 // Stop remote server
                 ConnectionManager.Dispose();
 
@@ -839,6 +835,9 @@ namespace Manager
 
                 // Abort all currently running plugins
                 PluginManager.UnloadPlugins(AbortReason.Manager, false);
+
+                ConsoleUI.Shutdown();
+                NotificationUI.Shutdown();
 
                 // Destroy keyWatchDog
                 if (keyWatchDog != null)

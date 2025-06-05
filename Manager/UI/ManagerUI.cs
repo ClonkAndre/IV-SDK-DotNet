@@ -26,7 +26,6 @@ namespace Manager.UI
 
         #region Variables
         public static bool IsConfigUIOpened;
-        private static bool invalidKey;
 
         private static DateTime nextRefresh = DateTime.MinValue;
 
@@ -35,11 +34,6 @@ namespace Manager.UI
         private static bool showScriptHookDotNetScripts = true;
         private static bool showOnlyConstructedScripts = true;
         private static string scriptNameFilter;
-
-        // Developer
-        private static int selectedModuleIndex;
-        private static string targetModuleOffset;
-        private static string readModuleValue;
 
         // Other
         private static IntPtr ivsdkDotNetLogo;

@@ -11,9 +11,10 @@ namespace Manager.Managers
     {
 
         #region Consts
-        private const string DEPENDENCY_WILDCAST = "*.dll";
-        private const string GENERAL_WILDCAST = "*.asi|*.dll";
-        private const string SCRIPTS_WILDCAST = "*.ivsdk.dll|*.net.dll|*.cs|*.vb";
+        private const string DEPENDENCY_FILTER = "*.dll";
+        private const string GENERAL_FILTER = "*.asi|*.dll";
+        private const string SCRIPTS_FILTER = "*.ivsdk.dll|*.net.dll|*.cs|*.vb";
+        private const string ASI_FILTER = ".asi";
         #endregion
 
         #region Variables
@@ -21,6 +22,8 @@ namespace Manager.Managers
 
         private static string currDir;
         private static string scriptsFolder;
+        private static string pluginsFolder;
+        private static string updateFolder;
         private static string ivsdkdotnetBinFolder;
         private static string ivsdkdotnetScriptsFolder;
 
@@ -56,37 +59,51 @@ namespace Manager.Managers
             if (wasInitialized)
                 return;
 
-            currDir =                   Environment.CurrentDirectory;
+            // Get current directory
+            try
+            {
+                currDir = Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogErrorEx("Failed to get current directory from command line for the FileCacheManager! Trying to use fallback path. Details: {0}", ex);
+                currDir = Environment.CurrentDirectory;
+            }
+
+            Logger.LogEx("The FileCacheManager was initialized for this directory: {0}", currDir);
+            Helper.WriteToDebugOutput(Priority.Default, "The FileCacheManager was initialized for this directory: {0}", currDir);
+
+            // Construct paths
             scriptsFolder =             Path.Combine(currDir, "scripts");
+            pluginsFolder =             Path.Combine(currDir, "plugins");
+            updateFolder =              Path.Combine(currDir, "update");
             ivsdkdotnetBinFolder =      Path.Combine(currDir, "IVSDKDotNet", "bin");
             ivsdkdotnetScriptsFolder =  Path.Combine(currDir, "IVSDKDotNet", "scripts");
 
             // Store files from certain folders for later lookup
             cachedFiles = new ConcurrentDictionary<Folder, string[]>();
-            cachedFiles.TryAdd(Folder.Main,                     Helper.GetFilesInDirectoryNoThrow(currDir, GENERAL_WILDCAST, SearchOption.TopDirectoryOnly));
-            cachedFiles.TryAdd(Folder.Scripts,                  Helper.GetFilesInDirectoryNoThrow(scriptsFolder, SCRIPTS_WILDCAST, SearchOption.TopDirectoryOnly));
-            cachedFiles.TryAdd(Folder.Plugins,                  Helper.GetFilesInDirectoryNoThrow(Path.Combine(currDir, "plugins"), "*.asi", SearchOption.TopDirectoryOnly));
-            cachedFiles.TryAdd(Folder.Update,                   Helper.GetFilesInDirectoryNoThrow(Path.Combine(currDir, "update"), "*.asi", SearchOption.TopDirectoryOnly));
-            cachedFiles.TryAdd(Folder.IVSDKDotNet_bin,          Helper.GetFilesInDirectoryNoThrow(ivsdkdotnetBinFolder, DEPENDENCY_WILDCAST, SearchOption.TopDirectoryOnly));
-            cachedFiles.TryAdd(Folder.IVSDKDotNet_Scripts,      Helper.GetFilesInDirectoryNoThrow(ivsdkdotnetScriptsFolder, SCRIPTS_WILDCAST, SearchOption.TopDirectoryOnly));
-
-            // Create dirs if they dont exist yet so we can safely create a new FileSystemWatcher instance with them
-            if (!Directory.Exists(scriptsFolder))
-                Directory.CreateDirectory(scriptsFolder);
-            if (!Directory.Exists(ivsdkdotnetScriptsFolder))
-                Directory.CreateDirectory(ivsdkdotnetScriptsFolder);
+            cachedFiles.TryAdd(Folder.Main,                     Helper.GetFilesInDirectoryNoThrow(currDir,                  GENERAL_FILTER,     SearchOption.TopDirectoryOnly));
+            cachedFiles.TryAdd(Folder.Scripts,                  Helper.GetFilesInDirectoryNoThrow(scriptsFolder,            SCRIPTS_FILTER,     SearchOption.TopDirectoryOnly));
+            cachedFiles.TryAdd(Folder.Plugins,                  Helper.GetFilesInDirectoryNoThrow(pluginsFolder,            ASI_FILTER,         SearchOption.TopDirectoryOnly));
+            cachedFiles.TryAdd(Folder.Update,                   Helper.GetFilesInDirectoryNoThrow(updateFolder,             ASI_FILTER,         SearchOption.TopDirectoryOnly));
+            cachedFiles.TryAdd(Folder.IVSDKDotNet_bin,          Helper.GetFilesInDirectoryNoThrow(ivsdkdotnetBinFolder,     DEPENDENCY_FILTER,  SearchOption.TopDirectoryOnly));
+            cachedFiles.TryAdd(Folder.IVSDKDotNet_Scripts,      Helper.GetFilesInDirectoryNoThrow(ivsdkdotnetScriptsFolder, SCRIPTS_FILTER,     SearchOption.TopDirectoryOnly));
 
             // Install file system watchers for directories whos files might change
             watchers = new FileSystemWatcher[3]
             {
-                new FileSystemWatcher(currDir),
-                new FileSystemWatcher(scriptsFolder),
-                new FileSystemWatcher(ivsdkdotnetScriptsFolder)
+                CreateWatcher(currDir),
+                CreateWatcher(scriptsFolder),
+                CreateWatcher(ivsdkdotnetScriptsFolder),
             };
 
             for (int i = 0; i < watchers.Length; i++)
             {
                 FileSystemWatcher watcher = watchers[i];
+
+                if (watcher == null)
+                    continue;
+
                 watcher.Created += FileManager_Created;
                 watcher.Deleted += FileManager_Deleted;
                 watcher.Renamed += FileManager_Renamed;
@@ -107,6 +124,10 @@ namespace Manager.Managers
                 for (int i = 0; i < watchers.Length; i++)
                 {
                     FileSystemWatcher watcher = watchers[i];
+
+                    if (watcher == null)
+                        continue;
+
                     watcher.EnableRaisingEvents = false;
                     watcher.Created -= FileManager_Created;
                     watcher.Deleted -= FileManager_Deleted;
@@ -133,7 +154,7 @@ namespace Manager.Managers
             if (theWatcher.Path == currDir)
             {
                 // Get the new files in dir
-                string[] newFiles = Helper.GetFilesInDirectoryNoThrow(currDir, GENERAL_WILDCAST, SearchOption.TopDirectoryOnly);
+                string[] newFiles = Helper.GetFilesInDirectoryNoThrow(currDir, GENERAL_FILTER, SearchOption.TopDirectoryOnly);
 
                 // Get the currently stored files array
                 cachedFiles.TryGetValue(Folder.Main, out string[] oldFiles);
@@ -145,7 +166,7 @@ namespace Manager.Managers
             else if (theWatcher.Path == scriptsFolder)
             {
                 // Get the new files in dir
-                string[] newFiles = Helper.GetFilesInDirectoryNoThrow(scriptsFolder, SCRIPTS_WILDCAST, SearchOption.TopDirectoryOnly);
+                string[] newFiles = Helper.GetFilesInDirectoryNoThrow(scriptsFolder, SCRIPTS_FILTER, SearchOption.TopDirectoryOnly);
 
                 // Get the currently stored files array
                 cachedFiles.TryGetValue(Folder.Scripts, out string[] oldFiles);
@@ -157,7 +178,7 @@ namespace Manager.Managers
             else if (theWatcher.Path == ivsdkdotnetScriptsFolder)
             {
                 // Get the new files in dir
-                string[] newFiles = Helper.GetFilesInDirectoryNoThrow(ivsdkdotnetScriptsFolder, SCRIPTS_WILDCAST, SearchOption.TopDirectoryOnly);
+                string[] newFiles = Helper.GetFilesInDirectoryNoThrow(ivsdkdotnetScriptsFolder, SCRIPTS_FILTER, SearchOption.TopDirectoryOnly);
 
                 // Get the currently stored files array
                 cachedFiles.TryGetValue(Folder.IVSDKDotNet_Scripts, out string[] oldFiles);
@@ -179,6 +200,28 @@ namespace Manager.Managers
                 return 0;
 
             return cachedFiles.Count;
+        }
+
+        private static FileSystemWatcher CreateWatcher(string path)
+        {
+            try
+            {
+                if (!Directory.Exists(path))
+                {
+                    Helper.WriteToDebugOutput(Priority.Default, "Creating directory '{0}' for FileSystemWatcher because it did not exist yet.", path);
+                    Directory.CreateDirectory(path);
+                }
+
+                return new FileSystemWatcher(path);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("An error occured while creating a new FileSystemWatcher for the FileCacheManager!");
+                Logger.LogError("IV-SDK .NET might not be able to find script files or dependencies!");
+                Logger.LogErrorEx("Details: {0}", ex);
+            }
+
+            return null;
         }
 
         public static string[] GetCachedFiles(Folder inFolder)
