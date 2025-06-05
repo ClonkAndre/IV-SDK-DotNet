@@ -34,7 +34,6 @@ namespace Manager.UI
         private static bool isHoveringPopup;
 
         private static int selectionIndex;
-        private static string lastSelectedCommand;
 
         // Input
         private static string input;

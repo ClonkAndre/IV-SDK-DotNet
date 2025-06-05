@@ -422,13 +422,17 @@ namespace Manager.Classes.Threading
                 while (IsRunning);
 
                 OnEnd();
-                ThreadEnd();
+            }
+            catch (ThreadAbortException)
+            {
+                // Do nothing...
             }
             catch (Exception ex)
             {
                 Helper.WriteToDebugOutput(Priority.High, "Exception caught in NetThread entry point! Details: {0}", ex);
-                ThreadEnd();
             }
+
+            ThreadEnd();
         }
 
     }

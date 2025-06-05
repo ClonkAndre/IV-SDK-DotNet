@@ -43,7 +43,9 @@ namespace Riptide
         /// <remarks>The <see cref="Connection"/> parameter is the pending connection and the <see cref="Message"/> parameter is a message containing any additional data the client included with the connection attempt.</remarks>
         public ConnectionAttemptHandler HandleConnection;
         /// <summary>Stores which message IDs have auto relaying enabled. Relaying is disabled entirely when this is <see langword="null"/>.</summary>
+#pragma warning disable CS0649 // Field '...' is never assigned to, and will always have its default value '...'
         public MessageRelayFilter RelayFilter;
+#pragma warning restore CS0649
 
         /// <summary>Currently pending connections which are waiting to be accepted or rejected.</summary>
         private List<Connection> pendingConnections;
