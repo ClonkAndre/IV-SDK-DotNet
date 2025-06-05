@@ -2002,7 +2002,7 @@ SKIP_TO_END:
                 ImGuiIV.Spacing(3);
                 if (ImGuiIV.Button("Check for updates"))
                 {
-                    Main.Instance.UpdateChecker.CheckForUpdates(false);
+                    Main.Instance.CheckForUpdates(false);
                 }
                 /// @end Button
 

@@ -476,7 +476,7 @@ namespace Manager.UI
         [LocalCommandDesc("Checks if there is an update available for IV-SDK .NET.")]
         private static void CheckForUpdatesCommand(string[] args)
         {
-            Main.Instance.UpdateChecker.CheckForUpdates(false);
+            Main.Instance.CheckForUpdates(false);
         }
 
         [LocalCommandName("autosave")]

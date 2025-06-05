@@ -60,8 +60,6 @@ namespace Manager
         private ImPopup currentPopup;
 
         // Other
-        public UpdateChecker UpdateChecker;
-        private WebClient downloadClient;
         public Process GTAIVProcess;
         private Guid processCheckerTimerID;
         public ImGuiIV_DrawingContext GlobalDrawCtx;
@@ -118,82 +116,6 @@ namespace Manager
             return null;
         }
 
-        // UpdateChecker
-        private void UpdateChecker_VersionCheckFailed(Exception e)
-        {
-            NotificationUI.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(5), "An error occured while checking for IV-SDK .NET updates", "Check the IV-SDK .NET console for more details.", "UPDATE_CHECK_FAILED");
-            Logger.LogError(string.Format("Error while checking for updates. Details: {0}", e.ToString()));
-        }
-        private void UpdateChecker_VersionCheckCompleted(UpdateChecker.VersionCheckInfo result)
-        {
-            if (result.NewVersionAvailable)
-            {
-                NotificationUI.ShowNotification(NotificationType.Default, DateTime.UtcNow.AddSeconds(7), "New IV-SDK .NET update available!", string.Format("Version {0} of IV-SDK .NET is available to download.", result.NewVersion), "NEW_UPDATE_AVAILABLE");
-                Logger.Log(string.Format("Version {0} of IV-SDK .NET is available!", result.NewVersion));
-            }
-            else
-            {
-                Logger.Log("There is currently no new IV-SDK .NET update available.");
-
-                if (!result.IsSilentCheck)
-                    NotificationUI.ShowNotification(NotificationType.Default, DateTime.UtcNow.AddSeconds(7), "No new IV-SDK .NET update available", "There is currently no new IV-SDK .NET update available.", "NO_NEW_UPDATE_AVAILABLE");
-            }
-        }
-
-        // DownloadClient
-        private void DownloadClient_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
-            if (e.Error != null)
-            {
-                Logger.LogError(string.Format("An error occured while trying to gather some basic information!{0}" +
-                    "The thing that failed: {1}{0}" +
-                    "Details: {2}", Environment.NewLine, e.UserState == null ? "UNKNOWN" : e.UserState, e.Error));
-                return;
-            }
-
-            try
-            {
-                switch (e.UserState.ToString())
-                {
-                    case "GET_TIER_ONE_SUPPORTERS":
-                        {
-                            string data = e.Result;
-
-                            if (!string.IsNullOrWhiteSpace(data))
-                                TierOneSupporters = JsonConvert.DeserializeObject<List<string>>(data);
-
-                            downloadClient.DownloadStringAsync(new Uri("https://www.dropbox.com/scl/fi/lvt1vd1uvkn7noalsw483/TierTwoSupporter.json?rlkey=7kdoynmiep0nilnyqqbib4s1e&dl=1"), "GET_TIER_TWO_SUPPORTERS");
-                        }
-                        break;
-                    case "GET_TIER_TWO_SUPPORTERS":
-                        {
-                            string data = e.Result;
-
-                            if (!string.IsNullOrWhiteSpace(data))
-                                TierTwoSupporters = JsonConvert.DeserializeObject<List<string>>(data);
-
-                            downloadClient.DownloadStringAsync(new Uri("https://www.dropbox.com/scl/fi/6ey0rb7uib8bxd8t0suy3/TierThreeSupporter.json?rlkey=33svhsggspdvbwdnpcnx684j4&dl=1"), "GET_TIER_THREE_SUPPORTERS");
-                        }
-                        break;
-                    case "GET_TIER_THREE_SUPPORTERS":
-                        {
-                            string data = e.Result;
-
-                            if (!string.IsNullOrWhiteSpace(data))
-                                TierThreeSupporters = JsonConvert.DeserializeObject<List<string>>(data);
-
-                            Logger.LogDebug("Got all supporters!");
-                        }
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(string.Format("An error occured while trying to process basic information!{0}" +
-                    "Details: {1}", Environment.NewLine, ex));
-            }
-        }
-
         #endregion
 
         #region Constructor
@@ -228,6 +150,7 @@ namespace Manager
             ScriptManager.Init();
             TaskManager.Init();
             ThreadManager.Init();
+            WebManager.Init();
 
             ManagedNativeCaller.Init();
 
@@ -250,14 +173,6 @@ namespace Manager
             }, threadName: "IV-SDK .NET Draw Thread");
             drawThread.BlockWait = true;
             drawThread.Launch();
-
-            // Other
-            UpdateChecker = new UpdateChecker(CLR.CLRBridge.Version.ToString(), "https://www.dropbox.com/s/smaz6ij8dkzd7nh/version.txt?dl=1");
-            UpdateChecker.VersionCheckFailed +=     UpdateChecker_VersionCheckFailed;
-            UpdateChecker.VersionCheckCompleted +=  UpdateChecker_VersionCheckCompleted;
-
-            downloadClient = new WebClient();
-            downloadClient.DownloadStringCompleted += DownloadClient_DownloadStringCompleted;
 
             GTAIVProcess = Process.GetCurrentProcess();
 
@@ -499,7 +414,7 @@ namespace Manager
             if (FirstFrame)
             {
                 if (Config.EnableAutomaticUpdateCheck)
-                    UpdateChecker.CheckForUpdates(true);
+                    CheckForUpdates(true);
 
                 GetSupporters();
                 FirstFrame = false;
@@ -710,17 +625,72 @@ namespace Manager
             }
         }
 
+        public void CheckForUpdates(bool silentCheck)
+        {
+            WebManager.CheckForUpdates(silentCheck).ContinueWith(t =>
+            {
+                if (Main.Instance.isShuttingDown)
+                    return;
+
+                if (t.Exception != null)
+                {
+                    NotificationUI.ShowNotification(NotificationType.Error, DateTime.UtcNow.AddSeconds(5), "An error occured while checking for IV-SDK .NET updates", "Check the IV-SDK .NET console for more details.", "UPDATE_CHECK_FAILED");
+                    Logger.LogErrorEx("An error occured while checking for updates. Details: {0}", t.Exception);
+                }
+                else
+                {
+                    VersionCheckResult result = t.Result;
+
+                    if (result.IsNewVersionAvailable)
+                    {
+                        NotificationUI.ShowNotification(NotificationType.Default, DateTime.UtcNow.AddSeconds(7d), "New IV-SDK .NET update available!", string.Format("Version {0} of IV-SDK .NET is available to download.", result.TheNewVersion), "NEW_UPDATE_AVAILABLE");
+                        Logger.LogEx("Version {0} of IV-SDK .NET is available!", result.TheNewVersion);
+                    }
+                    else
+                    {
+                        Logger.Log("There is currently no new IV-SDK .NET update available.");
+
+                        if (!result.IsSilentCheck)
+                            NotificationUI.ShowNotification(NotificationType.Default, DateTime.UtcNow.AddSeconds(7d), "No new IV-SDK .NET update available", "There is currently no new IV-SDK .NET update available.", "NO_NEW_UPDATE_AVAILABLE");
+                    }
+                }
+            });
+        }
         private void GetSupporters()
         {
-            try
+            Task.Run(() =>
             {
-                downloadClient.DownloadStringAsync(new Uri("https://www.dropbox.com/scl/fi/ml4gx8sgzmznru5llcqpm/TierOneSupporter.json?rlkey=wldl4y6swfb2oy96h763grft3&dl=1"), "GET_TIER_ONE_SUPPORTERS");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(string.Format("An error occured while trying to get all current Patreon / Ko-fi supporters. Sorry about that :({0}" +
-                    "Details: {1}", Environment.NewLine, ex));
-            }
+                try
+                {
+                    // Get Tier 3 Supporters
+                    Task<string> tierThreeSupportersTask = WebManager.GetStringAsync("https://www.dropbox.com/scl/fi/6ey0rb7uib8bxd8t0suy3/TierThreeSupporter.json?rlkey=33svhsggspdvbwdnpcnx684j4&dl=1");
+                    tierThreeSupportersTask.Wait();
+
+                    if (!string.IsNullOrWhiteSpace(tierThreeSupportersTask.Result))
+                        TierThreeSupporters = JsonConvert.DeserializeObject<List<string>>(tierThreeSupportersTask.Result);
+
+                    // Get Tier 2 Supporters
+                    Task<string> tierTwoSupportersTask = WebManager.GetStringAsync("https://www.dropbox.com/scl/fi/lvt1vd1uvkn7noalsw483/TierTwoSupporter.json?rlkey=7kdoynmiep0nilnyqqbib4s1e&dl=1");
+                    tierTwoSupportersTask.Wait();
+
+                    if (!string.IsNullOrWhiteSpace(tierTwoSupportersTask.Result))
+                        TierTwoSupporters = JsonConvert.DeserializeObject<List<string>>(tierTwoSupportersTask.Result);
+
+                    // Get Tier 1 Supporters
+                    Task<string> tierOneSupportersTask = WebManager.GetStringAsync("https://www.dropbox.com/scl/fi/ml4gx8sgzmznru5llcqpm/TierOneSupporter.json?rlkey=wldl4y6swfb2oy96h763grft3&dl=1");
+                    tierOneSupportersTask.Wait();
+
+                    if (!string.IsNullOrWhiteSpace(tierOneSupportersTask.Result))
+                        TierOneSupporters = JsonConvert.DeserializeObject<List<string>>(tierOneSupportersTask.Result);
+
+                    Logger.LogDebug("Got all supporters!");
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogErrorEx("An error occured while trying to get all current Patreon / Ko-fi supporters. Sorry about that :({0}" +
+                        "Details: {1}", Environment.NewLine, ex);
+                }
+            });
         }
 
         public void DestroyGlobalRegisteredTextures()
@@ -908,6 +878,7 @@ namespace Manager
                 SHDNManager.Shutdown();
                 TaskManager.Shutdown();
                 ThreadManager.Shutdown();
+                WebManager.Shutdown();
 
                 Logger.LogDebug("Manager finished its shutting down process!");
             }
