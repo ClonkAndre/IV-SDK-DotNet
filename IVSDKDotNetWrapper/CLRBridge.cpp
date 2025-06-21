@@ -159,28 +159,12 @@ namespace CLR
 			return;
 		}
 		
-		// Schleep a bit
-		Sleep(1100);
+		// Wait until we got a signal from the ProcessPad event (This also makes sure that the ThreadManager is ready)
+		while (!m_bGotSignalFromProcessPadEvent)
+			Sleep(100);
 
 		// Tell the manager the initialization has finished and it can now do the stuff it needs to do after initialization
 		ManagerScript::GetInstance()->InitializationFinished(Settings);
-
-		//// Do additional checks
-		//DoAdditionalChecks();
-
-		//// Do early assembly loading
-		//if (!DoEarlyAdditionalAssemblyLoading())
-		//{
-		//	LetUserKnowAboutFailedInitialization();
-		//	return;
-		//}
-
-		//// Load and initialize the manager
-		//if (!InitManager())
-		//{
-		//	LetUserKnowAboutFailedInitialization();
-		//	return;
-		//}
 	}
 
 	void CLRBridge::InvokeTickEvents()
@@ -372,6 +356,9 @@ namespace CLR
 
 		// Raise event for all subscribers
 		ManagerScript::GetInstance()->RaiseProcessPad(UIntPtr(padPtr));
+
+		// Set flag
+		m_bGotSignalFromProcessPadEvent = true;
 	}
 	void CLRBridge::InvokeIngameStartupEvent()
 	{

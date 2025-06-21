@@ -26,8 +26,8 @@ namespace IVSDKDotNet
 			// Register the hook to the current script
 			if (result == eMinHookStatus::MH_OK)
 			{
-				Assembly^ callingAssembly = Assembly::GetCallingAssembly();
-				GetManagerScript()->MinHook_RegisterHook(callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""), address);
+				Assembly^ assembly = Assembly::GetCallingAssembly();
+				GetManagerScript()->MinHook_RegisterHook(assembly == nullptr ? nullptr : assembly->GetName()->Name->Replace(".ivsdk", ""), address);
 			}
 
 			return result;
@@ -36,15 +36,42 @@ namespace IVSDKDotNet
 		generic <typename TDelegate> where TDelegate : Delegate
 		eMinHookStatus ManagedMinHook::CreateHook(uint32_t address, Delegate^ detour, [OutAttribute] TDelegate% pOriginal)
 		{
-			IntPtr originalFunctionPointer;
-			eMinHookStatus status = CreateHook(address, detour, originalFunctionPointer);
-
-			if (originalFunctionPointer != IntPtr::Zero)
-				pOriginal = Marshal::GetDelegateForFunctionPointer<TDelegate>(originalFunctionPointer);
-			else	
+			if (address == NULL)
+			{
 				pOriginal = TDelegate();
+				return eMinHookStatus::MH_ERROR_NOT_EXECUTABLE;
+			}
+			if (!detour)
+			{
+				pOriginal = TDelegate();
+				throw gcnew ArgumentNullException("detour");
+			}
 
-			return status;
+			IntPtr detourPtr = Marshal::GetFunctionPointerForDelegate(detour);
+
+			// Create the hook
+			void* pOrig;
+			eMinHookStatus result = (eMinHookStatus)MH_CreateHook((LPVOID*)address, detourPtr.ToPointer(), (void**)&pOrig);
+			
+			// Check if hook was successful
+			if (result == eMinHookStatus::MH_OK)
+			{
+				// Create delegate for original function and return it
+				if (pOrig)
+					pOriginal = Marshal::GetDelegateForFunctionPointer<TDelegate>(IntPtr(pOrig));
+				else
+					pOriginal = TDelegate();
+
+				// Register the hook to the current script
+				Assembly^ assembly = Assembly::GetCallingAssembly();
+				GetManagerScript()->MinHook_RegisterHook(assembly == nullptr ? nullptr : assembly->GetName()->Name->Replace(".ivsdk", ""), address);
+			}
+			else
+			{
+				pOriginal = TDelegate();
+			}
+
+			return result;
 		}
 
 		eMinHookStatus ManagedMinHook::EnableHook(uint32_t address)

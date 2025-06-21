@@ -210,7 +210,7 @@ void ImGuiDraw::OnBeforeD3D9DeviceEndScene(IDirect3DDevice9* d3d9Device)
 		int windowsWithDoNotDisableKeyboardInputFlag = ImGuiIV::CountWindowsWhichHaveThisAdditionalFlag("DoNotDisableKeyboardInput");
 
 		// If there are as many active windows as there are windows with the "DoNotDisableMouseInput" flag, we can safely enable input
-		ImGuiIV::DisableMouseInput = ImGuiIV::ActiveScriptWindows != windowsWithDoNotDisableMouseInputFlag;
+		ImGuiIV::DisableMouseInput = ImGuiIV::ActiveScriptWindows != windowsWithDoNotDisableMouseInputFlag || ImGuiIV::ForceCursor;
 
 		if (io.WantTextInput)
 		{

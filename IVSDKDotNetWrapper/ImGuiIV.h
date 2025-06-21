@@ -2478,7 +2478,7 @@ namespace IVSDKDotNet
 			if (!IsValid)
 				return false;
 
-			bool result = ManagedD3D9::ReleaseTexture(m_pTexture);
+			bool result = IVSDKDotNet::Internal::ManagedD3D9::ReleaseTexture(m_pTexture);
 			IsValid = false;
 
 			return result;
@@ -2722,88 +2722,77 @@ namespace IVSDKDotNet
 		// Texture
 		static bool CreateTextureFromFile(String^ fileName, [OutAttribute] IntPtr% texturePtr, [OutAttribute] int% textureWidth, [OutAttribute] int% textureHeight, [OutAttribute] eResult% result)
 		{
-			bool success = ManagedD3D9::CreateTextureFromFile(fileName, texturePtr, textureWidth, textureHeight, result);
-
-			if (success)
-			{
-				// Register texture to script
-				Assembly^ callingAssembly = Assembly::GetCallingAssembly();
-				if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
-					IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""), texturePtr);
-			}
-
-			return success;
+			Assembly^ callingAssembly = Assembly::GetCallingAssembly();
+			return IVSDKDotNet::Internal::ManagedD3D9::CreateTextureFromFile(
+				callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""),
+				fileName,
+				texturePtr,
+				textureWidth,
+				textureHeight,
+				result);
 		}
 		static bool CreateTextureFromFile(String^ fileName, [OutAttribute] ImTexture^% texture, [OutAttribute] eResult% result)
 		{
 			IntPtr texturePtr;
 			int textureWidth;
 			int textureHeight;
-			bool success = ManagedD3D9::CreateTextureFromFile(fileName, texturePtr, textureWidth, textureHeight, result);
+
+			// Register texture
+			Assembly^ callingAssembly = Assembly::GetCallingAssembly();
+			bool success = IVSDKDotNet::Internal::ManagedD3D9::CreateTextureFromFile(
+				callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""),
+				fileName,
+				texturePtr,
+				textureWidth,
+				textureHeight,
+				result);
 
 			if (success)
-			{
-				// Register texture to script
-				Assembly^ callingAssembly = Assembly::GetCallingAssembly();
-				if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
-					IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""), texturePtr);
-			
 				texture = gcnew ImTexture(texturePtr, Size(textureWidth, textureHeight));
-			}
 			else
-			{
 				texture = nullptr;
-			}
 
 			return success;
 		}
 
 		static bool CreateTextureFromMemory(array<System::Byte>^ data, [OutAttribute] IntPtr% texturePtr, [OutAttribute] int% textureWidth, [OutAttribute] int% textureHeight, [OutAttribute] eResult% result)
 		{
-			bool success = ManagedD3D9::CreateTextureFromMemory(data, texturePtr, textureWidth, textureHeight, result);
-
-			if (success)
-			{
-				// Register texture to script
-				Assembly^ callingAssembly = Assembly::GetCallingAssembly();
-				if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
-					IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""), texturePtr);
-			}
-
-			return success;
+			Assembly^ callingAssembly = Assembly::GetCallingAssembly();
+			return IVSDKDotNet::Internal::ManagedD3D9::CreateTextureFromMemory(
+				callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""),
+				data,
+				texturePtr,
+				textureWidth,
+				textureHeight,
+				result);
 		}
 		static bool CreateTextureFromMemory(array<System::Byte>^ data, [OutAttribute] ImTexture^% texture, [OutAttribute] eResult% result)
 		{
 			IntPtr texturePtr;
 			int textureWidth;
 			int textureHeight;
-			bool success = ManagedD3D9::CreateTextureFromMemory(data, texturePtr, textureWidth, textureHeight, result);
+
+			// Register texture
+			Assembly^ callingAssembly = Assembly::GetCallingAssembly();
+			bool success = IVSDKDotNet::Internal::ManagedD3D9::CreateTextureFromMemory(
+				callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""),
+				data,
+				texturePtr,
+				textureWidth,
+				textureHeight,
+				result);
 
 			if (success)
-			{
-				// Register texture to script
-				Assembly^ callingAssembly = Assembly::GetCallingAssembly();
-				if (IVSDKDotNet::Manager::ManagerScript::s_Instance)
-					IVSDKDotNet::Manager::ManagerScript::s_Instance->Direct3D9_RegisterScriptTexture(callingAssembly == nullptr ? nullptr : callingAssembly->GetName()->Name->Replace(".ivsdk", ""), texturePtr);
-			
 				texture = gcnew ImTexture(texturePtr, Size(textureWidth, textureHeight));
-			}
 			else
-			{
 				texture = nullptr;
-			}
 
 			return success;
 		}
 		
 		static bool ReleaseTexture(IntPtr% texturePtr)
 		{
-			return ManagedD3D9::ReleaseTexture(texturePtr);
-		}
-
-		static bool IsTextureValid(IntPtr texturePtr)
-		{
-			return ManagedD3D9::IsTextureValid(texturePtr);
+			return IVSDKDotNet::Internal::ManagedD3D9::ReleaseTexture(texturePtr);
 		}
 
 		// Font
@@ -2908,29 +2897,6 @@ namespace IVSDKDotNet
 			result = eResult::Unknown;
 			fontPtr = IntPtr::Zero;
 			return false;
-		}
-
-	internal:
-		static IntPtr CreateTextureFromMemory(array<System::Byte>^ data)
-		{
-			// Pin managed array
-			pin_ptr<System::Byte> pinnedData = &data[0];
-			unsigned char* pby = pinnedData;
-			void* dataPtr = reinterpret_cast<void*>(pby);
-
-			msclr::interop::marshal_context ctx;
-
-			// Try create texture
-			PDIRECT3DTEXTURE9 texture;
-			HRESULT hr = D3DXCreateTextureFromFileInMemoryEx(rage::g_pDirect3DDevice, dataPtr, data->Length, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &texture);
-
-			if (hr != S_OK)
-			{
-				WRITE_TO_DEBUG_OUTPUT(String::Format("Failed to create texture from memory via INTERNAL function! HRESULT: {0}", hr));
-				return IntPtr::Zero;
-			}
-
-			return IntPtr(texture);
 		}
 
 		// Some helper

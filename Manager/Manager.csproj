@@ -94,11 +94,13 @@
     <Compile Include="Classes\Secrittzzz.cs" />
     <Compile Include="Classes\Tasks\CustomTask.cs" />
     <Compile Include="Classes\Tasks\MainThreadTaskScheduler.cs" />
+    <Compile Include="Classes\TextureResource.cs" />
     <Compile Include="Classes\Threading\GenericThread.cs" />
     <Compile Include="Classes\Threading\ThreadData.cs" />
     <Compile Include="Classes\VersionCheckResult.cs" />
     <Compile Include="Extensions\IntPtrExtensions.cs" />
     <Compile Include="Managers\DelayedActionManager.cs" />
+    <Compile Include="Managers\DXManager.cs" />
     <Compile Include="Managers\FileCacheManager.cs" />
     <Compile Include="Managers\MinHookManager.cs" />
     <Compile Include="Managers\PluginManager.cs" />

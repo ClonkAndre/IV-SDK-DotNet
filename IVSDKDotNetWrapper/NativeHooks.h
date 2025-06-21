@@ -11,7 +11,6 @@ namespace IVSDKDotNet
 		public ref class Hooks
 		{
 		public: // Delegates
-			delegate void VoidDelegate();
 			delegate bool DefaultHookDelegate();
 
 			delegate bool SingleStringDelegate(String^ str);
@@ -35,6 +34,8 @@ namespace IVSDKDotNet
 
 			static event DefaultHookDelegate^ IsWorldPointWithinBrainActivationRangeHook;
 			static event SingleIntDelegate^ IsObjectWithinBrainActivationRangeHook;
+
+			static event DefaultHookDelegate^ ActivateReplayMenuHook;
 
 		internal: // Event Raisers
 			static bool RaisePrintStringHook(String^ str)
@@ -75,6 +76,11 @@ namespace IVSDKDotNet
 			static bool RaiseIsObjectWithinBrainActivationRangeHook(int obj)
 			{
 				return IsObjectWithinBrainActivationRangeHook(obj);
+			}
+
+			static bool RaiseActivateReplayMenu()
+			{
+				return ActivateReplayMenuHook();
 			}
 
 		internal:
@@ -152,6 +158,8 @@ namespace IVSDKDotNet
 
 			static void NATIVE_AWARD_ACHIEVEMENT(CNativeCallContext* pNativeContext);
 			static void NATIVE_ENABLE_CHASE_AUDIO(CNativeCallContext* pNativeContext);
+
+			static void NATIVE_ACTIVATE_REPLAY_MENU(CNativeCallContext* pNativeContext);
 
 		};
 

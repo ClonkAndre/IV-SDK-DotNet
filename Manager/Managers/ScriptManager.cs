@@ -200,6 +200,27 @@ namespace Manager.Managers
             });
         }
 
+        public static void PauseAllScriptsForVideoEditor()
+        {
+            if (!wasInitialized)
+                return;
+
+            activeScripts.ForEach(fs =>
+            {
+                fs.PauseForVideoEditor();
+            });
+        }
+        public static void ResumeAllScriptsThatWerePausedForVideoEditor()
+        {
+            if (!wasInitialized)
+                return;
+
+            activeScripts.ForEach(fs =>
+            {
+                fs.ResumeFromPauseForVideoEditor();
+            });
+        }
+
         public static void AbortScripts(ScriptType scriptsToAbort, AbortReason reason, bool showMessage = false)
         {
             if (!wasInitialized)
@@ -229,6 +250,9 @@ namespace Manager.Managers
                             for (int i = 0; i < arr.Length; i++)
                                 arr[i].Abort(reason, showMessage);
 
+                            // Get rid of all registered textures
+                            DXManager.ForceDestroyAllTexturesOfScriptType(ScriptType.All);
+
                             ClearActiveScripts();
 
                             // Let plugins know
@@ -257,9 +281,6 @@ namespace Manager.Managers
                             //});
                             //ActiveScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
 
-                            // Get rid of registered textures that couldn't be assigned to any script
-                            Main.Instance.DestroyGlobalRegisteredTextures();
-
                             // Clear ScriptHookDotNet Cache
                             SHDNContentCacheManager.ForceRemoveAll();
                         }
@@ -280,6 +301,9 @@ namespace Manager.Managers
                             //    if (x.IsIVSDKDotNetScript)
                             //        x.Abort(reason, showMessage);
                             //});
+
+                            // Get rid of all registered textures
+                            DXManager.ForceDestroyAllTexturesOfScriptType(ScriptType.IVSDKDotNet);
 
                             activeScripts.RemoveAll(x =>
                             {
@@ -310,6 +334,9 @@ namespace Manager.Managers
                             //    if (x.IsScriptHookDotNetScript)
                             //        x.Abort(reason, showMessage);
                             //});
+
+                            // Get rid of all registered textures
+                            DXManager.ForceDestroyAllTexturesOfScriptType(ScriptType.ScriptHookDotNet);
 
                             activeScripts.RemoveAll(x => x.IsScriptHookDotNetScript);
 
@@ -561,6 +588,16 @@ namespace Manager.Managers
                     || x.EntryPoint.FullName.ToLower() == name.ToLower()).FirstOrDefault();
         }
 
+        public static FoundScript GetLastFoundScriptThatOpenedPublicFieldsWindow()
+        {
+            if (!wasInitialized)
+                return null;
+
+            return activeScripts.Where(x => x.WasConstructed() && x.LastTimePublicFieldsWindowWasOpened != 0)
+                .OrderBy(x => x.LastTimePublicFieldsWindowWasOpened)
+                .LastOrDefault();
+        }
+
         public static bool DoesFoundScriptExists(Guid id)
         {
             if (!wasInitialized)
@@ -734,6 +771,10 @@ namespace Manager.Managers
 
                     // Create new FoundScript object
                     foundScript = new FoundScript(scriptFileInfo, assembly, entryPointType);
+
+                    // Check and set if was created while in video editor
+                    if (Main.Instance.InVideoEditor)
+                        foundScript.WasCreatedWhenInVideoEditor = true;
 
                     // Instantly add to active scripts list
                     AddFoundScript(foundScript);

@@ -1,11 +1,4 @@
-﻿using IVSDKDotNet;
-using IVSDKDotNet.Enums;
-using IVSDKDotNet.Native;
-using Manager.Classes;
-using Manager.Classes.Attributes;
-using Manager.Classes.Scripts;
-using Manager.Managers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -13,10 +6,18 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+
+using IVSDKDotNet;
+using IVSDKDotNet.Enums;
+using IVSDKDotNet.Native;
+
+using Manager.Classes;
+using Manager.Classes.Attributes;
+using Manager.Classes.Scripts;
+using Manager.Managers;
 
 namespace Manager.UI
 {

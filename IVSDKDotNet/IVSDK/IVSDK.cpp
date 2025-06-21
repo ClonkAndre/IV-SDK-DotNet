@@ -93,10 +93,7 @@ namespace plugin
 	}
 	void InitWrapper()
 	{
-		// Initialize IV-SDK .NET
-		CLR::CLRBridge::Initialize((uint32_t)plugin::gameVer, AddressSetter::gBaseAddress);
-
-		// Subscribe to IV-SDK Events
+		// Subscribe to IV-SDK Events BEFORE we initialize IV-SDK .NET so we are not missing out on event calls
 		processScriptsEvent::Add(ScriptLoop);
 		gameLoadEvent::Add(GameLoad);
 		gameLoadPriorityEvent::Add(GameLoadPriority);
@@ -106,6 +103,9 @@ namespace plugin
 		processAutomobileEvent::Add(ProcessAutomobile);
 		processPadEvent::Add(ProcessPad);
 		ingameStartupEvent::Add(IngameStartupEvent);
+
+		// Initialize IV-SDK .NET
+		CLR::CLRBridge::Initialize((uint32_t)plugin::gameVer, AddressSetter::gBaseAddress);
 	}
 
 	DWORD WINAPI Initialize(HMODULE hModule)

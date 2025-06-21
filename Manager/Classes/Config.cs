@@ -19,6 +19,7 @@ namespace Manager.Classes
 
         // Keys
         public static string SwitchCursorKey;
+        public static string ToggleLastOpenedPublicFieldsWindow;
         public static string OpenManagerWindowKey;
         public static string OpenConsoleKey;
         public static string ReloadScriptsKey;
@@ -26,6 +27,7 @@ namespace Manager.Classes
         // Scripts
         public static bool AllowScriptsToForceNoAbort;
         public static bool PauseScriptExecutionWhenNotInFocus;
+        public static bool PauseScriptExecutionWhenInVideoEditor;
         public static bool DoNotLoadLegacyScripts;
         public static bool ReloadScriptsOnReload;
         public static bool LoadScriptHookDotNetScripts;
@@ -66,14 +68,16 @@ namespace Manager.Classes
             EnableAutomaticUpdateCheck =    settings.GetBoolean("Main", "EnableAutomaticUpdateCheck", true);
 
             // Section: Keys
-            SwitchCursorKey =           settings.GetValue("Keys", "SwitchCursorKey", "Control+F8");
-            OpenManagerWindowKey =      settings.GetValue("Keys", "OpenManagerWindowKey", "Control+F10");
-            OpenConsoleKey =            settings.GetValue("Keys", "OpenConsoleKey", "F4");
-            ReloadScriptsKey =          settings.GetValue("Keys", "ReloadScriptsKey", "Control+F11");
+            SwitchCursorKey =                       settings.GetValue("Keys", "SwitchCursorKey", "Control+F8");
+            ToggleLastOpenedPublicFieldsWindow =    settings.GetValue("Keys", "ToggleLastOpenedPublicFieldsWindow", "Control+F9");
+            OpenManagerWindowKey =                  settings.GetValue("Keys", "OpenManagerWindowKey", "Control+F10");
+            OpenConsoleKey =                        settings.GetValue("Keys", "OpenConsoleKey", "F4");
+            ReloadScriptsKey =                      settings.GetValue("Keys", "ReloadScriptsKey", "Control+F11");
 
             // Section: Scripts
             AllowScriptsToForceNoAbort =            settings.GetBoolean("Scripts", "AllowScriptsToForceNoAbort", true);
             PauseScriptExecutionWhenNotInFocus =    settings.GetBoolean("Scripts", "PauseExecutionWhenNotInFocus", true);
+            PauseScriptExecutionWhenInVideoEditor = settings.GetBoolean("Scripts", "PauseExecutionWhenInVideoEditor", true);
             DoNotLoadLegacyScripts =                settings.GetBoolean("Scripts", "DoNotLoadLegacyScripts", false);
             ReloadScriptsOnReload =                 settings.GetBoolean("Scripts", "ReloadScriptsOnReload", false);
             LoadScriptHookDotNetScripts =           settings.GetBoolean("Scripts", "LoadScriptHookDotNetScripts", true);

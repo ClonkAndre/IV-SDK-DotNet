@@ -110,8 +110,10 @@ namespace IVSDKDotNet
 			virtual void ChangeTimerInterval(Guid id, int interval)								abstract;
 
 			// Direct3D9 Stuff
-			virtual void Direct3D9_RegisterScriptTexture(String^ forScript, IntPtr ptr)			abstract;
-			//virtual void Direct3D9_UnregisterScriptTexture(String^ forScript, IntPtr ptr)		abstract;
+			virtual void DXManager_RegisterScriptTexture(String^ forScript, IntPtr ptr)			abstract;
+			virtual void DXManager_RegisterTexture(IntPtr ptr)									abstract;
+
+			virtual void DXManager_UnregisterTexture(IntPtr ptr)								abstract;
 
 			// Hooking Stuff
 			virtual bool MinHook_RegisterHook(String^ ofScript, uint32_t address) abstract;

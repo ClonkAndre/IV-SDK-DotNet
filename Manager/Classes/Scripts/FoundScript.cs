@@ -38,17 +38,19 @@ namespace Manager.Classes.Scripts
         public Dictionary<string, Action<string[]>> ConsoleCommands;
         public Dictionary<string, BoundPhoneNumber> BoundPhoneNumbers;
 
-        // Dear ImGui
-        public List<IntPtr> Textures;
-
         // Manager
         public bool PublicFieldsWindowOpen;
+        public long LastTimePublicFieldsWindowWasOpened;
+        private bool wasLastTimePublicFieldsWindowOpenedTimeSet;
 
         // Thread
         public int ThreadID = -1;
 
         // Other
+        public bool IsAborting;
         public bool Running;
+        public bool WasPausedForVideoEditor;
+        public bool WasCreatedWhenInVideoEditor;
         private bool initEventCalled;
         private bool hasOnFirstD3D9FrameEventBeenRaised;
         private DateTime nextTick;
@@ -120,7 +122,6 @@ namespace Manager.Classes.Scripts
             // Initializing all lists with a Capacity of 8 so they don't need to resize for every new item that is added to them (Aslong as they don't reach the set Capacity).
             ConsoleCommands = new Dictionary<string, Action<string[]>>(8);
             BoundPhoneNumbers = new Dictionary<string, BoundPhoneNumber>(8);
-            Textures = new List<IntPtr>(8);
         }
         #endregion
 
@@ -162,12 +163,12 @@ namespace Manager.Classes.Scripts
                     return;
 
                 // Always allow the thread to tick
+                // TODO: Once both IV-SDK .NET and SHDN fully use their thread, we can probably reduce the code of this function
+                // to just this.
                 if (ThreadManager.TryGetThread(ThreadID, out Threading.NetThread thread))
                 {
                     thread.TickNow();
                 }
-
-                //GetScriptAs<GTA.Script>().DoTick();
             }
             else
             {
@@ -200,6 +201,7 @@ namespace Manager.Classes.Scripts
                 return;
 
             // Raise tick
+            // NOTE: Only raise the tick events of SHDN scripts for now, IV-SDK .NET scripts will follow in a future update
             if (IsScriptHookDotNetScript)
             {
                 GTA.Script script = GetScriptAs<GTA.Script>();
@@ -215,20 +217,6 @@ namespace Manager.Classes.Scripts
                 {
                     ScriptManager.HandleScriptException(this, "Tick", ex);
                 }
-
-                // Process action queue
-                //try
-                //{
-                //    if (script.ActionQueue.Count != 0)
-                //    {
-                //        GTA.ScriptAction a = script.ActionQueue.Dequeue();
-                //        a.Act?.Invoke();
-                //    }
-                //}
-                //catch (Exception ex)
-                //{
-                //    ScriptManager.HandleScriptException(this, 8d, "ActionQueueProcessor", ex);
-                //}
 
                 SHDNManager.SetCurrentScript(1, null);
             }
@@ -493,6 +481,8 @@ namespace Manager.Classes.Scripts
                 return;
             }
 
+            IsAborting = true;
+
             // Reset some stuff
             PublicFieldsWindowOpen = false;
 
@@ -509,6 +499,9 @@ namespace Manager.Classes.Scripts
             // Raise Uninitialize event
             RaiseUninitialize();
 
+            // Get rid of all registered script textures
+            DXManager.DestroyAllTexturesOfThisScript(ID);
+
             // Save script settings file
             SaveSettingsFile();
 
@@ -517,9 +510,6 @@ namespace Manager.Classes.Scripts
 
             // Delete all phone numbers registered by this script
             BoundPhoneNumbers.Clear();
-
-            // Destroy textures created by script
-            DestroyScriptTextures();
 
             // Log
             if (showMessage)
@@ -558,14 +548,28 @@ namespace Manager.Classes.Scripts
             Running = false;
         }
 
+        public void PauseForVideoEditor()
+        {
+            WasPausedForVideoEditor = true;
+            Running = false;
+        }
+        public void ResumeFromPauseForVideoEditor()
+        {
+            if (WasPausedForVideoEditor)
+            {
+                WasPausedForVideoEditor = false;
+                Running = true;
+            }
+        }
+
         public void CreateAndLaunchThread()
         {
             if (ThreadID != -1)
                 return;
-            if (IsIVSDKDotNetScript) // Add this feature for IV-SDK .NET scripts too in a future update
-                return;
+            //if (IsIVSDKDotNetScript) // Add this feature for IV-SDK .NET scripts too in a future update
+            //    return;
 
-            // Launch ScriptHookDotNet thread which will then also construct the script
+            // Launch thread which will then also construct the script
             ThreadID = ThreadManager.CreateScriptThread(this, true);
         }
 
@@ -593,6 +597,19 @@ namespace Manager.Classes.Scripts
             else
             {
                 Helper.WriteToDebugOutput(Priority.Medium, "Could not queue action to the thread of script {0}! The thread was not found.", TheFileInfo.FileName);
+            }
+        }
+
+        public void SetLastTimePublicFieldsWindowWasOpened()
+        {
+            if (PublicFieldsWindowOpen && !wasLastTimePublicFieldsWindowOpenedTimeSet)
+            {
+                LastTimePublicFieldsWindowWasOpened = DateTime.UtcNow.Ticks;
+                wasLastTimePublicFieldsWindowOpenedTimeSet = true;
+            }
+            else
+            {
+                wasLastTimePublicFieldsWindowOpenedTimeSet = false;
             }
         }
 
@@ -649,41 +666,6 @@ namespace Manager.Classes.Scripts
                     settings.Save();
             }
         }
-
-        private void DestroyScriptTextures()
-        {
-            string scriptName = EntryPoint == null ? "UNKNOWN" : EntryPoint.FullName;
-            
-            if (Textures.Count == 0)
-            {
-                Logger.LogDebug(string.Format("There are no textures to destroy for script {0}.", scriptName));
-                return;
-            }
-
-            int texturesCount = Textures.Count;
-
-            // Get rid of each Texture this Script created
-            for (int i = 0; i < Textures.Count; i++)
-            {
-                IntPtr txtPtr = Textures[i];
-
-                if (ImGuiIV.IsTextureValid(txtPtr))
-                {
-                    if (!ImGuiIV.ReleaseTexture(ref txtPtr))
-                        Logger.LogWarning(string.Format("Could not release texture {0} of script {1}.", txtPtr, scriptName));
-                }
-                else
-                {
-                    Logger.LogDebug(string.Format("Not destroying texture {0} of script {1} because it's not valid anymore.", txtPtr, scriptName));
-                }
-            }
-
-            // Clear list
-            Textures.Clear();
-
-            // Log
-            Logger.LogDebug(string.Format("Destroyed {0} Direct3D9 Textures of script {1}", texturesCount, scriptName));
-        }
         #endregion
 
         #region Functions
@@ -717,7 +699,7 @@ namespace Manager.Classes.Scripts
 
         /// <summary>
         /// Gets if this script can construct instantly the moment it was loaded by <see cref="ScriptManager.LoadAssembly(string)"/>.
-        /// <para>ScriptHookDotNet script will always return <see langword="false"/>.</para>
+        /// <para>ScriptHookDotNet script will always return <see langword="false"/>, so they only construct once in-game.</para>
         /// </summary>
         /// <returns><see langword="true"/> if this script can construct instantly. Otherwise, <see langword="false"/>.</returns>
         public bool CanScriptConstructInstantly()
@@ -725,8 +707,14 @@ namespace Manager.Classes.Scripts
             if (IsScriptHookDotNetScript)
                 return false;
 
-            // TODO: Add option for if IV-SDK .NET script to only construct once in-game, just like ScriptHookDotNet scripts
-            return true;
+            // Dont allow instant construction when in video editor and scripts are set to pause when in video editor
+            // The script will construct once the video editor will exit
+            if (WasCreatedWhenInVideoEditor && Classes.Config.PauseScriptExecutionWhenInVideoEditor)
+                return false;
+
+            // Check if dev wants to make the script not construct instantly
+            // TODO: Test if all works as expected
+            return Config == null ? false : Config.CanScriptConstructInstantly;
         }
 
         /// <summary>
@@ -861,6 +849,9 @@ namespace Manager.Classes.Scripts
             wasConstructed = true;
 
             // Set running flag
+            // TODO: When in video editor, and the user reloads all scripts, the setting "PauseExecutionWhenInVideoEditor" will be ignored
+            // meaning that the constructor and the initialized event will run... This should not be the case when in the video editor!
+            // Figure out a solution which queues these calls when exiting the video editor.
             Running = true;
 
             Helper.WriteToDebugOutput(Priority.Default, "Script {0} was constructed!", EntryPoint.FullName);

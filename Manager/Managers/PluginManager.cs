@@ -51,6 +51,21 @@ namespace Manager.Managers
         }
 
         // Load stuff
+        public static void LoadPluginsInternal(bool skipCheck = false)
+        {
+            if (skipCheck)
+            {
+                LoadPlugins();
+            }
+            else
+            {
+                // Load plugins if allowed
+                if (Config.AllowPluginLoading)
+                    LoadPlugins();
+                else
+                    Logger.LogWarningEx("Cannot load plugins because 'AllowPluginLoading' is set to false within the IV-SDK .NET config file.");
+            }
+        }
         public static void LoadPlugins()
         {
             if (!wasInitialized)

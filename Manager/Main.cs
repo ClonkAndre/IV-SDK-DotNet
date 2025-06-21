@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -40,8 +39,6 @@ namespace Manager
         public List<string> TierTwoSupporters;
         public List<string> TierThreeSupporters;
 
-        public List<IntPtr> GlobalRegisteredTextures; // For any texture that couldn't be assigned to any script
-
         // Managers
         public RemoteConnectionManager ConnectionManager;
 
@@ -67,8 +64,9 @@ namespace Manager
         private bool isShuttingDown;
         private bool wasLoadingMessageShown;
         private bool allowDrawing;
-        public bool FirstFrame = true;
         public bool IsGTAIVWindowInFocus;
+        public bool InVideoEditor;
+        public bool WasInVideoEditor;
         public bool OnWindowFocusChangedEventCalled;
         private bool wasBoundPhoneNumbersProcessed;
 
@@ -116,6 +114,20 @@ namespace Manager
             return null;
         }
 
+        // NativeHooks
+        private bool Hooks_ActivateReplayMenuHook()
+        {
+            InVideoEditor = true;
+
+            if (Config.PauseScriptExecutionWhenInVideoEditor)
+            {
+                WasInVideoEditor = true;
+                ScriptManager.PauseAllScriptsForVideoEditor();
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region Constructor
@@ -130,7 +142,6 @@ namespace Manager
             // Lists
             ActiveTasks =                   new List<AdvancedTask>();
             pendingPopups =                 new Queue<ImPopup>();
-            GlobalRegisteredTextures =      new List<IntPtr>();
             TierOneSupporters =             new List<string>();
             TierTwoSupporters =             new List<string>();
             TierThreeSupporters =           new List<string>();
@@ -143,6 +154,7 @@ namespace Manager
 
             // Managers
             DelayedActionManager.Init();
+            DXManager.Init();
             FileCacheManager.Init();
             MinHookManager.Init();
             PluginManager.Init();
@@ -154,10 +166,22 @@ namespace Manager
 
             ManagedNativeCaller.Init();
 
-            // Hooks
+            // Queue IV-SDK .NET logo creation on render thread
+            ThreadManager.AddToRenderThreadQueue(() =>
+            {
+                DXManager.RegisterTexture(
+                    ManagedD3D9.CreateTextureFromMemorySimple(Properties.Resources.ivsdkdotnet_logo_small),
+                    null,
+                    "IVSDKDotNetLogo");
+            });
+
+            // WATCH_DOGS
             keyWatchDog = new KeyWatchDog();
             keyWatchDog.KeyDown += KeyWatchDog_KeyDown;
             keyWatchDog.KeyUp += KeyWatchDog_KeyUp;
+
+            // NativeHooks
+            Hooks.ActivateReplayMenuHook += Hooks_ActivateReplayMenuHook;
 
             // Threading
             drawThread = ThreadManager.CreateGenericThread(() =>
@@ -174,13 +198,15 @@ namespace Manager
             drawThread.BlockWait = true;
             drawThread.Launch();
 
-            GTAIVProcess = Process.GetCurrentProcess();
-
             // Init Reflection
             if (Reflection.Init())
                 Logger.LogDebug("Initialized Reflection class.");
             else
                 Logger.LogDebug("Failed to initialize Reflection class!");
+
+            // Other
+            GTAIVProcess = Process.GetCurrentProcess();
+            Secrittzzz.Init();
 
             // Start process in focus checker timer
             processCheckerTimerID = StartNewTimerInternal(1000, () =>
@@ -213,8 +239,6 @@ namespace Manager
                 }
 
             });
-
-            Secrittzzz.Init();
 
             // First Start stuff
             CheckFirstStart();
@@ -279,7 +303,9 @@ namespace Manager
 
                 Natives.PAUSE_GAME();
                 Natives.TRIGGER_LOADING_MUSIC_ON_NEXT_FADE();
-                Natives.FORCE_LOADING_SCREEN(true);
+
+                if (!WasInVideoEditor)
+                    Natives.FORCE_LOADING_SCREEN(true);
 
                 // Store and replace text of text label
                 string originalText = IVText.TheIVText.Get(0x5B52D1DE, string.Empty);
@@ -313,7 +339,11 @@ namespace Manager
                 Natives.UNPAUSE_GAME();
                 Natives.PLAY_SOUND_FRONTEND(-1, "GENERAL_FRONTEND_GAME_INFO_BEEP_LEFT");
                 Natives.PLAY_SOUND_FRONTEND(-1, "GENERAL_FRONTEND_GAME_INFO_BEEP_RIGHT");
-                Natives.FORCE_LOADING_SCREEN(false);
+
+                if (!WasInVideoEditor)
+                    Natives.FORCE_LOADING_SCREEN(false);
+
+                WasInVideoEditor = false;
             }
 
             // Raise all plugin Tick events
@@ -410,16 +440,6 @@ namespace Manager
             if (Config.PauseScriptExecutionWhenNotInFocus && !IsGTAIVWindowInFocus)
                 return;
 
-            // Do stuff on first frame
-            if (FirstFrame)
-            {
-                if (Config.EnableAutomaticUpdateCheck)
-                    CheckForUpdates(true);
-
-                GetSupporters();
-                FirstFrame = false;
-            }
-
             // Check for key presses
             if (keyWatchDog != null)
                 keyWatchDog.Process();
@@ -438,6 +458,9 @@ namespace Manager
 
             // Process the thread manager
             ThreadManager.ProcessRenderThread();
+
+            // Process DXManager
+            DXManager.Process();
 
             GlobalDrawCtx = ctx;
 
@@ -490,9 +513,12 @@ namespace Manager
         public override void RaiseIngameStartup()
         {
             wasLoadingMessageShown = false;
+            InVideoEditor = false;
 
             if (Config.ReloadScriptsOnReload)
                 ScriptManager.LoadIVSDKDotNetScripts();
+            else
+                ScriptManager.ResumeAllScriptsThatWerePausedForVideoEditor();
 
             // ScriptHookDotNet scripts need to be reloaded
             ScriptManager.LoadSHDNScripts();
@@ -533,7 +559,7 @@ namespace Manager
         }
         #endregion
 
-#region Methods
+        #region Methods
 
 #if PREVIEW
         private void CheckPreviewBuild()
@@ -693,38 +719,12 @@ namespace Manager
             });
         }
 
-        public void DestroyGlobalRegisteredTextures()
-        {
-            if (GlobalRegisteredTextures.Count == 0)
-                return;
-
-            Logger.LogDebug(string.Format("Trying to get rid of {0} textures registered in the global textures list.", GlobalRegisteredTextures.Count));
-
-            for (int i = 0; i < GlobalRegisteredTextures.Count; i++)
-            {
-                IntPtr texturePtr = GlobalRegisteredTextures[i];
-
-                if (ImGuiIV.IsTextureValid(texturePtr))
-                {
-                    if (!ImGuiIV.ReleaseTexture(ref texturePtr))
-                        Logger.LogWarning(string.Format("Could not release texture {0} registered in the global textures list.", texturePtr));
-                }
-                else
-                {
-                    Logger.LogDebug(string.Format("Not destroying texture {0} registered in the global textures list because it's not valid anymore.", texturePtr));
-                }
-
-                GlobalRegisteredTextures.RemoveAt(i);
-                i--;
-            }
-        }
-
         public void AddPendingPopup(ImPopup popup)
         {
             pendingPopups.Enqueue(popup);
         }
 
-#endregion
+        #endregion
 
         #region Functions
 
@@ -772,6 +772,13 @@ namespace Manager
                 SHDNManager.Init();
                 SHDNContentCacheManager.Init();
             }
+
+            // Check for updates if allowed
+            if (Config.EnableAutomaticUpdateCheck)
+                CheckForUpdates(true);
+
+            // Get current supporters
+            GetSupporters();
 
             // Start the server if allowed
             if (Config.AllowRemoteConnections)
@@ -870,6 +877,7 @@ namespace Manager
 
                 // Cleanup managers
                 DelayedActionManager.Shutdown();
+                DXManager.Shutdown();
                 FileCacheManager.Shutdown();
                 MinHookManager.Shutdown();
                 ScriptManager.Shutdown();
@@ -1055,9 +1063,13 @@ namespace Manager
         #region Plugin
         public override void LoadPlugins()
         {
-            // Load plugins if allowed
-            if (Config.AllowPluginLoading)
-                PluginManager.LoadPlugins();
+            if (!CLR.CLRBridge.Settings.GetBoolean("Plugins", "AllowPluginLoading", true))
+            {
+                Logger.LogWarningEx("Cannot automatically load plugins because 'AllowPluginLoading' is set to false within the IV-SDK .NET config file.");
+                return;
+            }
+
+            PluginManager.LoadPluginsInternal(true);
         }
 
         public override bool SendPluginCommand(bool isSenderAPlugin, Guid sender, Guid toPlugin, string command, object[] parameters, out object result)
@@ -1073,28 +1085,17 @@ namespace Manager
         #region Direct3D9 Stuff
 
         // Texture stuff
-        public override void Direct3D9_RegisterScriptTexture(string forScript, IntPtr ptr)
+        public override void DXManager_RegisterScriptTexture(string forScript, IntPtr ptr)
         {
-            // Get script from ID
-            FoundScript fs = ScriptManager.GetFoundScript(forScript);
-
-            if (fs != null)
-            {
-                if (!fs.Textures.Contains(ptr))
-                {
-                    fs.Textures.Add(ptr);
-                    Logger.LogDebug(string.Format("Registered texture {0} for script {1}.", ptr, fs.EntryPoint.FullName));
-                }
-                else
-                {
-                    Logger.LogDebug(string.Format("Texture {0} is already registered for script {1}.", ptr, fs.EntryPoint.FullName));
-                }
-            }
-            else
-            {
-                Logger.LogDebug("Could not find script to assign texture to! Adding to global texture list.");
-                GlobalRegisteredTextures.Add(ptr);
-            }
+            DXManager.RegisterTexture(ptr, forScript);
+        }
+        public override void DXManager_RegisterTexture(IntPtr ptr)
+        {
+            DXManager.RegisterTexture(ptr, null);
+        }
+        public override void DXManager_UnregisterTexture(IntPtr ptr)
+        {
+            DXManager.UnregisterTexture(ptr);
         }
 
         #endregion
@@ -1406,6 +1407,11 @@ namespace Manager
 
             try
             {
+                // Remove all comments
+                str = string.Join(Environment.NewLine,
+                    str.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None)
+                    .Where(line => !line.TrimStart().StartsWith("//")));
+
                 return JsonConvert.DeserializeObject(str, targetType);
             }
             catch (Exception)
@@ -1418,28 +1424,40 @@ namespace Manager
         #region ScriptHookDotNet
         public override int SHDN_LateInitializeScript(string name, object script, out string assemblyFullPath)
         {
+            // Sanity checks
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                Helper.WriteToDebugOutput(Priority.High, "- - - Unable to late initialize a script because the name passed to this function is NULL OR WHITESPACE! - - -");
+
+                assemblyFullPath = null;
+                return (int)LateInitializationErrors.ScriptNameIsNullOrWhitespace;
+            }
             if (script == null)
             {
+                Helper.WriteToDebugOutput(Priority.High, "- - - Unable to late initialize script '{0}' because the script object passed to this function is NULL! - - -", name);
+
                 assemblyFullPath = null;
-                return 1;
+                return (int)LateInitializationErrors.ScriptObjectIsNull;
             }
 
             FoundScript fs = ScriptManager.GetFoundScript(name);
 
             if (fs != null)
             {
-                Helper.WriteToDebugOutput(Priority.Default, "Found FoundScript object for late initialization of ScriptHookDotNet script {0}!", name);
+                Helper.WriteToDebugOutput(Priority.Default, "About to late initialize script '{0}'!", name);
+                
                 assemblyFullPath = fs.TheFileInfo.FullPath;
                 fs.LateInitialize(script);
-                return 0;
+
+                return (int)LateInitializationErrors.OK;
             }
             else
             {
-                Helper.WriteToDebugOutput(Priority.High, "Unable to find FoundScript object for late initialization of ScriptHookDotNet script {0}!", name);
-            }
+                Helper.WriteToDebugOutput(Priority.High, "- - - Unable to late initialize script '{0}' because it wasn't found! - - -", name);
 
-            assemblyFullPath = null;
-            return 2;
+                assemblyFullPath = null;
+                return (int)LateInitializationErrors.CouldNotFindScriptToInitByName;
+            }
         }
 
         public override object SHDN_GetScriptByName(string name)

@@ -14,9 +14,6 @@
     <Filter Include="ImGuiIV\ImGui">
       <UniqueIdentifier>{8c53ac43-516b-4850-9364-5bf0356de364}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Direct3D9">
-      <UniqueIdentifier>{f9a841c8-cbb5-4972-9287-4800d7d06d77}</UniqueIdentifier>
-    </Filter>
     <Filter Include="IVSDK">
       <UniqueIdentifier>{14f6f274-83b4-424d-a419-59816c7ed7d2}</UniqueIdentifier>
     </Filter>
@@ -87,9 +84,6 @@
     </ClInclude>
     <ClInclude Include="ImGuiIV.h">
       <Filter>ImGuiIV</Filter>
-    </ClInclude>
-    <ClInclude Include="ManagedD3D9.h">
-      <Filter>Direct3D9</Filter>
     </ClInclude>
     <ClInclude Include="rage.h">
       <Filter>IVSDK\RAGE</Filter>
@@ -620,6 +614,9 @@
     <ClInclude Include="IVMatrix.h">
       <Filter>IVSDK\Math</Filter>
     </ClInclude>
+    <ClInclude Include="ManagedD3D9.h">
+      <Filter>Internal</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="rage.cpp">
@@ -663,9 +660,6 @@
     </ClCompile>
     <ClCompile Include="ImGui\imgui_widgets.cpp">
       <Filter>ImGuiIV\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ManagedD3D9.cpp">
-      <Filter>Direct3D9</Filter>
     </ClCompile>
     <ClCompile Include="IVAchievements.cpp">
       <Filter>IVSDK</Filter>
@@ -1151,6 +1145,9 @@
     </ClCompile>
     <ClCompile Include="NativeFunction.cpp">
       <Filter>IVSDK\Native</Filter>
+    </ClCompile>
+    <ClCompile Include="ManagedD3D9.cpp">
+      <Filter>Internal</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

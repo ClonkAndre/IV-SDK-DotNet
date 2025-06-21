@@ -246,6 +246,7 @@ namespace CLR
 		static bool m_bShuttingDown = false;
 		static bool m_bDisableScriptHookDotNetLoading = false;
 		static bool m_bHasMinHookInitialized = false;
+		static bool m_bGotSignalFromProcessPadEvent = false;
 
 		static String^ m_sIVSDKDotNetPath;
 		static String^ m_sIVSDKDotNetManagerPath;

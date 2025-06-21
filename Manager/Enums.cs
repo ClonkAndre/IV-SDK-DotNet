@@ -92,6 +92,13 @@
         Medium,
         High
     }
+    public enum LateInitializationErrors
+    {
+        OK = 0,
+        ScriptObjectIsNull = 1,
+        CouldNotFindScriptToInitByName = 2,
+        ScriptNameIsNullOrWhitespace = 3,
+    }
     public enum AbortReason
     {
         /// <summary>
@@ -206,6 +213,7 @@
         _SizeF,
         _Point,
         _PointF,
+        _Array,
         _IList,
         _ICollection
     }

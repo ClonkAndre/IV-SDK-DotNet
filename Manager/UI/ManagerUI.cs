@@ -9,6 +9,7 @@ using System.Reflection;
 using IVSDKDotNet;
 using IVSDKDotNet.Attributes;
 using IVSDKDotNet.Enums;
+using IVSDKDotNet.Internal;
 
 using Manager.Classes;
 using Manager.Classes.ScriptHookDotNet;
@@ -36,7 +37,7 @@ namespace Manager.UI
         private static string scriptNameFilter;
 
         // Other
-        private static IntPtr ivsdkDotNetLogo;
+        public static FoundScript LastOpenedPublicFieldsWindowOfScript;
         #endregion
 
         #region Methods
@@ -324,6 +325,37 @@ namespace Manager.UI
                                 info.SetValue(foundScript.GetTheScriptObject(), new PointF(arr[0], arr[1]));
                         }
                         break;
+                    case SupportedPublicFields._Array:
+                        {
+                            object obj = info.GetValue(foundScript.GetTheScriptObject());
+
+                            if (obj == null)
+                            {
+                                ImGuiIV.SameLine(0f, 30f);
+                                ImGuiIV.TextColored(Color.Yellow, "This array is not initialized yet.");
+                                break;
+                            }
+
+                            Array value = (Array)obj;
+
+                            // The field data
+                            ImGuiIV.SameLine(0f, 30f);
+                            ImGuiIV.TextColored(Color.Yellow, "There are {0} element(s) in this array.", value.Length);
+
+                            if (ImGuiIV.TreeNode(string.Format("Click to show content of {0}.", info.Name)))
+                            {
+                                ImGuiIV.SetNextItemWidth(ImGuiIV.GetContentRegionAvail().X);
+                                if (ImGuiIV.BeginListBox(string.Format("##{0}", info.Name)))
+                                {
+                                    for (int i = 0; i < value.Length; i++)
+                                        ImGuiIV.Selectable(value.GetValue(i).ToString());
+
+                                    ImGuiIV.EndListBox();
+                                }
+                                ImGuiIV.TreePop();
+                            }
+                        }
+                        break;
                     case SupportedPublicFields._IList:
                         {
                             object obj = info.GetValue(foundScript.GetTheScriptObject());
@@ -336,7 +368,7 @@ namespace Manager.UI
                             }
 
                             IList value = (IList)obj;
-                            
+
                             // The field data
                             ImGuiIV.SameLine(0f, 30f);
                             ImGuiIV.TextColored(Color.Yellow, "There are {0} element(s) in this list.", value.Count);
@@ -579,6 +611,13 @@ namespace Manager.UI
                 return true;
             }
 
+            // Array
+            else if (t.IsArray)
+            {
+                fieldType = SupportedPublicFields._Array;
+                return true;
+            }
+
             // List
             else if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(List<>))
             {
@@ -602,14 +641,10 @@ namespace Manager.UI
         public static void DoUI(IntPtr devicePtr, ImGuiIV_DrawingContext ctx)
         {
             // Show public fields of scripts in another window
-            ShowPublicFieldsWindow();
+            ShowPublicFieldsWindows();
 
             if (!IsConfigUIOpened)
                 return;
-
-            // Create IV-SDK .NET logo texture
-            if (ivsdkDotNetLogo == IntPtr.Zero)
-                ivsdkDotNetLogo = Reflection.LocalImGuiIV.CreateTextureFromMemory(Properties.Resources.ivsdkdotnet_logo_small);
 
             /// @style Dark
             /// @unit px
@@ -642,11 +677,28 @@ namespace Manager.UI
             ImGuiIV.End();
             /// @end TopWindow
         }
-        private static void ShowPublicFieldsWindow()
+        private static void ShowPublicFieldsWindows()
         {
+            // Handle last opened script public fields window stuff
+            if (LastOpenedPublicFieldsWindowOfScript == null)
+            {
+                // Find first script with opened public fields window
+                LastOpenedPublicFieldsWindowOfScript = ScriptManager.GetLastFoundScriptThatOpenedPublicFieldsWindow();
+            }
+            else
+            {
+                FoundScript current = ScriptManager.GetLastFoundScriptThatOpenedPublicFieldsWindow();
+
+                // Check if this script can still be there
+                if (LastOpenedPublicFieldsWindowOfScript.IsAborting || current != LastOpenedPublicFieldsWindowOfScript)
+                    LastOpenedPublicFieldsWindowOfScript = null;
+            }
+
             for (int i = 0; i < ScriptManager.GetActiveScriptsCount(); i++)
             {
                 FoundScript fs = ScriptManager.GetActiveScripts()[i];
+
+                fs.SetLastTimePublicFieldsWindowWasOpened();
 
                 if (fs.PublicFieldsWindowOpen)
                 {
@@ -670,18 +722,18 @@ namespace Manager.UI
 
                         // Other public fields
                         if (fs.OtherPublicFields != null)
-                        {
-                            for (int p = 0; p < fs.OtherPublicFields.Count; p++)
                             {
-                                if (ImGuiIV.CollapsingHeader(string.Format("{0}##{1}", fs.OtherPublicFields[p][0].DeclaringType.Name, fs.ID)))
+                                for (int p = 0; p < fs.OtherPublicFields.Count; p++)
                                 {
-                                    for (int pp = 0; pp < fs.OtherPublicFields[p].Length; pp++)
+                                    if (ImGuiIV.CollapsingHeader(string.Format("{0}##{1}", fs.OtherPublicFields[p][0].DeclaringType.Name, fs.ID)))
                                     {
-                                        AddField(fs, fs.OtherPublicFields[p][pp]);
+                                        for (int pp = 0; pp < fs.OtherPublicFields[p].Length; pp++)
+                                        {
+                                            AddField(fs, fs.OtherPublicFields[p][pp]);
+                                        }
                                     }
                                 }
                             }
-                        }
 
                     }
                     ImGuiIV.End();
@@ -889,8 +941,8 @@ namespace Manager.UI
 
                     ImGuiIV.SeparatorText("States");
                     ImGuiIV.BeginDisabled();
-                    ImGuiIV.CheckBox("FirstFrame", ref Main.Instance.FirstFrame);
                     ImGuiIV.CheckBox("IsGTAIVWindowInFocus", ref Main.Instance.IsGTAIVWindowInFocus);
+                    ImGuiIV.CheckBox("InVideoEditor", ref Main.Instance.InVideoEditor);
                     ImGuiIV.CheckBox("OnWindowFocusChangedEventCalled", ref Main.Instance.OnWindowFocusChangedEventCalled);
                     ImGuiIV.EndDisabled();
 
@@ -1148,6 +1200,64 @@ namespace Manager.UI
                 if (ImGuiIV.TreeNode("MinHook Manager"))
                 {
                     ImGuiIV.TextUnformatted("Registered Hooks count: {0}", MinHookManager.GetRegisteredHooksCount());
+                    ImGuiIV.TreePop();
+                }
+
+                // DXManager
+                if (ImGuiIV.TreeNode("DXManager"))
+                {
+                    if (ImGuiIV.Button("Destroy All Script Textures"))
+                    {
+                        DXManager.ForceDestroyAllTexturesOfScriptType(ScriptType.All);
+                    }
+                    ImGuiIV.SameLine();
+                    if (ImGuiIV.Button("Destroy All IV-SDK .NET Textures"))
+                    {
+                        DXManager.ForceDestroyAllTexturesOfScriptType(ScriptType.IVSDKDotNet);
+                    }
+                    ImGuiIV.SameLine();
+                    if (ImGuiIV.Button("Destroy All SHDN Textures"))
+                    {
+                        DXManager.ForceDestroyAllTexturesOfScriptType(ScriptType.ScriptHookDotNet);
+                    }
+
+                    if (ImGuiIV.Button("Destroy All Textures"))
+                    {
+                        DXManager.ForceDestroyAllTextures();
+                    }
+
+                    IntPtr[] textures = DXManager.GetAllRegisteredTextures();
+
+                    if (textures.Length == 0)
+                        ImGuiIV.BeginDisabled();
+
+                    if (ImGuiIV.CollapsingHeader(string.Format("{0} registered texture(s)##DXManager", textures.Length)))
+                    {
+                        Vector2 button_sz = new Vector2(64f);
+                        float window_visible_x2 = ImGuiIV.GetWindowPos().Y + ImGuiIV.GetWindowContentRegionMax().X * 2f;
+
+                        for (int c = 0; c < textures.Length; c++)
+                        {
+                            IntPtr txtPtr = textures[c];
+
+                            ImGuiIV.PushID(c);
+
+                            Vector2 pos = ImGuiIV.GetCursorScreenPos();
+                            ImGuiIV.Image(txtPtr, button_sz);
+                            ImGuiIV.ImagePreviewToolTip(txtPtr, button_sz, pos, 32f, 5f);
+
+                            float last_button_x2 = ImGuiIV.GetItemRectMax().X;
+                            float next_button_x2 = last_button_x2 + 10f + button_sz.X; // Expected position if next button was on same line
+                            if (c + 1 < textures.Length && next_button_x2 < window_visible_x2)
+                                ImGuiIV.SameLine();
+
+                            ImGuiIV.PopID();
+                        }
+                    }
+
+                    if (textures.Length == 0)
+                        ImGuiIV.EndDisabled();
+
                     ImGuiIV.TreePop();
                 }
 
@@ -1426,10 +1536,17 @@ namespace Manager.UI
                             {
                                 /// @begin Button
                                 ImGuiIV.SameLine(0, 1 * ImGuiIV.GetStyle().ItemSpacing.X);
+
+                                if (fs.WasPausedForVideoEditor)
+                                    ImGuiIV.BeginDisabled();
+
                                 if (ImGuiIV.Button(fs.Running ? "Pause this script" : "Resume this script", new Vector2(170f, 0f)))
                                 {
                                     fs.Running = !fs.Running;
                                 }
+
+                                if (fs.WasPausedForVideoEditor)
+                                    ImGuiIV.EndDisabled();
                                 /// @end Button
                             }
 
@@ -1555,18 +1672,20 @@ namespace Manager.UI
                                 /// @end CollapsingHeader
 
                                 /// @begin CollapsingHeader
-                                if (fs.Textures != null)
                                 {
-                                    if (fs.Textures.Count == 0)
+                                    IntPtr[] textures = DXManager.GetRegisteredTexturesOfScript(fs.ID);
+
+                                    if (textures.Length == 0)
                                         ImGuiIV.BeginDisabled();
-                                    if (ImGuiIV.CollapsingHeader(string.Format("{0} registered texture(s)##{1}", fs.Textures.Count, fs.ID)))
+
+                                    if (ImGuiIV.CollapsingHeader(string.Format("{0} registered texture(s)##{1}", textures.Length, fs.ID)))
                                     {
                                         Vector2 button_sz = new Vector2(64f);
                                         float window_visible_x2 = ImGuiIV.GetWindowPos().Y + ImGuiIV.GetWindowContentRegionMax().X * 2f;
 
-                                        for (int c = 0; c < fs.Textures.Count; c++)
+                                        for (int c = 0; c < textures.Length; c++)
                                         {
-                                            IntPtr txtPtr = fs.Textures[c];
+                                            IntPtr txtPtr = textures[c];
 
                                             ImGuiIV.PushID(c);
 
@@ -1576,18 +1695,15 @@ namespace Manager.UI
 
                                             float last_button_x2 = ImGuiIV.GetItemRectMax().X;
                                             float next_button_x2 = last_button_x2 + 10f + button_sz.X; // Expected position if next button was on same line
-                                            if (i + 1 < fs.Textures.Count && next_button_x2 < window_visible_x2)
+                                            if (i + 1 < textures.Length && next_button_x2 < window_visible_x2)
                                                 ImGuiIV.SameLine();
 
                                             ImGuiIV.PopID();
                                         }
                                     }
-                                    if (fs.Textures.Count == 0)
+
+                                    if (textures.Length == 0)
                                         ImGuiIV.EndDisabled();
-                                }
-                                else
-                                {
-                                    ImGuiIV.TextUnformatted("List of textures is not initialized.");
                                 }
                                 /// @end CollapsingHeader
                             }
@@ -1645,7 +1761,7 @@ SKIP_TO_END:
                 /// @begin Button
                 if (ImGuiIV.Button("Reload all plugins", new Vector2(150f, 0f)))
                 {
-                    PluginManager.LoadPlugins();
+                    PluginManager.LoadPluginsInternal();
                 }
                 /// @end Button
 
@@ -1841,9 +1957,13 @@ SKIP_TO_END:
                     ImGuiIV.SameLine();
                     ImGuiIV.CheckBox("AllowScriptsToForceNoAbort", ref Config.AllowScriptsToForceNoAbort);
 
-                    ImGuiIV.HelpMarker("Sets if all running scripts will pause from executing when the GTA IV window is not currently in focus.");
+                    ImGuiIV.HelpMarker("Sets if all running scripts should pause when the GTA IV window is not currently in focus.");
                     ImGuiIV.SameLine();
                     ImGuiIV.CheckBox("PauseExecutionWhenNotInFocus", ref Config.PauseScriptExecutionWhenNotInFocus);
+
+                    ImGuiIV.HelpMarker("Sets if all running scripts should pause when currently in the Video Editor.");
+                    ImGuiIV.SameLine();
+                    ImGuiIV.CheckBox("PauseExecutionWhenInVideoEditor", ref Config.PauseScriptExecutionWhenInVideoEditor);
 
                     ImGuiIV.HelpMarker(string.Format("This prevents scripts from loading if the IVSDKDotNetWrapper version the script was made with is older then the current one.{0}" +
                         "Setting this to false will load every script even if the IVSDKDotNetWrapper version the script was made with is older then the current one.", Environment.NewLine));
@@ -1857,6 +1977,20 @@ SKIP_TO_END:
                     ImGuiIV.HelpMarker("This will load your ScriptHookDotNet mods within the 'scripts' folder located in the main directory of GTA IV.");
                     ImGuiIV.SameLine();
                     ImGuiIV.CheckBox("LoadScriptHookDotNetScripts", ref Config.LoadScriptHookDotNetScripts);
+
+                    ImGuiIV.Dummy(new Vector2(0f, 4f));
+                }
+                /// @end CollapsingHeader
+
+                /// @begin CollapsingHeader
+                if (ImGuiIV.CollapsingHeader("Plugins"))
+                {
+                    ImGuiIV.Spacing(2);
+
+                    ImGuiIV.HelpMarker(string.Format("If set to true, all the IV-SDK .NET Manager plugins contained within the \"IVSDKDotNet -> plugins\" folder will get loaded.{0}" +
+                        "Plugins will be available inside the \"Plugins\" tab within the IV-SDK .NET Manager window.", Environment.NewLine));
+                    ImGuiIV.SameLine();
+                    ImGuiIV.CheckBox("AllowPluginLoading", ref Config.AllowPluginLoading);
 
                     ImGuiIV.Dummy(new Vector2(0f, 4f));
                 }
@@ -1944,7 +2078,14 @@ SKIP_TO_END:
                 /// @separator
 
                 /// @begin Image
-                ImGuiIV.Image(ivsdkDotNetLogo, new Vector2(140f, 140f));
+                if (DXManager.TryGetTextureByTag("IVSDKDotNetLogo", out IntPtr ivsdkDotNetLogo))
+                {
+                    ImGuiIV.Image(ivsdkDotNetLogo, new Vector2(140f, 140f));
+                }
+                else
+                {
+                    ImGuiIV.Dummy(new Vector2(140f, 140f));
+                }
                 /// @end Image
 
                 /// @begin Child

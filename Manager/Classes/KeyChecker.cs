@@ -20,6 +20,9 @@ namespace Manager.Classes
         /// <returns>true if the key was pressed. Otherwise, false.</returns>
         private static bool CheckIsKeyPressed(string keyString, KeyEventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(keyString))
+                return false;
+
             Keys parsedModifier = Keys.None;
             Keys parsedKey = Keys.None;
 
@@ -56,6 +59,7 @@ namespace Manager.Classes
         public static void CheckAll(KeyEventArgs e)
         {
             CheckSwitchCursorKeyPressed(e);
+            CheckToggleLastOpenedPublicFieldsWindow(e);
             CheckOpenManagerWindowKeyPressed(e);
             CheckOpenConsoleKeyPressed(e);
             CheckReloadScriptsKeyPressed(e);
@@ -94,6 +98,16 @@ namespace Manager.Classes
 
             if (CheckIsKeyPressed(Config.SwitchCursorKey, e))
                 Main.Instance.SwitchImGuiForceCursorProperty = true;
+        }
+        public static void CheckToggleLastOpenedPublicFieldsWindow(KeyEventArgs e)
+        {
+            if (CheckIsKeyPressed(Config.ToggleLastOpenedPublicFieldsWindow, e))
+            {
+                if (ManagerUI.LastOpenedPublicFieldsWindowOfScript != null)
+                {
+                    ManagerUI.LastOpenedPublicFieldsWindowOfScript.PublicFieldsWindowOpen = !ManagerUI.LastOpenedPublicFieldsWindowOfScript.PublicFieldsWindowOpen;
+                }
+            }
         }
         public static void CheckOpenManagerWindowKeyPressed(KeyEventArgs e)
         {

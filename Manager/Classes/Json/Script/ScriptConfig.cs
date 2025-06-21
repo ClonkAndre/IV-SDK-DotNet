@@ -7,6 +7,7 @@ namespace Manager.Classes.Json.Script
     {
         #region Variables
         public bool ForceNoAbort;
+        public bool CanScriptConstructInstantly;
         public Guid IVLauncherWorkshopID;
 
         public List<ScriptDependencyInfo> Dependencies;

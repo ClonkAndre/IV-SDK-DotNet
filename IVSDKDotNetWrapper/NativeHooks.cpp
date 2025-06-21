@@ -97,6 +97,9 @@ namespace IVSDKDotNet
 
 			// - NATIVE_ENABLE_CHASE_AUDIO -
 			Hooks::AddHook(gcnew Hooks::InstalledHook(eNativeHash::NATIVE_ENABLE_CHASE_AUDIO, (DWORD)NATIVE_ENABLE_CHASE_AUDIO));
+
+			// - NATIVE_ACTIVATE_REPLAY_MENU -
+			Hooks::AddHook(gcnew Hooks::InstalledHook(eNativeHash::NATIVE_ACTIVATE_REPLAY_MENU, (DWORD)NATIVE_ACTIVATE_REPLAY_MENU));
 		}
 
 		void NativeHookFunctions::NATIVE_PRINTSTRING(CNativeCallContext* pNativeContext)
@@ -213,6 +216,29 @@ namespace IVSDKDotNet
 
 			// Call orginal native
 			Natives::ENABLE_CHASE_AUDIO(result);
+
+			// Hook
+			hook->Hook();
+		}
+
+		void NativeHookFunctions::NATIVE_ACTIVATE_REPLAY_MENU(CNativeCallContext* pNativeContext)
+		{
+			// Raise event
+			bool shouldReturn = Hooks::RaiseActivateReplayMenu();
+
+			if (shouldReturn)
+				return;
+
+			// Unhook
+			Hooks::InstalledHook^ hook = Hooks::FindInstalledHook(eNativeHash::NATIVE_ACTIVATE_REPLAY_MENU);
+
+			if (!hook)
+				return;
+
+			hook->Unhook();
+
+			// Call orginal native
+			Natives::ACTIVATE_REPLAY_MENU();
 
 			// Hook
 			hook->Hook();
